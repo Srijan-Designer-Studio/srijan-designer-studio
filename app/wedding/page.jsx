@@ -1,10 +1,12 @@
-import WeddingHero from "@/components/wedding/WeddingHero";
-import WeddingInspiration from "@/components/wedding/WeddingInspiration";
-import HowItWorks from "@/components/wedding/HowItWorks";
-import OccasionsEdit from "@/components/wedding/OccasionsEdit";
-import EditByCategory from "@/components/wedding/EditByCategory";
-import WeddingContactForm from "@/components/wedding/WeddingContactForm";
-import WeddingFAQ from "@/components/wedding/WeddingFAQ";
+
+import WeddingHero from "@/components/Wedding/WeddingHero";
+import WeddingInspiration from "@/components/Wedding/WeddingInspiration";
+import HowItWorks from "@/components/Wedding/HowItWorks";
+import OccasionsEdit from "@/components/Wedding/OccasionsEdit";
+import EditByCategory from "@/components/Wedding/EditByCategory";
+import WeddingContactForm from "@/components/Wedding/WeddingContactForm";
+import WeddingFAQ from "@/components/Wedding/WeddingFAQ";
+
 import ShopSection from "@/components/shared/ShopSection";
 
 export const metadata = {
@@ -16,14 +18,11 @@ export default function WeddingPage() {
   return (
     <main>
       <WeddingHero />
-      
-      
       <ShopSection 
         title="Our Exclusive Wedding Collection" 
         category="Bridal" 
         viewAllLink="/wedding/collection" 
       />
-
       <HowItWorks />
       <OccasionsEdit />
       <EditByCategory />
