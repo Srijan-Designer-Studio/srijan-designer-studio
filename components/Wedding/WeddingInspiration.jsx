@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export default function WeddingInspiration() {
-  const bgImageSrc = "";
+  const bgImageSrc = "/images/collection1.png";
 
   return (
     <section className="relative w-full h-[55vh] min-h-[450px]">

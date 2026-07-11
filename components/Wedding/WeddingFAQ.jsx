@@ -15,7 +15,7 @@ const faqData = [
 
 export default function WeddingFAQ() {
   const [openIndex, setOpenIndex] = useState(null);
-  const bgImageSrc = "";
+  const bgImageSrc = "/images/bidalinquery.png";
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);

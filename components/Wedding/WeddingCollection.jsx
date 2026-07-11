@@ -3,9 +3,9 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 const weddingProducts = [
-  { id: 1, imageSrc: "" },
-  { id: 2, imageSrc: "" },
-  { id: 3, imageSrc: "" },
+  { id: 1, imageSrc: "/images/collection1.png" },
+  { id: 2, imageSrc: "/images/collection2.png" },
+  { id: 3, imageSrc: "/images/collection3.png" },
 ];
 
 export default function WeddingCollection() {

@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export default function WeddingContactForm() {
-  const bgImageSrc = "";
+  const bgImageSrc = "/images/bidalinquery.png";
 
   return (
     <section className="py-20 bg-white">

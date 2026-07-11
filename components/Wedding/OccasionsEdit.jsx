@@ -4,12 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 
 const occasionsData = [
-  { id: 1, title: "Sangeet Edits", imageSrc: "" },
-  { id: 2, title: "Engagement Edits", imageSrc: "" },
-  { id: 3, title: "Reception Edits", imageSrc: "" },
-  { id: 4, title: "Cocktail Edits", imageSrc: "" },
-  { id: 5, title: "Haldi Mehendi Edits", imageSrc: "" },
-  { id: 6, title: "Pooja Edits", imageSrc: "" },
+  { id: 1, title: "Sangeet Edits", imageSrc: "/images/collection1.png" },
+  { id: 2, title: "Engagement Edits", imageSrc: "/images/collection2.png" },
+  { id: 3, title: "Reception Edits", imageSrc: "/images/collection3.png" },
+  { id: 4, title: "Cocktail Edits", imageSrc: "/images/collection4.png" },
+  { id: 5, title: "Haldi Mehendi Edits", imageSrc: "/images/collection5.png" },
+  { id: 6, title: "Pooja Edits", imageSrc: "/images/collection6.png" },
 ];
 
 export default function OccasionsEdit() {

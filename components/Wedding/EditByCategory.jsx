@@ -4,11 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 
 const categoriesData = [
-  { id: 1, title: "Sarees", imageSrc: "" },
-  { id: 2, title: "Gowns", imageSrc: "" },
-  { id: 3, title: "Drapes", imageSrc: "" },
-  { id: 4, title: "Capes", imageSrc: "" },
-  { id: 5, title: "Bridal Suits", imageSrc: "" },
+  { id: 1, title: "Sarees", imageSrc: "/images/man1.png" },
+  { id: 2, title: "Gowns", imageSrc: "/images/man2.png" },
+  { id: 3, title: "Drapes", imageSrc: "/images/man3.png" },
+  { id: 4, title: "Capes", imageSrc: "/images/man4.png" },
+  { id: 5, title: "Bridal Suits", imageSrc: "/images/man5.png" }, 
 ];
 
 export default function EditByCategory() {
