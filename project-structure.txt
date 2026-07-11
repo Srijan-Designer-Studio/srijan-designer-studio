@@ -1,0 +1,227 @@
+Folder PATH listing
+Volume serial number is 2A62-8A08
+C:.
+|   .gitignore
+|   AGENTS.md
+|   CLAUDE.md
+|   eslint.config.mjs
+|   next.config.ts
+|   package-lock.json
+|   package.json
+|   postcss.config.mjs
+|   project-structure.txt
+|   README.md
+|   RESTRUCTURE_GUIDE.md
+|   tsconfig.json
+|   
++---app
+|   |   favicon.ico
+|   |   globals.css
+|   |   layout.tsx
+|   |   page.jsx
+|   |   
+|   +---about
+|   |       page.jsx
+|   |       
+|   +---contact
+|   |       page.jsx
+|   |       
+|   +---data
+|   +---men
+|   |       page.jsx
+|   |       
+|   \---woman
+|       +---bridal-wear-enquiry
+|       |       page.jsx
+|       |       
+|       +---ethnic-wear
+|       |       page.jsx
+|       |       
+|       +---western-wear
+|       |       page.jsx
+|       |       
+|       \---[slug]
+|               page.jsx
+|               
++---components
+|   +---About
+|   |       AboutContent.jsx
+|   |       AboutHero.jsx
+|   |       AboutPage.jsx
+|   |       
+|   +---Bridal
+|   |       Bridal.jsx
+|   |       BridalHeroBanner.jsx
+|   |       BridalProduct.jsx
+|   |       
+|   +---cart
+|   +---checkout
+|   +---Contact
+|   |       ContactPage.jsx
+|   |       
+|   +---ethic
+|   |   |   Ethic.jsx
+|   |   |   EthicHero.jsx
+|   |   |   EthicProduct.jsx
+|   |   |   EthnicProductCard.jsx
+|   |   |   
+|   |   \---EthnicContent
+|   |           EthnicContent.jsx
+|   |           
+|   +---Footer
+|   |       Footer.jsx
+|   |       
+|   +---Header
+|   |       Header.jsx
+|   |       
+|   +---Home
+|   |   +---AboutIntro
+|   |   |       AboutIntro.jsx
+|   |   |       
+|   |   +---ComingSoon
+|   |   |       ComingSoon.jsx
+|   |   |       
+|   |   +---CustomerTestimonials
+|   |   |       CustomerTestimonials.jsx
+|   |   |       
+|   |   +---Hero
+|   |   |       Hero.jsx
+|   |   |       
+|   |   +---OnTrend
+|   |   |       OnTrend.jsx
+|   |   |       
+|   |   +---ShopByGender
+|   |   |       ShopByGender.jsx
+|   |   |       
+|   |   +---ShopCollection
+|   |   |       collectionData.js
+|   |   |       ShopCollection.jsx
+|   |   |       
+|   |   +---ShopEssentials
+|   |   |       products.js
+|   |   |       ShopEssentials.jsx
+|   |   |       
+|   |   \---UpcomingSale
+|   |           UpcomingSale.jsx
+|   |           
+|   +---layout
+|   +---men
+|   |   \---ethic-wear
+|   |           Men.jsx
+|   |           MenSlider.jsx
+|   |           
+|   +---product
+|   +---ui
+|   \---western
+|           Westrn.jsx
+|           WestrnContent.jsx
+|           WestrnHero.jsx
+|           WestrnProduct.jsx
+|           WestrnProductCard.jsx
+|           
++---context
++---data
+|       menProducts.js
+|       products.js
+|       
++---hooks
++---public
+|   |   file.svg
+|   |   globe.svg
+|   |   next.svg
+|   |   vercel.svg
+|   |   window.svg
+|   |   
+|   +---icons
+|   +---images
+|   |   |   about.png
+|   |   |   aboutmodel.png
+|   |   |   amit.png
+|   |   |   ananya.png
+|   |   |   banner.png
+|   |   |   banner1.png
+|   |   |   banner2.png
+|   |   |   bidalinquery.png
+|   |   |   collection1.png
+|   |   |   collection2.png
+|   |   |   collection3.png
+|   |   |   collection4.png
+|   |   |   collection5.png
+|   |   |   collection6.png
+|   |   |   desiner.png
+|   |   |   dress7.png
+|   |   |   dress9.png
+|   |   |   ethnic1.png
+|   |   |   ethnic10.png
+|   |   |   ethnic11.png
+|   |   |   ethnic12.png
+|   |   |   ethnic2.png
+|   |   |   ethnic3.png
+|   |   |   ethnic4.png
+|   |   |   ethnic5.png
+|   |   |   ethnic6.png
+|   |   |   ethnic7.png
+|   |   |   ethnic8.png
+|   |   |   ethnic9.png
+|   |   |   kids.png
+|   |   |   logo.png
+|   |   |   man.png
+|   |   |   man1.png
+|   |   |   man10.png
+|   |   |   man11.png
+|   |   |   man12.png
+|   |   |   man13.png
+|   |   |   man14.png
+|   |   |   man15.png
+|   |   |   man16.png
+|   |   |   man18.png
+|   |   |   man2.png
+|   |   |   man3.png
+|   |   |   man4.png
+|   |   |   man5.png
+|   |   |   man6.png
+|   |   |   man7.png
+|   |   |   man8.png
+|   |   |   man9.png
+|   |   |   neha.png
+|   |   |   ourpromise.png
+|   |   |   product1.png
+|   |   |   product2.png
+|   |   |   product3.png
+|   |   |   product4.png
+|   |   |   product5.png
+|   |   |   product6.png
+|   |   |   product7.png
+|   |   |   product8.png
+|   |   |   rahul.png
+|   |   |   Receive.png
+|   |   |   western1.png
+|   |   |   western10.png
+|   |   |   western11.png
+|   |   |   western12.png
+|   |   |   western13.png
+|   |   |   western14.png
+|   |   |   western15.png
+|   |   |   western16.png
+|   |   |   western2.png
+|   |   |   western3.png
+|   |   |   western4.png
+|   |   |   western5.png
+|   |   |   western6.png
+|   |   |   western7.png
+|   |   |   western8.png
+|   |   |   western9.png
+|   |   |   whatwedo.png
+|   |   |   woman.png
+|   |   |   
+|   |   +---about
+|   |   +---banners
+|   |   +---home
+|   |   +---products
+|   |   |   +---bridal
+|   |   |   +---kids
+|   |   |   +---men
+|   |   |   \---women
+|   |   \---testimonials
+|   \---logo
+\---utils
