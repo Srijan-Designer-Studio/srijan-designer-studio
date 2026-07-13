@@ -4,7 +4,7 @@ export default function WeddingHero() {
   const bgImageSrc = "/images/banner2.png";
 
   return (
-    <section className="relative w-full h-screen -mt-[90px]">
+    <section className="relative w-full h-screen min-h-[400px] -mt-[90px]">
       <div className="absolute inset-0 w-full h-full z-0">
         {bgImageSrc && (
           <Image

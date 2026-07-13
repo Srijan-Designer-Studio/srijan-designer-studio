@@ -1,9 +1,16 @@
-import ContactPage from "@/components/Contact/ContactPage";
+import ContactHero from "@/components/contact/ContactHero";
+import ContactDetails from "@/components/contact/ContactDetails";
 
-import React from 'react'
+export const metadata = {
+  title: "Contact Us | SRIJAN Fashion",
+  description: "Connect with SRIJAN Fashion. Drop your message or visit our store.",
+};
 
-const page = () => {
-  return <ContactPage/>
+export default function ContactPage() {
+  return (
+    <main>
+      <ContactHero />
+      <ContactDetails />
+    </main>
+  );
 }
-
-export default page

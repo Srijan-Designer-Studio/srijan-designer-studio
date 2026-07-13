@@ -39,7 +39,7 @@ export default function CustomizeKidsWear() {
 
             {/* Cyan Button */}
             <Link
-              href="/customize/kids"
+              href="/kids"
               className="
                 inline-flex 
                 items-center 

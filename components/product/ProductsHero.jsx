@@ -6,7 +6,7 @@ export default function ProductsHero() {
 
   return (
     // Negative margin to pull the hero section under the transparent header
-    <section className="relative w-full h-screen min-h-[600px] -mt-[90px]">
+    <section className="relative w-full h-screen min-h-[400px] -mt-[90px]">
       
       {/* Background Image or Placeholder */}
       <div className="absolute inset-0 w-full h-full z-0">

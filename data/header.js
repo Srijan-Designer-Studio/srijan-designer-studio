@@ -17,29 +17,17 @@ export const NAV_DATA = [
       {
         id: "cat-women",
         label: "Women",
-        items: [
-          { label: "Ethnic Wear", href: "/woman/ethnic-wear" },
-          { label: "Western Wear", href: "/woman/western-wear" },
-          { label: "Bridal Wear", href: "/woman/bridal-wear" },
-        ],
+        href:"/women"
       },
       {
         id: "cat-men",
         label: "Men",
-        items: [
-          { label: "Ethnic Wear", href: "/men/ethnic-wear" },
-          { label: "Indo-Western", href: "/men/indo-western" },
-          { label: "Western Wear", href: "/men/western-wear" },
-        ],
+        href:"/men"
       },
       {
         id: "cat-kids",
         label: "Kids",
-        items: [
-          { label: "Party Wear", href: "/kids/party-wear" },
-          { label: "Ethnic Wear", href: "/kids/ethnic-wear" },
-          { label: "Casual Wear", href: "/kids/casual-wear" },
-        ],
+        href:"/kids"
       },
     ],
   },
@@ -48,8 +36,8 @@ export const NAV_DATA = [
     label: "Customize",
     type: "simple-menu",
     categories: [
-      { label: "Custom Bridal", href: "/customize/bridal" },
-      { label: "Custom Kids", href: "/customize/kids" },
+      { label: "Custom Dress", href: "/customize" },
+      { label: "Custom Kids", href: "/kids" },
     ],
   },
   { id: 5, label: "Blog", href: "/blog" },

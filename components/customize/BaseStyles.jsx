@@ -1,0 +1,77 @@
+import Image from "next/image";
+import Link from "next/link";
+import { allProducts } from "@/data/products";
+
+export default function BaseStyles() {
+  const customProduct = allProducts.find(p => p.category.includes("Ethnic"));
+  const gownProduct = allProducts.find(p => p.slug?.includes("gown")) || allProducts[0];
+  const plusSizeProduct = allProducts.find(p => p.category.includes("Western"));
+  const petiteProduct = allProducts.find(p => p.category === "Bridal");
+
+  const styles = [
+    { 
+      id: 1, 
+      title: "Custom Styles", 
+      image: customProduct?.image, 
+      link: customProduct ? `/product/${customProduct.id}` : "/product" 
+    },
+    { 
+      id: 2, 
+      title: "Gown & Evening Styles", 
+      image: gownProduct?.image, 
+      link: gownProduct ? `/product/${gownProduct.id}` : "/product" 
+    },
+    { 
+      id: 3, 
+      title: "Plus Size Styles", 
+      image: plusSizeProduct?.image, 
+      link: plusSizeProduct ? `/product/${plusSizeProduct.id}` : "/product" 
+    },
+    { 
+      id: 4, 
+      title: "Petite Styles", 
+      image: petiteProduct?.image, 
+      link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" 
+    }
+  ];
+
+  return (
+    <section className="py-16 bg-white">
+      <div className="max-w-[1320px] mx-auto px-6 text-center">
+        
+        <h2 className="text-3xl font-bold text-black mb-10">Start With a Base Style</h2>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+          {styles.map((style) => (
+            <Link 
+              href={style.link} 
+              key={style.id} 
+              className="flex flex-col items-center group cursor-pointer"
+            >
+              <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200 transition-shadow group-hover:shadow-lg">
+                {style.image && (
+                  <Image 
+                    src={style.image} 
+                    alt={style.title} 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                  />
+                )}
+              </div>
+              <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#00c3ff] transition-colors">
+                {style.title}
+              </h3>
+            </Link>
+          ))}
+        </div>
+
+        <Link href="/product">
+          <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors">
+            Choose Your Style
+          </button>
+        </Link>
+
+      </div>
+    </section>
+  );
+}
