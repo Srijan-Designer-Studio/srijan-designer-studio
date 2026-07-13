@@ -1,5 +1,5 @@
-import ContactHero from "@/components/contact/ContactHero";
-import ContactDetails from "@/components/contact/ContactDetails";
+import ContactHero from "@/components/Contact/ContactHero";
+import ContactDetails from "@/components/Contact/ContactDetails";
 
 export const metadata = {
   title: "Contact Us | SRIJAN Fashion",
