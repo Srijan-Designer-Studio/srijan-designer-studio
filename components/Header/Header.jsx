@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 
-import { NAV_DATA, NAV_ICONS } from "@/data/header";
+import { NAV_DATA, NAV_ICONS } from "@/data/header.js";
 
 export default function Header() {
   const [activeDropdown, setActiveDropdown] = useState(null);
