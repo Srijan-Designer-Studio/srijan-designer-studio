@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
-import { NAV_DATA, NAV_ICONS } from "@/data/header.js";
+import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 export default function Header() {
+  const { cartItems, wishlistItems, isLoaded } = useCart();
+
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
@@ -70,18 +73,16 @@ export default function Header() {
                         <ChevronDown
                           size={16}
                           strokeWidth={2.5}
-                          className={`transition transform duration-300 ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`transition transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                         />
                       </button>
 
                       {isOpen && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-[18px] z-50">
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50">
                           <div className="w-[240px] bg-[#9696a6] text-white border border-white/20 shadow-xl rounded-2xl overflow-hidden py-2">
                             {item.categories.map((cat, idx) => (
                               <Link
-                                key={idx}
+                                key={cat.id || idx}
                                 href={cat.href || `/${cat.label.toLowerCase()}`}
                                 onClick={closeAllMenus}
                                 className="block px-6 py-3 hover:bg-black/10 transition-colors"
@@ -108,19 +109,33 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3 lg:gap-5 shrink-0 z-50">
-          <div className="flex items-center gap-2 lg:gap-5">
-            {NAV_ICONS.map((icon) => (
-              <img
-                key={icon.id}
-                src={icon.src}
-                alt={icon.alt}
-                className="h-8 lg:h-10 bg-black p-1.5 lg:p-2 rounded-full w-auto cursor-pointer hover:opacity-75 transition-opacity duration-300"
-              />
-            ))}
+          <div className="flex items-center gap-4 lg:gap-5">
+            {NAV_ICONS.map((icon) => {
+              const isCart = icon.id === "cart";
+              const isWishlist = icon.id === "wishlistt";
+              const count = isCart ? cartItems.length : (isWishlist ? wishlistItems.length : 0);
+
+              return (
+                <Link key={icon.id} href={icon.href} className="relative inline-block group">
+                  <div className="w-10 h-10 lg:w-11 lg:h-11 bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm">
+                    <img
+                      src={icon.src}
+                      alt={icon.alt}
+                      className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
+                    />
+                  </div>
+                  {isLoaded && count > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#00c3ff] text-white text-[11px] font-extrabold w-[22px] h-[22px] flex items-center justify-center rounded-full border-[2.5px] border-white shadow-md z-10 transform transition-transform group-hover:scale-110">
+                      {count}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           <button
-            className="lg:hidden text-black p-1 focus:outline-none"
+            className="lg:hidden text-black p-1 focus:outline-none ml-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -129,9 +144,7 @@ export default function Header() {
       </div>
 
       <div
-        className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "70px" }}
       >
         <div className="p-6 pb-24">
@@ -150,21 +163,15 @@ export default function Header() {
                         {item.label}
                         <ChevronDown
                           size={20}
-                          className={`transition-transform duration-300 ${
-                            isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""
-                          }`}
+                          className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
                         />
                       </button>
 
-                      <div
-                        className={`overflow-hidden transition-all duration-300 ${
-                          isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"
-                        }`}
-                      >
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"}`}>
                         <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
                           {item.categories.map((cat, idx) => (
                             <Link
-                              key={idx}
+                              key={cat.id || idx}
                               href={cat.href || `/${cat.label.toLowerCase()}`}
                               onClick={closeAllMenus}
                               className="block font-semibold hover:text-[#00c3ff]"

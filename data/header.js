@@ -1,8 +1,8 @@
 // Right side icons
 export const NAV_ICONS = [
-  { id: "heart", src: "/icons/heart.svg", alt: "Heart" },
-  { id: "wishlist", src: "/icons/wishlist.svg", alt: "Wishlist" },
-  { id: "user", src: "/icons/user.svg", alt: "User" },
+  { id: "wishlistt", src: "/icons/wishlist.svg", href: "/wishlist", alt: "Wishlist" },
+  { id: "cart", src: "/icons/cart.svg", href: "/cart", alt: "Cart" },
+  { id: "user", src: "/icons/user.svg", href: "/login?register=true", alt: "User" },
 ];
 
 // Main navigation data structure[cite: 2]

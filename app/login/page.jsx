@@ -10,7 +10,7 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6">
-      <div className="flex w-full max-w-[1000px] bg-white rounded-[32px] shadow-2xl overflow-hidden min-h-[600px]">
+      <div className="flex w-full max-w-[1000px] bg-white rounded-[32px] shadow-2xl overflow-hidden  min-h-[600px]">
         
         <div className="hidden md:block w-1/2 relative bg-gray-200">
           <Image 
