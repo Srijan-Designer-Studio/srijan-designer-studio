@@ -42,15 +42,15 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md lg:bg-transparent lg:shadow-none transition-all duration-300">
-      <div className="max-w-[1320px] h-[70px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
+      <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
         <Link href="/" className="z-50" onClick={closeAllMenus}>
           <Image
             src="/images/logo1.png"
             alt="Logo"
-            width={160}
-            height={45}
+            width={130}
+            height={40}
             priority
-            className="object-cover lg:w-[200px] lg:h-[55px]"
+            className="object-cover bg-center lg:w-[200px] lg:h-[100px]"
           />
         </Link>
 

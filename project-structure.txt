@@ -1,227 +1,211 @@
-Folder PATH listing
-Volume serial number is 2A62-8A08
-C:.
-|   .gitignore
-|   AGENTS.md
-|   CLAUDE.md
-|   eslint.config.mjs
-|   next.config.ts
-|   package-lock.json
-|   package.json
-|   postcss.config.mjs
-|   project-structure.txt
-|   README.md
-|   RESTRUCTURE_GUIDE.md
-|   tsconfig.json
-|   
-+---app
-|   |   favicon.ico
-|   |   globals.css
-|   |   layout.tsx
-|   |   page.jsx
-|   |   
-|   +---about
-|   |       page.jsx
-|   |       
-|   +---contact
-|   |       page.jsx
-|   |       
-|   +---data
-|   +---men
-|   |       page.jsx
-|   |       
-|   \---woman
-|       +---bridal-wear-enquiry
-|       |       page.jsx
-|       |       
-|       +---ethnic-wear
-|       |       page.jsx
-|       |       
-|       +---western-wear
-|       |       page.jsx
-|       |       
-|       \---[slug]
-|               page.jsx
-|               
-+---components
-|   +---About
-|   |       AboutContent.jsx
-|   |       AboutHero.jsx
-|   |       AboutPage.jsx
-|   |       
-|   +---Bridal
-|   |       Bridal.jsx
-|   |       BridalHeroBanner.jsx
-|   |       BridalProduct.jsx
-|   |       
-|   +---cart
-|   +---checkout
-|   +---Contact
-|   |       ContactPage.jsx
-|   |       
-|   +---ethic
-|   |   |   Ethic.jsx
-|   |   |   EthicHero.jsx
-|   |   |   EthicProduct.jsx
-|   |   |   EthnicProductCard.jsx
-|   |   |   
-|   |   \---EthnicContent
-|   |           EthnicContent.jsx
-|   |           
-|   +---Footer
-|   |       Footer.jsx
-|   |       
-|   +---Header
-|   |       Header.jsx
-|   |       
-|   +---Home
-|   |   +---AboutIntro
-|   |   |       AboutIntro.jsx
-|   |   |       
-|   |   +---ComingSoon
-|   |   |       ComingSoon.jsx
-|   |   |       
-|   |   +---CustomerTestimonials
-|   |   |       CustomerTestimonials.jsx
-|   |   |       
-|   |   +---Hero
-|   |   |       Hero.jsx
-|   |   |       
-|   |   +---OnTrend
-|   |   |       OnTrend.jsx
-|   |   |       
-|   |   +---ShopByGender
-|   |   |       ShopByGender.jsx
-|   |   |       
-|   |   +---ShopCollection
-|   |   |       collectionData.js
-|   |   |       ShopCollection.jsx
-|   |   |       
-|   |   +---ShopEssentials
-|   |   |       products.js
-|   |   |       ShopEssentials.jsx
-|   |   |       
-|   |   \---UpcomingSale
-|   |           UpcomingSale.jsx
-|   |           
-|   +---layout
-|   +---men
-|   |   \---ethic-wear
-|   |           Men.jsx
-|   |           MenSlider.jsx
-|   |           
-|   +---product
-|   +---ui
-|   \---western
-|           Westrn.jsx
-|           WestrnContent.jsx
-|           WestrnHero.jsx
-|           WestrnProduct.jsx
-|           WestrnProductCard.jsx
-|           
-+---context
-+---data
-|       menProducts.js
-|       products.js
-|       
-+---hooks
-+---public
-|   |   file.svg
-|   |   globe.svg
-|   |   next.svg
-|   |   vercel.svg
-|   |   window.svg
-|   |   
-|   +---icons
-|   +---images
-|   |   |   about.png
-|   |   |   aboutmodel.png
-|   |   |   amit.png
-|   |   |   ananya.png
-|   |   |   banner.png
-|   |   |   banner1.png
-|   |   |   banner2.png
-|   |   |   bidalinquery.png
-|   |   |   collection1.png
-|   |   |   collection2.png
-|   |   |   collection3.png
-|   |   |   collection4.png
-|   |   |   collection5.png
-|   |   |   collection6.png
-|   |   |   desiner.png
-|   |   |   dress7.png
-|   |   |   dress9.png
-|   |   |   ethnic1.png
-|   |   |   ethnic10.png
-|   |   |   ethnic11.png
-|   |   |   ethnic12.png
-|   |   |   ethnic2.png
-|   |   |   ethnic3.png
-|   |   |   ethnic4.png
-|   |   |   ethnic5.png
-|   |   |   ethnic6.png
-|   |   |   ethnic7.png
-|   |   |   ethnic8.png
-|   |   |   ethnic9.png
-|   |   |   kids.png
-|   |   |   logo.png
-|   |   |   man.png
-|   |   |   man1.png
-|   |   |   man10.png
-|   |   |   man11.png
-|   |   |   man12.png
-|   |   |   man13.png
-|   |   |   man14.png
-|   |   |   man15.png
-|   |   |   man16.png
-|   |   |   man18.png
-|   |   |   man2.png
-|   |   |   man3.png
-|   |   |   man4.png
-|   |   |   man5.png
-|   |   |   man6.png
-|   |   |   man7.png
-|   |   |   man8.png
-|   |   |   man9.png
-|   |   |   neha.png
-|   |   |   ourpromise.png
-|   |   |   product1.png
-|   |   |   product2.png
-|   |   |   product3.png
-|   |   |   product4.png
-|   |   |   product5.png
-|   |   |   product6.png
-|   |   |   product7.png
-|   |   |   product8.png
-|   |   |   rahul.png
-|   |   |   Receive.png
-|   |   |   western1.png
-|   |   |   western10.png
-|   |   |   western11.png
-|   |   |   western12.png
-|   |   |   western13.png
-|   |   |   western14.png
-|   |   |   western15.png
-|   |   |   western16.png
-|   |   |   western2.png
-|   |   |   western3.png
-|   |   |   western4.png
-|   |   |   western5.png
-|   |   |   western6.png
-|   |   |   western7.png
-|   |   |   western8.png
-|   |   |   western9.png
-|   |   |   whatwedo.png
-|   |   |   woman.png
-|   |   |   
-|   |   +---about
-|   |   +---banners
-|   |   +---home
-|   |   +---products
-|   |   |   +---bridal
-|   |   |   +---kids
-|   |   |   +---men
-|   |   |   \---women
-|   |   \---testimonials
-|   \---logo
-\---utils
+./.gitignore
+./AGENTS.md
+./app/about/page.jsx
+./app/blog/[id]/page.jsx
+./app/blog/page.jsx
+./app/cart/page.jsx
+./app/checkout/page.jsx
+./app/contact/page.jsx
+./app/customize/page.jsx
+./app/ethnic-wear/page.jsx
+./app/favicon.ico
+./app/globals.css
+./app/kids/page.jsx
+./app/layout.tsx
+./app/login/page.jsx
+./app/men/page.jsx
+./app/page.jsx
+./app/product/[id]/page.jsx
+./app/product/page.jsx
+./app/register/page.jsx
+./app/wedding/page.jsx
+./app/western-wear/page.jsx
+./app/wishlist/page.jsx
+./app/women/page.jsx
+./CLAUDE.md
+./components/About/AboutContent.jsx
+./components/About/AboutHero.jsx
+./components/About/AboutPage.jsx
+./components/About/AboutSrijan.jsx
+./components/About/Founder.jsx
+./components/About/MissionVision.jsx
+./components/About/OurPromise.jsx
+./components/About/WhatWeDo.jsx
+./components/blog/BlogHero.jsx
+./components/blog/LatestBlogs.jsx
+./components/blog/RelatedBlogs.jsx
+./components/Bridal/Bridal.jsx
+./components/Bridal/BridalHeroBanner.jsx
+./components/Bridal/BridalProduct.jsx
+./components/Contact/ContactDetails.jsx
+./components/Contact/ContactHero.jsx
+./components/customize/BaseStyles.jsx
+./components/customize/CustomizeFaq.jsx
+./components/customize/CustomizeHero.jsx
+./components/customize/DesignProcess.jsx
+./components/customize/PerfectFit.jsx
+./components/ethic/Ethic.jsx
+./components/ethic/EthicHero.jsx
+./components/ethic/EthicProduct.jsx
+./components/ethic/EthnicContent/EthnicContent.jsx
+./components/ethic/EthnicProductCard.jsx
+./components/Footer/Footer.jsx
+./components/Header/Header.jsx
+./components/Home/about/About.jsx
+./components/Home/AboutIntro/AboutIntro.jsx
+./components/Home/blog/Blogs.jsx
+./components/Home/collection/Collection.jsx
+./components/Home/ComingSoon/ComingSoon.jsx
+./components/Home/CustomerTestimonials/CustomerTestimonials.jsx
+./components/Home/customizeKidsWear/CustomizeKidsWear.jsx
+./components/Home/customizeWear/CustomizeWear.jsx
+./components/Home/customizeWedding/CustomizeWedding.jsx
+./components/Home/faq/FAQ.jsx
+./components/Home/Hero/Hero.jsx
+./components/Home/OnTrend/OnTrend.jsx
+./components/Home/ShopByGender/ShopByGender.jsx
+./components/Home/ShopCollection/collectionData.js
+./components/Home/ShopCollection/ShopCollection.jsx
+./components/Home/ShopEssentials/ShopEssentials.jsx
+./components/Home/testimonials/Testimonials.jsx
+./components/Home/UpcomingSale/UpcomingSale.jsx
+./components/kids/KidsContact.jsx
+./components/kids/KidsFAQ.jsx
+./components/kids/KidsGallery.jsx
+./components/kids/KidsHero.jsx
+./components/kids/KidsLooks.jsx
+./components/kids/KidsMemory.jsx
+./components/kids/KidsProcess.jsx
+./components/men/ethic-wear/Men.jsx
+./components/men/ethic-wear/MenSlider.jsx
+./components/men/MenDescription.jsx
+./components/men/MenHero.jsx
+./components/men/ShopEthnicWear.jsx
+./components/men/ShopWesternWear.jsx
+./components/product/CustomerReviews.jsx
+./components/product/ProductDetails.jsx
+./components/product/ProductsHero.jsx
+./components/product/ShopStyles.jsx
+./components/product/SimilarProducts.jsx
+./components/shared/ProductActions.jsx
+./components/shared/ShopSection.jsx
+./components/ui/ProductCard.jsx
+./components/Wedding/EditByCategory.jsx
+./components/Wedding/HowItWorks.jsx
+./components/Wedding/OccasionsEdit.jsx
+./components/Wedding/WeddingCollection.jsx
+./components/Wedding/WeddingContactForm.jsx
+./components/Wedding/WeddingFAQ.jsx
+./components/Wedding/WeddingHero.jsx
+./components/Wedding/WeddingInspiration.jsx
+./components/western/Westrn.jsx
+./components/western/WestrnContent.jsx
+./components/western/WestrnHero.jsx
+./components/western/WestrnProduct.jsx
+./components/western/WestrnProductCard.jsx
+./components/women/ShopEthnicWear.jsx
+./components/women/ShopWesternWear.jsx
+./components/women/WomenDescription.jsx
+./components/women/WomenHero.jsx
+./context/CartContext.jsx
+./data/header.js
+./data/menProducts.js
+./data/products.js
+./eslint.config.mjs
+./next.config.ts
+./next-env.d.ts
+./package.json
+./package-lock.json
+./postcss.config.mjs
+./project-structure.txt
+./public/file.svg
+./public/globe.svg
+./public/icons/cart.svg
+./public/icons/user.svg
+./public/icons/wishlist.svg
+./public/images/about.png
+./public/images/aboutmodel.png
+./public/images/amit.png
+./public/images/ananya.png
+./public/images/banner.png
+./public/images/banner1.png
+./public/images/banner2.png
+./public/images/bidalinquery.png
+./public/images/collection1.png
+./public/images/collection2.png
+./public/images/collection3.png
+./public/images/collection4.png
+./public/images/collection5.png
+./public/images/collection6.png
+./public/images/desiner.png
+./public/images/dress7.png
+./public/images/dress9.png
+./public/images/ethnic1.png
+./public/images/ethnic10.png
+./public/images/ethnic11.png
+./public/images/ethnic12.png
+./public/images/ethnic2.png
+./public/images/ethnic3.png
+./public/images/ethnic4.png
+./public/images/ethnic5.png
+./public/images/ethnic6.png
+./public/images/ethnic7.png
+./public/images/ethnic8.png
+./public/images/ethnic9.png
+./public/images/kids.png
+./public/images/logo.png
+./public/images/logo1.png
+./public/images/man.png
+./public/images/man1.png
+./public/images/man10.png
+./public/images/man11.png
+./public/images/man12.png
+./public/images/man13.png
+./public/images/man14.png
+./public/images/man15.png
+./public/images/man16.png
+./public/images/man18.png
+./public/images/man2.png
+./public/images/man3.png
+./public/images/man4.png
+./public/images/man5.png
+./public/images/man6.png
+./public/images/man7.png
+./public/images/man8.png
+./public/images/man9.png
+./public/images/neha.png
+./public/images/ourpromise.png
+./public/images/product1.png
+./public/images/product2.png
+./public/images/product3.png
+./public/images/product4.png
+./public/images/product5.png
+./public/images/product6.png
+./public/images/product7.png
+./public/images/product8.png
+./public/images/rahul.png
+./public/images/Receive.png
+./public/images/western1.png
+./public/images/western10.png
+./public/images/western11.png
+./public/images/western12.png
+./public/images/western13.png
+./public/images/western14.png
+./public/images/western15.png
+./public/images/western16.png
+./public/images/western2.png
+./public/images/western3.png
+./public/images/western4.png
+./public/images/western5.png
+./public/images/western6.png
+./public/images/western7.png
+./public/images/western8.png
+./public/images/western9.png
+./public/images/whatwedo.png
+./public/images/woman.png
+./public/next.svg
+./public/vercel.svg
+./public/window.svg
+./README.md
+./RESTRUCTURE_GUIDE.md
+./tsconfig.json
