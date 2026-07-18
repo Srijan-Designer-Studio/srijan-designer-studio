@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import { Download, Shield, Mail, Phone, MapPin } from 'lucide-react';
-import { useSearchParams } from 'next/navigation'; // 1. Import this hook
+import { useSearchParams } from 'next/navigation';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -12,11 +12,10 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function AdminCustomersPage() {
+function CustomersContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   
-  // 2. Get search params from the URL
   const searchParams = useSearchParams();
   const query = searchParams.get('query') || '';
 
@@ -28,7 +27,6 @@ export default function AdminCustomersPage() {
     { id: 'CUST-005', name: 'Kavya Mehta', email: 'kavya.m@example.com', phone: '+91 54321 09876', orders: 1, spent: '₹12,990', status: 'Blocked', joined: 'Apr 18, 2024', image: '/images/man1.png' },
   ];
 
-  // 3. Filter logic based on the query
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(query.toLowerCase()) ||
     customer.email.toLowerCase().includes(query.toLowerCase()) ||
@@ -94,18 +92,72 @@ export default function AdminCustomersPage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white rounded-t-xl">
           <Search placeholder="Search by name, email, or phone..." />
           <div className="w-full sm:w-auto">
-            {/* You can implement similar filter logic here if needed */}
             <Filter options={[{ label: 'Active', value: 'active' }, { label: 'Inactive', value: 'inactive' }]} defaultValue="All Accounts" />
           </div>
         </div>
 
-        {/* 4. Use filteredCustomers instead of customers */}
         <Table columns={customerColumns} data={filteredCustomers} />
 
         <Pagination />
       </Card>
       
-      {/* ... Modal stays exactly the same ... */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Customer Details"
+        footer={
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm"
+          >
+            Close
+          </button>
+        }
+      >
+        {selectedCustomer && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
+                <Image src={selectedCustomer.image} alt={selectedCustomer.name} fill className="object-cover" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">{selectedCustomer.name}</h3>
+                <p className="text-sm text-gray-500">{selectedCustomer.email}</p>
+                <div className="mt-1">
+                  <StatusBadge status={selectedCustomer.status} />
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Phone size={14} /> Phone Number</p>
+                <p className="text-sm font-medium text-gray-900">{selectedCustomer.phone}</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><MapPin size={14} /> Member Since</p>
+                <p className="text-sm font-medium text-gray-900">{selectedCustomer.joined}</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Shield size={14} /> Total Orders</p>
+                <p className="text-sm font-medium text-gray-900">{selectedCustomer.orders} Orders</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Shield size={14} /> Total Spent</p>
+                <p className="text-sm font-bold text-[#cfa874]">{selectedCustomer.spent}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
+  );
+}
+
+export default function AdminCustomersPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading customers...</div>}>
+      <CustomersContent />
+    </Suspense>
   );
 }

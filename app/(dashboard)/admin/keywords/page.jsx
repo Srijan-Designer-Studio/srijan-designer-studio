@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Plus, TrendingUp, BarChart3, Search as SearchIcon } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 
-export default function AdminKeywordsPage() {
+function KeywordsContent() {
   const [keywords] = useState([
     { keyword: 'Silk Saree', searches: 1250, conversion: '3.2%', status: 'Active' },
     { keyword: 'Embroidered Lehenga', searches: 890, conversion: '2.8%', status: 'Active' },
@@ -67,5 +67,13 @@ export default function AdminKeywordsPage() {
         <Table columns={columns} data={keywords} />
       </Card>
     </div>
+  );
+}
+
+export default function AdminKeywordsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading keywords...</div>}>
+      <KeywordsContent />
+    </Suspense>
   );
 }

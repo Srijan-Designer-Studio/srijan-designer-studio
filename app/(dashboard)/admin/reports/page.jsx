@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Download, Calendar, TrendingUp, MapPin, DollarSign } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -9,8 +10,7 @@ import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import Filter from '@/components/dashboard/shared/Filter';
 
-export default function AdminReportsPage() {
-  // --- MOCK DATA ---
+function ReportsContent() {
   const revenueTrends = [
     { month: 'Jan', revenue: 45000, orders: 120 },
     { month: 'Feb', revenue: 52000, orders: 145 },
@@ -63,7 +63,6 @@ export default function AdminReportsPage() {
   return (
     <div className="space-y-6 font-sans">
       
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Financial Reports</h1>
@@ -81,7 +80,6 @@ export default function AdminReportsPage() {
         </div>
       </div>
 
-      {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="shadow-sm border-gray-100 flex items-center gap-4 p-6">
           <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
@@ -112,7 +110,6 @@ export default function AdminReportsPage() {
         </Card>
       </div>
 
-      {/* Main Revenue Chart */}
       <Card className="p-6 shadow-sm border-gray-100">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
@@ -144,7 +141,6 @@ export default function AdminReportsPage() {
         </div>
       </Card>
 
-      {/* Regional Sales Table */}
       <Card className="p-0 shadow-sm border-gray-100">
         <div className="p-6 border-b border-gray-100 bg-white rounded-t-xl">
           <h2 className="text-base font-bold text-gray-900">Sales by Region</h2>
@@ -154,5 +150,13 @@ export default function AdminReportsPage() {
       </Card>
 
     </div>
+  );
+}
+
+export default function AdminReportsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading reports...</div>}>
+      <ReportsContent />
+    </Suspense>
   );
 }

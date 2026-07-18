@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import { Star, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
@@ -10,11 +10,10 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function AdminReviewsPage() {
+function ReviewsContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
 
-  // Mock Reviews Data
   const reviews = [
     { id: 'REV-01', customer: 'Ananya Sharma', product: 'Premium Hand Embroidered Lehenga', rating: 5, comment: 'Absolutely beautiful! The embroidery is so detailed and the fit was perfect. Highly recommend for weddings.', date: 'May 14, 2024', status: 'Pending', image: '/images/man1.png' },
     { id: 'REV-02', customer: 'Riya Patel', product: 'Designer Anarkali Suit', rating: 4, comment: 'Loved the fabric and the color. Docking one star because delivery took two days longer than expected.', date: 'May 08, 2024', status: 'Published', image: '/images/man1.png' },
@@ -23,7 +22,6 @@ export default function AdminReviewsPage() {
     { id: 'REV-05', customer: 'Spam Bot', product: 'Silk Saree Collection', rating: 1, comment: 'CLICK HERE FOR FREE IPHONES!!! http://spam-link.com', date: 'Apr 20, 2024', status: 'Rejected', image: '/images/man1.png' },
   ];
 
-  // Helper to render stars
   const renderStars = (rating) => {
     return (
       <div className="flex items-center gap-0.5">
@@ -164,7 +162,6 @@ export default function AdminReviewsPage() {
         {selectedReview && (
           <div className="space-y-6">
             
-            {/* Product Info */}
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
               <div className="w-16 h-16 rounded-lg bg-white overflow-hidden relative flex-shrink-0 shadow-sm">
                 <Image src={selectedReview.image} alt={selectedReview.product} fill className="object-cover" />
@@ -175,7 +172,6 @@ export default function AdminReviewsPage() {
               </div>
             </div>
 
-            {/* Review Content */}
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -194,7 +190,6 @@ export default function AdminReviewsPage() {
               </div>
             </div>
 
-            {/* Admin Reply */}
             <div>
               <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">
                 Public Reply (Optional)
@@ -211,5 +206,13 @@ export default function AdminReviewsPage() {
       </Modal>
 
     </div>
+  );
+}
+
+export default function AdminReviewsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading reviews...</div>}>
+      <ReviewsContent />
+    </Suspense>
   );
 }

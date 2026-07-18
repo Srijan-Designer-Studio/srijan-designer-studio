@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -9,11 +9,10 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function AdminOrdersPage() {
+function OrdersContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // Extended dummy order data
   const orders = [
     { id: '#ORD-001', customer: 'Rahul Sharma', email: 'rahul@example.com', date: 'Jul 17, 2026', items: 2, amount: '₹14,500', status: 'Pending' },
     { id: '#ORD-002', customer: 'Priya Das', email: 'priya.das@example.com', date: 'Jul 16, 2026', items: 1, amount: '₹35,000', status: 'Processing' },
@@ -23,13 +22,11 @@ export default function AdminOrdersPage() {
     { id: '#ORD-006', customer: 'Neha Gupta', email: 'neha_g@example.com', date: 'Jul 14, 2026', items: 1, amount: '₹45,000', status: 'Completed' },
   ];
 
-  // Handlers
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
-  // Table Columns
   const orderColumns = [
     { 
       header: 'Order ID', 
@@ -86,8 +83,6 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
-      
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
@@ -101,10 +96,7 @@ export default function AdminOrdersPage() {
         </button>
       </div>
 
-      {/* Main Data Card */}
       <Card className="p-0">
-        
-        {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white">
           <Search placeholder="Search by Order ID, Customer, or Email..." />
           <div className="w-full sm:w-auto">
@@ -112,14 +104,11 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        {/* Reusable Table */}
         <Table columns={orderColumns} data={orders} />
 
-        {/* Reusable Pagination */}
         <Pagination />
       </Card>
 
-      {/* Advanced Order Details Modal */}
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
@@ -146,7 +135,6 @@ export default function AdminOrdersPage() {
       >
         {selectedOrder && (
           <div className="space-y-6">
-            {/* Header info */}
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-semibold text-gray-900">{selectedOrder.customer}</h4>
@@ -156,7 +144,6 @@ export default function AdminOrdersPage() {
               <StatusBadge status={selectedOrder.status} />
             </div>
 
-            {/* Change Status Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Change Order Status</label>
               <select 
@@ -171,7 +158,6 @@ export default function AdminOrdersPage() {
               </select>
             </div>
 
-            {/* Mock Order Items */}
             <div className="border-t border-gray-100 pt-4">
               <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
               <div className="space-y-3">
@@ -208,5 +194,13 @@ export default function AdminOrdersPage() {
       </Modal>
 
     </div>
+  );
+}
+
+export default function AdminOrdersPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading orders...</div>}>
+      <OrdersContent />
+    </Suspense>
   );
 }

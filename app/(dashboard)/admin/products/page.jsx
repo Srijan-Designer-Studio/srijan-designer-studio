@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -9,20 +9,18 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function AdminProductsPage() {
+function ProductsContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
 
-  // Dummy product data tailored for "Srijan Designer Studio"
   const products = [
     { id: 1, name: 'Silk Embroidered Saree', sku: 'SRJ-001', category: 'Sarees', price: '₹12,500', stock: 15, status: 'Active' },
-    { id: 2, name: 'Velvet Zari Lehenga', sku: 'SRJ-002', category: 'Lehengas', price: '₹35,000', stock: 2, status: 'Pending' }, // Using 'Pending' to trigger yellow warning color
-    { id: 3, name: 'Cotton Block Print Kurta', sku: 'SRJ-003', category: 'Kurtas', price: '₹2,800', stock: 0, status: 'Inactive' }, // Using 'Inactive' to trigger gray/red color
+    { id: 2, name: 'Velvet Zari Lehenga', sku: 'SRJ-002', category: 'Lehengas', price: '₹35,000', stock: 2, status: 'Pending' },
+    { id: 3, name: 'Cotton Block Print Kurta', sku: 'SRJ-003', category: 'Kurtas', price: '₹2,800', stock: 0, status: 'Inactive' },
     { id: 4, name: 'Bridal Kanjivaram', sku: 'SRJ-004', category: 'Sarees', price: '₹45,000', stock: 8, status: 'Active' },
     { id: 5, name: 'Georgette Anarkali Suit', sku: 'SRJ-005', category: 'Suits', price: '₹8,500', stock: 22, status: 'Active' },
   ];
 
-  // Handlers
   const handleAddProduct = () => {
     setModalMode('add');
     setIsModalOpen(true);
@@ -33,7 +31,6 @@ export default function AdminProductsPage() {
     setIsModalOpen(true);
   };
 
-  // Table Columns
   const productColumns = [
     { 
       header: 'Product', 
@@ -59,7 +56,6 @@ export default function AdminProductsPage() {
     { 
       header: 'Status', 
       accessor: 'status', 
-      // Reusing our StatusBadge. Active = Green, Pending = Yellow (Low Stock), Inactive = Gray (Out of Stock)
       render: (row) => <StatusBadge status={row.status === 'Pending' ? 'Low Stock' : row.status === 'Inactive' ? 'Out of Stock' : 'In Stock'} /> 
     },
     { 
@@ -90,8 +86,6 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
@@ -108,10 +102,7 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
-      {/* Main Data Card */}
       <Card className="p-0">
-        
-        {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white">
           <Search placeholder="Search products by name or SKU..." />
           <div className="w-full sm:w-auto">
@@ -119,14 +110,11 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* Reusable Table */}
         <Table columns={productColumns} data={products} />
 
-        {/* Reusable Pagination */}
         <Pagination />
       </Card>
 
-      {/* Reusable Modal for Add/Edit Form */}
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
@@ -185,5 +173,13 @@ export default function AdminProductsPage() {
       </Modal>
 
     </div>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading products...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }
