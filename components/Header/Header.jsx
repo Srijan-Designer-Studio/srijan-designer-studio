@@ -5,21 +5,43 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useSession } from "next-auth/react";
 
 import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 export default function Header() {
   const { cartItems, wishlistItems, isLoaded } = useCart();
+  const { data: session, status } = useSession();
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
+  
+  // স্ক্রল পজিশন ট্র্যাক করার জন্য স্টেট
+  const [headerState, setHeaderState] = useState("top");
 
   const closeAllMenus = () => {
     setActiveDropdown(null);
     setIsMobileMenuOpen(false);
     setMobileActiveDropdown(null);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = window.scrollY;
+      
+      if (currentScroll > 300) {
+        setHeaderState("scrolled"); // 300px এর পরে হেডার দেখাবে
+      } else if (currentScroll > 100) {
+        setHeaderState("hidden"); // 100px থেকে 300px এর মধ্যে হেডার লুকিয়ে থাকবে
+      } else {
+        setHeaderState("top"); // একদম উপরে থাকলে হেডার নরমাল থাকবে
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -41,7 +63,11 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-md lg:bg-transparent lg:shadow-none transition-all duration-300">
+    <header 
+      className={`fixed top-0 left-0 w-full z-[100] transition-transform duration-500 ease-in-out bg-white shadow-md lg:bg-transparent lg:shadow-none ${
+        headerState === "hidden" ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
         <Link href="/" className="z-50" onClick={closeAllMenus}>
           <Image
@@ -113,10 +139,28 @@ export default function Header() {
             {NAV_ICONS.map((icon) => {
               const isCart = icon.id === "cart";
               const isWishlist = icon.id === "wishlistt";
+              
+              const isUserIcon = icon.id === "user" || icon.id === "profile" || icon.id === "account";
               const count = isCart ? cartItems.length : (isWishlist ? wishlistItems.length : 0);
 
+              let targetHref = icon.href;
+              
+              if (isUserIcon) {
+                if (status === 'loading') {
+                  targetHref = '#'; 
+                } else if (status === 'authenticated') {
+                  targetHref = session?.user?.role === 'admin' ? '/admin' : '/account';
+                } else {
+                  targetHref = '/login';
+                }
+              }
+
               return (
-                <Link key={icon.id} href={icon.href} className="relative inline-block group">
+                <Link 
+                  key={icon.id} 
+                  href={targetHref} 
+                  className={`relative inline-block group ${isUserIcon && status === 'loading' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                   <div className="w-10 h-10 lg:w-11 lg:h-11 bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm">
                     <img
                       src={icon.src}
@@ -145,7 +189,7 @@ export default function Header() {
 
       <div
         className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
-        style={{ top: "70px" }}
+        style={{ top: "90px" }}
       >
         <div className="p-6 pb-24">
           <ul className="flex flex-col gap-5 text-[17px] font-bold text-gray-900">

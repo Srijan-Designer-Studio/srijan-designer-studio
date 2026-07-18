@@ -10,7 +10,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 const kidsCards = [
   {
     id: 0,
@@ -28,7 +27,7 @@ const kidsCards = [
     title: "Design & Fabric",
     desc: "We select premium, child-friendly fabrics and tailor the design for maximum comfort and elegance.",
     img: "/images/kids.png", 
-    bgColor: "bg-[#fbcfe8]", // Light Pink
+    bgColor: "bg-[#fbcfe8]",
     titleColor: "text-[#831843]",
     descColor: "text-[#9d174d]"
   },
@@ -38,7 +37,7 @@ const kidsCards = [
     title: "The Perfect Fit",
     desc: "Your bespoke kids wear is ready! Watch them light up the room with a custom dress made just for them.",
     img: "/images/kids.png", 
-    bgColor: "bg-[#f472b6]", // Dark Pink
+    bgColor: "bg-[#f472b6]",
     titleColor: "text-white",
     descColor: "text-pink-100"
   }
@@ -57,43 +56,35 @@ export default function CustomizeKidsWear() {
       zIndex: (i) => 30 - i
     });
 
-    
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top", 
-        end: "+=2500", 
+        end: "+=2000", 
         scrub: 1, 
         pin: true,
+        anticipatePin: 1
       }
     });
 
-      
     tl.to(".card-0", { yPercent: -120, opacity: 0.5, rotate: -5, duration: 1, ease: "power2.inOut" }, "step1")
       .to(".card-1", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step1")
-      .to(".card-2", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step1");
-      
-    
-    tl.set(".card-0", { zIndex: 10 }) 
-      .to(".card-0", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
-
-   
-    tl.to(".card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
+      .to(".card-2", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step1")
+      .set(".card-0", { zIndex: 10 }) 
+      .to(".card-0", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
+      .to(".card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
       .to(".card-2", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step2")
-      .to(".card-0", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step2");
-
-    
-    tl.set(".card-1", { zIndex: 10 }) 
+      .to(".card-0", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step2")
+      .set(".card-1", { zIndex: 10 }) 
       .to(".card-1", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
 
   }, { scope: containerRef });
 
   return (
-    <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-20 lg:pt-28 overflow-hidden flex flex-col justify-between h-screen min-h-[800px]" ref={containerRef}>
+    <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-20 lg:pt-28 overflow-hidden flex flex-col justify-between min-h-screen" ref={containerRef}>
       
-      <div className="max-w-[1320px] mx-auto px-6 w-full mb-20 lg:mb-28 h-full flex flex-col justify-center">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
-          
+      <div className="max-w-[1320px] mx-auto px-6 w-full mb-20 lg:mb-28 h-full flex flex-col justify-center flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center h-full">
           
           <div className="max-w-[500px]">
             <span className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
@@ -117,7 +108,6 @@ export default function CustomizeKidsWear() {
             </div>
           </div>
 
-         
           <div className="relative w-full max-w-[420px] mx-auto lg:ml-auto aspect-[3/4] lg:aspect-[4/5] mt-10 lg:mt-0">
             {kidsCards.map((card) => (
               <div 

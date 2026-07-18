@@ -38,7 +38,7 @@ const EthnicContent = () => {
     <section className="bg-white py-24" ref={containerRef}>
       {/* Reduced max-width for better reading measure (Editorial style) */}
       <div className="max-w-[900px] mx-auto px-6">
-        
+
         <h2 className="text-anim text-3xl md:text-[34px] font-bold font-serif text-[#111] mb-8 leading-snug">
           Online Shopping For Women: Find Your Style With Srijan Fashion
         </h2>

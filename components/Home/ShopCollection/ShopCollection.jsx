@@ -33,18 +33,18 @@ export default function ShopCollection() {
       { y: 80, opacity: 0 },
       { y: 0, opacity: 1, duration: 1, ease: "power4.out" }
     )
-    .fromTo(
-      ".collection-btn",
-      { opacity: 0, x: -20 },
-      { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
-      "-=0.6"
-    )
-    .fromTo(
-      ".swiper-slide",
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power3.out" },
-      "-=0.4"
-    );
+      .fromTo(
+        ".collection-btn",
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
+        "-=0.6"
+      )
+      .fromTo(
+        ".swiper-slide",
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power3.out" },
+        "-=0.4"
+      );
   }, { scope: containerRef });
 
   return (

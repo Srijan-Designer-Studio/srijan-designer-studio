@@ -14,7 +14,8 @@ export default function CustomerDashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 font-sans">
+   
+    <div className="max-w-7xl mx-auto space-y-8 font-sans pt-[100px] lg:pt-[120px] px-4 lg:px-8 pb-10">
       
       {/* Welcome Header */}
       <div>

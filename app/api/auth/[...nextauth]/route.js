@@ -1,12 +1,38 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 const authOptions = {
   providers: [
+  
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    
+  
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+
+        if (
+          credentials?.email === "admin@srijan.com" && 
+          credentials?.password === "admin123"
+        ) {
+          return {
+            id: "demo-admin-999",
+            name: "Demo Admin",
+            email: "admin@srijan.com",
+            role: "admin",
+          };
+        }
+        return null;
+      }
+    })
   ],
   session: {
     strategy: "jwt",
@@ -19,11 +45,12 @@ const authOptions = {
     async jwt({ token, user }) {
       if (user) {
        
-        console.log("Logged in user email:", user.email);
-        console.log("Admin email from env:", process.env.ADMIN_EMAIL);
-        
-   
-        token.role = (user.email === process.env.ADMIN_EMAIL) ? 'admin' : 'customer';
+        if (user.role) {
+          token.role = user.role;
+        } 
+        else {
+          token.role = (user.email === process.env.ADMIN_EMAIL) ? 'admin' : 'customer';
+        }
       }
       return token;
     },

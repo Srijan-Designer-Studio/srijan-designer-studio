@@ -25,7 +25,7 @@ export default function MissionVision() {
     gsap.fromTo(
       ".mv-card",
       { y: 60, opacity: 0 },
-      { 
+      {
         y: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: "power4.out",
         scrollTrigger: {
           trigger: containerRef.current,
@@ -41,8 +41,8 @@ export default function MissionVision() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {missionVisionData.map((item, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="mv-card bg-[#cbe4ff] rounded-[24px] px-8 py-12 lg:px-12 lg:py-16 flex flex-col items-center justify-center text-center shadow-sm"
             >
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-4">

@@ -52,11 +52,11 @@ export default function Collection() {
           <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold text-white uppercase tracking-wide">
             SHOP BY COLLECTION
           </h2>
-          <Link 
-            href="/product" 
+          <Link
+            href="/product"
             className="flex items-center gap-1 text-white text-sm md:text-base hover:text-[#00c3ff] transition-colors duration-300 uppercase tracking-wider"
           >
-            SHOP ALL COLLECTIONS 
+            SHOP ALL COLLECTIONS
             <ChevronRight size={18} />
           </Link>
         </div>

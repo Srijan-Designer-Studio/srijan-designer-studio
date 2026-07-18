@@ -3,50 +3,52 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-const WestrnProductCard = ({item}) => {
+
+const WestrnProductCard = ({ item }) => {
   return (
-  <>
-   <div className="bg-[#fdf4f3]">
+    <div className="bg-[#fdf4f3] rounded-[24px] overflow-hidden group hover:shadow-xl transition-all duration-300 h-full flex flex-col border border-[#f5e6e5]">
 
-      <Image
-        src={item.image}
-        alt={item.title}
-        width={380}
-        height={500}
-        className="w-full object-cover"
-      />
+      <Link href={`/product/${item.id}`} className="relative w-full aspect-[3/4] bg-white block overflow-hidden">
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
+          className="object-contain p-4 group-hover:scale-105 transition-transform duration-700"
+        />
+      </Link>
 
-      <div className="text-center p-5">
+      <div className="text-center p-6 flex-1 flex flex-col">
 
-        <p className="text-gray-500">
+        <p className="text-gray-500 text-sm tracking-widest uppercase mb-2 font-medium">
           {item.category}
         </p>
 
-        <h3 className="font-semibold text-[28px] leading-9 mt-2">
-          {item.title}
-        </h3>
+        <Link href={`/product/${item.id}`}>
+          <h3 className="font-bold text-[22px] lg:text-[26px] leading-tight mt-2 text-[#111] hover:text-[#00c3ff] transition-colors line-clamp-2">
+            {item.title}
+          </h3>
+        </Link>
 
-        <p className="text-[32px] mt-3">
-          {item.price}
+        <p className="text-[24px] font-semibold text-black mt-auto pt-4">
+          ₹{typeof item.price === 'number' ? item.price.toLocaleString('en-IN') : item.price}
         </p>
 
         <Link
-          href={`/woman/${item.slug}`}
-          className="inline-block mt-5 bg-[#0067d8] hover:bg-[#0054b3] text-white px-8 py-3 rounded"
+          href={`/product/${item.id}`}
+          className="inline-block w-full mt-6 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-full transition-all shadow-md hover:-translate-y-0.5"
         >
-          {item.button}
+          {item.button || "Buy Now"}
         </Link>
 
-        <div className="mt-5 flex justify-center gap-2 text-[#0067d8]">
-          <Heart size={20} />
-          <span>Add to Wishlist</span>
-        </div>
+        <button className="mt-5 flex justify-center items-center gap-2 text-gray-500 hover:text-[#ff3838] transition-colors group/wishlist w-full">
+          <Heart size={18} className="group-hover/wishlist:fill-[#ff3838]" />
+          <span className="text-sm font-medium">Add to Wishlist</span>
+        </button>
 
       </div>
 
     </div>
-  </>
-  )
-}
+  );
+};
 
-export default WestrnProductCard
+export default WestrnProductCard;

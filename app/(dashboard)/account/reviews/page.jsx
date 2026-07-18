@@ -63,7 +63,7 @@ export default function CustomerReviewsPage() {
   };
 
   return (
-    <div className="max-w-4xl space-y-6 font-sans">
+    <div className="max-w-4xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

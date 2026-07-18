@@ -25,7 +25,7 @@ const promisesData = [
 
 export default function OurPromise() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/ourpromise.png"; 
+  const imageSrc = "/images/ourpromise.png";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -52,13 +52,13 @@ export default function OurPromise() {
     <section className="py-20 lg:py-32 bg-white border-b-[12px] border-[#1a1b41]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
+
           <div className="max-w-[600px]">
             <h2 className="promise-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-6">
               Our Promise
             </h2>
             <p className="promise-text text-[17px] text-gray-800 leading-relaxed mb-6">
-              In a world of fast fashion and copy-paste trends, 
+              In a world of fast fashion and copy-paste trends,
               SRIJAN stands for individuality.
             </p>
             <ul className="space-y-4 list-disc pl-5 marker:text-black mb-8">
@@ -85,7 +85,7 @@ export default function OurPromise() {
                   src={imageSrc}
                   alt="Srijan Fashion Promise"
                   fill
-                  className="object-contain" 
+                  className="object-contain"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-b from-[#6b6985] to-[#b3b2c2] flex flex-col items-center justify-center p-6 text-center">

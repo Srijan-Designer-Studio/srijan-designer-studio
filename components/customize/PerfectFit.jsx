@@ -53,7 +53,7 @@ export default function PerfectFit() {
             <div className="w-full md:w-1/2">
               <h2 className="pf-right-content text-3xl font-bold text-black mb-6 text-right">Your body isn't the problem</h2>
               <div className="pf-right-content relative w-full aspect-[4/5] rounded-3xl overflow-hidden bg-gray-100 mb-6 shadow-md border border-gray-200">
-                 {rightImage && <Image src={rightImage} alt="Custom Fit Example 2" fill className="object-cover object-top" />}
+                {rightImage && <Image src={rightImage} alt="Custom Fit Example 2" fill className="object-cover object-top" />}
               </div>
               <p className="pf-right-content text-gray-600 text-sm md:text-base leading-relaxed text-right">
                 Forget standard sizes that never feel quite right. We create every designer dress around your measurements, style and comfort. The result is a custom fit that looks natural, feels confident and is made just for you.
@@ -68,7 +68,7 @@ export default function PerfectFit() {
           <Image src="/images/tailoring.jpg" alt="Tailoring" fill className="object-cover absolute inset-0 z-0" />
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <div className="relative z-20 text-white max-w-lg">
-            <h2 className="pf-banner-text text-4xl md:text-5xl font-bold mb-6 leading-tight">Perfect Fit<br/>Guaranteed</h2>
+            <h2 className="pf-banner-text text-4xl md:text-5xl font-bold mb-6 leading-tight">Perfect Fit<br />Guaranteed</h2>
             <p className="pf-banner-text text-base md:text-lg leading-relaxed">
               No two people are the same and your dress shouldn't be either. We tailor every design to your exact measurements, so it fits comfortably and flatters your shape. From the first stitch to the final finish, your designer dress is made just for you.
             </p>

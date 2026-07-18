@@ -1,45 +1,52 @@
+"use client";
+
+import { useRef } from "react";
 import { Star, User, Check } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const reviewsData = [
-  {
-    id: 1,
-    name: "Harsh yadav",
-    title: "Best Tshirt i have ever purchased best material",
-    desc: "Best Tshirt i have ever purchased best material and easy fit",
-  },
-  {
-    id: 2,
-    name: "Muthu Venkatesh J P",
-    title: "Nice One",
-    desc: "Good Quality",
-  },
-  {
-    id: 3,
-    name: "Anonymous",
-    title: "Awesome",
-    desc: "Awesome.",
-  },
-  {
-    id: 4,
-    name: "Anonymous",
-    title: "Good product",
-    desc: "Good product 👍👍",
-  },
-  {
-    id: 5,
-    name: "Snehasish Routray",
-    title: "v",
-    desc: "v good",
-  },
+  { id: 1, name: "Harsh yadav", title: "Best Tshirt i have ever purchased best material", desc: "Best Tshirt i have ever purchased best material and easy fit" },
+  { id: 2, name: "Muthu Venkatesh J P", title: "Nice One", desc: "Good Quality" },
+  { id: 3, name: "Anonymous", title: "Awesome", desc: "Awesome." },
+  { id: 4, name: "Anonymous", title: "Good product", desc: "Good product 👍👍" },
+  { id: 5, name: "Snehasish Routray", title: "v", desc: "v good" },
 ];
 
 export default function CustomerReviews() {
-  return (
-    <section className="py-16 bg-[#f8f9fa]">
-      <div className="max-w-[1320px] mx-auto px-6">
-        <h2 className="text-3xl font-bold text-black mb-12">Customer Reviews</h2>
+  const containerRef = useRef(null);
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".review-head",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
+    ).fromTo(
+      ".review-card",
+      { y: 50, opacity: 0, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
+      "-=0.4"
+    );
+  }, { scope: containerRef });
+
+  return (
+    <section className="py-16 bg-[#f8f9fa]" ref={containerRef}>
+      <div className="max-w-[1320px] mx-auto px-6">
+
+        <h2 className="review-head text-3xl font-bold text-black mb-12">Customer Reviews</h2>
+
+        <div className="review-head flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
           <div className="flex-1 w-full max-w-[400px]">
             {[5, 4, 3, 2, 1].map((star) => (
               <div key={star} className="flex items-center gap-3 mb-2">
@@ -67,16 +74,16 @@ export default function CustomerReviews() {
             ))}
           </div>
 
-          <button className="w-full md:w-[280px] h-[52px] bg-[#00c3ff] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[#00a0d6] transition-colors">
+          <button className="w-full md:w-[280px] h-[52px] bg-[#00c3ff] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md">
             Write A Review
           </button>
         </div>
 
-        <p className="text-sm text-gray-500 mb-6 font-medium">Most Recent</p>
+        <p className="review-head text-sm text-gray-500 mb-6 font-medium">Most Recent</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {reviewsData.map((review) => (
-            <div key={review.id} className="bg-white p-6 rounded-xl shadow-sm">
+            <div key={review.id} className="review-card bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={14} fill="#c04f36" color="#c04f36" />
@@ -106,7 +113,7 @@ export default function CustomerReviews() {
           ))}
         </div>
 
-        <div className="flex items-center justify-center gap-4 text-[13px] font-bold text-gray-500">
+        <div className="review-head flex items-center justify-center gap-4 text-[13px] font-bold text-gray-500">
           <span className="text-black cursor-pointer">1</span>
           <span className="cursor-pointer hover:text-black">2</span>
           <span className="cursor-pointer hover:text-black">&gt;</span>

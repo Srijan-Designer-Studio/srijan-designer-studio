@@ -6,7 +6,7 @@ import Card from '@/components/dashboard/shared/Card';
 
 export default function ProfilePage() {
   return (
-    <div className="max-w-4xl space-y-6 font-sans">
+    <div className="max-w-4xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
       
       {/* Header */}
       <div>

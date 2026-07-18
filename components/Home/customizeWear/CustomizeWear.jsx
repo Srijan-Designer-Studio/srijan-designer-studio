@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function CustomizeWear() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/desiner.png"; 
+  const imageSrc = "/images/desiner.png";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -39,7 +39,7 @@ export default function CustomizeWear() {
     <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
+
           <div className="cw-img relative w-full aspect-square sm:aspect-[4/3] lg:aspect-[4/4.2] rounded-[32px] overflow-hidden shadow-lg bg-[#e2e8f0] flex items-center justify-center">
             {imageSrc ? (
               <Image
@@ -64,8 +64,8 @@ export default function CustomizeWear() {
               Custom Dress
             </h2>
             <p className="cw-text text-gray-600 text-base sm:text-[17px] leading-[1.7] mb-10">
-              Have a design in mind? We'll turn your ideas into a custom outfit made to fit 
-              your style, your size and your occasion. From fabric to the final stitch, every 
+              Have a design in mind? We'll turn your ideas into a custom outfit made to fit
+              your style, your size and your occasion. From fabric to the final stitch, every
               detail is made just for you.
             </p>
             <div className="cw-text">
@@ -78,7 +78,7 @@ export default function CustomizeWear() {
               </Link>
             </div>
           </div>
-          
+
         </div>
       </div>
     </section>

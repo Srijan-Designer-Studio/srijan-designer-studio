@@ -1,5 +1,13 @@
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Mail } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Data arrays to keep the JSX clean and easy to manage
 const menuLinks = [
@@ -63,8 +71,36 @@ const CustomQIcon = () => (
 );
 
 export default function Footer() {
+  const footerRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: footerRef.current,
+        start: "top 85%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".footer-col",
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, ease: "power3.out" }
+    ).fromTo(
+      ".footer-map-card",
+      { x: 50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.8, ease: "power4.out" },
+      "-=0.4"
+    ).fromTo(
+      ".footer-copyright",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6 },
+      "-=0.2"
+    );
+  }, { scope: footerRef });
+
   return (
-    <footer className="bg-[#04051a] pt-16 pb-8 border-t border-gray-800">
+    <footer className="bg-[#04051a] pt-16 pb-8 border-t border-gray-800" ref={footerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         
         {/* Top Section: Navigation Links and Location Card */}
@@ -77,7 +113,7 @@ export default function Footer() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 sm:gap-6 mb-12">
               
               {/* Main Menu */}
-              <div>
+              <div className="footer-col">
                 <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                   MAIN MENU
                 </h3>
@@ -96,7 +132,7 @@ export default function Footer() {
               </div>
 
               {/* Policy Menu */}
-              <div>
+              <div className="footer-col">
                 <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                   POLICY
                 </h3>
@@ -116,7 +152,7 @@ export default function Footer() {
             </div>
 
             {/* Connect With Us Section */}
-            <div>
+            <div className="footer-col">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>
@@ -146,7 +182,7 @@ export default function Footer() {
           </div>
 
           {/* Right Side: Location Card */}
-          <div className="w-full lg:w-[450px] shrink-0">
+          <div className="footer-map-card w-full lg:w-[450px] shrink-0">
             <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl">
               
               <h3 className="text-white font-bold text-2xl mb-6">Location</h3>
@@ -179,7 +215,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Copyright Section */}
-        <div className="pt-8 mt-4">
+        <div className="footer-copyright pt-8 mt-4">
           <p className="text-white/80 text-sm sm:text-[15px] font-medium">
             © Copyright 2026 By SRIJAN Fashion. All right reserved.
           </p>

@@ -26,24 +26,24 @@ export default function AboutIntro() {
       { y: 50, opacity: 0 },
       { y: 0, opacity: 1, duration: 1, ease: "power4.out" }
     )
-    .fromTo(
-      ".about-desc",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-      "-=0.6"
-    )
-    .fromTo(
-      ".about-btn",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
-      "-=0.4"
-    );
+      .fromTo(
+        ".about-desc",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+        "-=0.6"
+      )
+      .fromTo(
+        ".about-btn",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+        "-=0.4"
+      );
   }, { scope: containerRef });
 
   return (
     <section className="bg-white py-24" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-5">
-        
+
         <div className="overflow-hidden pb-2">
           <h2 className="about-heading text-center text-[56px] leading-none font-semibold italic text-[#111111]">
             Designed by Us, Styled for You

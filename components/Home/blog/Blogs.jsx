@@ -15,15 +15,15 @@ const blogPosts = [
     id: 1,
     category: "Western",
     title: "Trendy Mom Jeans Styles for Hot Indian Days | Srijan Fashion",
-    imageSrc: "/images/western1.png", 
-    placeholderBg: "bg-[#94a3b8]", 
+    imageSrc: "/images/western1.png",
+    placeholderBg: "bg-[#94a3b8]",
   },
   {
     id: 2,
     category: "Western",
     title: "Top Fabrics That Make Outfits for Plus Size More Comfortable | Srijan Fashion",
-    imageSrc: "/images/western6.png", 
-    placeholderBg: "bg-[#cbd5e1]", 
+    imageSrc: "/images/western6.png",
+    placeholderBg: "bg-[#cbd5e1]",
   },
 ];
 
@@ -55,7 +55,7 @@ export default function Blogs() {
     <section className="py-20 bg-gradient-to-br from-[#2b2d56] via-[#484a70] to-[#7a7c99]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
+
           <div className="lg:col-span-4 flex flex-col items-start max-w-[400px]">
             <span className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
               BLOGS
@@ -78,9 +78,9 @@ export default function Blogs() {
 
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {blogPosts.map((post) => (
-              <Link 
-                href={`/blog/${post.id}`} 
-                key={post.id} 
+              <Link
+                href={`/blog/${post.id}`}
+                key={post.id}
                 className="blog-card bg-white rounded-[24px] p-3 sm:p-4 shadow-xl group hover:-translate-y-1 transition-transform duration-300 flex flex-col"
               >
                 <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">

@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/neha.png"; 
+  const imageSrc = "/images/neha.png";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -37,7 +37,7 @@ export default function Founder() {
     <section className="py-20 lg:py-32 bg-gradient-to-br from-[#1c1d42] via-[#383a5e] to-[#808197]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          
+
           <div className="lg:col-span-5 flex justify-center lg:justify-start w-full">
             <div className="founder-img relative w-full max-w-[500px] aspect-[4/3] rounded-[24px] overflow-hidden shadow-2xl">
               {imageSrc ? (
@@ -66,8 +66,8 @@ export default function Founder() {
               SRIJAN Fashion
             </h2>
             <p className="founder-text text-[16px] lg:text-[18px] text-gray-100 leading-[1.7]">
-              At SRIJAN Fashion, we believe every outfit should reflect your personality. 
-              Our goal is to create designs that make you feel confident, comfortable, 
+              At SRIJAN Fashion, we believe every outfit should reflect your personality.
+              Our goal is to create designs that make you feel confident, comfortable,
               and special on every occasion. Thank you for being a part of our journey.
             </p>
           </div>

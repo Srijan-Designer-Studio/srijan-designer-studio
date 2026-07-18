@@ -5,7 +5,7 @@ import Card from '@/components/dashboard/shared/Card';
 
 export default function SecurityPage() {
   return (
-    <div className="max-w-3xl space-y-6 font-sans">
+    <div className="max-w-3xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
       
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Security Settings</h1>

@@ -1,41 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const categoriesData = [
   { id: 1, title: "Sarees", imageSrc: "/images/man1.png" },
   { id: 2, title: "Gowns", imageSrc: "/images/man2.png" },
   { id: 3, title: "Drapes", imageSrc: "/images/man3.png" },
   { id: 4, title: "Capes", imageSrc: "/images/man4.png" },
-  { id: 5, title: "Bridal Suits", imageSrc: "/images/man5.png" }, 
+  { id: 5, title: "Bridal Suits", imageSrc: "/images/man5.png" },
 ];
 
 export default function EditByCategory() {
   const [activeTab, setActiveTab] = useState("WOMEN");
+  const containerRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".edit-category-head",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
+    ).fromTo(
+      ".edit-category-item",
+      { y: 40, opacity: 0, scale: 0.9 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: "power4.out" },
+      "-=0.4"
+    );
+  }, { scope: containerRef });
 
   return (
-    <section className="py-16 bg-gradient-to-b from-[#2d2f4d] to-[#6a6787]">
+    <section className="py-16 bg-gradient-to-b from-[#2d2f4d] to-[#6a6787]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 flex flex-col items-center">
-        
-        <h2 className="text-3xl font-bold text-white mb-6">
+
+        <h2 className="edit-category-head text-3xl font-bold text-white mb-6">
           Edit By Category
         </h2>
 
-        <div className="flex items-center gap-6 mb-12">
+        <div className="edit-category-head flex items-center gap-6 mb-12">
           <button
             onClick={() => setActiveTab("WOMEN")}
-            className={`text-[14px] uppercase tracking-wide pb-1 transition-colors ${
-              activeTab === "WOMEN" ? "text-white border-b-2 border-white font-bold" : "text-gray-300 border-b-2 border-transparent hover:text-white"
-            }`}
+            className={`text-[14px] uppercase tracking-wide pb-1 transition-colors ${activeTab === "WOMEN" ? "text-white border-b-2 border-white font-bold" : "text-gray-300 border-b-2 border-transparent hover:text-white"
+              }`}
           >
             WOMEN
           </button>
           <button
             onClick={() => setActiveTab("MEN")}
-            className={`text-[14px] uppercase tracking-wide pb-1 transition-colors ${
-              activeTab === "MEN" ? "text-white border-b-2 border-white font-bold" : "text-gray-300 border-b-2 border-transparent hover:text-white"
-            }`}
+            className={`text-[14px] uppercase tracking-wide pb-1 transition-colors ${activeTab === "MEN" ? "text-white border-b-2 border-white font-bold" : "text-gray-300 border-b-2 border-transparent hover:text-white"
+              }`}
           >
             MEN
           </button>
@@ -43,8 +68,8 @@ export default function EditByCategory() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-10 w-full max-w-[1000px] mx-auto">
           {categoriesData.map((category) => (
-            <div key={category.id} className="flex flex-col items-center cursor-pointer group">
-              <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all">
+            <div key={category.id} className="edit-category-item flex flex-col items-center cursor-pointer group">
+              <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all shadow-lg">
                 {category.imageSrc && (
                   <Image
                     src={category.imageSrc}

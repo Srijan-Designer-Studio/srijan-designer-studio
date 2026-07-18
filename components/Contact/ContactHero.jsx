@@ -23,7 +23,8 @@ export default function ContactHero() {
   }, { scope: containerRef });
 
   return (
-    <section className="relative w-full h-screen min-h-[400px]" ref={containerRef}>
+    
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
         src="/images/man1.png"
         alt="Connect with Srijan Fashion"
@@ -33,7 +34,8 @@ export default function ContactHero() {
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute inset-0 flex items-center">
         <div className="max-w-[1320px] w-full mx-auto px-6">
-          <div className="text-white drop-shadow-md">
+         
+          <div className="text-white drop-shadow-md mt-[90px]">
             <p className="contact-hero-text text-xl md:text-2xl font-bold mb-2">Let's</p>
             <h1 className="contact-hero-text text-4xl md:text-5xl lg:text-[56px] font-bold leading-tight font-serif">
               Connect<br />with SRIJAN Fashion

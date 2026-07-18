@@ -13,7 +13,7 @@ export default function WishlistPage() {
   ];
 
   return (
-    <div className="max-w-6xl space-y-6 font-sans">
+    <div className="max-w-6xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
       
       {/* Header */}
       <div className="flex items-center justify-between">

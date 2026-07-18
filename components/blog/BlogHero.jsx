@@ -25,7 +25,7 @@ export default function BlogHero() {
   }, { scope: containerRef });
 
   return (
-    <section className="w-full h-screen relative overflow-hidden" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
         src="/images/banner.png"
         alt="Our Blogs"

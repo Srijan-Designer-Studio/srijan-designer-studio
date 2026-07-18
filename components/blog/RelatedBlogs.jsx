@@ -57,11 +57,11 @@ export default function RelatedBlogs() {
           {relatedBlogs.map((blog) => (
             <div key={blog.id} className="related-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
               <Link href={blog.link} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
-                <Image 
-                  src={blog.image} 
-                  alt={blog.title} 
-                  fill 
-                  className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                <Image
+                  src={blog.image}
+                  alt={blog.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </Link>
               <Link href={blog.link}>

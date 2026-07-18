@@ -1,14 +1,44 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function WeddingContactForm() {
+  const containerRef = useRef(null);
   const bgImageSrc = "/images/bidalinquery.png";
 
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 75%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".wed-contact-left",
+      { x: -50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 1, ease: "power4.out" }
+    ).fromTo(
+      ".wed-contact-right",
+      { x: 50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 1, ease: "power4.out" },
+      "-=0.8"
+    );
+  }, { scope: containerRef });
+
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1100px] mx-auto px-6">
         <div className="flex flex-col lg:flex-row gap-6 shadow-2xl rounded-[24px] overflow-hidden bg-white">
-          
-          <div className="relative w-full lg:w-1/2 min-h-[400px] lg:min-h-[550px] bg-black">
+
+          <div className="wed-contact-left relative w-full lg:w-1/2 min-h-[400px] lg:min-h-[550px] bg-black">
             {bgImageSrc && (
               <Image
                 src={bgImageSrc}
@@ -27,50 +57,50 @@ export default function WeddingContactForm() {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
+          <div className="wed-contact-right w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
             <h3 className="text-2xl font-normal text-black mb-8">
               Fill In the Form To Get Started
             </h3>
-            
+
             <form className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Full Name*</label>
-                <input 
-                  type="text" 
-                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black"
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black transition-colors"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Select date for call back*</label>
-                <input 
-                  type="date" 
-                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700"
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Select time for call back*</label>
-                <input 
-                  type="time" 
-                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700"
+                <input
+                  type="time"
+                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Message</label>
-                <textarea 
-                  className="w-full border border-gray-300 rounded-md h-[100px] p-4 outline-none focus:border-black resize-none"
+                <textarea
+                  className="w-full border border-gray-300 rounded-md h-[100px] p-4 outline-none focus:border-black resize-none transition-colors"
                 ></textarea>
               </div>
 
-              <button 
-                type="button" 
-                className="w-full bg-[#00c3ff] text-white font-bold h-[50px] rounded-full mt-2 hover:bg-[#00a0d6] transition-colors"
+              <button
+                type="button"
+                className="w-full bg-[#00c3ff] text-white font-bold h-[50px] rounded-full mt-2 hover:bg-[#00a0d6] transition-colors shadow-md"
               >
                 Submit Now
               </button>
-              
+
               <p className="text-[9px] text-center text-gray-400 mt-2">
                 Your Contact profile name will be shared. Never submit password.
               </p>

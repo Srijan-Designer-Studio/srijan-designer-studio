@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutSrijan() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/aboutmodel.png"; 
+  const imageSrc = "/images/aboutmodel.png";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -37,23 +37,23 @@ export default function AboutSrijan() {
     <section className="py-20 lg:py-32 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
+
           <div className="max-w-[600px]">
             <h2 className="about-srijan-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-8">
               “SRIJAN” means Creation.
             </h2>
             <p className="about-srijan-text text-[17px] leading-[1.7] text-gray-800 mb-6">
-              And that is exactly what we do. We don’t just sell clothes; we create 
+              And that is exactly what we do. We don’t just sell clothes; we create
               statements, memories and moments.
             </p>
             <p className="about-srijan-text text-[17px] leading-[1.7] text-gray-800 mb-6">
-              At <strong className="font-bold text-black">SRIJAN Fashion</strong>, we believe 
-              that fashion shouldn’t be limited by what’s on a rack. Whether it’s a 
-              screenshot from Instagram, a sketch on a napkin or a dream you’ve had 
+              At <strong className="font-bold text-black">SRIJAN Fashion</strong>, we believe
+              that fashion shouldn’t be limited by what’s on a rack. Whether it’s a
+              screenshot from Instagram, a sketch on a napkin or a dream you’ve had
               since you were five we exist to bring it to life.
             </p>
             <p className="about-srijan-text text-[17px] leading-[1.7] text-gray-800">
-              We are a new-age fashion house in Kolkata that bridges the gap between 
+              We are a new-age fashion house in Kolkata that bridges the gap between
               exclusive designer luxury and accessible, custom fashion.
             </p>
           </div>

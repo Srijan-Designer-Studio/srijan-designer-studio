@@ -30,7 +30,7 @@ const EthicHero = () => {
   }, { scope: containerRef });
 
   return (
-    <section className="py-8 bg-[#fafafa]" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <div className="ethnic-hero-anim opacity-0">
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}

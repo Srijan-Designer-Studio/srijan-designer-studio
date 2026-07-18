@@ -18,7 +18,7 @@ export default function AboutHero() {
   }, { scope: containerRef });
 
   return (
-    <section className="relative w-full h-screen min-h-[600px] -mt-[90px]" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       
       <div className="absolute inset-0 w-full h-full z-0">
         {bgImageSrc ? (

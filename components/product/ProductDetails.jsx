@@ -1,22 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Heart, Minus, Plus, ShoppingCart, Zap, Check } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { allProducts } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
 export default function ProductDetails({ id }) {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistItems } = useCart();
+  const containerRef = useRef(null);
   
   const [size, setSize] = useState("S");
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState("description");
   const [isAdded, setIsAdded] = useState(false);
 
   const product = allProducts.find((item) => item.id.toString() === id?.toString());
+
+  useGSAP(() => {
+    if (!product) return;
+    const tl = gsap.timeline();
+    tl.fromTo(
+      ".prod-img",
+      { x: -50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 1, ease: "power4.out" }
+    ).fromTo(
+      ".prod-info",
+      { x: 50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" },
+      "-=0.7"
+    );
+  }, { scope: containerRef, dependencies: [product] });
 
   if (!product) {
     return (
@@ -28,14 +45,6 @@ export default function ProductDetails({ id }) {
   }
 
   const sizes = ["S", "M", "L", "XL", "XXL"];
-  
-  const tabs = [
-    { id: "description", label: "Description" },
-    { id: "material", label: "Material & Care" },
-    { id: "shipping", label: "Shipping Policy" },
-    { id: "return", label: "Return/Exchange Policy" },
-  ];
-
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
 
   const handleAddToCart = () => {
@@ -49,17 +58,13 @@ export default function ProductDetails({ id }) {
     router.push("/checkout");
   };
 
-  const handleWishlist = () => {
-    toggleWishlist(product);
-  };
-
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16">
           
-          <div className="w-full max-w-[500px] mx-auto lg:mx-0">
+          <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0">
             <div className="relative w-full aspect-[3/4] rounded-[24px] border border-gray-200 overflow-hidden mb-6 bg-gray-50">
               {product.image && (
                 <Image 
@@ -74,19 +79,19 @@ export default function ProductDetails({ id }) {
 
           <div className="flex flex-col pt-2">
             
-            <h1 className="text-3xl lg:text-[34px] font-bold text-black leading-[1.2] mb-4">
+            <h1 className="prod-info text-3xl lg:text-[34px] font-bold text-black leading-[1.2] mb-4">
               {product.title}
             </h1>
             
-            <p className="text-2xl font-bold text-black mb-6">
+            <p className="prod-info text-2xl font-bold text-black mb-6">
               ₹{product.price?.toLocaleString('en-IN') || product.price}
             </p>
             
-            <p className="text-[15px] text-[#333] leading-relaxed mb-8">
+            <p className="prod-info text-[15px] text-[#333] leading-relaxed mb-8">
               Experience the perfect blend of style and comfort with our {product.title}. Carefully crafted for a premium feel.
             </p>
 
-            <div className="mb-8">
+            <div className="prod-info mb-8">
               <h3 className="text-lg font-bold text-black mb-4">Size</h3>
               <div className="flex flex-wrap items-center gap-3">
                 {sizes.map((s) => (
@@ -105,7 +110,7 @@ export default function ProductDetails({ id }) {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+            <div className="prod-info flex flex-col sm:flex-row items-center gap-4 mb-6">
               <div className="flex items-center justify-between border border-gray-300 rounded-lg w-full sm:w-[140px] h-[52px] px-4 shrink-0 bg-gray-50">
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-600 hover:text-black">
                   <Minus size={20} strokeWidth={2} />
@@ -117,7 +122,7 @@ export default function ProductDetails({ id }) {
               </div>
               
               <button 
-                onClick={handleWishlist}
+                onClick={() => toggleWishlist(product)}
                 className={`w-full sm:flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm ${
                   isWishlisted 
                     ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' 
@@ -129,7 +134,7 @@ export default function ProductDetails({ id }) {
               </button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <div className="prod-info flex flex-col sm:flex-row gap-4 mt-2">
               <button 
                 onClick={handleAddToCart}
                 disabled={isAdded}

@@ -57,7 +57,7 @@ export default function Testimonials() {
   useGSAP(() => {
     // 1. Fade up and scale cards as they scroll into view
     const cards = gsap.utils.toArray(".test-card");
-    
+
     cards.forEach((card) => {
       gsap.fromTo(
         card,
@@ -94,7 +94,7 @@ export default function Testimonials() {
 
   return (
     <section ref={containerRef} className="relative w-full bg-white pb-[20vh]">
-      
+
       {/* STICKY BACKGROUND TEXT (Matches the reference video perfectly) */}
       <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden pointer-events-none z-0 px-4">
         <div className="bg-text-wrapper flex flex-col items-start -mt-20 lg:-mt-10">
@@ -110,23 +110,23 @@ export default function Testimonials() {
       {/* SCROLLING FLOATING CARDS */}
       <div className="relative z-10 max-w-[1200px] mx-auto px-6 pt-[50vh] flex flex-col">
         {reviews.map((item, index) => {
-          
+
           // Asymmetrical layout mapping to create the floating staggered effect
           let alignmentClass = "";
           let marginClass = "";
-          
-          if (index === 0) { 
-            alignmentClass = "self-start"; 
-            marginClass = "mt-0"; 
-          } else if (index === 1) { 
-            alignmentClass = "self-end"; 
-            marginClass = "mt-[15vh] lg:mt-[20vh]"; 
-          } else if (index === 2) { 
-            alignmentClass = "self-start md:self-center"; 
-            marginClass = "mt-[15vh] lg:mt-[25vh]"; 
-          } else if (index === 3) { 
-            alignmentClass = "self-end md:self-start"; 
-            marginClass = "mt-[15vh] lg:mt-[15vh]"; 
+
+          if (index === 0) {
+            alignmentClass = "self-start";
+            marginClass = "mt-0";
+          } else if (index === 1) {
+            alignmentClass = "self-end";
+            marginClass = "mt-[15vh] lg:mt-[20vh]";
+          } else if (index === 2) {
+            alignmentClass = "self-start md:self-center";
+            marginClass = "mt-[15vh] lg:mt-[25vh]";
+          } else if (index === 3) {
+            alignmentClass = "self-end md:self-start";
+            marginClass = "mt-[15vh] lg:mt-[15vh]";
           }
 
           return (
@@ -134,7 +134,7 @@ export default function Testimonials() {
               key={item.id}
               className={`test-card w-full max-w-[360px] md:max-w-[400px] ${alignmentClass} ${marginClass} bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100`}
             >
-              
+
               {/* User Info Header */}
               <div className="flex items-center gap-4 mb-5">
                 <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-gray-200">
@@ -175,12 +175,12 @@ export default function Testimonials() {
               <p className="text-gray-800 text-[15px] leading-[1.7] font-medium">
                 {item.review}
               </p>
-              
+
             </div>
           );
         })}
       </div>
-      
+
     </section>
   );
 }

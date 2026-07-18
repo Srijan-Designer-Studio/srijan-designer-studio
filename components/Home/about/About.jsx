@@ -89,15 +89,15 @@ export default function About() {
     <section ref={containerRef} className="py-20 lg:py-32 bg-gradient-to-r from-white to-[#eef2f6] overflow-hidden">
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10 items-center">
-          
+
           <div className="relative w-full flex justify-center lg:justify-end lg:pr-16">
-            <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg bg-[#eab308] flex items-center justify-center">              
+            <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg bg-[#eab308] flex items-center justify-center">
               <Image
                 src="/images/collection1.png"
                 alt="Main About Image"
                 fill
                 className="object-cover"
-              /> 
+              />
             </div>
 
             <div className="absolute top-1/2 -translate-y-1/2 -left-2 sm:left-4 lg:-left-4 z-10 about-img-overlay">
@@ -107,7 +107,7 @@ export default function About() {
                   alt="Overlay About Image"
                   fill
                   className="bg-center bg-cover"
-                /> 
+                />
               </div>
             </div>
           </div>

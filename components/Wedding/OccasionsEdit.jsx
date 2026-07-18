@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const occasionsData = [
   { id: 1, title: "Sangeet Edits", imageSrc: "/images/collection1.png" },
@@ -14,29 +19,54 @@ const occasionsData = [
 
 export default function OccasionsEdit() {
   const [activeTab, setActiveTab] = useState("WOMEN");
+  const containerRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".occasion-head",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
+    ).fromTo(
+      ".occasion-card",
+      { y: 50, opacity: 0, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
+      "-=0.4"
+    ).fromTo(
+      ".occasion-btn",
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+      "-=0.4"
+    );
+  }, { scope: containerRef });
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 flex flex-col items-center">
-        
-        <h2 className="text-2xl sm:text-3xl font-bold text-black mb-6 text-center">
+
+        <h2 className="occasion-head text-2xl sm:text-3xl font-bold text-black mb-6 text-center">
           Choose Edit By Occassions
         </h2>
 
-        <div className="flex items-center gap-8 mb-12">
+        <div className="occasion-head flex items-center gap-8 mb-12">
           <button
             onClick={() => setActiveTab("WOMEN")}
-            className={`text-[14px] uppercase tracking-wide pb-1 border-b-2 transition-colors ${
-              activeTab === "WOMEN" ? "text-black border-black font-bold" : "text-gray-500 border-transparent hover:text-black font-medium"
-            }`}
+            className={`text-[14px] uppercase tracking-wide pb-1 border-b-2 transition-colors ${activeTab === "WOMEN" ? "text-black border-black font-bold" : "text-gray-500 border-transparent hover:text-black font-medium"
+              }`}
           >
             WOMEN
           </button>
           <button
             onClick={() => setActiveTab("MEN")}
-            className={`text-[14px] uppercase tracking-wide pb-1 border-b-2 transition-colors ${
-              activeTab === "MEN" ? "text-black border-black font-bold" : "text-gray-500 border-transparent hover:text-black font-medium"
-            }`}
+            className={`text-[14px] uppercase tracking-wide pb-1 border-b-2 transition-colors ${activeTab === "MEN" ? "text-black border-black font-bold" : "text-gray-500 border-transparent hover:text-black font-medium"
+              }`}
           >
             MEN
           </button>
@@ -44,7 +74,7 @@ export default function OccasionsEdit() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10 w-full mb-12">
           {occasionsData.map((item) => (
-            <div key={item.id} className="flex flex-col items-center cursor-pointer group">
+            <div key={item.id} className="occasion-card flex flex-col items-center cursor-pointer group">
               <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
                 {item.imageSrc && (
                   <Image
@@ -62,10 +92,10 @@ export default function OccasionsEdit() {
           ))}
         </div>
 
-        <button className="px-8 py-3.5 bg-[#00c3ff] text-white rounded-full font-bold text-[13px] tracking-wide hover:bg-[#00a0d6] transition-colors">
+        <button className="occasion-btn px-8 py-3.5 bg-[#00c3ff] text-white rounded-full font-bold text-[13px] tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md">
           Choose Your Occassion
         </button>
-        
+
       </div>
     </section>
   );

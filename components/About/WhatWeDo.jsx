@@ -29,7 +29,7 @@ const servicesData = [
 
 export default function WhatWeDo() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/whatwedo.png"; 
+  const imageSrc = "/images/whatwedo.png";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -56,7 +56,7 @@ export default function WhatWeDo() {
     <section className="py-20 lg:py-32 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
+
           <div className="w-full flex justify-center lg:justify-start">
             <div className="wwd-img relative w-full max-w-[480px] aspect-[4/5] rounded-[32px] overflow-hidden bg-[#f0f4f8]">
               {imageSrc ? (
@@ -64,7 +64,7 @@ export default function WhatWeDo() {
                   src={imageSrc}
                   alt="Srijan Fashion Mannequin"
                   fill
-                  className="object-contain p-4" 
+                  className="object-contain p-4"
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">

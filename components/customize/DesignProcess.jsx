@@ -102,7 +102,7 @@ export default function DesignProcess() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="designer-card flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg border border-white/10">
-                 <Image src="/images/mithu-roy.jpg" alt="Mithu Roy" fill className="object-cover" />
+                <Image src="/images/mithu-roy.jpg" alt="Mithu Roy" fill className="object-cover" />
               </div>
               <div>
                 <p className="text-sm mb-2 text-gray-300">Crafting unique, client-inspired designs with creativity and precision.</p>
@@ -112,7 +112,7 @@ export default function DesignProcess() {
             </div>
             <div className="designer-card flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg border border-white/10">
-                 <Image src="/images/joydeep.jpg" alt="Joydeep Chakraborty" fill className="object-cover" />
+                <Image src="/images/joydeep.jpg" alt="Joydeep Chakraborty" fill className="object-cover" />
               </div>
               <div>
                 <p className="text-sm mb-2 text-gray-300">Bringing every custom design idea to life with care.</p>

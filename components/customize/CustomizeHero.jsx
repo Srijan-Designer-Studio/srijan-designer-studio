@@ -23,7 +23,7 @@ export default function CustomizeHero() {
   }, { scope: containerRef });
 
   return (
-    <section className="relative w-full h-screen min-h-[400px]" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
         src="/images/man1.png"
         alt="Create Your Own Designer Dress"

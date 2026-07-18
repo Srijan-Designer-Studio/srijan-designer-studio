@@ -54,23 +54,23 @@ export default function BaseStyles() {
   return (
     <section className="py-16 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 text-center">
-        
+
         <h2 className="base-title text-3xl font-bold text-black mb-10">Start With a Base Style</h2>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           {styles.map((style) => (
-            <Link 
-              href={style.link} 
-              key={style.id} 
+            <Link
+              href={style.link}
+              key={style.id}
               className="base-card flex flex-col items-center group cursor-pointer"
             >
               <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200 transition-shadow group-hover:shadow-lg">
                 {style.image && (
-                  <Image 
-                    src={style.image} 
-                    alt={style.title} 
-                    fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                  <Image
+                    src={style.image}
+                    alt={style.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
               </div>

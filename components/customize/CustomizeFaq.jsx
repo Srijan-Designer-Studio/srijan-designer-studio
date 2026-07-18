@@ -61,17 +61,16 @@ export default function CustomizeFaq() {
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
             <div key={idx} className="faq-item-anim bg-[#e6f4fc] rounded-xl overflow-hidden transition-shadow hover:shadow-md">
-              <button 
+              <button
                 onClick={() => setOpen(open === idx ? null : idx)}
                 className="w-full flex items-center justify-between p-5 text-left text-black font-medium text-[15px]"
               >
                 {faq.q}
                 {open === idx ? <ChevronUp size={20} className="text-[#00c3ff]" /> : <ChevronDown size={20} className="text-gray-500" />}
               </button>
-              <div 
-                className={`transition-all duration-300 ease-in-out ${
-                  open === idx ? "max-h-40 opacity-100 p-5 pt-0" : "max-h-0 opacity-0 px-5"
-                }`}
+              <div
+                className={`transition-all duration-300 ease-in-out ${open === idx ? "max-h-40 opacity-100 p-5 pt-0" : "max-h-0 opacity-0 px-5"
+                  }`}
               >
                 <div className="text-gray-600 text-sm leading-relaxed">
                   {faq.a}

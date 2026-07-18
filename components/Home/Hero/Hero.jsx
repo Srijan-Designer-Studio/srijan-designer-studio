@@ -59,7 +59,7 @@ export default function Hero() {
   }, { dependencies: [slideChangeTracker], scope: containerRef });
 
   return (
-    <section className="relative -mt-[90px]" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Swiper
         modules={[EffectFade, Autoplay]}
         effect="fade"
