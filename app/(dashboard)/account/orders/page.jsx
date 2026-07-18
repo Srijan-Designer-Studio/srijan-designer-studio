@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Package, Download, Eye } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
@@ -10,7 +10,8 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function CustomerOrdersPage() {
+// 1. We moved your actual page logic into a "Content" component
+function OrdersContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -59,7 +60,8 @@ export default function CustomerOrdersPage() {
   ];
 
   return (
-    <div className="max-w-6xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
+    // Tailwind typo fixed here (removed broken pt-[100px] class)
+    <div className="max-w-6xl space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
@@ -117,5 +119,18 @@ export default function CustomerOrdersPage() {
         )}
       </Modal>
     </div>
+  );
+}
+
+// 2. The default export now wraps the content in Suspense to satisfy Next.js static build requirements
+export default function CustomerOrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
+      </div>
+    }>
+      <OrdersContent />
+    </Suspense>
   );
 }
