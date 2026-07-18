@@ -1,6 +1,14 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { User, Calendar, ArrowUpRight } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const blogsData = Array(9).fill({
   title: "How to Build a Data-Driven Social Media Strategy (Step-by-Step Framework)",
@@ -14,16 +22,46 @@ const blogsData = Array(9).fill({
 }));
 
 export default function LatestBlogs() {
+  const containerRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".latest-head",
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
+    ).fromTo(
+      ".latest-card",
+      { y: 60, opacity: 0, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
+      "-=0.4"
+    ).fromTo(
+      ".latest-pagination",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      "-=0.4"
+    );
+  }, { scope: containerRef });
+
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-12">
-          Latest Blogs
-        </h2>
+        <div className="overflow-hidden mb-12">
+          <h2 className="latest-head text-3xl md:text-4xl font-bold text-center text-black">
+            Latest Blogs
+          </h2>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-16">
           {blogsData.map((blog) => (
-            <div key={blog.id} className="border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
+            <div key={blog.id} className="latest-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
               <Link href={blog.link} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
                 <Image 
                   src={blog.image} 
@@ -60,7 +98,7 @@ export default function LatestBlogs() {
           ))}
         </div>
 
-        <div className="flex justify-center items-center gap-3">
+        <div className="latest-pagination flex justify-center items-center gap-3">
           <div className="w-10 h-1.5 rounded-full bg-[#00c3ff] cursor-pointer"></div>
           <div className="w-10 h-1.5 rounded-full bg-[#00c3ff]/30 cursor-pointer hover:bg-[#00c3ff]/60 transition-colors"></div>
           <div className="w-10 h-1.5 rounded-full bg-[#00c3ff]/30 cursor-pointer hover:bg-[#00c3ff]/60 transition-colors"></div>

@@ -1,6 +1,14 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { User, Calendar, ArrowUpRight } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const relatedBlogs = Array(3).fill({
   title: "How to Build a Data-Driven Social Media Strategy (Step-by-Step Framework)",
@@ -14,15 +22,40 @@ const relatedBlogs = Array(3).fill({
 }));
 
 export default function RelatedBlogs() {
+  const containerRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 85%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".related-head",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
+    ).fromTo(
+      ".related-card",
+      { y: 50, opacity: 0, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
+      "-=0.4"
+    );
+  }, { scope: containerRef });
+
   return (
-    <section className="py-16 bg-[#f4f5f7]">
+    <section className="py-16 bg-[#f4f5f7]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <h2 className="text-3xl font-bold text-center text-black mb-10">
-          Related Blogs
-        </h2>
+        <div className="overflow-hidden mb-10">
+          <h2 className="related-head text-3xl font-bold text-center text-black">
+            Related Blogs
+          </h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {relatedBlogs.map((blog) => (
-            <div key={blog.id} className="border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
+            <div key={blog.id} className="related-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
               <Link href={blog.link} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
                 <Image 
                   src={blog.image} 

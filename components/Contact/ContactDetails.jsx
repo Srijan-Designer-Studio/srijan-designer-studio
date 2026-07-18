@@ -1,16 +1,46 @@
-import Image from "next/image";
+"use client";
+
+import { useRef } from "react";
 import { MapPin, Phone, Mail } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function ContactDetails() {
+    const containerRef = useRef(null);
+
+    useGSAP(() => {
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 75%",
+                toggleActions: "play none none reverse",
+            }
+        });
+
+        tl.fromTo(
+            ".contact-anim",
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
+        ).fromTo(
+            ".contact-form-card",
+            { x: 40, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.8, ease: "power4.out" },
+            "-=0.6"
+        );
+    }, { scope: containerRef });
+
     return (
-        <section className="py-20 bg-[#f8f9fa]">
+        <section className="py-20 bg-[#f8f9fa]" ref={containerRef}>
             <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
                 <div>
-                    <h2 className="text-2xl md:text-[28px] font-bold text-black mb-8">Store Location</h2>
+                    <h2 className="contact-anim text-2xl md:text-[28px] font-bold text-black mb-8">Store Location</h2>
 
                     <div className="space-y-6 mb-10">
-                        <div className="flex items-start gap-4">
+                        <div className="contact-anim flex items-start gap-4">
                             <div className="w-12 h-12 rounded-full bg-[#00c3ff] flex items-center justify-center shrink-0 text-white">
                                 <MapPin size={24} />
                             </div>
@@ -22,7 +52,7 @@ export default function ContactDetails() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4">
+                        <div className="contact-anim flex items-start gap-4">
                             <div className="w-12 h-12 rounded-full bg-[#00c3ff] flex items-center justify-center shrink-0 text-white">
                                 <Phone size={24} />
                             </div>
@@ -32,7 +62,7 @@ export default function ContactDetails() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4">
+                        <div className="contact-anim flex items-start gap-4">
                             <div className="w-12 h-12 rounded-full bg-[#00c3ff] flex items-center justify-center shrink-0 text-white">
                                 <Mail size={24} />
                             </div>
@@ -43,7 +73,7 @@ export default function ContactDetails() {
                         </div>
                     </div>
 
-                    <div className="relative w-full aspect-[4/3] rounded-[20px] overflow-hidden border-[8px] border-[#00c3ff] shadow-lg">
+                    <div className="contact-anim relative w-full aspect-[4/3] rounded-[20px] overflow-hidden border-[8px] border-[#00c3ff] shadow-lg">
                         <iframe
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin"
                             width="100%"
@@ -54,12 +84,11 @@ export default function ContactDetails() {
                             referrerPolicy="no-referrer-when-downgrade"
                             title="Srijan Fashion Location"
                         >
-
                         </iframe>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[24px] p-8 md:p-10 shadow-2xl shadow-gray-200/60 lg:mt-0 mt-8">
+                <div className="contact-form-card bg-white rounded-[24px] p-8 md:p-10 shadow-2xl shadow-gray-200/60 lg:mt-0 mt-8">
                     <h2 className="text-[32px] font-medium text-black mb-8 leading-tight">
                         Drop Your Message<br />Here
                     </h2>

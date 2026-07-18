@@ -1,6 +1,13 @@
-import Image from "next/image";
+"use client";
 
-// Data array for the services list to keep the JSX clean
+import { useRef } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
 const servicesData = [
   {
     title: "For The Trendsetters (Ready-to-Wear):",
@@ -21,17 +28,37 @@ const servicesData = [
 ];
 
 export default function WhatWeDo() {
-  
-  const imageSrc = "/images/aboutmodel.png"; 
+  const containerRef = useRef(null);
+  const imageSrc = "/images/whatwedo.png"; 
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 75%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(
+      ".wwd-img",
+      { x: -50, opacity: 0, scale: 0.95 },
+      { x: 0, opacity: 1, scale: 1, duration: 1, ease: "power4.out" }
+    ).fromTo(
+      ".wwd-text",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" },
+      "-=0.6"
+    );
+  }, { scope: containerRef });
 
   return (
-    <section className="py-20 lg:py-32 bg-white">
+    <section className="py-20 lg:py-32 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           
-          {/* Left Side: Image Container */}
           <div className="w-full flex justify-center lg:justify-start">
-            <div className="relative w-full max-w-[480px] aspect-[4/5] rounded-[32px] overflow-hidden bg-[#f0f4f8]">
+            <div className="wwd-img relative w-full max-w-[480px] aspect-[4/5] rounded-[32px] overflow-hidden bg-[#f0f4f8]">
               {imageSrc ? (
                 <Image
                   src={imageSrc}
@@ -40,36 +67,25 @@ export default function WhatWeDo() {
                   className="object-contain p-4" 
                 />
               ) : (
-                // Light grey-blue placeholder matching the image's backdrop
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-gray-500 font-bold tracking-widest bg-white/60 px-4 py-2 rounded-lg text-sm uppercase">
                     WHAT WE DO IMAGE
                   </span>
-                  <p className="text-gray-400 text-xs mt-4">
-                    Place a transparent PNG of the mannequin here.
-                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right Side: Text Content */}
           <div className="max-w-[650px]">
-            
-            {/* Main Heading */}
-            <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-6">
+            <h2 className="wwd-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-6">
               What We Do
             </h2>
-
-            {/* Subtitle */}
-            <p className="text-[17px] text-gray-800 leading-relaxed mb-8">
+            <p className="wwd-text text-[17px] text-gray-800 leading-relaxed mb-8">
               We are not just a boutique; we are a full-spectrum fashion hub.
             </p>
-
-            {/* Bulleted List */}
             <ul className="space-y-6 list-disc pl-5 marker:text-black">
               {servicesData.map((service, index) => (
-                <li key={index} className="pl-2">
+                <li key={index} className="wwd-text pl-2">
                   <p className="text-[16px] lg:text-[17px] leading-[1.65] text-gray-800">
                     <strong className="font-bold text-black">
                       {service.title}
@@ -79,7 +95,6 @@ export default function WhatWeDo() {
                 </li>
               ))}
             </ul>
-
           </div>
 
         </div>
