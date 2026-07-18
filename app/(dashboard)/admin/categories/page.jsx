@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import { Plus, Edit2, Trash2, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
@@ -9,7 +9,8 @@ import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import Search from '@/components/dashboard/shared/Search';
 import Modal from '@/components/dashboard/shared/Modal';
 
-export default function AdminCategoriesPage() {
+
+function CategoriesContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [dragActive, setDragActive] = useState(false);
@@ -195,5 +196,14 @@ export default function AdminCategoriesPage() {
       </Modal>
 
     </div>
+  );
+}
+
+
+export default function AdminCategoriesPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading categories...</div>}>
+      <CategoriesContent />
+    </Suspense>
   );
 }
