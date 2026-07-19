@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -8,28 +8,83 @@ import Search from '@/components/dashboard/shared/Search';
 import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
+import { getAdminProducts, createProduct, updateProduct, deleteProduct } from '@/app/actions/admin';
 
-function ProductsContent() {
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
-  const products = [
-    { id: 1, name: 'Silk Embroidered Saree', sku: 'SRJ-001', category: 'Sarees', price: '₹12,500', stock: 15, status: 'Active' },
-    { id: 2, name: 'Velvet Zari Lehenga', sku: 'SRJ-002', category: 'Lehengas', price: '₹35,000', stock: 2, status: 'Pending' },
-    { id: 3, name: 'Cotton Block Print Kurta', sku: 'SRJ-003', category: 'Kurtas', price: '₹2,800', stock: 0, status: 'Inactive' },
-    { id: 4, name: 'Bridal Kanjivaram', sku: 'SRJ-004', category: 'Sarees', price: '₹45,000', stock: 8, status: 'Active' },
-    { id: 5, name: 'Georgette Anarkali Suit', sku: 'SRJ-005', category: 'Suits', price: '₹8,500', stock: 22, status: 'Active' },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAdminProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleAddProduct = () => {
+    setSelectedProduct(null);
     setModalMode('add');
     setIsModalOpen(true);
   };
 
   const handleEditProduct = (product) => {
+    setSelectedProduct(product.rawProduct);
     setModalMode('edit');
     setIsModalOpen(true);
   };
+
+  const handleDeleteProduct = (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      startTransition(async () => {
+        await deleteProduct(productId);
+        const updatedData = await getAdminProducts();
+        setProducts(updatedData);
+      });
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    startTransition(async () => {
+      if (modalMode === 'add') {
+        await createProduct(formData);
+      } else {
+        await updateProduct(selectedProduct.id, formData);
+      }
+      const updatedData = await getAdminProducts();
+      setProducts(updatedData);
+      setIsModalOpen(false);
+    });
+  };
+
+  const formattedProducts = products.map(product => {
+    const mainVariant = product.product_variants?.[0];
+    const totalStock = product.product_variants?.reduce((sum, v) => sum + v.inventory_count, 0) || 0;
+    
+    return {
+      rawProduct: product,
+      id: product.id,
+      name: product.title,
+      sku: mainVariant?.sku || 'N/A',
+      category: product.categories?.name || 'Uncategorized',
+      price: `₹${product.base_price.toLocaleString('en-IN')}`,
+      stock: totalStock,
+      status: !product.is_active ? 'Inactive' : totalStock > 0 ? 'Active' : 'Pending'
+    };
+  });
 
   const productColumns = [
     { 
@@ -69,7 +124,10 @@ function ProductsContent() {
           >
             Edit
           </button>
-          <button className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors">
+          <button 
+            onClick={() => handleDeleteProduct(row.id)}
+            className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors"
+          >
             Delete
           </button>
         </div>
@@ -78,11 +136,14 @@ function ProductsContent() {
   ];
 
   const categoryOptions = [
+    { label: 'All Categories', value: 'all' },
     { label: 'Sarees', value: 'sarees' },
     { label: 'Lehengas', value: 'lehengas' },
     { label: 'Kurtas', value: 'kurtas' },
     { label: 'Suits', value: 'suits' },
   ];
+
+  if (isLoading) return <div className="p-10 text-center text-gray-500">Loading products...</div>;
 
   return (
     <div className="space-y-6">
@@ -109,9 +170,7 @@ function ProductsContent() {
             <Filter options={categoryOptions} defaultValue="All Categories" />
           </div>
         </div>
-
-        <Table columns={productColumns} data={products} />
-
+        <Table columns={productColumns} data={formattedProducts} />
         <Pagination />
       </Card>
 
@@ -119,67 +178,80 @@ function ProductsContent() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
         title={modalMode === 'add' ? "Add New Product" : "Edit Product"}
-        footer={
-          <>
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => {
-                alert(`Product ${modalMode === 'add' ? 'added' : 'updated'} successfully!`);
-                setIsModalOpen(false);
-              }}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              {modalMode === 'add' ? "Save Product" : "Save Changes"}
-            </button>
-          </>
-        }
       >
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Silk Saree" />
+            <input 
+              name="title"
+              type="text" 
+              defaultValue={selectedProduct?.title || ""}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
-              <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="SRJ-000" />
+              <input 
+                name="sku"
+                type="text" 
+                defaultValue={selectedProduct?.product_variants?.[0]?.sku || ""}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
-              <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.00" />
+              <input 
+                name="price"
+                type="number" 
+                defaultValue={selectedProduct?.base_price || ""}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option>Sarees</option>
-                <option>Lehengas</option>
-                <option>Kurtas</option>
-                <option>Suits</option>
+              <select name="categoryId" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="sarees">Sarees</option>
+                <option value="lehengas">Lehengas</option>
+                <option value="kurtas">Kurtas</option>
+                <option value="suits">Suits</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
-              <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" defaultValue="0" />
+              <input 
+                name="stock"
+                type="number" 
+                defaultValue={selectedProduct?.product_variants?.[0]?.inventory_count || 0}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
             </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button 
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70"
+            >
+              {isPending ? 'Saving...' : modalMode === 'add' ? "Save Product" : "Save Changes"}
+            </button>
           </div>
         </form>
       </Modal>
-
     </div>
-  );
-}
-
-export default function AdminProductsPage() {
-  return (
-    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading products...</div>}>
-      <ProductsContent />
-    </Suspense>
   );
 }

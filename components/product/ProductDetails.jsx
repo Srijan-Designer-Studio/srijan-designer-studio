@@ -1,24 +1,27 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Heart, Minus, Plus, ShoppingCart, Zap, Check } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Zap, Check, Loader2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { allProducts } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { addToCart as addToCartServer, toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
-export default function ProductDetails({ id }) {
+export default function ProductDetails({ product }) {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistItems } = useCart();
   const containerRef = useRef(null);
   
-  const [size, setSize] = useState("S");
+  // Dynamically extract available sizes from database variants
+  const availableSizes = [...new Set(product?.product_variants?.map(v => v.size).filter(Boolean))] || ["S", "M", "L"];
+  
+  const [size, setSize] = useState(availableSizes[0] || "S");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
-
-  const product = allProducts.find((item) => item.id.toString() === id?.toString());
+  const [isPending, startTransition] = useTransition();
+  const [errorMsg, setErrorMsg] = useState("");
 
   useGSAP(() => {
     if (!product) return;
@@ -35,80 +38,105 @@ export default function ProductDetails({ id }) {
     );
   }, { scope: containerRef, dependencies: [product] });
 
-  if (!product) {
-    return (
-      <div className="py-32 text-center flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found!</h2>
-        <p className="text-gray-500">The product you are looking for does not exist.</p>
-      </div>
-    );
-  }
+  if (!product) return null;
 
-  const sizes = ["S", "M", "L", "XL", "XXL"];
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+  const mainImage = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+
+  // Find the exact variant ID based on selected size
+  const selectedVariant = product.product_variants?.find(v => v.size === size) || product.product_variants?.[0];
+  const variantId = selectedVariant?.id;
+  const currentPrice = product.base_price + (selectedVariant?.price_adjustment || 0);
 
   const handleAddToCart = () => {
-    addToCart({ ...product, selectedSize: size }, quantity);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    setErrorMsg("");
+    startTransition(async () => {
+      try {
+        await addToCartServer(variantId, quantity);
+        // Optimistic UI update
+        addToCart({ 
+          id: product.id, 
+          variantId, 
+          title: product.title, 
+          price: currentPrice, 
+          image: mainImage, 
+          size 
+        }, quantity);
+        
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000);
+      } catch (error) {
+        setErrorMsg("Please log in to add items to your cart.");
+      }
+    });
   };
 
   const handleBuyNow = () => {
-    addToCart({ ...product, selectedSize: size }, quantity);
-    router.push("/checkout");
+    setErrorMsg("");
+    startTransition(async () => {
+      try {
+        await addToCartServer(variantId, quantity);
+        addToCart({ id: product.id, variantId, title: product.title, price: currentPrice, image: mainImage, size }, quantity);
+        router.push("/checkout");
+      } catch (error) {
+        setErrorMsg("Please log in to proceed to checkout.");
+      }
+    });
+  };
+
+  const handleWishlist = () => {
+    startTransition(async () => {
+      try {
+        await toggleWishlistServer(product.id);
+        toggleWishlist(product);
+      } catch (error) {
+        setErrorMsg("Please log in to manage your wishlist.");
+      }
+    });
   };
 
   return (
     <section className="py-12 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16">
           
           <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0">
             <div className="relative w-full aspect-[3/4] rounded-[24px] border border-gray-200 overflow-hidden mb-6 bg-gray-50">
-              {product.image && (
-                <Image 
-                  src={product.image} 
-                  alt={product.title} 
-                  fill 
-                  className="object-cover object-top"
-                />
-              )}
+              <Image src={mainImage} alt={product.title} fill className="object-cover object-top" />
             </div>
           </div>
 
           <div className="flex flex-col pt-2">
-            
             <h1 className="prod-info text-3xl lg:text-[34px] font-bold text-black leading-[1.2] mb-4">
               {product.title}
             </h1>
             
             <p className="prod-info text-2xl font-bold text-black mb-6">
-              ₹{product.price?.toLocaleString('en-IN') || product.price}
+              ₹{currentPrice.toLocaleString('en-IN')}
             </p>
             
             <p className="prod-info text-[15px] text-[#333] leading-relaxed mb-8">
-              Experience the perfect blend of style and comfort with our {product.title}. Carefully crafted for a premium feel.
+              {product.description || `Experience the perfect blend of style and comfort with our ${product.title}. Carefully crafted for a premium feel.`}
             </p>
 
-            <div className="prod-info mb-8">
-              <h3 className="text-lg font-bold text-black mb-4">Size</h3>
-              <div className="flex flex-wrap items-center gap-3">
-                {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className={`w-12 h-12 flex items-center justify-center border rounded-lg text-[16px] transition-colors ${
-                      size === s
-                        ? "border-black text-black font-bold"
-                        : "border-gray-300 text-black hover:border-black"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+            {availableSizes.length > 0 && (
+              <div className="prod-info mb-8">
+                <h3 className="text-lg font-bold text-black mb-4">Size</h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  {availableSizes.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      className={`w-12 h-12 flex items-center justify-center border rounded-lg text-[16px] transition-colors ${
+                        size === s ? "border-black text-black font-bold" : "border-gray-300 text-black hover:border-black"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="prod-info flex flex-col sm:flex-row items-center gap-4 mb-6">
               <div className="flex items-center justify-between border border-gray-300 rounded-lg w-full sm:w-[140px] h-[52px] px-4 shrink-0 bg-gray-50">
@@ -122,12 +150,11 @@ export default function ProductDetails({ id }) {
               </div>
               
               <button 
-                onClick={() => toggleWishlist(product)}
+                onClick={handleWishlist}
+                disabled={isPending}
                 className={`w-full sm:flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm ${
-                  isWishlisted 
-                    ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' 
-                    : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
-                }`}
+                  isWishlisted ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
+                } disabled:opacity-70`}
               >
                 <Heart size={18} strokeWidth={2.5} className={isWishlisted ? 'fill-white' : ''} />
                 {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
@@ -137,29 +164,29 @@ export default function ProductDetails({ id }) {
             <div className="prod-info flex flex-col sm:flex-row gap-4 mt-2">
               <button 
                 onClick={handleAddToCart}
-                disabled={isAdded}
+                disabled={isAdded || isPending}
                 className={`flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm ${
-                  isAdded 
-                    ? 'bg-green-500 text-white cursor-default border-transparent' 
-                    : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
-                }`}
+                  isAdded ? 'bg-green-500 text-white cursor-default border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
+                } disabled:opacity-70`}
               >
-                {isAdded ? <Check size={18} strokeWidth={2.5} /> : <ShoppingCart size={18} strokeWidth={2.5} />}
+                {isPending ? <Loader2 size={18} className="animate-spin" /> : isAdded ? <Check size={18} strokeWidth={2.5} /> : <ShoppingCart size={18} strokeWidth={2.5} />}
                 {isAdded ? "Added To Cart" : "Add To Cart"}
               </button>
 
               <button 
                 onClick={handleBuyNow}
-                className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30"
+                disabled={isPending}
+                className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30 disabled:opacity-70"
               >
-                <Zap size={18} strokeWidth={2.5} className="fill-white" />
+                {isPending ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} strokeWidth={2.5} className="fill-white" />}
                 Buy It Now
               </button>
             </div>
+
+            {errorMsg && <p className="text-red-500 text-sm mt-4 font-medium">{errorMsg}</p>}
             
           </div>
         </div>
-
       </div>
     </section>
   );

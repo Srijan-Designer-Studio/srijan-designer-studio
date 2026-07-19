@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -8,30 +8,63 @@ import Search from '@/components/dashboard/shared/Search';
 import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
+import { getAllOrders, updateOrderStatus } from '@/app/actions/admin';
 
-function OrdersContent() {
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
-  const orders = [
-    { id: '#ORD-001', customer: 'Rahul Sharma', email: 'rahul@example.com', date: 'Jul 17, 2026', items: 2, amount: '₹14,500', status: 'Pending' },
-    { id: '#ORD-002', customer: 'Priya Das', email: 'priya.das@example.com', date: 'Jul 16, 2026', items: 1, amount: '₹35,000', status: 'Processing' },
-    { id: '#ORD-003', customer: 'Amit Kumar', email: 'amitk@example.com', date: 'Jul 16, 2026', items: 3, amount: '₹8,400', status: 'Shipped' },
-    { id: '#ORD-004', customer: 'Sneha Roy', email: 'sneharoy88@example.com', date: 'Jul 15, 2026', items: 1, amount: '₹12,500', status: 'Delivered' },
-    { id: '#ORD-005', customer: 'Vikram Singh', email: 'vikram.s@example.com', date: 'Jul 14, 2026', items: 2, amount: '₹4,200', status: 'Cancelled' },
-    { id: '#ORD-006', customer: 'Neha Gupta', email: 'neha_g@example.com', date: 'Jul 14, 2026', items: 1, amount: '₹45,000', status: 'Completed' },
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await getAllOrders();
+        setOrders(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  const handleStatusUpdate = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newStatus = formData.get('status');
+
+    startTransition(async () => {
+      await updateOrderStatus(selectedOrder.id, newStatus);
+      const updatedData = await getAllOrders();
+      setOrders(updatedData);
+      setIsModalOpen(false);
+    });
+  };
 
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
+  const formattedOrders = orders.map(order => ({
+    rawOrder: order,
+    id: order.id.split('-')[0].toUpperCase(),
+    customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`,
+    email: order.profiles?.auth_users?.email || 'N/A',
+    date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at)),
+    items: order.order_items ? order.order_items.length : 0,
+    amount: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
+    status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
+  }));
+
   const orderColumns = [
     { 
       header: 'Order ID', 
       accessor: 'id', 
-      render: (row) => <span className="font-medium text-gray-900">{row.id}</span> 
+      render: (row) => <span className="font-medium text-gray-900">#{row.id}</span> 
     },
     { header: 'Date', accessor: 'date' },
     { 
@@ -64,7 +97,7 @@ function OrdersContent() {
       accessor: 'action', 
       render: (row) => (
         <button 
-          onClick={() => handleViewOrder(row)}
+          onClick={() => handleViewOrder(row.rawOrder)}
           className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
         >
           Manage
@@ -80,6 +113,8 @@ function OrdersContent() {
     { label: 'Delivered', value: 'delivered' },
     { label: 'Cancelled', value: 'cancelled' },
   ];
+
+  if (isLoading) return <div className="p-10 text-center text-gray-500">Loading orders...</div>;
 
   return (
     <div className="space-y-6">
@@ -103,50 +138,32 @@ function OrdersContent() {
             <Filter options={statusOptions} defaultValue="All Statuses" />
           </div>
         </div>
-
-        <Table columns={orderColumns} data={orders} />
-
+        <Table columns={orderColumns} data={formattedOrders} />
         <Pagination />
       </Card>
 
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        title={selectedOrder ? `Manage Order: ${selectedOrder.id}` : "Order Details"}
-        footer={
-          <>
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Close
-            </button>
-            <button 
-              onClick={() => {
-                alert("Order status updated!");
-                setIsModalOpen(false);
-              }}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              Update Status
-            </button>
-          </>
-        }
+        title={selectedOrder ? `Manage Order: #${selectedOrder.id.split('-')[0].toUpperCase()}` : "Order Details"}
       >
         {selectedOrder && (
-          <div className="space-y-6">
+          <form onSubmit={handleStatusUpdate} className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <h4 className="font-semibold text-gray-900">{selectedOrder.customer}</h4>
-                <p className="text-sm text-gray-500">{selectedOrder.email}</p>
-                <p className="text-sm text-gray-500 mt-1">Placed on: {selectedOrder.date}</p>
+                <h4 className="font-semibold text-gray-900">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</h4>
+                <p className="text-sm text-gray-500">{selectedOrder.profiles?.auth_users?.email}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Placed on: {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(selectedOrder.created_at))}
+                </p>
               </div>
-              <StatusBadge status={selectedOrder.status} />
+              <StatusBadge status={selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Change Order Status</label>
               <select 
+                name="status"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
                 defaultValue={selectedOrder.status.toLowerCase()}
               >
@@ -161,46 +178,50 @@ function OrdersContent() {
             <div className="border-t border-gray-100 pt-4">
               <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
               <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">1x Silk Embroidered Saree (SRJ-001)</span>
-                  <span className="font-medium text-gray-900">₹12,500</span>
-                </div>
-                {selectedOrder.items > 1 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">1x Cotton Block Print Kurta (SRJ-003)</span>
-                    <span className="font-medium text-gray-900">₹2,000</span>
+                {selectedOrder.order_items?.map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-sm">
+                    <span className="text-gray-600">{item.quantity}x {item.product_variants?.products?.title} ({item.product_variants?.sku})</span>
+                    <span className="font-medium text-gray-900">₹{(item.unit_price * item.quantity).toLocaleString('en-IN')}</span>
                   </div>
-                )}
+                ))}
               </div>
               
               <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Subtotal</span>
-                  <span className="text-gray-900">{selectedOrder.amount}</span>
+                  <span className="text-gray-900">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Shipping</span>
-                  <span className="text-gray-900">Free</span>
+                  <span className="text-gray-900">₹{Number(selectedOrder.shipping_fee || 0).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold mt-2">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-gray-900">{selectedOrder.amount}</span>
+                  <span className="text-gray-900">₹{(Number(selectedOrder.total_amount) + Number(selectedOrder.shipping_fee || 0)).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
 
-          </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <button 
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                disabled={isPending}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+              >
+                Close
+              </button>
+              <button 
+                type="submit"
+                disabled={isPending}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70"
+              >
+                {isPending ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </form>
         )}
       </Modal>
-
     </div>
-  );
-}
-
-export default function AdminOrdersPage() {
-  return (
-    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading orders...</div>}>
-      <OrdersContent />
-    </Suspense>
   );
 }

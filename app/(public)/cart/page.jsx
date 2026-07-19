@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -24,7 +25,7 @@ export default function CartPage() {
             <ShoppingBag size={80} className="text-gray-200 mb-6" />
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
             <p className="text-gray-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
-            <Link href="/product">
+            <Link href="/products">
               <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md uppercase tracking-wide">
                 Continue Shopping
               </button>
@@ -35,18 +36,30 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-6">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 gap-6 transition-all hover:shadow-md">
-                  <Link href={`/product/${item.id}`} className="relative w-28 h-36 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <Image src={item.image} alt={item.title || "Product"} fill className="object-cover object-top" />
+                  <Link href={`/product/${item.slug || item.id}`} className="relative w-28 h-36 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                    <Image src={item.image || "/images/placeholder.jpg"} alt={item.title || "Product"} fill className="object-cover object-top" />
                   </Link>
+                  
                   <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left w-full">
-                    <Link href={`/product/${item.id}`}>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-[#00c3ff] transition-colors line-clamp-2">
+                    <Link href={`/product/${item.slug || item.id}`}>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 hover:text-[#00c3ff] transition-colors line-clamp-2">
                         {item.title}
                       </h3>
                     </Link>
+                    
+                    {/* Render variant details if available */}
+                    {(item.size || item.color) && (
+                      <p className="text-sm text-gray-500 mb-2">
+                        {item.color && `Color: ${item.color}`} 
+                        {item.size && item.color && ' | '}
+                        {item.size && `Size: ${item.size}`}
+                      </p>
+                    )}
+
                     <p className="text-xl font-extrabold text-black mb-4">
                       ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                     </p>
+                    
                     <div className="flex items-center gap-6 w-full justify-center sm:justify-start">
                       <div className="flex items-center justify-between border border-gray-300 rounded-lg w-[120px] h-[40px] px-3 bg-gray-50">
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-gray-600 hover:text-black"><Minus size={18} /></button>

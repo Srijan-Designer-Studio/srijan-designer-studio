@@ -5,20 +5,42 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useSession } from "next-auth/react";
+import { createClient } from "@/lib/supabase/client";
 
 import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 export default function Header() {
   const { cartItems, wishlistItems, isLoaded } = useCart();
-  const { data: session, status } = useSession();
+  
+  // Supabase Auth State
+  const [user, setUser] = useState(null);
+  const [status, setStatus] = useState("loading");
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
-  
-  // স্ক্রল পজিশন ট্র্যাক করার জন্য স্টেট
   const [headerState, setHeaderState] = useState("top");
+
+  // Fetch Supabase Session on Mount
+  useEffect(() => {
+    const supabase = createClient();
+    
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setStatus(session ? "authenticated" : "unauthenticated");
+    };
+    
+    getSession();
+
+    // Listen for login/logout events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      setStatus(session ? "authenticated" : "unauthenticated");
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const closeAllMenus = () => {
     setActiveDropdown(null);
@@ -29,13 +51,12 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      
       if (currentScroll > 300) {
-        setHeaderState("scrolled"); // 300px এর পরে হেডার দেখাবে
+        setHeaderState("scrolled");
       } else if (currentScroll > 100) {
-        setHeaderState("hidden"); // 100px থেকে 300px এর মধ্যে হেডার লুকিয়ে থাকবে
+        setHeaderState("hidden");
       } else {
-        setHeaderState("top"); // একদম উপরে থাকলে হেডার নরমাল থাকবে
+        setHeaderState("top");
       }
     };
 
@@ -44,22 +65,14 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isMobileMenuOpen]);
 
   const toggleMobileDropdown = (id) => {
-    if (mobileActiveDropdown === id) {
-      setMobileActiveDropdown(null);
-    } else {
-      setMobileActiveDropdown(id);
-    }
+    setMobileActiveDropdown(mobileActiveDropdown === id ? null : id);
   };
 
   return (
@@ -84,7 +97,6 @@ export default function Header() {
           <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide">
             {NAV_DATA.map((item) => {
               const isOpen = activeDropdown === item.id;
-
               return (
                 <li
                   key={item.id}
@@ -139,17 +151,16 @@ export default function Header() {
             {NAV_ICONS.map((icon) => {
               const isCart = icon.id === "cart";
               const isWishlist = icon.id === "wishlistt";
-              
               const isUserIcon = icon.id === "user" || icon.id === "profile" || icon.id === "account";
+              
               const count = isCart ? cartItems.length : (isWishlist ? wishlistItems.length : 0);
-
               let targetHref = icon.href;
               
               if (isUserIcon) {
                 if (status === 'loading') {
                   targetHref = '#'; 
                 } else if (status === 'authenticated') {
-                  targetHref = session?.user?.role === 'admin' ? '/admin' : '/account';
+                  targetHref = user?.user_metadata?.role === 'admin' ? '/admin' : '/account';
                 } else {
                   targetHref = '/login';
                 }
@@ -187,6 +198,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "90px" }}
@@ -195,7 +207,6 @@ export default function Header() {
           <ul className="flex flex-col gap-5 text-[17px] font-bold text-gray-900">
             {NAV_DATA.map((item) => {
               const isDropdownOpen = mobileActiveDropdown === item.id;
-
               return (
                 <li key={item.id} className="border-b border-gray-100 pb-4">
                   {item.categories ? (
@@ -210,7 +221,6 @@ export default function Header() {
                           className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
                         />
                       </button>
-
                       <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"}`}>
                         <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
                           {item.categories.map((cat, idx) => (

@@ -1,44 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Mail, Lock, User } from "lucide-react";
-// NextAuth theke signIn import kora ache
-import { signIn } from "next-auth/react"; 
+import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { login, register } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // === UPDATED LOGIN LOGIC FOR NEXTAUTH ===
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const checkEmail = loginEmail.trim();
-    const checkPassword = loginPassword.trim();
-
-    // NextAuth Credentials provider call kora hocche
-    const result = await signIn("credentials", {
-      email: checkEmail,
-      password: checkPassword,
-      redirect: false, // Amra manually redirect korbo
-    });
-
-    if (result?.error) {
-      alert("Invalid Email or Password! Please try again.");
-    } else {
-      // Login successful hole admin/user onujayi redirect
-      if (checkEmail === "admin@srijan.com") {
-        router.push("/admin");
-      } else {
-        router.push("/account");
+  const handleLogin = (formData) => {
+    setErrorMessage("");
+    startTransition(async () => {
+      const result = await login(formData);
+      if (result?.error) {
+        setErrorMessage(result.error);
       }
-      router.refresh();
-    }
+    });
+  };
+
+  const handleRegister = (formData) => {
+    setErrorMessage("");
+    startTransition(async () => {
+      const result = await register(formData);
+      if (result?.error) {
+        setErrorMessage(result.error);
+      }
+    });
+  };
+
+  const handleGoogleSignIn = async () => {
+    setErrorMessage("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) setErrorMessage(error.message);
   };
 
   // SVG Icon for Google
@@ -63,19 +66,28 @@ export default function AuthPage() {
             ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0' 
             : 'opacity-100 pointer-events-auto translate-x-0 md:translate-x-[100%]'
         }`}>
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Create Account
             </h1>
             <p className="text-gray-200 text-[13px] drop-shadow-sm">Sign up with your details</p>
+            {errorMessage && !isLogin && <p className="text-red-400 text-sm mt-2">{errorMessage}</p>}
           </div>
 
-          <form className="space-y-5">
-            <div className="relative">
-              <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Full Name</span>
-              <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
-                <User className="text-white/80 mr-3 shrink-0" size={18} />
-                <input type="text" placeholder="John Doe" className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
+          <form action={handleRegister} className="space-y-5">
+            <div className="flex gap-4">
+              <div className="relative w-1/2">
+                <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">First Name</span>
+                <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
+                  <User className="text-white/80 mr-3 shrink-0" size={18} />
+                  <input name="firstName" type="text" placeholder="John" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
+                </div>
+              </div>
+              <div className="relative w-1/2">
+                <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Last Name</span>
+                <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
+                  <input name="lastName" type="text" placeholder="Doe" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
+                </div>
               </div>
             </div>
 
@@ -83,7 +95,7 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Email Id</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Mail className="text-white/80 mr-3 shrink-0" size={18} />
-                <input type="email" placeholder="thisisux@mail.com" className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
+                <input name="email" type="email" placeholder="thisisux@mail.com" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
               </div>
             </div>
 
@@ -91,26 +103,25 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Password</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Lock className="text-white/80 mr-3 shrink-0" size={18} />
-                <input type="password" placeholder="••••••••••••••" className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" />
+                <input name="password" type="password" placeholder="••••••••••••••" minLength="6" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" />
               </div>
             </div>
 
             <div className="flex flex-col gap-4 pt-2">
-              <button type="button" className="w-full cursor-pointer bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] hover:shadow-[0_0_25px_rgba(11,166,255,0.6)] uppercase tracking-wide">
+              <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 cursor-pointer bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] hover:shadow-[0_0_25px_rgba(11,166,255,0.6)] uppercase tracking-wide disabled:opacity-70">
+                {isPending && <Loader2 size={16} className="animate-spin" />}
                 REGISTER
               </button>
               
-              {/* Divider */}
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
                 <span className="mx-4 text-xs font-medium text-white/50">OR</span>
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
-              {/* Google Button */}
               <button 
                 type="button" 
-                onClick={() => signIn('google')}
+                onClick={handleGoogleSignIn}
                 className="w-full cursor-pointer flex items-center justify-center gap-3 bg-white/10 border border-white/30 hover:bg-white hover:text-black text-white font-bold text-[13px] py-3 rounded-xl transition-all uppercase tracking-wide group"
               >
                 <GoogleIcon />
@@ -119,10 +130,9 @@ export default function AuthPage() {
             </div>
           </form>
 
-          {/* Mobile Only Toggle */}
           <div className="mt-8 text-center text-[13px] md:hidden">
             <span className="text-gray-300 font-medium drop-shadow-sm">Already have an account? </span>
-            <button onClick={() => setIsLogin(true)} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
+            <button onClick={() => { setIsLogin(true); setErrorMessage(""); }} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
               Login Now
             </button>
           </div>
@@ -135,23 +145,23 @@ export default function AuthPage() {
             ? 'opacity-100 pointer-events-auto translate-x-0' 
             : 'opacity-0 pointer-events-none translate-x-[100%]'
         }`}>
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Welcome Back
             </h1>
             <p className="text-gray-200 text-[13px] drop-shadow-sm">Login with Email or Google</p>
+            {errorMessage && isLogin && <p className="text-red-400 text-sm mt-2">{errorMessage}</p>}
           </div>
 
-          <form className="space-y-5" onSubmit={handleLogin}>
+          <form action={handleLogin} className="space-y-5">
             <div className="relative">
-              <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Email / Username</span>
+              <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Email</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Mail className="text-white/80 mr-3 shrink-0" size={18} />
                 <input 
+                  name="email"
                   type="email" 
                   placeholder="admin@srijan.com" 
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
                   required
                 />
@@ -163,10 +173,9 @@ export default function AuthPage() {
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Lock className="text-white/80 mr-3 shrink-0" size={18} />
                 <input 
+                  name="password"
                   type="password" 
                   placeholder="••••••••••••••" 
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
                   className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" 
                   required
                 />
@@ -180,21 +189,20 @@ export default function AuthPage() {
             </div>
 
             <div className="flex flex-col gap-4 pt-2">
-              <button type="submit" className="w-full cursor-pointer bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] hover:shadow-[0_0_25px_rgba(11,166,255,0.6)] uppercase tracking-wide">
+              <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 cursor-pointer bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] hover:shadow-[0_0_25px_rgba(11,166,255,0.6)] uppercase tracking-wide disabled:opacity-70">
+                {isPending && <Loader2 size={16} className="animate-spin" />}
                 LOGIN
               </button>
 
-              {/* Divider */}
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
                 <span className="mx-4 text-xs font-medium text-white/50">OR</span>
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
-              {/* Google Button */}
               <button 
                 type="button" 
-                onClick={() => signIn('google', { callbackUrl: '/account' })}
+                onClick={handleGoogleSignIn}
                 className="w-full cursor-pointer flex items-center justify-center gap-3 bg-white/10 border border-white/30 hover:bg-white hover:text-black text-white font-bold text-[13px] py-3 rounded-xl transition-all uppercase tracking-wide group"
               >
                 <GoogleIcon />
@@ -203,10 +211,9 @@ export default function AuthPage() {
             </div>
           </form>
 
-          {/* Mobile Only Toggle */}
           <div className="mt-8 text-center text-[13px] md:hidden">
             <span className="text-gray-300 font-medium drop-shadow-sm">Don't have an account? </span>
-            <button onClick={() => setIsLogin(false)} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
+            <button onClick={() => { setIsLogin(false); setErrorMessage(""); }} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
               Register Now
             </button>
           </div>
@@ -226,30 +233,27 @@ export default function AuthPage() {
             />
             <div className="absolute inset-0 bg-[#0e163d]/40 backdrop-blur-[2px]"></div>
             
-            {/* Text for Register CTA (Visible when Login form is open) */}
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Hello, Friend!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
               <button 
-                onClick={() => setIsLogin(false)} 
+                onClick={() => { setIsLogin(false); setErrorMessage(""); }} 
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign Up
               </button>
             </div>
 
-            {/* Text for Login CTA (Visible when Register form is open) */}
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${!isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
               <button 
-                onClick={() => setIsLogin(true)} 
+                onClick={() => { setIsLogin(true); setErrorMessage(""); }} 
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign In
               </button>
             </div>
-
           </div>
         </div>
 

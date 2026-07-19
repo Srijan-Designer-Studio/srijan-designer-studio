@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { ArrowRight } from "lucide-react";
@@ -12,11 +13,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import collectionData from "./collectionData";
-
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ShopCollection() {
+// Removed static collectionData.js dependency.
+// It now accepts a `collections` array passed down from the parent Server Component.
+export default function ShopCollection({ collections = [] }) {
   const containerRef = useRef(null);
 
   useGSAP(() => {
@@ -47,6 +48,8 @@ export default function ShopCollection() {
       );
   }, { scope: containerRef });
 
+  if (!collections || collections.length === 0) return null;
+
   return (
     <section className="py-20" ref={containerRef}>
       <div className="max-w-[1180px] mx-auto">
@@ -56,10 +59,10 @@ export default function ShopCollection() {
               SHOP BY COLLECTION
             </h2>
           </div>
-          <button className="collection-btn flex items-center gap-3 text-[22px] font-medium hover:gap-5 duration-300">
+          <Link href="/products" className="collection-btn flex items-center gap-3 text-[22px] font-medium hover:gap-5 duration-300">
             VIEW ALL PRODUCTS
             <ArrowRight size={24} />
-          </button>
+          </Link>
         </div>
 
         <Swiper
@@ -69,19 +72,20 @@ export default function ShopCollection() {
           spaceBetween={18}
           loop
         >
-          {collectionData.map((item) => (
+          {collections.map((item) => (
             <SwiperSlide key={item.id}>
               <div className="border border-[#d8d8d8] bg-white">
                 <div className="relative h-[620px]">
                   <Image
-                    src={item.image}
-                    alt={item.title}
+                    src={item.image_url || "/images/placeholder.jpg"}
+                    alt={item.name}
                     fill
-                    className="object-contain p-6"
+                    className="object-cover p-6"
                   />
                 </div>
                 <div className="pb-8 flex justify-center">
-                  <button
+                  <Link
+                    href={`/category/${item.slug}`}
                     className="
                     border
                     border-black
@@ -96,9 +100,9 @@ export default function ShopCollection() {
                     duration-300
                   "
                   >
-                    {item.title}
+                    {item.name}
                     <ArrowRight size={20} />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </SwiperSlide>
