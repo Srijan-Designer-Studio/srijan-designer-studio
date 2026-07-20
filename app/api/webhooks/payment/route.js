@@ -1,56 +1,82 @@
-import { createAdminClient } from '@/lib/supabase/admin'
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
-// For Stripe/Razorpay, you typically need the raw body to verify the webhook signature.
-// Next.js App Router parses JSON by default, so we read it as text.
+// Initialize Supabase client bypassing Row Level Security (RLS)
+// IMPORTANT: Add SUPABASE_SERVICE_ROLE_KEY to your .env.local
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY 
+);
+
 export async function POST(req) {
   try {
-    const rawBody = await req.text()
-    const signature = req.headers.get('stripe-signature') || req.headers.get('x-razorpay-signature')
+    const rawBody = await req.text();
+    const signature = req.headers.get('x-razorpay-signature');
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    // 1. Verify Signature (Pseudocode - replace with actual Stripe/Razorpay SDK method)
-    // const event = stripe.webhooks.constructEvent(rawBody, signature, process.env.WEBHOOK_SECRET)
-    
-    // For this implementation, we will parse the raw body assuming signature verification passed
-    const event = JSON.parse(rawBody)
+    // 1. Verify the Razorpay signature to ensure the request is authentic
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(rawBody)
+      .digest('hex');
 
-    // 2. Handle the specific payment success event
-    // e.g., 'checkout.session.completed' for Stripe, 'payment.captured' for Razorpay
-    if (event.type === 'checkout.session.completed' || event.event === 'payment.captured') {
-      
-      const session = event.data?.object || event.payload?.payment?.entity
-      
-      // The orderId should be passed as metadata when creating the payment session
-      const orderId = session.metadata?.orderId || session.notes?.orderId
+    if (expectedSignature !== signature) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
 
-      if (!orderId) {
-        throw new Error('Order ID missing from webhook metadata')
+    const event = JSON.parse(rawBody);
+
+    // 2. Handle Payment Success
+    if (event.event === 'payment.captured' || event.event === 'order.paid') {
+      // Assuming you passed your Database Order ID in Razorpay's notes object during checkout
+      const dbOrderId = event.payload.payment.entity.notes.orderId;
+      const razorpayPaymentId = event.payload.payment.entity.id;
+
+      if (!dbOrderId) {
+        console.error("Missing database order ID in Razorpay notes");
+        return NextResponse.json({ error: 'Order ID missing' }, { status: 400 });
       }
 
-      // 3. Update Order Status using the Admin Client (bypasses RLS)
-      const supabaseAdmin = createAdminClient()
-      
+      // 3. Update the order status in PostgreSQL
       const { error } = await supabaseAdmin
         .from('orders')
         .update({ 
-          payment_status: 'completed',
           status: 'processing',
+          payment_id: razorpayPaymentId,
           updated_at: new Date().toISOString()
         })
-        .eq('id', orderId)
+        .eq('id', dbOrderId);
 
-      if (error) {
-        console.error('Failed to update order in database:', error)
-        return NextResponse.json({ error: 'Database update failed' }, { status: 500 })
-      }
+      if (error) throw new Error(error.message);
 
-      // Optional: Trigger email notification here
+      return NextResponse.json({ status: 'success' }, { status: 200 });
     }
 
-    return NextResponse.json({ received: true }, { status: 200 })
+    // 3. Handle Payment Failures
+    if (event.event === 'payment.failed') {
+      const dbOrderId = event.payload.payment.entity.notes.orderId;
+      
+      if (dbOrderId) {
+        await supabaseAdmin
+          .from('orders')
+          .update({ 
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', dbOrderId);
+      }
+      return NextResponse.json({ status: 'recorded_failure' }, { status: 200 });
+    }
+
+    // Acknowledge unhandled events
+    return NextResponse.json({ status: 'unhandled_event' }, { status: 200 });
 
   } catch (error) {
-    console.error('Webhook Error:', error.message)
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 400 })
+    console.error('Webhook Error:', error);
+    return NextResponse.json(
+      { error: 'Webhook handler failed.' },
+      { status: 500 }
+    );
   }
 }

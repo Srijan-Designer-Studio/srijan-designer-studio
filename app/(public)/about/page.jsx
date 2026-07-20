@@ -4,14 +4,16 @@ import WhatWeDo from "@/components/About/WhatWeDo";
 import AboutSrijan from "@/components/About/AboutSrijan";
 import MissionVision from "@/components/About/MissionVision";
 import OurPromise from "@/components/About/OurPromise";
-import Faq from "@/components/Home/faq/FAQ.jsx";
-import React from 'react'
+import Faq from "@/components/Home/faq/FAQ";
 
-const page = () => {
+export const metadata = {
+  title: "About Us | SRIJAN Fashion",
+  description: "Discover the story behind SRIJAN Fashion. Learn about our founder, our mission, and our promise to deliver premium custom designs.",
+};
+
+export default function AboutPage() {
   return (
-
-    <div
-      className="wrapper">
+    <main className="bg-white">
       <AboutHero />
       <AboutSrijan />
       <WhatWeDo />
@@ -19,9 +21,6 @@ const page = () => {
       <Founder />
       <MissionVision />
       <Faq />
-    </div>
-
-  )
+    </main>
+  );
 }
-
-export default page

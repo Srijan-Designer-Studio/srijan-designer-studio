@@ -1,21 +1,25 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { submitCustomRequest } from "@/app/actions/forms";
 import { allProducts } from "@/data/products";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function PerfectFit() {
   const containerRef = useRef(null);
+  const [isPending, startTransition] = useTransition();
+  const [status, setStatus] = useState({ type: '', message: '' });
+
   const leftImage = allProducts.filter(p => p.category.includes("Western"))[1]?.image || "";
   const rightImage = allProducts.filter(p => p.category === "Bridal")[0]?.image || "";
 
   useGSAP(() => {
-    // Top Section
     gsap.fromTo(
       ".pf-left-img",
       { x: -50, opacity: 0 },
@@ -26,8 +30,6 @@ export default function PerfectFit() {
       { x: 50, opacity: 0 },
       { x: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power4.out", scrollTrigger: { trigger: ".pf-top-sec", start: "top 75%", toggleActions: "play none none reverse" } }
     );
-
-    // Form Section
     gsap.fromTo(
       ".pf-banner-text",
       { y: 50, opacity: 0 },
@@ -39,6 +41,22 @@ export default function PerfectFit() {
       { y: 0, opacity: 1, duration: 1.2, ease: "power4.out", scrollTrigger: { trigger: ".pf-bottom-sec", start: "top 80%", toggleActions: "play none none reverse" } }
     );
   }, { scope: containerRef });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus({ type: '', message: '' });
+    const formData = new FormData(e.target);
+
+    startTransition(async () => {
+      try {
+        await submitCustomRequest(formData);
+        setStatus({ type: 'success', message: 'Request submitted! We will call you at the selected time.' });
+        e.target.reset();
+      } catch (error) {
+        setStatus({ type: 'error', message: 'Failed to submit request. Please try again.' });
+      }
+    });
+  };
 
   return (
     <div ref={containerRef}>
@@ -74,31 +92,54 @@ export default function PerfectFit() {
             </p>
           </div>
         </div>
+        
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-16">
           <div className="pf-form-card w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
             <h3 className="text-xl font-bold text-black mb-6">Fill In the Form To Get Started</h3>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Full Name*</label>
-                <input type="text" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+            
+            {status.type === 'success' ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500">
+                  <CheckCircle2 size={50} className="text-[#00c3ff] mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Request Received!</h3>
+                  <p className="text-gray-600 text-sm">{status.message}</p>
+                  <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] text-sm font-medium hover:underline">
+                      Submit another request
+                  </button>
               </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Select date for call back*</label>
-                <input type="date" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Select time for call back*</label>
-                <input type="time" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Message</label>
-                <textarea rows="3" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
-              </div>
-              <button type="button" className="w-full bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3.5 rounded-lg transition-colors mt-2 uppercase tracking-wide shadow-md">
-                Submit Now
-              </button>
-              <p className="text-[11px] text-center text-gray-400 mt-3">Your profile name will be shared. Never submit passwords.</p>
-            </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Full Name*</label>
+                  <input name="name" required type="text" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Phone Number*</label>
+                  <input name="phone" required type="tel" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Call back Date*</label>
+                    <input name="callDate" required type="date" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Call back Time*</label>
+                    <input name="callTime" required type="time" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Additional Details</label>
+                  <textarea name="details" rows="3" placeholder="Tell us about the outfit you have in mind..." className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
+                </div>
+                
+                {status.type === 'error' && <p className="text-red-500 text-xs">{status.message}</p>}
+
+                <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3.5 rounded-lg transition-colors mt-2 uppercase tracking-wide shadow-md disabled:opacity-70">
+                  {isPending && <Loader2 size={18} className="animate-spin" />}
+                  {isPending ? "Submitting..." : "Submit Now"}
+                </button>
+                <p className="text-[11px] text-center text-gray-400 mt-3">Never submit passwords or credit card details here.</p>
+              </form>
+            )}
           </div>
         </div>
       </section>

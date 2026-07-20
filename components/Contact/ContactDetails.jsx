@@ -1,15 +1,18 @@
 "use client";
 
-import { useRef } from "react";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { MapPin, Phone, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { submitContactMessage } from "@/app/actions/forms";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function ContactDetails() {
     const containerRef = useRef(null);
+    const [isPending, startTransition] = useTransition();
+    const [status, setStatus] = useState({ type: '', message: '' });
 
     useGSAP(() => {
         const tl = gsap.timeline({
@@ -31,6 +34,22 @@ export default function ContactDetails() {
             "-=0.6"
         );
     }, { scope: containerRef });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setStatus({ type: '', message: '' });
+        const formData = new FormData(e.target);
+
+        startTransition(async () => {
+            try {
+                await submitContactMessage(formData);
+                setStatus({ type: 'success', message: 'Thank you! Your message has been sent.' });
+                e.target.reset();
+            } catch (error) {
+                setStatus({ type: 'error', message: 'Failed to send message. Please try again.' });
+            }
+        });
+    };
 
     return (
         <section className="py-20 bg-[#f8f9fa]" ref={containerRef}>
@@ -93,28 +112,43 @@ export default function ContactDetails() {
                         Drop Your Message<br />Here
                     </h2>
 
-                    <form className="space-y-5">
-                        <div>
-                            <label className="block text-[14px] text-gray-700 mb-1.5">Full Name*</label>
-                            <input type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                    {status.type === 'success' ? (
+                        <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in duration-500">
+                            <CheckCircle2 size={60} className="text-green-500 mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Message Sent!</h3>
+                            <p className="text-gray-600">We'll get back to you as soon as possible.</p>
+                            <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] font-medium hover:underline">
+                                Send another message
+                            </button>
                         </div>
-                        <div>
-                            <label className="block text-[14px] text-gray-700 mb-1.5">Phone Number*</label>
-                            <input type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-[14px] text-gray-700 mb-1.5">Email Address*</label>
-                            <input type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-[14px] text-gray-700 mb-1.5">Your Message*</label>
-                            <textarea rows="4" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
-                        </div>
-                        <button type="button" className="w-full bg-[#00c3ff] hover:bg-[#00abe0] text-white font-medium text-[17px] py-3 rounded-full transition-colors mt-6 shadow-md shadow-[#00c3ff]/30">
-                            Submit
-                        </button>
-                        <p className="text-[11px] text-center text-gray-400 mt-4">Your profile name will be shared. Never submit passwords.</p>
-                    </form>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div>
+                                <label className="block text-[14px] text-gray-700 mb-1.5">Full Name*</label>
+                                <input name="name" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[14px] text-gray-700 mb-1.5">Phone Number*</label>
+                                <input name="phone" required type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[14px] text-gray-700 mb-1.5">Email Address*</label>
+                                <input name="email" required type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[14px] text-gray-700 mb-1.5">Your Message*</label>
+                                <textarea name="message" required rows="4" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
+                            </div>
+                            
+                            {status.type === 'error' && <p className="text-red-500 text-sm">{status.message}</p>}
+
+                            <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-medium text-[17px] py-3 rounded-full transition-colors mt-6 shadow-md shadow-[#00c3ff]/30 disabled:opacity-70">
+                                {isPending && <Loader2 size={20} className="animate-spin" />}
+                                {isPending ? "Sending..." : "Submit"}
+                            </button>
+                            <p className="text-[11px] text-center text-gray-400 mt-4">Your profile name will be shared. Never submit passwords.</p>
+                        </form>
+                    )}
                 </div>
 
             </div>

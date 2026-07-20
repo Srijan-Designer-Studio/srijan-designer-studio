@@ -1,48 +1,28 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { unstable_cache } from 'next/cache'
+// 1. Import the standard client
+import { createClient as createPublicClient } from '@supabase/supabase-js'
 
-// Cached query for product listings
-export const getProducts = unstable_cache(
-  async (categorySlug = null) => {
-    const supabase = await createClient()
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (image_url, alt_text),
-        product_variants (id, size, color, price_adjustment, inventory_count)
-      `)
-      .eq('is_active', true)
-
-    if (categorySlug) {
-      const { data: category } = await supabase.from('categories').select('id').eq('slug', categorySlug).single()
-      if (category) query = query.eq('category_id', category.id)
-    }
-
-    const { data, error } = await query
-    
-    if (error) throw new Error(error.message)
-    return data
-  },
-  ['products-list'],
-  { revalidate: 3600, tags: ['products'] }
+// 2. Initialize a public, cookie-less client safe for caching
+const publicSupabase = createPublicClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// Dynamic query for individual product pages
-export async function getProductBySlug(slug) {
-    const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (image_url, alt_text),
-        product_variants (id, size, color, sku, inventory_count)
-      `)
-      .eq('slug', slug)
-      .single()
+export async function getProducts() {
+  // 3. Use publicSupabase instead of await createClient()
+  const { data, error } = await publicSupabase
+    .from('products')
+    .select('*, product_variants(*), product_images(*)') // Adjust your select query as needed
+    .eq('is_active', true)
 
-    if (error) return null
-    return data
+  if (error) {
+    console.error("Error fetching products:", error)
+    return []
+  }
+  return data
 }
+
+// NOTE: Leave your other functions (like addProduct) exactly as they are. 
+// They SHOULD use `await createClient()` because admin actions need to read cookies to verify auth!

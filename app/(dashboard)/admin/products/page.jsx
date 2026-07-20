@@ -18,6 +18,9 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
+  // ইমেজ প্রিভিউ দেখানোর জন্য নতুন স্টেট
+  const [imagePreview, setImagePreview] = useState(null);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -34,12 +37,14 @@ export default function AdminProductsPage() {
 
   const handleAddProduct = () => {
     setSelectedProduct(null);
+    setImagePreview(null); // নতুন প্রোডাক্টের সময় প্রিভিউ ক্লিয়ার করা
     setModalMode('add');
     setIsModalOpen(true);
   };
 
   const handleEditProduct = (product) => {
     setSelectedProduct(product.rawProduct);
+    setImagePreview(product.rawProduct.image_url || null); // আগের ইমেজ থাকলে সেটা সেট করা
     setModalMode('edit');
     setIsModalOpen(true);
   };
@@ -70,6 +75,17 @@ export default function AdminProductsPage() {
     });
   };
 
+  // ইমেজ সিলেক্ট করলে প্রিভিউ দেখানোর ফাংশন
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const formattedProducts = products.map(product => {
     const mainVariant = product.product_variants?.[0];
     const totalStock = product.product_variants?.reduce((sum, v) => sum + v.inventory_count, 0) || 0;
@@ -91,9 +107,19 @@ export default function AdminProductsPage() {
       header: 'Product', 
       accessor: 'name', 
       render: (row) => (
-        <div>
-          <p className="font-medium text-gray-900">{row.name}</p>
-          <p className="text-xs text-gray-500">SKU: {row.sku}</p>
+        <div className="flex items-center gap-3">
+          {/* টেবিলে ছোট করে ইমেজ দেখানোর জন্য */}
+          {row.rawProduct.image_url ? (
+            <img src={row.rawProduct.image_url} alt={row.name} className="w-10 h-10 rounded-md object-cover border border-gray-200" />
+          ) : (
+            <div className="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+          )}
+          <div>
+            <p className="font-medium text-gray-900">{row.name}</p>
+            <p className="text-xs text-gray-500">SKU: {row.sku}</p>
+          </div>
         </div>
       ) 
     },
@@ -147,6 +173,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
+      {/* ... (আগের header এবং Table অংশ ঠিক থাকবে) ... */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
@@ -180,6 +207,28 @@ export default function AdminProductsPage() {
         title={modalMode === 'add' ? "Add New Product" : "Edit Product"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* ইমেজ আপলোড সেকশন (নতুন যোগ করা হয়েছে) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+            <div className="flex items-center gap-4">
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border border-gray-200" />
+              ) : (
+                <div className="w-20 h-20 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                  No Image
+                </div>
+              )}
+              <input 
+                name="image"
+                type="file" 
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 outline-none" 
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
             <input 

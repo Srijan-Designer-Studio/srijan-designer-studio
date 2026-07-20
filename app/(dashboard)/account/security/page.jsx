@@ -1,11 +1,32 @@
 'use client';
 
-import { ShieldCheck } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { ShieldCheck, Loader2 } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
+import { updatePassword } from '@/app/actions/dashboard';
 
 export default function SecurityPage() {
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setMessage('');
+    const formData = new FormData(e.target);
+
+    startTransition(async () => {
+      try {
+        await updatePassword(formData);
+        setMessage('Password updated successfully.');
+        e.target.reset();
+      } catch (error) {
+        setMessage(`Error: ${error.message}`);
+      }
+    });
+  };
+
   return (
-    <div className="max-w-3xl pt-[100px] lg:pt-[120px space-y-6 font-sans">
+    <div className="max-w-3xl pt-[100px] lg:pt-[120px] space-y-6 font-sans">
       
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Security Settings</h1>
@@ -23,20 +44,14 @@ export default function SecurityPage() {
           </div>
         </div>
 
-        <form className="p-6 space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Current Password</label>
-            <input 
-              type="password" 
-              className="w-full md:w-2/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-white" 
-              placeholder="Enter your current password" 
-            />
-          </div>
-
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="pt-2">
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">New Password</label>
             <input 
+              name="newPassword"
               type="password" 
+              required
+              minLength="6"
               className="w-full md:w-2/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-white" 
               placeholder="Create a new password" 
             />
@@ -45,14 +60,24 @@ export default function SecurityPage() {
           <div>
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Confirm New Password</label>
             <input 
+              name="confirmPassword"
               type="password" 
+              required
+              minLength="6"
               className="w-full md:w-2/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-white" 
               placeholder="Confirm your new password" 
             />
           </div>
 
+          {message && (
+            <p className={`text-sm font-medium ${message.includes('Error') ? 'text-red-500' : 'text-green-600'}`}>
+              {message}
+            </p>
+          )}
+
           <div className="pt-4 flex items-center gap-4">
-            <button type="button" className="px-6 py-2.5 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm transition-colors">
+            <button disabled={isPending} type="submit" className="px-6 py-2.5 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm transition-colors flex items-center gap-2 disabled:opacity-70">
+              {isPending && <Loader2 size={16} className="animate-spin" />}
               Update Password
             </button>
             <button type="button" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">

@@ -101,7 +101,7 @@ export default function AdminDashboard() {
               <div key={product.id} className="flex items-center gap-3">
                 <div className="text-xs font-medium text-gray-400 w-3">{idx + 1}.</div>
                 <div className="w-10 h-10 rounded-md overflow-hidden relative flex-shrink-0 bg-gray-100">
-                  <Image src={product.image || '/images/placeholder.jpg'} alt={product.name} fill className="object-cover opacity-80" />
+                  <Image src={product.image || '/images/placeholder.jpg'} alt={product.title || 'Product image'} fill className="object-cover opacity-80" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-gray-900 truncate">{product.name}</p>
