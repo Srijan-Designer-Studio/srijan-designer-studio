@@ -52,8 +52,8 @@ export default function AdminOrdersPage() {
   const formattedOrders = orders.map(order => ({
     rawOrder: order,
     id: order.id.split('-')[0].toUpperCase(),
-    customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`,
-    email: order.profiles?.auth_users?.email || 'N/A',
+    customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`.trim(),
+    email: order.profiles?.email || 'N/A',
     date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at)),
     items: order.order_items ? order.order_items.length : 0,
     amount: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
@@ -152,7 +152,7 @@ export default function AdminOrdersPage() {
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-semibold text-gray-900">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</h4>
-                <p className="text-sm text-gray-500">{selectedOrder.profiles?.auth_users?.email}</p>
+                <p className="text-sm text-gray-500">{selectedOrder.profiles?.email}</p>
                 <p className="text-sm text-gray-500 mt-1">
                   Placed on: {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(selectedOrder.created_at))}
                 </p>
@@ -181,7 +181,7 @@ export default function AdminOrdersPage() {
                 {selectedOrder.order_items?.map((item, idx) => (
                   <div key={idx} className="flex justify-between text-sm">
                     <span className="text-gray-600">{item.quantity}x {item.product_variants?.products?.title} ({item.product_variants?.sku})</span>
-                    <span className="font-medium text-gray-900">₹{(item.unit_price * item.quantity).toLocaleString('en-IN')}</span>
+                    <span className="font-medium text-gray-900">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                   </div>
                 ))}
               </div>

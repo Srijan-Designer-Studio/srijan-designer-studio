@@ -3,23 +3,28 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { allProducts } from '@/data/products';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ShopEssentials = () => {
+const ShopEssentials = ({ products = [] }) => {
   const [activeTab, setActiveTab] = useState("WOMEN");
   const containerRef = useRef(null);
 
-  const womenProducts = allProducts
-    .filter((product) => product.category.includes("Women") || product.category === "Bridal")
+  const womenProducts = products
+    .filter((product) => {
+      const cat = product.categories?.name?.toLowerCase() || '';
+      return cat.includes("women") || cat.includes("sarees") || cat.includes("lehengas") || cat.includes("bridal");
+    })
     .slice(0, 4);
 
-  const menProducts = allProducts
-    .filter((product) => product.category.includes("Men"))
+  const menProducts = products
+    .filter((product) => {
+      const cat = product.categories?.name?.toLowerCase() || '';
+      return cat.includes("men") || cat.includes("kurtas") || cat.includes("suits");
+    })
     .slice(0, 4);
 
   const currentProducts = activeTab === "WOMEN" ? womenProducts : menProducts;
@@ -99,13 +104,16 @@ const ShopEssentials = () => {
               No products found in this category.
             </p>
           ) : (
-            currentProducts.map((product) => (
-              <Link href={`/product/${product.id}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer">
+            currentProducts.map((product) => {
+              const mainImage = product.product_images?.[0]?.image_url;
+
+              return (
+              <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer">
 
                 <div className="relative w-full aspect-[3/4] max-h-[420px] rounded-3xl border border-gray-400 overflow-hidden mb-5 bg-gray-100">
-                  {product.image ? (
+                  {mainImage ? (
                     <Image
-                      src={product.image}
+                      src={mainImage}
                       alt={product.title}
                       fill
                       className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
@@ -123,11 +131,11 @@ const ShopEssentials = () => {
                   {product.title}
                 </h3>
                 <p className="text-lg font-bold text-black mt-3">
-                  {product.price}
+                  ₹{product.base_price?.toLocaleString('en-IN')}
                 </p>
 
               </Link>
-            ))
+            )})
           )}
         </div>
       </div>

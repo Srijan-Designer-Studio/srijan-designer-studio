@@ -14,19 +14,16 @@ export default function OrdersClientWrapper({ initialOrders }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // Map database orders to the table format
   const formattedOrders = initialOrders?.map((order) => {
-    // Safely calculate totals and format dates
     const formattedDate = new Intl.DateTimeFormat('en-IN', { 
       year: 'numeric', month: 'short', day: 'numeric' 
     }).format(new Date(order.created_at));
     
-    // Sum up items
     const itemCount = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
     return {
-      rawOrder: order, // Keep original data for modal
-      id: order.id.split('-')[0].toUpperCase(), // Shorten UUID for display
+      rawOrder: order, 
+      id: order.id.split('-')[0].toUpperCase(), 
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
@@ -121,10 +118,10 @@ export default function OrdersClientWrapper({ initialOrders }) {
                         <Package size={24} />
                      </div>
                      <div className="flex-1">
-                        <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title}</p>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size}</p>
+                        <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
+                        <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
                      </div>
-                     <p className="text-sm font-bold text-gray-900">₹{Number(item.unit_price * item.quantity).toLocaleString('en-IN')}</p>
+                     <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                   </div>
                 ))}
              </div>

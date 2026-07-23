@@ -1,16 +1,27 @@
 "use client";
+
 import { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, Wallet, Banknote, ShieldCheck, ChevronLeft, Loader2 } from "lucide-react";
+import { CreditCard, Banknote, ChevronLeft, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
-import { addAddress } from "@/app/actions/addresses";
+import { createRazorpayOrder, verifyRazorpayPayment } from "@/app/actions/payments";
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, subtotal, isLoaded } = useCart();
+  const { cartItems, subtotal, isLoaded, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
@@ -26,26 +37,23 @@ export default function CheckoutPage() {
   const shipping = subtotal > 0 ? 150 : 0;
   const total = subtotal + shipping;
 
-  const handleCheckout = (formData) => {
+  const handleCheckout = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
     setErrorMsg("");
+
     startTransition(async () => {
       try {
-        // 1. Save Address First (Extracting from FormData)
-        const addressData = new FormData();
-        addressData.append('title', 'Shipping Address');
-        addressData.append('addressLine1', formData.get('address1'));
-        addressData.append('addressLine2', formData.get('address2'));
-        addressData.append('city', formData.get('city'));
-        addressData.append('state', formData.get('state'));
-        addressData.append('postalCode', formData.get('zip'));
-        addressData.append('country', 'India');
-        addressData.append('isDefault', 'true');
-        
-        // Save address to DB and retrieve its ID (you may need to modify addAddress to return the ID)
-        // For standard implementation, we will pass the data to createOrder
-        
         const orderPayload = {
           totalAmount: total,
+          paymentMethod: paymentMethod,
+          address: {
+            addressLine1: formData.get('address1'),
+            addressLine2: formData.get('address2'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zip: formData.get('zip'),
+          },
           items: cartItems.map(item => ({
             variantId: item.variantId || item.id,
             quantity: item.quantity,
@@ -53,17 +61,70 @@ export default function CheckoutPage() {
           }))
         };
 
-        const result = await createOrder(orderPayload);
+        const dbResult = await createOrder({ ...orderPayload, paymentStatus: 'Pending', status: 'pending' });
         
-        if (result.success) {
-          // In a real app with Stripe/Razorpay, redirect to payment gateway here
-          if (paymentMethod === 'cod') {
-            // Hard refresh to clear contexts and load dashboard
-            window.location.href = '/account/orders';
-          } else {
-            alert('Payment Gateway Integration Pending. Proceeding as COD.');
-            window.location.href = '/account/orders';
-          }
+        if (!dbResult.success) {
+          throw new Error(dbResult.error || "Failed to create order");
+        }
+        
+        const dbOrderId = dbResult.data?.id || dbResult.order?.id || dbResult.id;
+
+        if (paymentMethod === 'cod') {
+          clearCart();
+          window.location.href = '/account/orders';
+          return;
+        }
+
+        if (paymentMethod === 'card') {
+          const isScriptLoaded = await loadRazorpayScript();
+          if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load. Are you online?");
+
+          const rpResult = await createRazorpayOrder(total, dbOrderId);
+          
+          if (!rpResult.success) throw new Error(rpResult.error || "Failed to initialize Razorpay");
+
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: rpResult.order.amount,
+            currency: rpResult.order.currency,
+            name: "SRIJAN Fashion",
+            description: "Secure Payment for your order",
+            order_id: rpResult.order.id,
+            handler: async function (response) {
+              try {
+                const verifyResult = await verifyRazorpayPayment(
+                  response.razorpay_payment_id,
+                  response.razorpay_order_id,
+                  response.razorpay_signature,
+                  dbOrderId
+                );
+                
+                if (verifyResult.success) {
+                  clearCart();
+                  window.location.href = '/account/orders';
+                } else {
+                  throw new Error("Verification failed");
+                }
+              } catch (err) {
+                clearCart();
+                alert("Payment successful but verification failed. Contact support.");
+                window.location.href = '/account/orders';
+              }
+            },
+            prefill: {
+              name: "Customer",
+              email: "customer@example.com",
+            },
+            theme: {
+              color: "#00c3ff",
+            },
+          };
+
+          const paymentObject = new window.Razorpay(options);
+          paymentObject.on('payment.failed', function (response) {
+            alert("Payment Failed: " + response.error.description);
+          });
+          paymentObject.open();
         }
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -82,7 +143,7 @@ export default function CheckoutPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 tracking-tight">Checkout</h1>
         </div>
 
-        <form action={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -90,22 +151,22 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
-                  <input required name="address1" type="text" placeholder="House number and street name" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
                 <div className="md:col-span-2">
-                  <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
-                  <input required name="city" type="text" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
-                  <input required name="state" type="text" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
-                  <input required name="zip" type="text" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
               </div>
             </div>
@@ -116,7 +177,7 @@ export default function CheckoutPage() {
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
                   <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
                   <CreditCard className={`ml-4 mr-3 ${paymentMethod === 'card' ? 'text-[#00c3ff]' : 'text-gray-400'}`} size={24} />
-                  <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-700'}`}>Credit / Debit Card</span>
+                  <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-700'}`}>Pay Online (Card / UPI)</span>
                 </label>
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
                   <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
@@ -168,7 +229,7 @@ export default function CheckoutPage() {
 
               <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70">
                 {isPending && <Loader2 size={18} className="animate-spin" />}
-                {isPending ? "Processing..." : "Place Order"}
+                {isPending ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Pay Now"}
               </button>
             </div>
           </div>

@@ -104,7 +104,7 @@ export default function AdminDashboard() {
                   <Image src={product.image || '/images/placeholder.jpg'} alt={product.title || 'Product image'} fill className="object-cover opacity-80" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-gray-900 truncate">{product.name}</p>
+                  <p className="text-xs font-semibold text-gray-900 truncate">{product.title}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-gray-900">₹{product.revenue?.toLocaleString('en-IN')}</p>

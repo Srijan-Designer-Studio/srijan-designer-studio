@@ -97,7 +97,7 @@ export default function ProductDetails({ product }) {
 
   return (
     <section className="py-12 bg-white" ref={containerRef}>
-      <div className="max-w-[1320px] mx-auto px-6">
+      <div className="max-w-[1320px] overflow-hidden relative w-full h-screen mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16">
           
           <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0">

@@ -8,43 +8,47 @@ import Search from '@/components/dashboard/shared/Search';
 import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
-import { getAdminProducts, createProduct, updateProduct, deleteProduct } from '@/app/actions/admin';
+import { getAdminProducts, createProduct, updateProduct, deleteProduct, getCategories } from '@/app/actions/admin';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
-  // ইমেজ প্রিভিউ দেখানোর জন্য নতুন স্টেট
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getAdminProducts();
-        setProducts(data);
+        const [productsData, categoriesData] = await Promise.all([
+          getAdminProducts(),
+          getCategories()
+        ]);
+        setProducts(productsData || []);
+        setCategories(categoriesData || []);
       } catch (error) {
         console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
   const handleAddProduct = () => {
     setSelectedProduct(null);
-    setImagePreview(null); // নতুন প্রোডাক্টের সময় প্রিভিউ ক্লিয়ার করা
+    setImagePreview(null);
     setModalMode('add');
     setIsModalOpen(true);
   };
 
   const handleEditProduct = (product) => {
     setSelectedProduct(product.rawProduct);
-    setImagePreview(product.rawProduct.image_url || null); // আগের ইমেজ থাকলে সেটা সেট করা
+    setImagePreview(product.rawProduct.image_url || null);
     setModalMode('edit');
     setIsModalOpen(true);
   };
@@ -54,7 +58,7 @@ export default function AdminProductsPage() {
       startTransition(async () => {
         await deleteProduct(productId);
         const updatedData = await getAdminProducts();
-        setProducts(updatedData);
+        setProducts(updatedData || []);
       });
     }
   };
@@ -64,18 +68,24 @@ export default function AdminProductsPage() {
     const formData = new FormData(e.target);
     
     startTransition(async () => {
+      let res;
       if (modalMode === 'add') {
-        await createProduct(formData);
+        res = await createProduct(formData);
       } else {
-        await updateProduct(selectedProduct.id, formData);
+        res = await updateProduct(selectedProduct.id, formData);
       }
+      
+      if (res && res.success === false) {
+        alert("Error saving product: " + res.error);
+        return;   
+      }
+
       const updatedData = await getAdminProducts();
-      setProducts(updatedData);
+      setProducts(updatedData || []);
       setIsModalOpen(false);
     });
   };
-
-  // ইমেজ সিলেক্ট করলে প্রিভিউ দেখানোর ফাংশন
+  
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -88,15 +98,20 @@ export default function AdminProductsPage() {
 
   const formattedProducts = products.map(product => {
     const mainVariant = product.product_variants?.[0];
-    const totalStock = product.product_variants?.reduce((sum, v) => sum + v.inventory_count, 0) || 0;
+    const mainImage = product.product_images?.[0];
+    const totalStock = product.product_variants?.reduce((sum, v) => sum + (v.inventory_count || 0), 0) || 0;
+    const price = product.base_price || 0;
     
     return {
-      rawProduct: product,
+      rawProduct: {
+        ...product,
+        image_url: mainImage?.image_url || null
+      },
       id: product.id,
       name: product.title,
       sku: mainVariant?.sku || 'N/A',
       category: product.categories?.name || 'Uncategorized',
-      price: `₹${product.base_price.toLocaleString('en-IN')}`,
+      price: `₹${price.toLocaleString('en-IN')}`,
       stock: totalStock,
       status: !product.is_active ? 'Inactive' : totalStock > 0 ? 'Active' : 'Pending'
     };
@@ -108,7 +123,6 @@ export default function AdminProductsPage() {
       accessor: 'name', 
       render: (row) => (
         <div className="flex items-center gap-3">
-          {/* টেবিলে ছোট করে ইমেজ দেখানোর জন্য */}
           {row.rawProduct.image_url ? (
             <img src={row.rawProduct.image_url} alt={row.name} className="w-10 h-10 rounded-md object-cover border border-gray-200" />
           ) : (
@@ -173,7 +187,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* ... (আগের header এবং Table অংশ ঠিক থাকবে) ... */}
+    
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
@@ -198,7 +212,7 @@ export default function AdminProductsPage() {
           </div>
         </div>
         <Table columns={productColumns} data={formattedProducts} />
-        <Pagination />
+        <Pagination /> 
       </Card>
 
       <Modal 
@@ -208,7 +222,6 @@ export default function AdminProductsPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* ইমেজ আপলোড সেকশন (নতুন যোগ করা হয়েছে) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
             <div className="flex items-center gap-4">
@@ -224,7 +237,7 @@ export default function AdminProductsPage() {
                 type="file" 
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 outline-none" 
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2  file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 outline-none" 
               />
             </div>
           </div>
@@ -236,7 +249,7 @@ export default function AdminProductsPage() {
               type="text" 
               defaultValue={selectedProduct?.title || ""}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -247,7 +260,7 @@ export default function AdminProductsPage() {
                 type="text" 
                 defaultValue={selectedProduct?.product_variants?.[0]?.sku || ""}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
               />
             </div>
             <div>
@@ -257,19 +270,36 @@ export default function AdminProductsPage() {
                 type="number" 
                 defaultValue={selectedProduct?.base_price || ""}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select name="categoryId" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option value="sarees">Sarees</option>
-                <option value="lehengas">Lehengas</option>
-                <option value="kurtas">Kurtas</option>
-                <option value="suits">Suits</option>
+              <select 
+                name="category" 
+                defaultValue={selectedProduct?.category_id || ""}
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="">None (Optional)</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
+              <input 
+                name="size"
+                type="text" 
+                placeholder="e.g. S, M, L, Free Size"
+                defaultValue={selectedProduct?.product_variants?.[0]?.size || ""}
+                required
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
@@ -278,7 +308,7 @@ export default function AdminProductsPage() {
                 type="number" 
                 defaultValue={selectedProduct?.product_variants?.[0]?.inventory_count || 0}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
               />
             </div>
           </div>

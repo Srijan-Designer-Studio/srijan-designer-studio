@@ -1,28 +1,63 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-// 1. Import the standard client
 import { createClient as createPublicClient } from '@supabase/supabase-js'
 
-// 2. Initialize a public, cookie-less client safe for caching
 const publicSupabase = createPublicClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
 export async function getProducts() {
-  // 3. Use publicSupabase instead of await createClient()
   const { data, error } = await publicSupabase
     .from('products')
-    .select('*, product_variants(*), product_images(*)') // Adjust your select query as needed
+    .select('*, product_variants(*), product_images(*), categories(*)')
     .eq('is_active', true)
+    .order('created_at', { ascending: false })
 
   if (error) {
     console.error("Error fetching products:", error)
     return []
   }
+  return data || []
+}
+
+export async function getProductBySlug(slug) {
+  const { data, error } = await publicSupabase
+    .from('products')
+    .select('*, product_variants(*), product_images(*), categories(*)')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .single()
+
+  if (error) {
+    console.error("Error fetching product by slug:", error)
+    return null
+  }
   return data
 }
 
-// NOTE: Leave your other functions (like addProduct) exactly as they are. 
-// They SHOULD use `await createClient()` because admin actions need to read cookies to verify auth!
+export async function getProductsByCategory(categoryName) {
+  try {
+    const { data: category } = await publicSupabase
+      .from('categories')
+      .select('id')
+      .ilike('name', categoryName)
+      .single()
+      
+    if (!category) return []
+
+    const { data, error } = await publicSupabase
+      .from('products')
+      .select('*, product_variants(*), product_images(*), categories(*)')
+      .eq('category_id', category.id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    console.error("Error fetching products by category:", error)
+    return []
+  }
+}

@@ -1,38 +1,38 @@
 import ProductsHero from "@/components/product/ProductsHero"; 
-// import ShopStyles from "@/components/product/ShopStyles";
-
-
 import ShopSection from "@/components/shared/ShopSection";
+import { getProducts } from "@/app/actions/products";
 
 export const metadata = {
   title: "All Products | SRIJAN Fashion",
   description: "Explore our wide range of collections for men, women, and bridal wear.",
 };
 
-export default function ProductPage() {
+export default async function ProductPage() {
+  const allProducts = await getProducts(); 
+
   return (
     <main>
-    
       <ProductsHero />
-      {/* <ShopStyles /> */}
       
-     
       <ShopSection 
         title="Trending in Women's Wear" 
-        category="Women" // products.js-এ এই ক্যাটাগরি থাকলে ডেটা চলে আসবে
+        category="Women" 
         viewAllLink="/women" 
+        products={allProducts} 
       />
       
       <ShopSection 
         title="Best in Men's Ethnic" 
-        category="Men Ethnic" 
+        category="Men" 
         viewAllLink="/men/ethnic-wear" 
+        products={allProducts} 
       />
 
       <ShopSection 
         title="Exclusive Bridal Collection" 
         category="Bridal" 
         viewAllLink="/wedding" 
+        products={allProducts}
       />
     </main>
   );
