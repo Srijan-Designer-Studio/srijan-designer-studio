@@ -2,8 +2,9 @@ import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import React from "react";
 
-export default function PublicLayout({ children }) {
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <SmoothScroll>
       <CartProvider>
