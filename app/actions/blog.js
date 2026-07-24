@@ -2,8 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-// SQL SCHEMA REQUIREMENTS (Run in Supabase SQL Editor):
-// CREATE TABLE public.blogs (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), title TEXT, slug TEXT UNIQUE, content TEXT, image_url TEXT, is_published BOOLEAN DEFAULT true, created_at TIMESTAMPTZ DEFAULT NOW());
 
 export async function getBlogs() {
   const supabase = await createClient()

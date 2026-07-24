@@ -3,9 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// SQL SCHEMA NOTE: Ensure this table exists in your Supabase database:
-// CREATE TABLE public.reviews (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), product_id UUID REFERENCES products(id), user_id UUID REFERENCES profiles(id), rating INT CHECK (rating >= 1 AND rating <= 5), comment TEXT, is_approved BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW());
-
 export async function addReview(productId, rating, comment) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

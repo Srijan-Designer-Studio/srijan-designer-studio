@@ -1,7 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { createClient as createPublicClient } from '@supabase/supabase-js'
+import { createClient as createPublicClient } from '@/lib/supabase/server'
 
 const publicSupabase = createPublicClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

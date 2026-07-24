@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { v4 as uuidv4 } from 'uuid' // Make sure to: npm install uuid
+import { v4 as uuidv4 } from 'uuid'
 
 export async function uploadProductImage(formData) {
   const supabase = await createClient()
@@ -12,15 +12,15 @@ export async function uploadProductImage(formData) {
     throw new Error('Unauthorized upload attempt.')
   }
 
-  const file = formData.get('image') // File object from input type="file"
+  const file = formData.get('image') 
   if (!file) throw new Error('No file provided.')
 
-  // Generate safe filename to prevent overwriting
+
   const fileExt = file.name.split('.').pop()
   const fileName = `${uuidv4()}.${fileExt}`
   const filePath = `products/${fileName}`
 
-  // Upload to Supabase Storage
+
   const { error: uploadError } = await supabase.storage
     .from('product-images')
     .upload(filePath, file, {

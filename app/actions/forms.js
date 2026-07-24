@@ -2,9 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-// SQL SCHEMA REQUIREMENTS (Run this in Supabase SQL Editor):
-// CREATE TABLE public.contact_messages (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), name TEXT, email TEXT, phone TEXT, message TEXT, status TEXT DEFAULT 'new', created_at TIMESTAMPTZ DEFAULT NOW());
-// CREATE TABLE public.custom_requests (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), name TEXT, phone TEXT, callback_date DATE, callback_time TIME, details TEXT, status TEXT DEFAULT 'pending', created_at TIMESTAMPTZ DEFAULT NOW());
 
 export async function submitContactMessage(formData) {
   const supabase = await createClient()

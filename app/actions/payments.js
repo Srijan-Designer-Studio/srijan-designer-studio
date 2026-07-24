@@ -2,7 +2,7 @@
 
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 // Initialize Razorpay instance securely on the server
