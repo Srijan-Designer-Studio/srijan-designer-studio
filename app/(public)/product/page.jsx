@@ -24,7 +24,7 @@ export default async function ProductPage() {
       <ShopSection 
         title="Best in Men's Ethnic" 
         category="Men" 
-        viewAllLink="/men/ethnic-wear" 
+        viewAllLink="/ethnic-wear" 
         products={allProducts} 
       />
 

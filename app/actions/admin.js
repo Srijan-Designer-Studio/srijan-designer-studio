@@ -150,7 +150,8 @@ export async function getAdminProducts() {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*, product_variants(*), product_images(*)')
+      // এখানে categories(*) যুক্ত করা হয়েছে
+      .select('*, product_variants(*), product_images(*), categories(*)')
       .order('created_at', { ascending: false })
 
     if (error) throw error

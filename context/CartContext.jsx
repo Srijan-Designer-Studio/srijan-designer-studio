@@ -14,18 +14,15 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     async function loadData() {
-      // 1. Check for logged-in user
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
         try {
-          // Fetch synced cart from Supabase database
           const dbCart = await getCart();
           if (dbCart && dbCart.cart_items) {
-            // Map Database structure to Local Context structure
             const mappedCart = dbCart.cart_items.map(item => ({
               id: item.product_variants.products.id,
-              variantId: item.variant_id,
+              variantId: item.variant_id, // variantId ট্র্যাক করা হচ্ছে
               title: item.product_variants.products.title,
               price: item.product_variants.products.base_price,
               image: item.product_variants.products.product_images?.[0]?.image_url,
@@ -39,7 +36,6 @@ export function CartProvider({ children }) {
           console.error("Failed to sync DB cart, falling back to local storage.", error);
         }
       } else {
-        // Guest User: Fallback to LocalStorage
         const savedCart = localStorage.getItem("srijan_cart");
         const savedWishlist = localStorage.getItem("srijan_wishlist");
         if (savedCart) setCartItems(JSON.parse(savedCart));
@@ -53,7 +49,6 @@ export function CartProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    // Only sync to local storage for quick access / offline mode
     if (isLoaded) {
       localStorage.setItem("srijan_cart", JSON.stringify(cartItems));
       localStorage.setItem("srijan_wishlist", JSON.stringify(wishlistItems));
@@ -62,24 +57,26 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, quantity = 1) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // id-এর বদলে variantId দিয়ে চেক করা হচ্ছে যাতে আলাদা সাইজ আলাদা আইটেম হিসেবে অ্যাড হয়
+      const existing = prev.find((item) => item.variantId === product.variantId);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.variantId === product.variantId ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
       return [...prev, { ...product, quantity }];
     });
   };
 
-  const removeFromCart = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (variantId) => {
+    // id-এর বদলে variantId ব্যবহার করা হচ্ছে
+    setCartItems((prev) => prev.filter((item) => item.variantId !== variantId));
   };
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (variantId, quantity) => {
     if (quantity < 1) return;
     setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => (item.variantId === variantId ? { ...item, quantity } : item))
     );
   };
 

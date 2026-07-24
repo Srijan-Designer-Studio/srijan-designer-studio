@@ -36,8 +36,17 @@ export async function proxy(request) {
     return NextResponse.redirect(url)
   }
 
-  // Admin Role Check (Redirect standard users trying to access admin panel)
-  if (isAdminRoute && user?.user_metadata?.role !== 'admin') {
+  const isDemoAdmin = user?.email === 'demo@srijan.com'
+
+  //demo admin 
+  if (isDemoAdmin && request.nextUrl.pathname === '/account') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/admin'
+    return NextResponse.redirect(url)
+  }
+
+  // Admin Role Check 
+  if (isAdminRoute && user?.user_metadata?.role !== 'admin' && !isDemoAdmin) {
     const url = request.nextUrl.clone()
     url.pathname = '/account' 
     return NextResponse.redirect(url)

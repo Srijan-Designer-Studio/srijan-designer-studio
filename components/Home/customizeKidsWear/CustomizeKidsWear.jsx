@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -48,7 +48,6 @@ export default function CustomizeKidsWear() {
   const marqueeText = "   ✿ BESPOKE FASHION    ✿ TIMELESS ELEGANCE    ✿ DESIGNER COLLECTION    ✿ BRIDAL SPECIALISTS    ✿ CUSTOM-FIT    ";
 
   useGSAP(() => {
-    
     gsap.set(".kid-card", {
       y: (i) => i * 15,
       x: (i) => i * 15,
@@ -79,6 +78,13 @@ export default function CustomizeKidsWear() {
       .to(".card-1", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
 
   }, { scope: containerRef });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-20 lg:pt-28 overflow-hidden flex flex-col justify-between min-h-screen" ref={containerRef}>
@@ -123,6 +129,7 @@ export default function CustomizeKidsWear() {
                     alt={card.title}
                     fill
                     className="object-cover"
+                    onLoad={() => ScrollTrigger.refresh()}
                   />
                 </div>
                 <div className="p-6 sm:p-8 flex-1 flex flex-col justify-center">

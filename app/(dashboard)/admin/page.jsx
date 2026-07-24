@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { 
+import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import { getDashboardStats } from '@/app/actions/admin';
+import Link from "next/link";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -43,7 +44,7 @@ export default function AdminDashboard() {
       <h3 className="text-sm font-semibold text-gray-900 mb-2">{value}</h3>
       <p className="text-xs text-gray-500 mb-3">{title}</p>
       <div className={`flex items-center text-xs font-semibold ${isPositive ? 'text-green-600' : 'text-red-500'}`}>
-        {isPositive ? <ArrowUpRight size={14} className="mr-1"/> : <ArrowDownRight size={14} className="mr-1"/>}
+        {isPositive ? <ArrowUpRight size={14} className="mr-1" /> : <ArrowDownRight size={14} className="mr-1" />}
         {trend}
       </div>
     </div>
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
               <LineChart data={stats.salesData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} dy={10} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(val) => `${val/1000}k`} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(val) => `${val / 1000}k`} />
                 <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6 }} />
                 <Line yAxisId="left" type="monotone" dataKey="orders" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308', strokeWidth: 0 }} />
@@ -94,14 +95,20 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-sm font-bold text-gray-900">Top Products</h2>
-            <button className="text-xs text-gray-500 hover:text-black">View All</button>
+            <Link href="/admin/products" className="text-xs text-gray-500 hover:text-black">
+              View All
+            </Link>
           </div>
           <div className="space-y-4">
             {stats.topProducts.slice(0, 4).map((product, idx) => (
               <div key={product.id} className="flex items-center gap-3">
                 <div className="text-xs font-medium text-gray-400 w-3">{idx + 1}.</div>
                 <div className="w-10 h-10 rounded-md overflow-hidden relative flex-shrink-0 bg-gray-100">
-                  <Image src={product.image || '/images/placeholder.jpg'} alt={product.title || 'Product image'} fill className="object-cover opacity-80" />
+                  <img
+                    src={product.image || '/images/placeholder.jpg'}
+                    alt={product.title || 'Product image'}
+                    className="w-full h-full object-cover opacity-80"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-gray-900 truncate">{product.title}</p>
@@ -118,7 +125,9 @@ export default function AdminDashboard() {
         <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-sm font-bold text-gray-900">Recent Orders</h2>
-            <button className="text-xs text-gray-500 hover:text-black">View All</button>
+            <Link href="/admin/orders" className="text-xs text-gray-500 hover:text-black">
+              View All
+            </Link>
           </div>
           <div className="space-y-4">
             {stats.recentOrders.slice(0, 5).map((order) => (
@@ -166,7 +175,7 @@ export default function AdminDashboard() {
                     <td className="py-3 text-gray-600">{kw.position}</td>
                     <td className="py-3 text-right">
                       <svg width="40" height="15" viewBox="0 0 40 15" fill="none" className="inline-block">
-                        <path d="M0 10 Q 10 15, 20 5 T 40 2" stroke="#3b82f6" strokeWidth="1.5" fill="none"/>
+                        <path d="M0 10 Q 10 15, 20 5 T 40 2" stroke="#3b82f6" strokeWidth="1.5" fill="none" />
                       </svg>
                     </td>
                   </tr>
@@ -179,19 +188,19 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
           <h2 className="text-sm font-bold text-gray-900 mb-2">Revenue Overview</h2>
           <div className="flex-1 flex flex-col items-center justify-center relative min-h-[200px]">
-             <ResponsiveContainer width="100%" height={180}>
-                <PieChart>
-                  <Pie data={stats.revenueData} cx="50%" cy="50%" innerRadius={55} outerRadius={75} dataKey="value" stroke="none">
-                    {stats.revenueData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-             </ResponsiveContainer>
-             <div className="absolute flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[10px] text-gray-500">Total Revenue</span>
-                <span className="text-sm font-bold text-gray-900">₹{stats.totalRevenue.toLocaleString('en-IN')}</span>
-             </div>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie data={stats.revenueData} cx="50%" cy="50%" innerRadius={55} outerRadius={75} dataKey="value" stroke="none">
+                  {stats.revenueData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-[10px] text-gray-500">Total Revenue</span>
+              <span className="text-sm font-bold text-gray-900">₹{stats.totalRevenue.toLocaleString('en-IN')}</span>
+            </div>
           </div>
           <div className="flex justify-center gap-4 mt-2 text-[10px]">
             {stats.revenueData.map((d, i) => (
@@ -206,19 +215,19 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
           <h2 className="text-sm font-bold text-gray-900 mb-2">Sales by Category</h2>
           <div className="flex-1 flex justify-between items-center gap-4 min-h-[200px]">
-             <div className="w-1/2 h-[160px]">
-               <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={stats.categoryData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} dataKey="value" stroke="none">
-                      {stats.categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-               </ResponsiveContainer>
-             </div>
-             <div className="w-1/2 flex flex-col gap-2 text-[10px]">
-               {stats.categoryData.map((d, i) => (
+            <div className="w-1/2 h-[160px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={stats.categoryData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} dataKey="value" stroke="none">
+                    {stats.categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="w-1/2 flex flex-col gap-2 text-[10px]">
+              {stats.categoryData.map((d, i) => (
                 <div key={i} className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }}></div>
@@ -227,7 +236,7 @@ export default function AdminDashboard() {
                   <span className="font-bold text-gray-900">{d.value}%</span>
                 </div>
               ))}
-             </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
-import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -23,7 +22,7 @@ const ShopEssentials = ({ products = [] }) => {
   const menProducts = products
     .filter((product) => {
       const cat = product.categories?.name?.toLowerCase() || '';
-      return cat.includes("men") || cat.includes("kurtas") || cat.includes("suits");
+      return (cat.includes("men") && !cat.includes("women")) || cat.includes("kurtas") || cat.includes("suits");
     })
     .slice(0, 4);
 
@@ -64,6 +63,13 @@ const ShopEssentials = ({ products = [] }) => {
       { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" }
     );
   }, { dependencies: [activeTab], scope: containerRef });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [activeTab, products]);
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
@@ -108,34 +114,33 @@ const ShopEssentials = ({ products = [] }) => {
               const mainImage = product.product_images?.[0]?.image_url;
 
               return (
-              <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer">
+                <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer">
 
-                <div className="relative w-full aspect-[3/4] max-h-[420px] rounded-3xl border border-gray-400 overflow-hidden mb-5 bg-gray-100">
-                  {mainImage ? (
-                    <Image
-                      src={mainImage}
-                      alt={product.title}
-                      fill
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-gray-400 font-bold tracking-wider px-4 text-sm uppercase">
+                  <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
+                    {mainImage ? (
+                      <img
+                        src={mainImage}
+                        alt={product.title}
+                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                        onLoad={() => ScrollTrigger.refresh()}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm font-semibold tracking-wide">
                         NO IMAGE
-                      </span>
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    )}
+                  </div>
 
-                <h3 className="text-[15px] leading-[1.4] text-gray-800 px-2 min-h-[42px] transition-colors group-hover:text-[#00c3ff] line-clamp-2">
-                  {product.title}
-                </h3>
-                <p className="text-lg font-bold text-black mt-3">
-                  ₹{product.base_price?.toLocaleString('en-IN')}
-                </p>
+                  <h3 className="text-[15px] leading-[1.4] text-gray-800 px-2 min-h-[42px] transition-colors group-hover:text-[#00c3ff] line-clamp-2">
+                    {product.title}
+                  </h3>
+                  <p className="text-lg font-bold text-black mt-3">
+                    ₹{product.base_price?.toLocaleString('en-IN')}
+                  </p>
 
-              </Link>
-            )})
+                </Link>
+              )
+            })
           )}
         </div>
       </div>

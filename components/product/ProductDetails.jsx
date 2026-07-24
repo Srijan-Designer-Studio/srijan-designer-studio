@@ -14,7 +14,6 @@ export default function ProductDetails({ product }) {
   const { addToCart, toggleWishlist, wishlistItems } = useCart();
   const containerRef = useRef(null);
   
-  // Dynamically extract available sizes from database variants
   const availableSizes = [...new Set(product?.product_variants?.map(v => v.size).filter(Boolean))] || ["S", "M", "L"];
   
   const [size, setSize] = useState(availableSizes[0] || "S");
@@ -43,7 +42,6 @@ export default function ProductDetails({ product }) {
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
   const mainImage = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
 
-  // Find the exact variant ID based on selected size
   const selectedVariant = product.product_variants?.find(v => v.size === size) || product.product_variants?.[0];
   const variantId = selectedVariant?.id;
   const currentPrice = product.base_price + (selectedVariant?.price_adjustment || 0);
@@ -53,7 +51,6 @@ export default function ProductDetails({ product }) {
     startTransition(async () => {
       try {
         await addToCartServer(variantId, quantity);
-        // Optimistic UI update
         addToCart({ 
           id: product.id, 
           variantId, 
@@ -96,13 +93,13 @@ export default function ProductDetails({ product }) {
   };
 
   return (
-    <section className="py-12 bg-white" ref={containerRef}>
-      <div className="max-w-[1320px] overflow-hidden relative w-full h-screen mx-auto px-6">
+    <section className="pt-32 pb-12 bg-white" ref={containerRef}>
+      <div className="max-w-[1320px] relative w-full mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16">
           
           <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0">
             <div className="relative w-full aspect-[3/4] rounded-[24px] border border-gray-200 overflow-hidden mb-6 bg-gray-50">
-              <Image src={mainImage} alt={product.title} fill className="object-cover object-top" />
+              <img src={mainImage} alt={product.title} className="w-full h-full object-cover object-top" />
             </div>
           </div>
 
@@ -156,7 +153,7 @@ export default function ProductDetails({ product }) {
                   isWishlisted ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
                 } disabled:opacity-70`}
               >
-                <Heart size={18} strokeWidth={2.5} className={isWishlisted ? 'fill-white' : ''} />
+                <Heart className={isWishlisted ? 'fill-white' : ''} size={18} strokeWidth={2.5} />
                 {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
               </button>
             </div>
@@ -169,7 +166,7 @@ export default function ProductDetails({ product }) {
                   isAdded ? 'bg-green-500 text-white cursor-default border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
                 } disabled:opacity-70`}
               >
-                {isPending ? <Loader2 size={18} className="animate-spin" /> : isAdded ? <Check size={18} strokeWidth={2.5} /> : <ShoppingCart size={18} strokeWidth={2.5} />}
+                {isPending ? <Loader2 className="animate-spin" size={18} /> : isAdded ? <Check size={18} strokeWidth={2.5} /> : <ShoppingCart size={18} strokeWidth={2.5} />}
                 {isAdded ? "Added To Cart" : "Add To Cart"}
               </button>
 
@@ -178,7 +175,7 @@ export default function ProductDetails({ product }) {
                 disabled={isPending}
                 className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30 disabled:opacity-70"
               >
-                {isPending ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} strokeWidth={2.5} className="fill-white" />}
+                {isPending ? <Loader2 className="animate-spin" size={18} /> : <Zap className="fill-white" size={18} strokeWidth={2.5} />}
                 Buy It Now
               </button>
             </div>

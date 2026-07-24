@@ -33,27 +33,31 @@ export default function CustomerReviews({ productId }) {
     if (productId) fetchReviews();
   }, [productId]);
 
-  useGSAP(() => {
-    if (isLoading) return;
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 80%",
-        toggleActions: "play none none reverse",
-      }
-    });
+  // Scroll Fix: Form ওপেন হলে বা রিভিউজ লোড হলে হাইট রিক্যালকুলেট করবে
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [isWriting, reviews, isLoading]);
 
-    tl.fromTo(
+  useGSAP(() => {
+    gsap.fromTo(
       ".review-head",
       { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
-    ).fromTo(
-      ".review-card",
-      { y: 50, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
-      "-=0.4"
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 85%",
+        }
+      }
     );
-  }, { scope: containerRef, dependencies: [isLoading, reviews.length] });
+  }, { scope: containerRef });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -74,7 +78,7 @@ export default function CustomerReviews({ productId }) {
   const getRatingCount = (starValue) => reviews.filter(r => r.rating === starValue).length;
 
   return (
-    <section className="py-16 bg-[#f8f9fa]" ref={containerRef}>
+    <section className="py-16 bg-[#f8f9fa] relative z-10" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
 
         <h2 className="review-head text-3xl font-bold text-black mb-12">Customer Reviews</h2>
@@ -125,7 +129,7 @@ export default function CustomerReviews({ productId }) {
         </div>
 
         {isWriting && (
-          <div className="review-head bg-white p-6 rounded-xl shadow-sm mb-12 border border-gray-100 relative">
+          <div className="bg-white p-6 rounded-xl shadow-sm mb-12 border border-gray-100 relative">
             <button onClick={() => setIsWriting(false)} className="absolute top-4 right-4 text-gray-400 hover:text-black">
               <X size={20} />
             </button>
@@ -169,7 +173,7 @@ export default function CustomerReviews({ productId }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {reviews.map((review) => (
-              <div key={review.id} className="review-card bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div key={review.id} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={14} fill={i < review.rating ? "#c04f36" : "none"} color="#c04f36" />
