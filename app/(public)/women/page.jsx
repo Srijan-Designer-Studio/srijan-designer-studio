@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import WomenHero from "@/components/women/WomenHero";
 import ShopSection from "@/components/shared/ShopSection";
 import WomenDescription from "@/components/women/WomenDescription";

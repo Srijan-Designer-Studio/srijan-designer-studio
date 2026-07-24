@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import MenHero from "@/components/men/MenHero";
 import ShopSection from "@/components/shared/ShopSection";
 import MenDescription from "@/components/men/MenDescription";
