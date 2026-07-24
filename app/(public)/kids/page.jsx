@@ -1,3 +1,5 @@
+
+export const dynamic = 'force-dynamic';
 import KidsHero from "@/components/kids/KidsHero";
 import KidsMemory from "@/components/kids/KidsMemory";
 import KidsLooks from "@/components/kids/KidsLooks";

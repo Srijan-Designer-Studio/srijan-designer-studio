@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import ProductsHero from "@/components/product/ProductsHero"; 
 import ShopSection from "@/components/shared/ShopSection";
 import { getProducts } from "@/app/actions/products";

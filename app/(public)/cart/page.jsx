@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = 'force-dynamic';
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";

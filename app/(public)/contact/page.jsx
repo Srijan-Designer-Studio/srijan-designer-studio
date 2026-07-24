@@ -1,5 +1,7 @@
+export const dynamic = 'force-dynamic';
 import ContactHero from "@/components/Contact/ContactHero";
 import ContactDetails from "@/components/Contact/ContactDetails";
+
 
 export const metadata = {
   title: "Contact Us | SRIJAN Fashion",

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import CustomizeHero from "@/components/customize/CustomizeHero";
 import BaseStyles from "@/components/customize/BaseStyles";
 import DesignProcess from "@/components/customize/DesignProcess";

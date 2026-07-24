@@ -1,4 +1,4 @@
-
+export const dynamic = 'force-dynamic';
 import WeddingHero from "@/components/Wedding/WeddingHero";
 import WeddingInspiration from "@/components/Wedding/WeddingInspiration";
 import HowItWorks from "@/components/Wedding/HowItWorks";

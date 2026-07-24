@@ -1,3 +1,5 @@
+
+export const dynamic = 'force-dynamic';
 import { notFound } from "next/navigation";
 import ProductDetails from "@/components/product/ProductDetails";
 import CustomerReviews from "@/components/product/CustomerReviews";
