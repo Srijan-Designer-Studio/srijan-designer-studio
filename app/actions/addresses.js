@@ -9,7 +9,6 @@ export async function updateAddress(formData) {
 
   if (!addressId) throw new Error('Address ID is required for updating.')
 
-  // If setting this as default, remove the default status from all other addresses first
   if (isDefault) {
     await supabase.from('addresses').update({ is_default: false }).eq('user_id', user.id)
   }
@@ -26,7 +25,7 @@ export async function updateAddress(formData) {
       is_default: isDefault
     })
     .eq('id', addressId)
-    .eq('user_id', user.id) // Security check: Ensure the user actually owns this address
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
 

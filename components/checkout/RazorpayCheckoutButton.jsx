@@ -3,9 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { createRazorpayOrder, verifyRazorpayPayment } from '@/app/actions/payment';
+import { createRazorpayOrder, verifyRazorpayPayment } from '@/app/actions/payments';
 
-// Utility to inject the Razorpay script into the DOM securely
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (window.Razorpay) {
@@ -31,29 +30,25 @@ export default function RazorpayCheckoutButton({ amount, dbOrderId, customerName
     setIsProcessing(true);
 
     try {
-      // 1. Load the script
       const isScriptLoaded = await loadRazorpayScript();
       if (!isScriptLoaded) {
         throw new Error("Failed to load Razorpay SDK. Check your connection.");
       }
 
-      // 2. Call backend to create Razorpay Order
       const res = await createRazorpayOrder(amount, dbOrderId);
       if (!res.success) {
         throw new Error("Could not initialize payment.");
       }
 
-      // 3. Configure Razorpay Options
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Safe to expose
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: res.order.amount,
         currency: res.order.currency,
         name: "SRIJAN Fashion",
         description: `Order #${dbOrderId}`,
-        image: "/images/logo.png", // Add your logo path here
-        order_id: res.order.id, // The Razorpay Order ID from backend
+        image: "/images/logo.png",
+        order_id: res.order.id,
         handler: function (response) {
-          // 4. Handle Success: Send details to backend for verification
           startTransition(async () => {
             try {
               const verifyRes = await verifyRazorpayPayment(
@@ -64,7 +59,6 @@ export default function RazorpayCheckoutButton({ amount, dbOrderId, customerName
               );
               
               if (verifyRes.success) {
-                // Payment verified, redirect to success page
                 router.push(`/checkout/success?order_id=${dbOrderId}`);
               }
             } catch (err) {
@@ -78,7 +72,7 @@ export default function RazorpayCheckoutButton({ amount, dbOrderId, customerName
           contact: customerPhone || "",
         },
         theme: {
-          color: "#000000", // Matches your black/white premium theme
+          color: "#000000",
         },
         modal: {
           ondismiss: function () {
@@ -87,7 +81,6 @@ export default function RazorpayCheckoutButton({ amount, dbOrderId, customerName
         },
       };
 
-      // 5. Open the Razorpay Checkout Modal
       const paymentObject = new window.Razorpay(options);
       
       paymentObject.on('payment.failed', function (response) {
