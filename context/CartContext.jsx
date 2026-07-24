@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { getCart } from "@/app/actions/shopping";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from '@supabase/ssr'
 
 const CartContext = createContext();
 
@@ -10,7 +10,10 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const supabase = createClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   useEffect(() => {
     async function loadData() {
@@ -41,10 +44,10 @@ export function CartProvider({ children }) {
         if (savedCart) setCartItems(JSON.parse(savedCart));
         if (savedWishlist) setWishlistItems(JSON.parse(savedWishlist));
       }
-      
+
       setIsLoaded(true);
     }
-    
+
     loadData();
   }, []);
 
@@ -93,16 +96,16 @@ export function CartProvider({ children }) {
   const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
 
   return (
-    <CartContext.Provider 
-      value={{ 
-        cartItems, 
-        wishlistItems, 
-        addToCart, 
-        removeFromCart, 
-        updateQuantity, 
-        toggleWishlist, 
-        subtotal, 
-        isLoaded 
+    <CartContext.Provider
+      value={{
+        cartItems,
+        wishlistItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        toggleWishlist,
+        subtotal,
+        isLoaded
       }}
     >
       {children}
