@@ -46,5 +46,5 @@ export default async function Home() {
                                                                                                                 <Testimonials />
                                                                                                                       <FAQ />
                                                                                                                           </main>
-                                                                                                                            );
+                                                                                                                             );
                                                                                                                             }
