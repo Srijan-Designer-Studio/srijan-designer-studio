@@ -16,34 +16,24 @@ import { getProducts } from "@/app/actions/products";
 import { getCategories } from "@/app/actions/admin";
 
 export default async function Home() {
-  let categories = [];
-  let essentialProducts = [];
+  // Fetch real data simultaneously for speed
+  const [categories, essentialProducts] = await Promise.all([
+    getCategories(),
+    getProducts()
+  ]);
 
-  try {
-    const [fetchedCategories, fetchedProducts] = await Promise.all([
-      getCategories(),
-      getProducts()
-    ]);
-    
-
-    categories = fetchedCategories || [];
-    essentialProducts = fetchedProducts || [];
-  } catch (error) {
-    console.error("Homepage data fetch error:", error);
-  }
-
-  return (
-    <main>
-      <Hero />
-      <AboutIntro />
-      <Collection categories={categories} />
-      <ShopEssentials products={essentialProducts} />
-      <CustomizeWear />
-      <CustomizeWedding />
-      <CustomizeKidsWear />
-      <Blogs />
-      <Testimonials />
-      <FAQ />
-    </main>
-  );
-}
+                                                      return (
+                                                          <main>
+                                                                <Hero />
+                                                                      <AboutIntro />
+                                                                            <Collection categories={categories} />
+                                                                                  <ShopEssentials products={essentialProducts} />
+                                                                                        <CustomizeWear />
+                                                                                              <CustomizeWedding />
+                                                                                                    <CustomizeKidsWear />
+                                                                                                          <Blogs />
+                                                                                                                <Testimonials />
+                                                                                                                      <FAQ />
+                                                                                                                          </main>
+                                                                                                                             );
+                                                                                                                            }
