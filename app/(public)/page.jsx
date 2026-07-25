@@ -22,18 +22,18 @@ export default async function Home() {
     getProducts()
   ]);
 
-                                                      return (
-                                                          <main>
-                                                                <Hero />
-                                                                      <AboutIntro />
-                                                                            <Collection categories={categories} />
-                                                                                  <ShopEssentials products={essentialProducts} />
-                                                                                        <CustomizeWear />
-                                                                                              <CustomizeWedding />
-                                                                                                    <CustomizeKidsWear />
-                                                                                                          <Blogs />
-                                                                                                                <Testimonials />
-                                                                                                                      <FAQ />
-                                                                                                                          </main>
-                                                                                                                             );
-                                                                                                                            }
+  return (
+    <main>
+      <Hero />
+      <AboutIntro />
+      <Collection categories={categories} />
+      <ShopEssentials products={essentialProducts} />
+      <CustomizeWear />
+      <CustomizeWedding />
+      <CustomizeKidsWear />
+      <Blogs />
+      <Testimonials />
+      <FAQ />
+    </main>
+  );
+}
