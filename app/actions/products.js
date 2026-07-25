@@ -1,8 +1,9 @@
 'use server'
 
-import { createClient as createPublicClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
-const publicSupabase = createPublicClient(
+// সরাসরি Supabase ক্লায়েন্ট তৈরি করা হচ্ছে
+const publicSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )

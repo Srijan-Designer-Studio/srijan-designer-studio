@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Heart, Minus, Plus, ShoppingCart, Zap, Check, Loader2 } from "lucide-react";
@@ -9,18 +9,25 @@ import { useGSAP } from "@gsap/react";
 import { useCart } from "@/context/CartContext";
 import { addToCart as addToCartServer, toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
+gsap.registerPlugin(useGSAP);
+
 export default function ProductDetails({ product }) {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistItems } = useCart();
   const containerRef = useRef(null);
   
-  const availableSizes = [...new Set(product?.product_variants?.map(v => v.size).filter(Boolean))] || ["S", "M", "L"];
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
+  const variants = product?.product_variants || [];
+  const uniqueSizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
+  const availableSizes = uniqueSizes.length > 0 ? uniqueSizes : ["S", "M", "L"];
   
   const [size, setSize] = useState(availableSizes[0] || "S");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [errorMsg, setErrorMsg] = useState("");
 
   useGSAP(() => {
     if (!product) return;
@@ -42,52 +49,61 @@ export default function ProductDetails({ product }) {
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
   const mainImage = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
 
-  const selectedVariant = product.product_variants?.find(v => v.size === size) || product.product_variants?.[0];
-  const variantId = selectedVariant?.id;
+  const selectedVariant = variants.find(v => v.size === size) || variants[0];
+  const variantId = selectedVariant?.id || product.id; 
   const currentPrice = product.base_price + (selectedVariant?.price_adjustment || 0);
 
   const handleAddToCart = () => {
-    setErrorMsg("");
     startTransition(async () => {
+      addToCart({ 
+        id: product.id, 
+        variantId, 
+        title: product.title, 
+        price: currentPrice, 
+        image: mainImage, 
+        size 
+      }, quantity);
+      
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000);
+
       try {
         await addToCartServer(variantId, quantity);
-        addToCart({ 
-          id: product.id, 
-          variantId, 
-          title: product.title, 
-          price: currentPrice, 
-          image: mainImage, 
-          size 
-        }, quantity);
-        
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
       } catch (error) {
-        setErrorMsg("Please log in to add items to your cart.");
+        console.warn("Saved to local cart.");
       }
     });
   };
 
   const handleBuyNow = () => {
-    setErrorMsg("");
     startTransition(async () => {
+      addToCart({ 
+        id: product.id, 
+        variantId, 
+        title: product.title, 
+        price: currentPrice, 
+        image: mainImage, 
+        size 
+      }, quantity);
+
+      router.push("/checkout");
+
       try {
         await addToCartServer(variantId, quantity);
-        addToCart({ id: product.id, variantId, title: product.title, price: currentPrice, image: mainImage, size }, quantity);
-        router.push("/checkout");
       } catch (error) {
-        setErrorMsg("Please log in to proceed to checkout.");
+        console.warn("Proceeding to checkout with local cart.");
       }
     });
   };
 
   const handleWishlist = () => {
     startTransition(async () => {
+      toggleWishlist(product);
+      
       try {
         await toggleWishlistServer(product.id);
-        toggleWishlist(product);
       } catch (error) {
-        setErrorMsg("Please log in to manage your wishlist.");
+        console.warn("Saved to local wishlist.");
       }
     });
   };
@@ -179,8 +195,6 @@ export default function ProductDetails({ product }) {
                 Buy It Now
               </button>
             </div>
-
-            {errorMsg && <p className="text-red-500 text-sm mt-4 font-medium">{errorMsg}</p>}
             
           </div>
         </div>

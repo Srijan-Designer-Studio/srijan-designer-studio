@@ -25,7 +25,7 @@ export function CartProvider({ children }) {
           if (dbCart && dbCart.cart_items) {
             const mappedCart = dbCart.cart_items.map(item => ({
               id: item.product_variants.products.id,
-              variantId: item.variant_id, // variantId ট্র্যাক করা হচ্ছে
+              variantId: item.variant_id,
               title: item.product_variants.products.title,
               price: item.product_variants.products.base_price,
               image: item.product_variants.products.product_images?.[0]?.image_url,
@@ -60,7 +60,6 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, quantity = 1) => {
     setCartItems((prev) => {
-      // id-এর বদলে variantId দিয়ে চেক করা হচ্ছে যাতে আলাদা সাইজ আলাদা আইটেম হিসেবে অ্যাড হয়
       const existing = prev.find((item) => item.variantId === product.variantId);
       if (existing) {
         return prev.map((item) =>
@@ -72,7 +71,6 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (variantId) => {
-    // id-এর বদলে variantId ব্যবহার করা হচ্ছে
     setCartItems((prev) => prev.filter((item) => item.variantId !== variantId));
   };
 
@@ -93,6 +91,12 @@ export function CartProvider({ children }) {
     });
   };
 
+  
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem("srijan_cart");
+  };
+
   const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
 
   return (
@@ -104,6 +108,7 @@ export function CartProvider({ children }) {
         removeFromCart,
         updateQuantity,
         toggleWishlist,
+        clearCart,
         subtotal,
         isLoaded
       }}

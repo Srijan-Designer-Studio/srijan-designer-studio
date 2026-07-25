@@ -63,11 +63,11 @@ export default function CheckoutPage() {
         };
 
         const dbResult = await createOrder({ ...orderPayload, paymentStatus: 'Pending', status: 'pending' });
-        
+
         if (!dbResult.success) {
           throw new Error(dbResult.error || "Failed to create order");
         }
-        
+
         const dbOrderId = dbResult.data?.id || dbResult.order?.id || dbResult.id;
 
         if (paymentMethod === 'cod') {
@@ -81,7 +81,7 @@ export default function CheckoutPage() {
           if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load. Are you online?");
 
           const rpResult = await createRazorpayOrder(total, dbOrderId);
-          
+
           if (!rpResult.success) throw new Error(rpResult.error || "Failed to initialize Razorpay");
 
           const options = {
@@ -99,7 +99,7 @@ export default function CheckoutPage() {
                   response.razorpay_signature,
                   dbOrderId
                 );
-                
+
                 if (verifyResult.success) {
                   clearCart();
                   window.location.href = '/account/orders';
@@ -135,8 +135,8 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans">
-      <div className="max-w-[1200px] mx-auto px-6">
-        
+      <div className="max-w-[1200px] mx-auto px-10">
+
         <div className="mb-8">
           <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
             <ChevronLeft size={18} className="mr-1" /> Back to Cart
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
+
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
@@ -192,12 +192,16 @@ export default function CheckoutPage() {
           <div className="lg:col-span-5 xl:col-span-4">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
               <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
-              
+
               <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2">
                 {cartItems.map((item, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                      <Image src={item.image || "/images/placeholder.jpg"} alt={item.title} fill className="object-cover object-top" />
+                      <img
+                        src={item.image || "/images/placeholder.jpg"}
+                        alt={item.title}
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
                       <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>

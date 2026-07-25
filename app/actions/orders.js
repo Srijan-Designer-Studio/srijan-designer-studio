@@ -17,7 +17,7 @@ export async function createOrder(orderPayload) {
         payment_method: orderPayload.paymentMethod,
         payment_status: orderPayload.paymentStatus || 'Pending',
         status: orderPayload.status || 'pending',
-        shipping_address: orderPayload.address 
+        shipping_address: orderPayload.address
       })
       .select()
       .single()
@@ -38,7 +38,7 @@ export async function createOrder(orderPayload) {
     if (itemsError) throw new Error(itemsError.message)
 
     revalidatePath('/account/orders')
-    
+
     return { success: true, data: order }
 
   } catch (error) {
@@ -47,35 +47,57 @@ export async function createOrder(orderPayload) {
 }
 
 export async function getUserOrders() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
 
-    if (authError || !user) return []
 
-    const { data, error } = await supabase
+    const { data: orders, error } = await supabase
       .from('orders')
       .select(`
         *,
         order_items (
+          variant_id,
           quantity,
-          price,
-          product_variants (
-            size,
-            products (
-              title
-            )
-          )
+          price
         )
       `)
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false });
 
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    if (!orders || orders.length === 0) return [];
+
+    const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))];
+
+
+    const { data: products } = await supabase.from('products').select('id, title').in('id', itemIds);
+    const { data: variants } = await supabase.from('product_variants').select('id, size, products(title)').in('id', itemIds);
+
+    const formattedOrders = orders.map(order => ({
+      ...order,
+      order_items: order.order_items.map(item => {
+        const variantMatch = variants?.find(v => v.id === item.variant_id);
+        const productMatch = products?.find(p => p.id === item.variant_id);
+
+        return {
+          ...item,
+          product_variants: {
+            size: variantMatch ? variantMatch.size : 'Standard',
+            products: {
+              title: variantMatch?.products?.title || productMatch?.title || 'Premium Product'
+            }
+          }
+        };
+      })
+    }));
+
+    return formattedOrders;
   } catch (error) {
-    return []
+    console.error("Dashboard error:", error);
+    return [];
   }
 }
 

@@ -106,25 +106,57 @@ export async function getAllOrders() {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
+    // ১. profiles থেকে email বাদ দেওয়া হয়েছে (যেহেতু ডেটাবেসে এটি নেই)
+    const { data: orders, error } = await supabase
       .from('orders')
       .select(`
         *,
-        profiles (first_name, last_name, email),
+        profiles (first_name, last_name),
         order_items (
+          variant_id,
           quantity,
-          price,
-          product_variants (
-            sku,
-            products (title)
-          )
+          price
         )
       `)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    if (!orders || orders.length === 0) return []
+
+    const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))];
+
+    let products = [];
+    let variants = [];
+
+    if (itemIds.length > 0) {
+      const { data: pData } = await supabase.from('products').select('id, title').in('id', itemIds);
+      products = pData || [];
+      
+      const { data: vData } = await supabase.from('product_variants').select('id, sku, products(title)').in('id', itemIds);
+      variants = vData || [];
+    }
+
+    const formattedOrders = orders.map(order => ({
+      ...order,
+      order_items: order.order_items ? order.order_items.map(item => {
+        const variantMatch = variants.find(v => v.id === item.variant_id);
+        const productMatch = products.find(p => p.id === item.variant_id);
+        
+        return {
+          ...item,
+          product_variants: {
+            sku: variantMatch?.sku || 'N/A',
+            products: {
+              title: variantMatch?.products?.title || productMatch?.title || 'Unknown Product'
+            }
+          }
+        };
+      }) : []
+    }));
+
+    return formattedOrders
   } catch (error) {
+    console.error("Admin Dashboard Error:", error);
     return []
   }
 }
