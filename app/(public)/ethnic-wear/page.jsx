@@ -46,10 +46,9 @@ export default async function EthnicWearPage() {
                 >
                   <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-300 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
                     {imageUrl ? (
-                      <Image
+                      <img
                         src={imageUrl}
                         alt={product.title}
-                        fill
                         className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

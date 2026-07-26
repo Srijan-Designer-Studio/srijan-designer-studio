@@ -10,11 +10,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ShopSection({ title, category, viewAllLink, products = [] }) {
+export default function ShopSection({ title, category, type, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
 
   const productsData = products
-    .filter((product) => product.categories?.name === category)
+    .filter((product) => product.categories?.name === category && product.product_type === type)
     .slice(0, 4);
 
   useGSAP(() => {

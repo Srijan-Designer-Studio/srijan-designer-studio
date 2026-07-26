@@ -16,19 +16,23 @@ export default async function WomenPage() {
   return (
     <main>
       <WomenHero />
+      
       <ShopSection 
         title="Shop Ethnic Wear" 
-        category="Women Ethnic" 
+        category="Women"
+        type="Ethnic Wear"
         viewAllLink="/ethnic-wear" 
         products={allProducts} 
       />
       
       <ShopSection 
         title="Shop Western Wear" 
-        category="Women Western" 
+        category="Women"
+        type="Western Wear"
         viewAllLink="/western-wear" 
         products={allProducts} 
       />
+      
       <WomenDescription />
     </main>
   );

@@ -14,14 +14,16 @@ export default async function MenPage() {
       
       <ShopSection 
         title="Shop Ethnic Wear" 
-        category="Men Ethnic" 
+        category="Men"
+        type="Ethnic Wear"
         viewAllLink="/ethnic-wear"
         products={allProducts}
       />
       
       <ShopSection 
         title="Shop Western Wear" 
-        category="Men Western" 
+        category="Men"
+        type="Western Wear"
         viewAllLink="/western-wear"
         products={allProducts}
       />
