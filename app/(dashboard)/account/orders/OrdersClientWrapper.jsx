@@ -1,7 +1,8 @@
+// OrdersClientWrapper.jsx
 'use client';
 
 import { useState } from 'react';
-import { Package, Download, Eye } from 'lucide-react';
+import { Package, Download, Eye, XCircle } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -14,12 +15,21 @@ export default function OrdersClientWrapper({ initialOrders }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const handleCancelOrder = (orderId) => {
+    if (window.confirm('Are you sure you want to cancel this order?')) {
+      alert('Cancel request initiated for order: ' + orderId);
+    }
+  };
+
   const formattedOrders = initialOrders?.map((order) => {
     const formattedDate = new Intl.DateTimeFormat('en-IN', { 
       year: 'numeric', month: 'short', day: 'numeric' 
     }).format(new Date(order.created_at));
     
     const itemCount = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+    const firstItem = order.order_items?.[0];
+    
+    const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
 
     return {
       rawOrder: order, 
@@ -27,12 +37,28 @@ export default function OrdersClientWrapper({ initialOrders }) {
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-      status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
+      status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+      image: imageUrl
     };
   }) || [];
 
   const orderColumns = [
-    { header: 'Order ID', accessor: 'id', render: (row) => <span className="font-bold text-gray-900">#{row.id}</span> },
+    { 
+      header: 'Order ID', 
+      accessor: 'id', 
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden shrink-0">
+            {row.image ? (
+              <img src={row.image} alt="Product" className="w-full h-full object-cover" />
+            ) : (
+              <Package size={18} className="text-gray-400" />
+            )}
+          </div>
+          <span className="font-bold text-gray-900">#{row.id}</span>
+        </div>
+      ) 
+    },
     { header: 'Date', accessor: 'date' },
     { header: 'Items', accessor: 'items', render: (row) => <span className="text-gray-500">{row.items}</span> },
     { header: 'Total Amount', accessor: 'total', render: (row) => <span className="font-bold text-gray-900">{row.total}</span> },
@@ -44,13 +70,21 @@ export default function OrdersClientWrapper({ initialOrders }) {
         <div className="flex gap-3">
           <button 
             onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
-            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
           >
             <Eye size={16} /> View
           </button>
           {row.status === 'Delivered' && (
-            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
               <Download size={16} /> Invoice
+            </button>
+          )}
+          {(row.status === 'Pending' || row.status === 'Processing') && (
+            <button 
+              onClick={() => handleCancelOrder(row.rawOrder.id)}
+              className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+            >
+              <XCircle size={16} /> Cancel
             </button>
           )}
         </div>
@@ -67,7 +101,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
   ];
 
   return (
-    <div className="max-w-6xl space-y-6 font-sans">
+    <div className="max-w-6xl space-y-6 font-sans pt-28 lg:pt-32">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
@@ -89,7 +123,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
         onClose={() => setIsModalOpen(false)}
         title={selectedOrder ? `Order Summary: #${selectedOrder.id.split('-')[0].toUpperCase()}` : "Order Details"}
         footer={
-          <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800">
+          <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 cursor-pointer">
             Close
           </button>
         }
@@ -112,18 +146,26 @@ export default function OrdersClientWrapper({ initialOrders }) {
              <div className="border border-gray-100 rounded-xl p-4 space-y-4">
                 <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
                 
-                {selectedOrder.order_items?.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                     <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                        <Package size={24} />
-                     </div>
-                     <div className="flex-1">
-                        <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
-                     </div>
-                     <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
-                  </div>
-                ))}
+                {selectedOrder.order_items?.map((item, index) => {
+                  const imgUrl = item.product_variants?.products?.product_images?.[0]?.image_url || item.image_url || item.image || null;
+                  
+                  return (
+                    <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                      <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                          {imgUrl ? (
+                            <img src={imgUrl} alt="Product" className="w-full h-full object-cover" />
+                          ) : (
+                            <Package size={24} />
+                          )}
+                      </div>
+                      <div className="flex-1">
+                          <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
+                          <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+                      </div>
+                      <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                    </div>
+                  );
+                })}
              </div>
           </div>
         )}

@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// Initialize Razorpay instance securely on the server
+
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -14,9 +14,9 @@ const razorpay = new Razorpay({
 export async function createRazorpayOrder(amount, dbOrderId) {
   try {
     const options = {
-      amount: Math.round(amount * 100), // Razorpay expects amount in paise
+      amount: Math.round(amount * 100), 
       currency: 'INR',
-      receipt: `rcpt_${dbOrderId}`,
+      receipt: `rcpt_${dbOrderId}`.substring(0, 40),
     }
 
     const order = await razorpay.orders.create(options)

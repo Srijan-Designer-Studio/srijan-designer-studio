@@ -35,7 +35,7 @@ export default function CartPage() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 gap-6 transition-all hover:shadow-md">
                   <Link href={`/product/${item.slug || item.id}`} className="relative w-28 h-36 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <Image src={item.image || "/images/placeholder.jpg"} alt={item.title || "Product"} fill className="object-cover object-top" />
+                    <img src={item.image || "/images/placeholder.jpg"} alt={item.title || "Product"} className="object-cover object-top" />
                   </Link>
                   
                   <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left w-full">

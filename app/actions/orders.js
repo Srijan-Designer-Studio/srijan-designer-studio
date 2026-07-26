@@ -53,7 +53,6 @@ export async function getUserOrders() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-
     const { data: orders, error } = await supabase
       .from('orders')
       .select(`
@@ -72,22 +71,34 @@ export async function getUserOrders() {
 
     const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))];
 
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, title, product_images(image_url)')
+      .in('id', itemIds);
 
-    const { data: products } = await supabase.from('products').select('id, title').in('id', itemIds);
-    const { data: variants } = await supabase.from('product_variants').select('id, size, products(title)').in('id', itemIds);
+    const { data: variants } = await supabase
+      .from('product_variants')
+      .select('id, size, products(title, product_images(image_url))')
+      .in('id', itemIds);
 
     const formattedOrders = orders.map(order => ({
       ...order,
       order_items: order.order_items.map(item => {
         const variantMatch = variants?.find(v => v.id === item.variant_id);
         const productMatch = products?.find(p => p.id === item.variant_id);
+        
+        const imageUrl = variantMatch?.products?.product_images?.[0]?.image_url || 
+                         productMatch?.product_images?.[0]?.image_url || 
+                         null;
 
         return {
           ...item,
+          image_url: imageUrl,
           product_variants: {
             size: variantMatch ? variantMatch.size : 'Standard',
             products: {
-              title: variantMatch?.products?.title || productMatch?.title || 'Premium Product'
+              title: variantMatch?.products?.title || productMatch?.title || 'Premium Product',
+              product_images: imageUrl ? [{ image_url: imageUrl }] : []
             }
           }
         };
@@ -96,7 +107,6 @@ export async function getUserOrders() {
 
     return formattedOrders;
   } catch (error) {
-    console.error("Dashboard error:", error);
     return [];
   }
 }

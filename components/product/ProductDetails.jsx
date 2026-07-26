@@ -21,7 +21,14 @@ export default function ProductDetails({ product }) {
   }, []);
 
   const variants = product?.product_variants || [];
-  const uniqueSizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
+  
+  const uniqueSizes = [...new Set(
+    variants
+      .map(v => v.size)
+      .filter(Boolean)
+      .flatMap(sizeStr => sizeStr.split(',').map(s => s.trim()))
+  )];
+  
   const availableSizes = uniqueSizes.length > 0 ? uniqueSizes : ["S", "M", "L"];
   
   const [size, setSize] = useState(availableSizes[0] || "S");
@@ -49,7 +56,10 @@ export default function ProductDetails({ product }) {
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
   const mainImage = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
 
-  const selectedVariant = variants.find(v => v.size === size) || variants[0];
+  const selectedVariant = variants.find(v => 
+    v.size && v.size.split(',').map(s => s.trim()).includes(size)
+  ) || variants[0];
+  
   const variantId = selectedVariant?.id || product.id; 
   const currentPrice = product.base_price + (selectedVariant?.price_adjustment || 0);
 
@@ -70,7 +80,6 @@ export default function ProductDetails({ product }) {
       try {
         await addToCartServer(variantId, quantity);
       } catch (error) {
-        console.warn("Saved to local cart.");
       }
     });
   };
@@ -91,7 +100,6 @@ export default function ProductDetails({ product }) {
       try {
         await addToCartServer(variantId, quantity);
       } catch (error) {
-        console.warn("Proceeding to checkout with local cart.");
       }
     });
   };
@@ -103,7 +111,6 @@ export default function ProductDetails({ product }) {
       try {
         await toggleWishlistServer(product.id);
       } catch (error) {
-        console.warn("Saved to local wishlist.");
       }
     });
   };
@@ -140,8 +147,8 @@ export default function ProductDetails({ product }) {
                     <button
                       key={s}
                       onClick={() => setSize(s)}
-                      className={`w-12 h-12 flex items-center justify-center border rounded-lg text-[16px] transition-colors ${
-                        size === s ? "border-black text-black font-bold" : "border-gray-300 text-black hover:border-black"
+                      className={`min-w-[48px] px-3 h-12 flex items-center justify-center border rounded-lg text-[16px] transition-colors cursor-pointer ${
+                        size === s ? "bg-black border-black text-white font-bold" : "bg-white border-gray-300 text-black hover:border-black"
                       }`}
                     >
                       {s}
@@ -153,11 +160,11 @@ export default function ProductDetails({ product }) {
 
             <div className="prod-info flex flex-col sm:flex-row items-center gap-4 mb-6">
               <div className="flex items-center justify-between border border-gray-300 rounded-lg w-full sm:w-[140px] h-[52px] px-4 shrink-0 bg-gray-50">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-600 hover:text-black">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-600 hover:text-black cursor-pointer">
                   <Minus size={20} strokeWidth={2} />
                 </button>
                 <span className="text-[17px] font-medium text-black">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-600 hover:text-black">
+                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-600 hover:text-black cursor-pointer">
                   <Plus size={20} strokeWidth={2} />
                 </button>
               </div>
@@ -165,9 +172,9 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleWishlist}
                 disabled={isPending}
-                className={`w-full sm:flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm ${
+                className={`w-full sm:flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm cursor-pointer ${
                   isWishlisted ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
-                } disabled:opacity-70`}
+                } disabled:opacity-70 disabled:cursor-not-allowed`}
               >
                 <Heart className={isWishlisted ? 'fill-white' : ''} size={18} strokeWidth={2.5} />
                 {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
@@ -178,9 +185,9 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleAddToCart}
                 disabled={isAdded || isPending}
-                className={`flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm ${
+                className={`flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm cursor-pointer ${
                   isAdded ? 'bg-green-500 text-white cursor-default border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
-                } disabled:opacity-70`}
+                } disabled:opacity-70 disabled:cursor-not-allowed`}
               >
                 {isPending ? <Loader2 className="animate-spin" size={18} /> : isAdded ? <Check size={18} strokeWidth={2.5} /> : <ShoppingCart size={18} strokeWidth={2.5} />}
                 {isAdded ? "Added To Cart" : "Add To Cart"}
@@ -189,7 +196,7 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleBuyNow}
                 disabled={isPending}
-                className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30 disabled:opacity-70"
+                className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isPending ? <Loader2 className="animate-spin" size={18} /> : <Zap className="fill-white" size={18} strokeWidth={2.5} />}
                 Buy It Now
