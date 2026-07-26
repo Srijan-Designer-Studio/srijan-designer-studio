@@ -9,7 +9,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Data arrays to keep the JSX clean and easy to manage
 const menuLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
@@ -27,8 +26,6 @@ const policyLinks = [
   { name: "Customization Policy", href: "/customization-policy" },
   { name: "Shipping Policy", href: "/shipping" },
 ];
-
-// --- Custom SVG Brand Icons ---
 
 const FacebookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hover:text-[#00c3ff] transition-colors cursor-pointer">
@@ -74,28 +71,51 @@ export default function Footer() {
   const footerRef = useRef(null);
 
   useGSAP(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: footerRef.current,
-        start: "top 85%",
-        toggleActions: "play none none reverse",
-      }
-    });
-
-    tl.fromTo(
+    gsap.fromTo(
       ".footer-col",
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, ease: "power3.out" }
-    ).fromTo(
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: "top 90%",
+          once: true,
+        },
+      }
+    );
+
+    gsap.fromTo(
       ".footer-map-card",
-      { x: 50, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.8, ease: "power4.out" },
-      "-=0.4"
-    ).fromTo(
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: "top 90%",
+          once: true,
+        },
+      }
+    );
+
+    gsap.fromTo(
       ".footer-copyright",
       { opacity: 0 },
-      { opacity: 1, duration: 0.6 },
-      "-=0.2"
+      {
+        opacity: 1,
+        duration: 0.5,
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: "top 95%",
+          once: true,
+        },
+      }
     );
   }, { scope: footerRef });
 
@@ -103,16 +123,12 @@ export default function Footer() {
     <footer className="bg-[#04051a] pt-16 pb-8 border-t border-gray-800" ref={footerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         
-        {/* Top Section: Navigation Links and Location Card */}
         <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-8 mb-12">
           
-          {/* Left Side: Menus & Contact Information */}
           <div className="flex-1 flex flex-col justify-between max-w-[700px]">
             
-            {/* Menus Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 sm:gap-6 mb-12">
               
-              {/* Main Menu */}
               <div className="footer-col">
                 <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                   MAIN MENU
@@ -131,7 +147,6 @@ export default function Footer() {
                 </ul>
               </div>
 
-              {/* Policy Menu */}
               <div className="footer-col">
                 <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                   POLICY
@@ -151,7 +166,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Connect With Us Section */}
             <div className="footer-col">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
@@ -169,7 +183,6 @@ export default function Footer() {
                 </a>
               </div>
 
-              {/* Social Media Icons */}
               <div className="flex items-center gap-5 text-white">
                 <FacebookIcon />
                 <InstagramIcon />
@@ -181,7 +194,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Right Side: Location Card */}
           <div className="footer-map-card w-full lg:w-[450px] shrink-0">
             <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl">
               
@@ -195,7 +207,6 @@ export default function Footer() {
                 </p>
               </div>
 
-              {/* Google Map Embed */}
               <div className="w-full h-[250px] rounded-xl overflow-hidden bg-white shadow-inner">
                 <iframe 
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin" 
@@ -214,7 +225,6 @@ export default function Footer() {
 
         </div>
 
-        {/* Bottom Copyright Section */}
         <div className="footer-copyright pt-8 mt-4">
           <p className="text-white/80 text-sm sm:text-[15px] font-medium">
             © Copyright 2026 By SRIJAN Fashion. All right reserved.
