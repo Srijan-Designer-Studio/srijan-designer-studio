@@ -114,7 +114,20 @@ export default function AdminOrdersPage() {
     { label: 'Cancelled', value: 'cancelled' },
   ];
 
-  if (isLoading) return <div className="p-10 text-center text-gray-500">Loading orders...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-[400px] w-full flex flex-col items-center justify-center space-y-5">
+        <div className="relative w-12 h-12">
+          {/* Background Ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
+        </div>
+        <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">
+          Loading Orders...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

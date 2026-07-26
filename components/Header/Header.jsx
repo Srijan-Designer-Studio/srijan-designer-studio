@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { createClient } from "@/lib/supabase/client";
 
 import { NAV_DATA, NAV_ICONS } from "@/data/header";
-// CartDrawer ইমপোর্ট করা হলো
+
 import CartDrawer from "@/components/cart/CartDrawer";
 
 export default function Header() {
@@ -69,7 +69,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // মোবাইল মেনু বা কার্ট ড্রয়ার ওপেন থাকলে বডি স্ক্রল বন্ধ করা
   useEffect(() => {
     if (isMobileMenuOpen || isCartOpen) {
       document.body.style.overflow = "hidden";
@@ -78,7 +77,7 @@ export default function Header() {
     }
     return () => {
       document.body.style.overflow = "auto";
-    };
+    }
   }, [isMobileMenuOpen, isCartOpen]);
 
   const toggleMobileDropdown = (id) => {
@@ -178,7 +177,6 @@ export default function Header() {
                   }
                 }
 
-                // যদি এটি কার্ট আইকন হয়, তবে লিংক না করে বাটন বানানো হলো
                 if (isCart) {
                   return (
                     <button 
@@ -202,7 +200,6 @@ export default function Header() {
                   );
                 }
 
-                // কার্ট ছাড়া অন্য সব আইকনের জন্য সাধারণ লিংক
                 return (
                   <Link 
                     key={icon.id} 
@@ -234,63 +231,62 @@ export default function Header() {
             </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
-          style={{ top: "90px" }}
-        >
-          <div className="p-6 pb-24">
-            <ul className="flex flex-col gap-5 text-[17px] font-bold text-gray-900">
-              {NAV_DATA.map((item) => {
-                const isDropdownOpen = mobileActiveDropdown === item.id;
-                return (
-                  <li key={item.id} className="border-b border-gray-100 pb-4">
-                    {item.categories ? (
-                      <>
-                        <button
-                          onClick={() => toggleMobileDropdown(item.id)}
-                          className="w-full flex items-center justify-between hover:text-[#00c3ff] transition-colors"
-                        >
-                          {item.label}
-                          <ChevronDown
-                            size={20}
-                            className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
-                          />
-                        </button>
-                        <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"}`}>
-                          <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
-                            {item.categories.map((cat, idx) => (
-                              <Link
-                                key={cat.id || idx}
-                                href={cat.href || `/${cat.label.toLowerCase()}`}
-                                onClick={closeAllMenus}
-                                className="block font-semibold hover:text-[#00c3ff]"
-                              >
-                                {cat.label}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        onClick={closeAllMenus}
-                        className="block hover:text-[#00c3ff] transition-colors"
-                      >
-                        {item.label}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
       </header>
 
-      {/* Cart Drawer Component */}
+      {/* Mobile Menu - Moved outside the <header> tag */}
+      <div
+        className={`fixed inset-0 bg-white z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+        style={{ top: "90px" }}
+      >
+        <div className="p-6 pb-24">
+          <ul className="flex flex-col gap-5 text-[17px] font-bold text-gray-900">
+            {NAV_DATA.map((item) => {
+              const isDropdownOpen = mobileActiveDropdown === item.id;
+              return (
+                <li key={item.id} className="border-b border-gray-100 pb-4">
+                  {item.categories ? (
+                    <>
+                      <button
+                        onClick={() => toggleMobileDropdown(item.id)}
+                        className="w-full flex items-center justify-between hover:text-[#00c3ff] transition-colors"
+                      >
+                        {item.label}
+                        <ChevronDown
+                          size={20}
+                          className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
+                        />
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"}`}>
+                        <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
+                          {item.categories.map((cat, idx) => (
+                            <Link
+                              key={cat.id || idx}
+                              href={cat.href || `/${cat.label.toLowerCase()}`}
+                              onClick={closeAllMenus}
+                              className="block font-semibold hover:text-[#00c3ff]"
+                            >
+                              {cat.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      onClick={closeAllMenus}
+                      className="block hover:text-[#00c3ff] transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );

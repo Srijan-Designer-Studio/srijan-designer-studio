@@ -66,7 +66,7 @@ export default function AdminProductsPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     startTransition(async () => {
       let res;
       if (modalMode === 'add') {
@@ -74,10 +74,10 @@ export default function AdminProductsPage() {
       } else {
         res = await updateProduct(selectedProduct.id, formData);
       }
-      
+
       if (res && res.success === false) {
         alert("Error saving product: " + res.error);
-        return;   
+        return;
       }
 
       const updatedData = await getAdminProducts();
@@ -85,7 +85,7 @@ export default function AdminProductsPage() {
       setIsModalOpen(false);
     });
   };
-  
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -101,7 +101,7 @@ export default function AdminProductsPage() {
     const mainImage = product.product_images?.[0];
     const totalStock = product.product_variants?.reduce((sum, v) => sum + (v.inventory_count || 0), 0) || 0;
     const price = product.base_price || 0;
-    
+
     return {
       rawProduct: {
         ...product,
@@ -111,6 +111,7 @@ export default function AdminProductsPage() {
       name: product.title,
       sku: mainVariant?.sku || 'N/A',
       category: product.categories?.name || 'Uncategorized',
+      type: product.product_type || '-',
       price: `₹${price.toLocaleString('en-IN')}`,
       stock: totalStock,
       status: !product.is_active ? 'Inactive' : totalStock > 0 ? 'Active' : 'Pending'
@@ -118,9 +119,9 @@ export default function AdminProductsPage() {
   });
 
   const productColumns = [
-    { 
-      header: 'Product', 
-      accessor: 'name', 
+    {
+      header: 'Product',
+      accessor: 'name',
       render: (row) => (
         <div className="flex items-center gap-3">
           {row.rawProduct.image_url ? (
@@ -135,12 +136,19 @@ export default function AdminProductsPage() {
             <p className="text-xs text-gray-500">SKU: {row.sku}</p>
           </div>
         </div>
-      ) 
+      )
     },
     { header: 'Category', accessor: 'category' },
-    { header: 'Price', accessor: 'price' },
     { 
-      header: 'Stock', 
+      header: 'Type', 
+      accessor: 'type',
+      render: (row) => (
+        <span className="text-gray-600 text-sm">{row.type}</span>
+      )
+    },
+    { header: 'Price', accessor: 'price' },
+    {
+      header: 'Stock',
       accessor: 'stock',
       render: (row) => (
         <div className="flex items-center gap-2">
@@ -148,30 +156,30 @@ export default function AdminProductsPage() {
         </div>
       )
     },
-    { 
-      header: 'Status', 
-      accessor: 'status', 
-      render: (row) => <StatusBadge status={row.status === 'Pending' ? 'Low Stock' : row.status === 'Inactive' ? 'Out of Stock' : 'In Stock'} /> 
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status === 'Pending' ? 'Low Stock' : row.status === 'Inactive' ? 'Out of Stock' : 'In Stock'} />
     },
-    { 
-      header: 'Actions', 
-      accessor: 'action', 
+    {
+      header: 'Actions',
+      accessor: 'action',
       render: (row) => (
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => handleEditProduct(row)}
             className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
           >
             Edit
           </button>
-          <button 
+          <button
             onClick={() => handleDeleteProduct(row.id)}
             className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors"
           >
             Delete
           </button>
         </div>
-      ) 
+      )
     },
   ];
 
@@ -183,17 +191,31 @@ export default function AdminProductsPage() {
     { label: 'Suits', value: 'suits' },
   ];
 
-  if (isLoading) return <div className="p-10 text-center text-gray-500">Loading products...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-[400px] w-full flex flex-col items-center justify-center space-y-5">
+        <div className="relative w-12 h-12">
+          {/* Background Ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+          {/* Spinning Ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
+        </div>
+        <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">
+          Loading Products...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-    
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your store's inventory and catalog.</p>
         </div>
-        <button 
+        <button
           onClick={handleAddProduct}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-2"
         >
@@ -212,16 +234,16 @@ export default function AdminProductsPage() {
           </div>
         </div>
         <Table columns={productColumns} data={formattedProducts} />
-        <Pagination /> 
+        <Pagination />
       </Card>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={modalMode === 'add' ? "Add New Product" : "Edit Product"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
             <div className="flex items-center gap-4">
@@ -232,53 +254,55 @@ export default function AdminProductsPage() {
                   No Image
                 </div>
               )}
-              <input 
+              <input
                 name="image"
-                type="file" 
+                type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2  file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 outline-none" 
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2  file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input 
+            <input
               name="title"
-              type="text" 
+              type="text"
               defaultValue={selectedProduct?.title || ""}
               required
-              className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
-              <input 
+              <input
                 name="sku"
-                type="text" 
+                type="text"
                 defaultValue={selectedProduct?.product_variants?.[0]?.sku || ""}
                 required
-                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
-              <input 
+              <input
                 name="price"
-                type="number" 
+                type="number"
                 defaultValue={selectedProduct?.base_price || ""}
                 required
-                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select 
-                name="category" 
+              <select
+                name="category"
                 defaultValue={selectedProduct?.category_id || ""}
                 className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
@@ -291,29 +315,42 @@ export default function AdminProductsPage() {
               </select>
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <select
+                name="type"
+                defaultValue={selectedProduct?.product_type || ""}
+                className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="">None (Optional)</option>
+                <option value="Ethnic Wear">Ethnic Wear</option>
+                <option value="Western Wear">Western Wear</option>
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
-              <input 
+              <input
                 name="size"
-                type="text" 
+                type="text"
                 placeholder="e.g. S, M, L, Free Size"
                 defaultValue={selectedProduct?.product_variants?.[0]?.size || ""}
                 required
-                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
-              <input 
+              <input
                 name="stock"
-                type="number" 
+                type="number"
                 defaultValue={selectedProduct?.product_variants?.[0]?.inventory_count || 0}
                 required
-                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
+          
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <button 
+            <button
               type="button"
               onClick={() => setIsModalOpen(false)}
               disabled={isPending}
@@ -321,7 +358,7 @@ export default function AdminProductsPage() {
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               disabled={isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70"

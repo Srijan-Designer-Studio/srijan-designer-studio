@@ -33,7 +33,7 @@ export default function CustomerReviews({ productId }) {
     if (productId) fetchReviews();
   }, [productId]);
 
-  // Scroll Fix: Form ওপেন হলে বা রিভিউজ লোড হলে হাইট রিক্যালকুলেট করবে
+
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -117,7 +117,7 @@ export default function CustomerReviews({ productId }) {
 
           <div className="w-full md:w-auto flex flex-col items-end">
             {!isWriting && (
-              <button 
+              <button
                 onClick={() => setIsWriting(true)}
                 className="w-full md:w-[280px] h-[52px] bg-[#00c3ff] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md"
               >
@@ -147,11 +147,11 @@ export default function CustomerReviews({ productId }) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Comment</label>
-                <textarea 
+                <textarea
                   required
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  rows="4" 
+                  rows="4"
                   className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#00c3ff] focus:outline-none"
                   placeholder="What did you like or dislike about this product?"
                 ></textarea>
@@ -167,7 +167,17 @@ export default function CustomerReviews({ productId }) {
         <p className="review-head text-sm text-gray-500 mb-6 font-medium">Most Recent</p>
 
         {isLoading ? (
-          <div className="flex justify-center py-10"><Loader2 className="animate-spin text-gray-400" size={32} /></div>
+          <div className="flex flex-col items-center justify-center py-10 space-y-5">
+            <div className="relative w-12 h-12">
+              {/* Background Ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+              {/* Spinning Ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
+            </div>
+            <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">
+              Loading...
+            </p>
+          </div>
         ) : reviews.length === 0 ? (
           <p className="text-gray-500 italic py-10 text-center">No reviews yet. Be the first to review this product!</p>
         ) : (

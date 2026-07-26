@@ -106,7 +106,6 @@ export async function getAllOrders() {
   const supabase = await createClient()
 
   try {
-    // ১. profiles থেকে email বাদ দেওয়া হয়েছে (যেহেতু ডেটাবেসে এটি নেই)
     const { data: orders, error } = await supabase
       .from('orders')
       .select(`
@@ -182,8 +181,138 @@ export async function getAdminProducts() {
   try {
     const { data, error } = await supabase
       .from('products')
-      // এখানে categories(*) যুক্ত করা হয়েছে
       .select('*, product_variants(*), product_images(*), categories(*)')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function deleteProduct(productId) {
+  const supabase = await createClient()
+  try {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId)
+
+    if (error) throw error
+    revalidatePath('/admin/product')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAllCustomers() {
+  const supabase = await createClient()
+  
+  try {
+    const { data, error } = await supabase
+      .from('profiles') 
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function getCategories() {
+  try {
+    const { data, error } = await publicSupabase
+      .from('categories')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function createCategory(formData) {
+  const supabase = await createClient()
+  try {
+    const name = formData.get('name');
+    const slug = formData.get('slug');
+    const image_url = formData.get('image_url');
+
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([{ name, slug, image_url }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error) {
+    console.error("Create Category Error:", error);
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateCategory(categoryId, formData) {
+  const supabase = await createClient()
+  try {
+    const name = formData.get('name');
+    const slug = formData.get('slug');
+    const image_url = formData.get('image_url');
+
+    const updates = { name, slug };
+    
+    if (image_url) {
+      updates.image_url = image_url;
+    }
+
+    const { data, error } = await supabase
+      .from('categories')
+      .update(updates)
+      .eq('id', categoryId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error) {
+    console.error("Update Category Error:", error);
+    return { success: false, error: error.message }
+  }
+}
+
+export async function deleteCategory(categoryId) {
+  const supabase = await createClient()
+  try {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', categoryId)
+
+    if (error) throw error
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getUserOrders() {
+  const supabase = await createClient()
+
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) return []
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -228,7 +357,8 @@ export async function updateProduct(productId, formData) {
         title: title,
         slug: slug,
         base_price: parseFloat(formData.get('price') || 0),
-        category_id: formData.get('category') || null
+        category_id: formData.get('category') || null,
+        product_type: formData.get('type') || null
       })
       .eq('id', productId)
       .select()
@@ -281,102 +411,8 @@ export async function updateProduct(productId, formData) {
       }
     }
 
-    revalidatePath('/admin/products')
+    revalidatePath('/admin/product')
     return { success: true, data: productData[0] }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function deleteProduct(productId) {
-  const supabase = await createClient()
-  try {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', productId)
-
-    if (error) throw error
-    revalidatePath('/admin/products')
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function getAllCustomers() {
-  const supabase = await createClient()
-  
-  try {
-    const { data, error } = await supabase
-      .from('profiles') 
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
-  }
-}
-
-export async function getCategories() {
-  try {
-    const { data, error } = await publicSupabase
-      .from('categories')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
-  }
-}
-
-export async function createCategory(categoryData) {
-  const supabase = await createClient()
-  try {
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([categoryData])
-      .select()
-      .single()
-
-    if (error) throw error
-    return { success: true, data }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function updateCategory(categoryId, updates) {
-  const supabase = await createClient()
-  try {
-    const { data, error } = await supabase
-      .from('categories')
-      .update(updates)
-      .eq('id', categoryId)
-      .select()
-      .single()
-
-    if (error) throw error
-    return { success: true, data }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function deleteCategory(categoryId) {
-  const supabase = await createClient()
-  try {
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', categoryId)
-
-    if (error) throw error
-    return { success: true }
   } catch (error) {
     return { success: false, error: error.message }
   }
@@ -418,6 +454,7 @@ export async function createProduct(formData) {
         slug: slug,
         base_price: parseFloat(formData.get('price') || 0),
         category_id: formData.get('category') || null, 
+        product_type: formData.get('type') || null,
         is_active: true
       })
       .select()
@@ -448,30 +485,9 @@ export async function createProduct(formData) {
       if (imageError) throw imageError
     }
 
-    revalidatePath('/admin/products')
+    revalidatePath('/admin/product')
     return { success: true, data: newProduct }
   } catch (error) {
     return { success: false, error: error.message }
-  }
-}
-
-export async function getUserOrders() {
-  const supabase = await createClient()
-
-  try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) return []
-
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
   }
 }

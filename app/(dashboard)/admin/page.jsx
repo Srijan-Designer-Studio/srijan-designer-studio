@@ -51,7 +51,17 @@ export default function AdminDashboard() {
   );
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading dashboard...</div>;
+    return <div className="min-h-screen flex flex-col items-center justify-center space-y-5" >
+      <div className="relative w-12 h-12">
+        {/* Background Ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+        {/* Spinning Ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
+      </div>
+      <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">
+        Loading Dashboard...
+      </p>
+    </div >;
   }
 
   return (

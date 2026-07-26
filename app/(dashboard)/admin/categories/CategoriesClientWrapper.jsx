@@ -202,7 +202,7 @@ export default function CategoriesClientWrapper({ initialCategories }) {
               type="text" 
               defaultValue={selectedCategory?.name || ''}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
+              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
             />
           </div>
 
@@ -213,7 +213,7 @@ export default function CategoriesClientWrapper({ initialCategories }) {
               type="text" 
               defaultValue={selectedCategory?.slug || ''}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
+              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
             />
           </div>
 
