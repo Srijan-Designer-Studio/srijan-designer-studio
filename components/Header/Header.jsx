@@ -1,4 +1,3 @@
-// Header.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,11 +12,11 @@ import { NAV_DATA, NAV_ICONS } from "@/data/header";
 import CartDrawer from "@/components/cart/CartDrawer";
 import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
 
-export default function Header() {
+export default function Header({ initialUser = null }) {
   const { cartItems, wishlistItems, isLoaded } = useCart();
   
-  const [user, setUser] = useState(null);
-  const [status, setStatus] = useState("loading");
+  const [user, setUser] = useState(initialUser);
+  const [status, setStatus] = useState(initialUser ? "authenticated" : "unauthenticated");
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,14 +28,6 @@ export default function Header() {
 
   useEffect(() => {
     const supabase = createClient();
-    
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setStatus(session ? "authenticated" : "unauthenticated");
-    };
-    
-    getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);

@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
+
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from '@/lib/supabase/server';
@@ -46,10 +47,12 @@ export default async function WesternWearPage() {
                 >
                   <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-300 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
                     {imageUrl ? (
-                      <img 
+                      <Image 
                         src={imageUrl} 
                         alt={product.title} 
-                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105" 
+                        fill
+                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">NO IMAGE</div>

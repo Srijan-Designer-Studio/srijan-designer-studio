@@ -10,10 +10,10 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const supabase = createBrowserClient(
+  const [supabase] = useState(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  ));
 
   useEffect(() => {
     async function loadData() {
@@ -49,7 +49,7 @@ export function CartProvider({ children }) {
     }
 
     loadData();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     if (isLoaded) {
@@ -91,7 +91,6 @@ export function CartProvider({ children }) {
     });
   };
 
-  
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem("srijan_cart");

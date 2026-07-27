@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   if (!isLoaded || cartItems.length === 0) return <div className="min-h-screen bg-[#f4f5f7]"></div>;
 
   const shipping = subtotal > 0 ? 150 : 0;
-  const total = subtotal + shipping;
+  const frontendTotal = subtotal + shipping;
 
   const handleCheckout = (e) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function CheckoutPage() {
     startTransition(async () => {
       try {
         const orderPayload = {
-          totalAmount: total,
+          totalAmount: frontendTotal,
           paymentMethod: paymentMethod,
           address: {
             addressLine1: formData.get('address1'),
@@ -62,13 +62,18 @@ export default function CheckoutPage() {
           }))
         };
 
+        // Step 1: Create Order in Database (Server calculates the REAL total)
         const dbResult = await createOrder({ ...orderPayload, paymentStatus: 'Pending', status: 'pending' });
 
         if (!dbResult.success) {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
-        const dbOrderId = dbResult.data?.id || dbResult.order?.id || dbResult.id;
+        const dbOrder = dbResult.data || dbResult.order;
+        const dbOrderId = dbOrder?.id || dbResult.id;
+        
+        // SECURITY FIX: Take the exact calculated amount from the backend!
+        const secureTotalAmount = dbOrder?.total_amount || frontendTotal;
 
         if (paymentMethod === 'cod') {
           clearCart();
@@ -80,7 +85,8 @@ export default function CheckoutPage() {
           const isScriptLoaded = await loadRazorpayScript();
           if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load. Are you online?");
 
-          const rpResult = await createRazorpayOrder(total, dbOrderId);
+          // Step 2: Create Razorpay Order using the SECURE total from backend
+          const rpResult = await createRazorpayOrder(secureTotalAmount, dbOrderId);
 
           if (!rpResult.success) throw new Error(rpResult.error || "Failed to initialize Razorpay");
 
@@ -134,8 +140,8 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans">
-      <div className="max-w-[1200px] mx-auto px-10">
+    <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
 
         <div className="mb-8">
           <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
@@ -176,12 +182,12 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-6">Payment Method</h2>
               <div className="space-y-4">
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                  <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" />
                   <CreditCard className={`ml-4 mr-3 ${paymentMethod === 'card' ? 'text-[#00c3ff]' : 'text-gray-400'}`} size={24} />
                   <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-700'}`}>Pay Online (Card / UPI)</span>
                 </label>
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" />
                   <Banknote className={`ml-4 mr-3 ${paymentMethod === 'cod' ? 'text-[#00c3ff]' : 'text-gray-400'}`} size={24} />
                   <span className={`font-medium ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-700'}`}>Cash on Delivery (COD)</span>
                 </label>
@@ -193,14 +199,16 @@ export default function CheckoutPage() {
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
               <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
 
-              <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2">
+              <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {cartItems.map((item, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                      <img
+                      <Image
                         src={item.image || "/images/placeholder.jpg"}
                         alt={item.title}
-                        className="w-full h-full object-cover object-top"
+                        fill
+                        className="object-cover object-top"
+                        sizes="64px"
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
@@ -226,13 +234,13 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center border-t border-gray-200 pt-5 mb-8">
                 <span className="text-base font-bold text-gray-900">Total</span>
                 <span className="text-2xl font-black text-[#0ba6ff]">
-                  ₹{total.toLocaleString('en-IN')}
+                  ₹{frontendTotal.toLocaleString('en-IN')}
                 </span>
               </div>
 
               {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
-              <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70">
+              <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
                 {isPending && <Loader2 size={18} className="animate-spin" />}
                 {isPending ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Pay Now"}
               </button>

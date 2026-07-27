@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition, useEffect } from "react";
+import { useState, useRef, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Heart, Minus, Plus, ShoppingCart, Zap, Check, Loader2 } from "lucide-react";
@@ -15,10 +15,6 @@ export default function ProductDetails({ product }) {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistItems } = useCart();
   const containerRef = useRef(null);
-  
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, []);
 
   const variants = product?.product_variants || [];
   
@@ -147,6 +143,7 @@ export default function ProductDetails({ product }) {
                     <button
                       key={s}
                       onClick={() => setSize(s)}
+                      aria-label={`Select size ${s}`}
                       className={`min-w-[48px] px-3 h-12 flex items-center justify-center border rounded-lg text-[16px] transition-colors cursor-pointer ${
                         size === s ? "bg-black border-black text-white font-bold" : "bg-white border-gray-300 text-black hover:border-black"
                       }`}
@@ -160,11 +157,19 @@ export default function ProductDetails({ product }) {
 
             <div className="prod-info flex flex-col sm:flex-row items-center gap-4 mb-6">
               <div className="flex items-center justify-between border border-gray-300 rounded-lg w-full sm:w-[140px] h-[52px] px-4 shrink-0 bg-gray-50">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-600 hover:text-black cursor-pointer">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                  aria-label="Decrease quantity"
+                  className="text-gray-600 hover:text-black cursor-pointer"
+                >
                   <Minus size={20} strokeWidth={2} />
                 </button>
                 <span className="text-[17px] font-medium text-black">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-600 hover:text-black cursor-pointer">
+                <button 
+                  onClick={() => setQuantity(quantity + 1)} 
+                  aria-label="Increase quantity"
+                  className="text-gray-600 hover:text-black cursor-pointer"
+                >
                   <Plus size={20} strokeWidth={2} />
                 </button>
               </div>
@@ -172,6 +177,7 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleWishlist}
                 disabled={isPending}
+                aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
                 className={`w-full sm:flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm cursor-pointer ${
                   isWishlisted ? 'bg-red-500 text-white hover:bg-red-600 border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
@@ -185,6 +191,7 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleAddToCart}
                 disabled={isAdded || isPending}
+                aria-label="Add to Cart"
                 className={`flex-1 h-[52px] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide transition-all shadow-sm cursor-pointer ${
                   isAdded ? 'bg-green-500 text-white cursor-default border-transparent' : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
@@ -196,6 +203,7 @@ export default function ProductDetails({ product }) {
               <button 
                 onClick={handleBuyNow}
                 disabled={isPending}
+                aria-label="Buy it Now"
                 className="flex-1 h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wide hover:bg-[#00abe0] transition-colors shadow-md shadow-[#00c3ff]/30 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isPending ? <Loader2 className="animate-spin" size={18} /> : <Zap className="fill-white" size={18} strokeWidth={2.5} />}

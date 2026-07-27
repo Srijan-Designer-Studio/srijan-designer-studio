@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, Clock, PackageCheck, Undo2, Heart } from 'lucide-react';
@@ -69,7 +71,13 @@ export default async function CustomerDashboard() {
                   <div key={idx} className="flex items-center justify-between border-b border-gray-50 pb-4 last:border-0 last:pb-0">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-16 bg-gray-100 rounded-md overflow-hidden relative flex-shrink-0">
-                        <Image src={product?.product_images?.[0]?.image_url || '/images/placeholder.jpg'} alt={product?.title || 'Product'} fill className="object-cover opacity-80" />
+                        <Image 
+                          src={product?.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
+                          alt={product?.title || 'Product'} 
+                          fill 
+                          sizes="48px"
+                          className="object-cover opacity-80" 
+                        />
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-0.5">#{order.id.split('-')[0].toUpperCase()}</p>
@@ -145,13 +153,19 @@ export default async function CustomerDashboard() {
               <h3 className="text-lg font-bold text-gray-900 mb-1">Save more with Srijan</h3>
               <p className="text-xs text-gray-600 mb-4">Exclusive offers for our members</p>
               <Link href="/products">
-                <button className="bg-black text-white text-xs font-bold px-5 py-2 rounded-lg hover:bg-gray-800">
+                <button className="bg-black text-white text-xs font-bold px-5 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   Shop Now
                 </button>
               </Link>
             </div>
             <div className="absolute right-0 top-0 h-full w-1/2 opacity-90">
-               <Image src="/images/man1.png" alt="Promo" fill className="object-cover" />
+               <Image 
+                  src="/images/man1.png" 
+                  alt="Promo" 
+                  fill 
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover" 
+                />
             </div>
           </div>
 

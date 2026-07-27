@@ -9,10 +9,19 @@ const publicSupabase = createPublicClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+async function verifyAdmin(supabase) {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) throw new Error("Unauthorized")
+  if (user.user_metadata?.role !== 'admin') throw new Error("Forbidden: Admin access required")
+  return user
+}
+
 export async function getDashboardStats() {
   const supabase = await createClient()
 
   try {
+    await verifyAdmin(supabase)
+
     const { data: orders } = await supabase
       .from('orders')
       .select('total_amount, status, created_at')
@@ -94,7 +103,6 @@ export async function getDashboardStats() {
       keywords
     }
   } catch (error) {
-    console.error("Dashboard Stats Error:", error);
     return {
       totalRevenue: 0, totalOrders: 0, totalCustomers: 0, recentOrders: [],
       topProducts: [], salesData: [], revenueData: [], categoryData: [], keywords: []
@@ -106,6 +114,8 @@ export async function getAllOrders() {
   const supabase = await createClient()
 
   try {
+    await verifyAdmin(supabase)
+
     const { data: orders, error } = await supabase
       .from('orders')
       .select(`
@@ -155,7 +165,6 @@ export async function getAllOrders() {
 
     return formattedOrders
   } catch (error) {
-    console.error("Admin Dashboard Error:", error);
     return []
   }
 }
@@ -164,6 +173,8 @@ export async function updateOrderStatus(orderId, newStatus) {
   const supabase = await createClient()
 
   try {
+    await verifyAdmin(supabase)
+
     const { error } = await supabase
       .from('orders')
       .update({ status: newStatus })
@@ -179,6 +190,8 @@ export async function updateOrderStatus(orderId, newStatus) {
 export async function getAdminProducts() {
   const supabase = await createClient()
   try {
+    await verifyAdmin(supabase)
+
     const { data, error } = await supabase
       .from('products')
       .select('*, product_variants(*), product_images(*), categories(*)')
@@ -194,6 +207,8 @@ export async function getAdminProducts() {
 export async function deleteProduct(productId) {
   const supabase = await createClient()
   try {
+    await verifyAdmin(supabase)
+
     const { error } = await supabase
       .from('products')
       .delete()
@@ -211,6 +226,8 @@ export async function getAllCustomers() {
   const supabase = await createClient()
   
   try {
+    await verifyAdmin(supabase)
+
     const { data, error } = await supabase
       .from('profiles') 
       .select('*')
@@ -240,6 +257,8 @@ export async function getCategories() {
 export async function createCategory(formData) {
   const supabase = await createClient()
   try {
+    await verifyAdmin(supabase)
+
     const name = formData.get('name');
     const slug = formData.get('slug');
     const image_url = formData.get('image_url');
@@ -253,7 +272,6 @@ export async function createCategory(formData) {
     if (error) throw error
     return { success: true, data }
   } catch (error) {
-    console.error("Create Category Error:", error);
     return { success: false, error: error.message }
   }
 }
@@ -261,6 +279,8 @@ export async function createCategory(formData) {
 export async function updateCategory(categoryId, formData) {
   const supabase = await createClient()
   try {
+    await verifyAdmin(supabase)
+
     const name = formData.get('name');
     const slug = formData.get('slug');
     const image_url = formData.get('image_url');
@@ -281,7 +301,6 @@ export async function updateCategory(categoryId, formData) {
     if (error) throw error
     return { success: true, data }
   } catch (error) {
-    console.error("Update Category Error:", error);
     return { success: false, error: error.message }
   }
 }
@@ -289,6 +308,8 @@ export async function updateCategory(categoryId, formData) {
 export async function deleteCategory(categoryId) {
   const supabase = await createClient()
   try {
+    await verifyAdmin(supabase)
+
     const { error } = await supabase
       .from('categories')
       .delete()
@@ -328,6 +349,8 @@ export async function updateProduct(productId, formData) {
   let imageUrl = null
 
   try {
+    await verifyAdmin(supabase)
+
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
@@ -424,6 +447,8 @@ export async function createProduct(formData) {
   let imageUrl = null
 
   try {
+    await verifyAdmin(supabase)
+
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random()}.${fileExt}`

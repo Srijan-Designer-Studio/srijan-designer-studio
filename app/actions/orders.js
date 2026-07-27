@@ -7,13 +7,41 @@ export async function createOrder(orderPayload) {
   const supabase = await createClient()
 
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) throw new Error("Unauthorized")
+
+    const variantIds = orderPayload.items.map(item => item.variantId);
+    const { data: variants, error: variantError } = await supabase
+      .from('product_variants')
+      .select('id, inventory_count, products(base_price)')
+      .in('id', variantIds);
+
+    if (variantError || !variants) throw new Error("Failed to validate items");
+
+    let serverTotalAmount = 0;
+    const orderItems = [];
+
+    for (const item of orderPayload.items) {
+      const dbVariant = variants.find(v => v.id === item.variantId);
+      if (!dbVariant) throw new Error(`Invalid item: ${item.variantId}`);
+      if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock");
+
+      const realPrice = dbVariant.products.base_price; 
+      serverTotalAmount += (realPrice * item.quantity);
+
+      orderItems.push({
+        variant_id: item.variantId,
+        quantity: item.quantity,
+        price: realPrice 
+      });
+    }
 
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user ? user.id : null,
-        total_amount: orderPayload.totalAmount,
+        user_id: user.id,
+        total_amount: serverTotalAmount, 
         payment_method: orderPayload.paymentMethod,
         payment_status: orderPayload.paymentStatus || 'Pending',
         status: orderPayload.status || 'pending',
@@ -22,23 +50,15 @@ export async function createOrder(orderPayload) {
       .select()
       .single()
 
-    if (orderError) throw new Error(orderError.message)
+    if (orderError) throw new Error("Failed to create order")
 
-    const orderItems = orderPayload.items.map(item => ({
-      order_id: order.id,
-      variant_id: item.variantId,
-      quantity: item.quantity,
-      price: item.unitPrice
-    }))
+    const itemsToInsert = orderItems.map(item => ({ ...item, order_id: order.id }));
+    const { error: itemsError } = await supabase.from('order_items').insert(itemsToInsert)
 
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItems)
-
-    if (itemsError) throw new Error(itemsError.message)
+    if (itemsError) throw new Error("Failed to save order items")
 
     revalidatePath('/account/orders')
-
+    
     return { success: true, data: order }
 
   } catch (error) {
@@ -122,7 +142,7 @@ export async function trackOrder(orderId) {
   const { data, error } = await supabase
     .from('orders')
     .select('id, status, created_at, tracking_number, updated_at')
-    .ilike('id', `${cleanOrderId}%`)
+    .eq('id', cleanOrderId) 
     .eq('user_id', user.id)
     .single()
 
