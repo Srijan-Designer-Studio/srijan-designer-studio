@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                       <img
                         src={item.image || "/images/placeholder.jpg"}
                         alt={item.title}
-                        fill
+                       
                         className="object-cover object-top"
                         sizes="64px"
                       />
