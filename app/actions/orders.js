@@ -11,23 +11,40 @@ export async function createOrder(orderPayload) {
     
     if (authError || !user) throw new Error("Unauthorized")
 
-    const variantIds = orderPayload.items.map(item => item.variantId);
-    const { data: variants, error: variantError } = await supabase
+    const itemIds = orderPayload.items.map(item => item.variantId);
+  
+    const { data: variants } = await supabase
       .from('product_variants')
       .select('id, inventory_count, products(base_price)')
-      .in('id', variantIds);
+      .in('id', itemIds);
 
-    if (variantError || !variants) throw new Error("Failed to validate items");
+    const { data: baseProducts } = await supabase
+      .from('products')
+      .select('id, base_price')
+      .in('id', itemIds);
 
     let serverTotalAmount = 0;
     const orderItems = [];
 
     for (const item of orderPayload.items) {
-      const dbVariant = variants.find(v => v.id === item.variantId);
-      if (!dbVariant) throw new Error(`Invalid item: ${item.variantId}`);
-      if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock");
+      const dbVariant = variants?.find(v => v.id === item.variantId);
+      const dbBaseProduct = baseProducts?.find(p => p.id === item.variantId);
 
-      const realPrice = dbVariant.products.base_price; 
+      if (!dbVariant && !dbBaseProduct) {
+        throw new Error(`Invalid item: ${item.variantId}`);
+      }
+
+      let realPrice = 0;
+
+      if (dbVariant) {
+      
+        if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock");
+        realPrice = dbVariant.products?.base_price || 0;
+      } else if (dbBaseProduct) {
+        
+        realPrice = dbBaseProduct.base_price || 0;
+      }
+
       serverTotalAmount += (realPrice * item.quantity);
 
       orderItems.push({
