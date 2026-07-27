@@ -77,10 +77,10 @@ export default function AdminDashboardClient({ initialStats }) {
               <div key={product.id} className="flex items-center gap-3">
                 <div className="text-xs font-medium text-gray-400 w-3">{idx + 1}.</div>
                 <div className="w-10 h-10 rounded-md overflow-hidden relative flex-shrink-0 bg-gray-100">
-                  <Image
+                  <img
                     src={product.image || '/images/placeholder.jpg'}
                     alt={product.title || 'Product image'}
-                    fill
+                   
                     className="object-cover opacity-80"
                     sizes="40px"
                   />

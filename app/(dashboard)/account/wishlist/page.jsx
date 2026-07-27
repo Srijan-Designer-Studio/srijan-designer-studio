@@ -67,7 +67,7 @@ export default function WishlistPage() {
         {wishlistItems.map((item) => (
           <div key={item.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
             <div className="relative h-64 w-full bg-gray-100 overflow-hidden">
-              <Image 
+              <img
                 src={item.image || item.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
                 alt={item.title || item.name} 
                 fill 

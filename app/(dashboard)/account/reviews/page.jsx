@@ -81,7 +81,7 @@ export default function CustomerReviewsPage() {
             {/* Product Info */}
             <div className="flex items-start gap-4 md:w-1/3">
               <div className="w-20 h-24 rounded-lg bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
-                <Image src={review.image} alt={review.product} fill className="object-cover" />
+                <img src={review.image} alt={review.product} fill className="object-cover" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-sm text-gray-900 line-clamp-2">{review.product}</h3>
@@ -161,7 +161,7 @@ export default function CustomerReviewsPage() {
             
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-md overflow-hidden relative border border-gray-200">
-                <Image src={selectedReview.image} alt={selectedReview.product} fill className="object-cover" />
+                <img src={selectedReview.image} alt={selectedReview.product}  className="object-cover" />
               </div>
               <p className="font-bold text-sm text-gray-900 line-clamp-1">{selectedReview.product}</p>
             </div>

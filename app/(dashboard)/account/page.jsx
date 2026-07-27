@@ -71,10 +71,10 @@ export default async function CustomerDashboard() {
                   <div key={idx} className="flex items-center justify-between border-b border-gray-50 pb-4 last:border-0 last:pb-0">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-16 bg-gray-100 rounded-md overflow-hidden relative flex-shrink-0">
-                        <Image 
+                        <img
                           src={product?.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
                           alt={product?.title || 'Product'} 
-                          fill 
+                        
                           sizes="48px"
                           className="object-cover opacity-80" 
                         />
