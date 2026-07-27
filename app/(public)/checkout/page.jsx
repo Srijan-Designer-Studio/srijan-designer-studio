@@ -203,7 +203,7 @@ export default function CheckoutPage() {
                 {cartItems.map((item, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                      <Image
+                      <img
                         src={item.image || "/images/placeholder.jpg"}
                         alt={item.title}
                         fill
