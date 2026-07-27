@@ -68,10 +68,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <div key={item.variantId || item.id} className="flex gap-4 group">
                   {/* Image */}
                   <div className="relative w-[85px] h-[110px] rounded-xl overflow-hidden border border-gray-200 shrink-0 bg-gray-50">
-                    <Image
+                    <img
                       src={item.image || "/images/placeholder.jpg"}
                       alt={item.title}
-                      fill
                       className="object-cover object-top"
                     />
                   </div>

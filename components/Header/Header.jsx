@@ -1,3 +1,4 @@
+// Header.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,11 +11,11 @@ import { createClient } from "@/lib/supabase/client";
 import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 import CartDrawer from "@/components/cart/CartDrawer";
+import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
 
 export default function Header() {
   const { cartItems, wishlistItems, isLoaded } = useCart();
   
-  // Supabase Auth State
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("loading");
 
@@ -23,10 +24,9 @@ export default function Header() {
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
   const [headerState, setHeaderState] = useState("top");
   
-  // কার্ট ড্রয়ার ওপেন/ক্লোজ করার স্টেট
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
-  // Fetch Supabase Session on Mount
   useEffect(() => {
     const supabase = createClient();
     
@@ -38,7 +38,6 @@ export default function Header() {
     
     getSession();
 
-    // Listen for login/logout events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       setStatus(session ? "authenticated" : "unauthenticated");
@@ -70,7 +69,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (isMobileMenuOpen || isCartOpen) {
+    if (isMobileMenuOpen || isCartOpen || isWishlistOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -78,7 +77,7 @@ export default function Header() {
     return () => {
       document.body.style.overflow = "auto";
     }
-  }, [isMobileMenuOpen, isCartOpen]);
+  }, [isMobileMenuOpen, isCartOpen, isWishlistOpen]);
 
   const toggleMobileDropdown = (id) => {
     setMobileActiveDropdown(mobileActiveDropdown === id ? null : id);
@@ -160,7 +159,7 @@ export default function Header() {
             <div className="flex items-center gap-4 lg:gap-5">
               {NAV_ICONS.map((icon) => {
                 const isCart = icon.id === "cart";
-                const isWishlist = icon.id === "wishlistt";
+                const isWishlist = icon.id === "wishlistt" || icon.id === "wishlist";
                 const isUserIcon = icon.id === "user" || icon.id === "profile" || icon.id === "account";
                 
                 const count = isCart ? cartItems.length : (isWishlist ? wishlistItems.length : 0);
@@ -177,12 +176,12 @@ export default function Header() {
                   }
                 }
 
-                if (isCart) {
+                if (isCart || isWishlist) {
                   return (
                     <button 
                       key={icon.id}
-                      onClick={() => setIsCartOpen(true)}
-                      className="relative inline-block group focus:outline-none"
+                      onClick={() => isCart ? setIsCartOpen(true) : setIsWishlistOpen(true)}
+                      className="relative inline-block group focus:outline-none cursor-pointer"
                     >
                       <div className="w-10 h-10 lg:w-11 lg:h-11 bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm">
                         <img
@@ -233,7 +232,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu - Moved outside the <header> tag */}
       <div
         className={`fixed inset-0 bg-white z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "90px" }}
@@ -288,6 +286,7 @@ export default function Header() {
       </div>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
     </>
   );
 }
