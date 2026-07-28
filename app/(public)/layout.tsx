@@ -18,7 +18,8 @@ export default async function PublicLayout({
     <SmoothScroll>
       <CartProvider>
         <div className="flex flex-col min-h-screen bg-white">
-          <Header initialUser={user} />
+       
+          <Header initialUser={user as any} />
           <main className="flex-grow w-full">
             {children}
           </main>
