@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, Search } from "lucide-react"; // Search যুক্ত করা হয়েছে
 import { useCart } from "@/context/CartContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,6 +11,7 @@ import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 import CartDrawer from "@/components/cart/CartDrawer";
 import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
+import SearchDrawer from "@/components/search/SearchDrawer"; // SearchDrawer ইম্পোর্ট করা হলো
 
 export default function Header({ initialUser = null }) {
   const { cartItems, wishlistItems, isLoaded } = useCart();
@@ -23,8 +24,10 @@ export default function Header({ initialUser = null }) {
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
   const [headerState, setHeaderState] = useState("top");
   
+  // Drawers State
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false); // Search State
 
   useEffect(() => {
     const supabase = createClient();
@@ -59,8 +62,9 @@ export default function Header({ initialUser = null }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // স্ক্রল লক লজিক (SearchOpen যুক্ত করা হয়েছে)
   useEffect(() => {
-    if (isMobileMenuOpen || isCartOpen || isWishlistOpen) {
+    if (isMobileMenuOpen || isCartOpen || isWishlistOpen || isSearchOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -68,7 +72,7 @@ export default function Header({ initialUser = null }) {
     return () => {
       document.body.style.overflow = "auto";
     }
-  }, [isMobileMenuOpen, isCartOpen, isWishlistOpen]);
+  }, [isMobileMenuOpen, isCartOpen, isWishlistOpen, isSearchOpen]);
 
   const toggleMobileDropdown = (id) => {
     setMobileActiveDropdown(mobileActiveDropdown === id ? null : id);
@@ -84,12 +88,12 @@ export default function Header({ initialUser = null }) {
         <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
           <Link href="/" className="z-50" onClick={closeAllMenus}>
             <Image
-              src="/images/logo1.png"
+              src="/images/logo2.png"
               alt="Logo"
               width={130}
               height={40}
               priority
-              className="object-cover bg-center lg:w-[200px] lg:h-[100px]"
+              className="object-cover bg-center lg:w-[250px] lg:h-[120px]"
             />
           </Link>
 
@@ -149,6 +153,7 @@ export default function Header({ initialUser = null }) {
           <div className="flex items-center gap-3 lg:gap-5 shrink-0 z-50">
             <div className="flex items-center gap-4 lg:gap-5">
               {NAV_ICONS.map((icon) => {
+                const isSearch = icon.id === "search";
                 const isCart = icon.id === "cart";
                 const isWishlist = icon.id === "wishlistt" || icon.id === "wishlist";
                 const isUserIcon = icon.id === "user" || icon.id === "profile" || icon.id === "account";
@@ -167,21 +172,32 @@ export default function Header({ initialUser = null }) {
                   }
                 }
 
-                if (isCart || isWishlist) {
+                // Search, Cart এবং Wishlist এর জন্য বাটন লজিক
+                if (isCart || isWishlist || isSearch) {
                   return (
                     <button 
                       key={icon.id}
-                      onClick={() => isCart ? setIsCartOpen(true) : setIsWishlistOpen(true)}
+                      onClick={() => {
+                        if (isCart) setIsCartOpen(true);
+                        else if (isWishlist) setIsWishlistOpen(true);
+                        else if (isSearch) setIsSearchOpen(true);
+                      }}
                       className="relative inline-block group focus:outline-none cursor-pointer"
                     >
                       <div className="w-10 h-10 lg:w-11 lg:h-11 bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm">
-                        <img
-                          src={icon.src}
-                          alt={icon.alt}
-                          className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
-                        />
+                        {isSearch ? (
+                           <Search size={20} className="text-white" strokeWidth={2.5} />
+                        ) : (
+                           <img
+                             src={icon.src}
+                             alt={icon.alt}
+                             className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
+                           />
+                        )}
                       </div>
-                      {isLoaded && count > 0 && (
+                      
+                      {/* Search এর ক্ষেত্রে count দেখাবে না */}
+                      {isLoaded && count > 0 && !isSearch && (
                         <span className="absolute -top-1.5 -right-1.5 bg-[#00c3ff] text-white text-[11px] font-extrabold w-[22px] h-[22px] flex items-center justify-center rounded-full border-[2.5px] border-white shadow-md z-10 transform transition-transform group-hover:scale-110">
                           {count}
                         </span>
@@ -203,11 +219,6 @@ export default function Header({ initialUser = null }) {
                         className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
                       />
                     </div>
-                    {isLoaded && count > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 bg-[#00c3ff] text-white text-[11px] font-extrabold w-[22px] h-[22px] flex items-center justify-center rounded-full border-[2.5px] border-white shadow-md z-10 transform transition-transform group-hover:scale-110">
-                        {count}
-                      </span>
-                    )}
                   </Link>
                 );
               })}
@@ -223,6 +234,7 @@ export default function Header({ initialUser = null }) {
         </div>
       </header>
 
+      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 bg-white z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "90px" }}
@@ -276,6 +288,8 @@ export default function Header({ initialUser = null }) {
         </div>
       </div>
 
+      {/* Drawers */}
+      <SearchDrawer isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
     </>

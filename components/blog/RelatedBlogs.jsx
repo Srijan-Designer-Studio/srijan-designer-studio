@@ -10,21 +10,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const relatedBlogs = Array(3).fill({
-  title: "How to Build a Data-Driven Social Media Strategy (Step-by-Step Framework)",
-  author: "Ayan Sarkar",
-  date: "June 30, 2026",
-  image: "/images/man1.png",
-}).map((blog, idx) => ({
-  ...blog,
-  id: idx + 10,
-  link: `/blog/${idx + 10}`
-}));
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
 
-export default function RelatedBlogs() {
+export default function RelatedBlogs({ relatedBlogs = [] }) {
   const containerRef = useRef(null);
 
   useGSAP(() => {
+    if (relatedBlogs.length === 0) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -43,7 +40,9 @@ export default function RelatedBlogs() {
       { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
       "-=0.4"
     );
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [relatedBlogs] });
+
+  if (relatedBlogs.length === 0) return null;
 
   return (
     <section className="py-16 bg-[#f4f5f7]" ref={containerRef}>
@@ -56,15 +55,16 @@ export default function RelatedBlogs() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {relatedBlogs.map((blog) => (
             <div key={blog.id} className="related-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
-              <Link href={blog.link} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
+              <Link href={`/blog/${blog.slug}`} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
                 <Image
-                  src={blog.image}
+                  src={blog.image_url || "/images/placeholder.jpg"}
                   alt={blog.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </Link>
-              <Link href={blog.link}>
+              <Link href={`/blog/${blog.slug}`}>
                 <h3 className="text-[17px] font-bold text-gray-900 mb-4 leading-snug line-clamp-2 hover:text-[#00c3ff] transition-colors">
                   {blog.title}
                 </h3>
@@ -76,10 +76,10 @@ export default function RelatedBlogs() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar size={14} className="text-[#00c3ff]" />
-                  <span>{blog.date}</span>
+                  <span>{formatDate(blog.created_at)}</span>
                 </div>
               </div>
-              <Link href={blog.link} className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max">
+              <Link href={`/blog/${blog.slug}`} className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max">
                 Read More <ArrowUpRight size={16} strokeWidth={2.5} />
               </Link>
             </div>

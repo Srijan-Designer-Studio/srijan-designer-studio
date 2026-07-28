@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, User, ShoppingBag, MapPin,
   Heart, Star, Lock, LogOut, Package, Users,
-  BarChart, Tag, Search, Home
+  BarChart, Tag, Search, Home, FileText
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -31,6 +31,7 @@ export default function Sidebar() {
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Categories', href: '/admin/categories', icon: Tag },
+    { name: 'Blogs', href: '/admin/blogs', icon: FileText },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Reports', href: '/admin/reports', icon: BarChart },
     { name: 'Search Keywords', href: '/admin/keywords', icon: Search },
