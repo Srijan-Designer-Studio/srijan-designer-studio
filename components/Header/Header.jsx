@@ -62,7 +62,7 @@ export default function Header({ initialUser = null }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // স্ক্রল লক লজিক (SearchOpen যুক্ত করা হয়েছে)
+ 
   useEffect(() => {
     if (isMobileMenuOpen || isCartOpen || isWishlistOpen || isSearchOpen) {
       document.body.style.overflow = "hidden";
@@ -88,7 +88,7 @@ export default function Header({ initialUser = null }) {
         <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
           <Link href="/" className="z-50" onClick={closeAllMenus}>
             <Image
-              src="/images/logo2.png"
+              src="/images/logo3.png"
               alt="Logo"
               width={130}
               height={40}
@@ -172,7 +172,7 @@ export default function Header({ initialUser = null }) {
                   }
                 }
 
-                // Search, Cart এবং Wishlist এর জন্য বাটন লজিক
+               
                 if (isCart || isWishlist || isSearch) {
                   return (
                     <button 
