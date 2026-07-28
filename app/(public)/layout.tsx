@@ -5,7 +5,11 @@ import SmoothScroll from "@/components/providers/SmoothScroll";
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
-export default async function PublicLayout({ children }) {
+export default async function PublicLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user || null;
