@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Menu, X, Search } from "lucide-react"; // Search যুক্ত করা হয়েছে
+import { ChevronDown, Menu, X, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,7 +11,7 @@ import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 import CartDrawer from "@/components/cart/CartDrawer";
 import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
-import SearchDrawer from "@/components/search/SearchDrawer"; // SearchDrawer ইম্পোর্ট করা হলো
+import SearchDrawer from "@/components/search/SearchDrawer";
 
 export default function Header({ initialUser = null }) {
   const { cartItems, wishlistItems, isLoaded } = useCart();
