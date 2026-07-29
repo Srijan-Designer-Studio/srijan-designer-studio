@@ -33,7 +33,6 @@ export default function CustomerReviews({ productId }) {
     if (productId) fetchReviews();
   }, [productId]);
 
-
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -62,14 +61,20 @@ export default function CustomerReviews({ productId }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
+    
     startTransition(async () => {
       try {
-        await addReview(productId, rating, comment);
-        setMessage("Review submitted! It will appear after moderation.");
-        setIsWriting(false);
-        setComment("");
-        setRating(5);
+        // ব্যাকএন্ড থেকে আসা রেসপন্সটি রিসিভ করা হচ্ছে
+        const response = await addReview(productId, rating, comment);
+        
+        if (response?.success) {
+          setMessage(response.message); // সাকসেস মেসেজ দেখাবে
+          setIsWriting(false);
+          setComment("");
+          setRating(5);
+        }
       } catch (error) {
+        // প্রোডাক্ট না কিনে থাকলে যে এরর থ্রো করবে, সেটি এখানে দেখাবে
         setMessage(error.message);
       }
     });
@@ -129,7 +134,7 @@ export default function CustomerReviews({ productId }) {
         </div>
 
         {isWriting && (
-          <div className="bg-white p-6 rounded-xl shadow-sm mb-12 border border-gray-100 relative">
+          <div className="bg-white text-black p-6 rounded-xl shadow-sm mb-12 border border-gray-100 relative">
             <button onClick={() => setIsWriting(false)} className="absolute top-4 right-4 text-gray-400 hover:text-black">
               <X size={20} />
             </button>
@@ -169,9 +174,7 @@ export default function CustomerReviews({ productId }) {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-10 space-y-5">
             <div className="relative w-12 h-12">
-              {/* Background Ring */}
               <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
-              {/* Spinning Ring */}
               <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
             </div>
             <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">

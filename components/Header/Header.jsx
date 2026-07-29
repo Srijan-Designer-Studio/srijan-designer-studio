@@ -1,3 +1,5 @@
+// components/Header.jsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -15,7 +17,6 @@ import SearchDrawer from "@/components/search/SearchDrawer";
 
 export default function Header({ initialUser = null }) {
   const { cartItems, wishlistItems, isLoaded } = useCart();
-  
   const [user, setUser] = useState(initialUser);
   const [status, setStatus] = useState(initialUser ? "authenticated" : "unauthenticated");
 
@@ -23,20 +24,17 @@ export default function Header({ initialUser = null }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
   const [headerState, setHeaderState] = useState("top");
-  
-  // Drawers State
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false); // Search State
+  const [isSearchOpen, setIsSearchOpen] = useState(false); 
 
   useEffect(() => {
     const supabase = createClient();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       setStatus(session ? "authenticated" : "unauthenticated");
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -49,20 +47,14 @@ export default function Header({ initialUser = null }) {
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      if (currentScroll > 300) {
-        setHeaderState("scrolled");
-      } else if (currentScroll > 100) {
-        setHeaderState("hidden");
-      } else {
-        setHeaderState("top");
-      }
+      if (currentScroll > 300) setHeaderState("scrolled");
+      else if (currentScroll > 100) setHeaderState("hidden");
+      else setHeaderState("top");
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
- 
   useEffect(() => {
     if (isMobileMenuOpen || isCartOpen || isWishlistOpen || isSearchOpen) {
       document.body.style.overflow = "hidden";
@@ -108,7 +100,7 @@ export default function Header({ initialUser = null }) {
                     onMouseEnter={() => setActiveDropdown(item.id)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    {item.categories ? (
+                    {item.isMegaMenu ? (
                       <>
                         <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300">
                           {item.label}
@@ -119,22 +111,70 @@ export default function Header({ initialUser = null }) {
                           />
                         </button>
 
-                        {isOpen && (
-                          <div className="absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50">
-                            <div className="w-[240px] bg-[#9696a6] text-white border border-white/20 shadow-xl rounded-2xl overflow-hidden py-2">
-                              {item.categories.map((cat, idx) => (
-                                <Link
-                                  key={cat.id || idx}
-                                  href={cat.href || `/${cat.label.toLowerCase()}`}
-                                  onClick={closeAllMenus}
-                                  className="block px-6 py-3 hover:bg-black/10 transition-colors"
-                                >
-                                  {cat.label}
-                                </Link>
-                              ))}
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                          <div className="w-[580px] bg-white rounded-lg  text-black shadow-2xl flex border border-gray-100 cursor-default ">
+                            <div className="flex-1 p-8 border-r border-gray-100 ">
+                              <h3 className="text-[13px] font-extrabold tracking-wide mb-6 uppercase text-gray-900">
+                                {item.leftColumn.title}
+                              </h3>
+                              <ul className="flex flex-col gap-4">
+                                {item.leftColumn.links.map((link, idx) => (
+                                  <li key={idx}>
+                                    <Link
+                                      href={link.href}
+                                      onClick={closeAllMenus}
+                                      className="text-gray-600 text-[14px] hover:text-[#00c3ff] transition-colors font-medium"
+                                    >
+                                      {link.label}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            <div className="flex-1 p-8 bg-[#fafafa] flex flex-col items-center justify-center text-center">
+                              <h3 className="text-[13px] font-extrabold tracking-wide mb-3 uppercase text-gray-900">
+                                {item.rightColumn.title}
+                              </h3>
+                              <p className="text-gray-500 text-[13px] leading-relaxed mb-6 font-medium">
+                                {item.rightColumn.description}
+                              </p>
+                              <Link
+                                href={item.rightColumn.buttonLink}
+                                onClick={closeAllMenus}
+                                className="bg-black text-white text-[13px] font-bold px-6 py-3 hover:bg-[#00c3ff] transition-colors"
+                              >
+                                {item.rightColumn.buttonText}
+                              </Link>
                             </div>
                           </div>
-                        )}
+                        </div>
+                      </>
+                    ) : item.categories ? (
+                      <>
+                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300">
+                          {item.label}
+                          <ChevronDown
+                            size={16}
+                            strokeWidth={2.5}
+                            className={`transition transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                          <div className="w-[200px] bg-white text-gray-800 shadow-xl rounded-lg border border-gray-100 py-3">
+                            {item.categories.map((cat, idx) => (
+                              <Link
+                                key={cat.id || idx}
+                                href={cat.href || `/${cat.label.toLowerCase()}`}
+                                onClick={closeAllMenus}
+                                className="block px-6 py-3 text-[14px] font-medium hover:text-[#00c3ff] transition-colors"
+                              >
+                                {cat.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
                       </>
                     ) : (
                       <Link
@@ -159,20 +199,14 @@ export default function Header({ initialUser = null }) {
                 const isUserIcon = icon.id === "user" || icon.id === "profile" || icon.id === "account";
                 
                 const count = isCart ? cartItems.length : (isWishlist ? wishlistItems.length : 0);
-                
                 let targetHref = icon.href;
                 
                 if (isUserIcon) {
-                  if (status === 'loading') {
-                    targetHref = '#'; 
-                  } else if (status === 'authenticated') {
-                    targetHref = user?.user_metadata?.role === 'admin' ? '/admin' : '/account';
-                  } else {
-                    targetHref = '/login';
-                  }
+                  if (status === 'loading') targetHref = '#'; 
+                  else if (status === 'authenticated') targetHref = user?.user_metadata?.role === 'admin' ? '/admin' : '/account';
+                  else targetHref = '/login';
                 }
 
-               
                 if (isCart || isWishlist || isSearch) {
                   return (
                     <button 
@@ -188,15 +222,10 @@ export default function Header({ initialUser = null }) {
                         {isSearch ? (
                            <Search size={20} className="text-white" strokeWidth={2.5} />
                         ) : (
-                           <img
-                             src={icon.src}
-                             alt={icon.alt}
-                             className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
-                           />
+                           <img src={icon.src} alt={icon.alt} className="w-5 h-5 lg:w-5 lg:h-5 object-contain" />
                         )}
                       </div>
                       
-                      {/* Search এর ক্ষেত্রে count দেখাবে না */}
                       {isLoaded && count > 0 && !isSearch && (
                         <span className="absolute -top-1.5 -right-1.5 bg-[#00c3ff] text-white text-[11px] font-extrabold w-[22px] h-[22px] flex items-center justify-center rounded-full border-[2.5px] border-white shadow-md z-10 transform transition-transform group-hover:scale-110">
                           {count}
@@ -213,11 +242,7 @@ export default function Header({ initialUser = null }) {
                     className={`relative inline-block group ${isUserIcon && status === 'loading' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="w-10 h-10 lg:w-11 lg:h-11 bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm">
-                      <img
-                        src={icon.src}
-                        alt={icon.alt}
-                        className="w-5 h-5 lg:w-5 lg:h-5 object-contain"
-                      />
+                      <img src={icon.src} alt={icon.alt} className="w-5 h-5 lg:w-5 lg:h-5 object-contain" />
                     </div>
                   </Link>
                 );
@@ -234,7 +259,6 @@ export default function Header({ initialUser = null }) {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 bg-white z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "90px" }}
@@ -245,7 +269,7 @@ export default function Header({ initialUser = null }) {
               const isDropdownOpen = mobileActiveDropdown === item.id;
               return (
                 <li key={item.id} className="border-b border-gray-100 pb-4">
-                  {item.categories ? (
+                  {item.isMegaMenu ? (
                     <>
                       <button
                         onClick={() => toggleMobileDropdown(item.id)}
@@ -257,7 +281,45 @@ export default function Header({ initialUser = null }) {
                           className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
                         />
                       </button>
-                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4" : "max-h-0"}`}>
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
+                        <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
+                          <span className="font-bold text-gray-900 text-sm mt-2">{item.leftColumn.title}</span>
+                          {item.leftColumn.links.map((link, idx) => (
+                            <Link
+                              key={idx}
+                              href={link.href}
+                              onClick={closeAllMenus}
+                              className="block font-semibold hover:text-[#00c3ff]"
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                          <div className="mt-2 pt-4 border-t border-gray-100">
+                            <span className="font-bold text-gray-900 text-sm block mb-3">{item.rightColumn.title}</span>
+                            <Link
+                              href={item.rightColumn.buttonLink}
+                              onClick={closeAllMenus}
+                              className="inline-block bg-black text-white text-[12px] font-bold px-4 py-2 hover:bg-[#00c3ff] transition-colors"
+                            >
+                              {item.rightColumn.buttonText}
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : item.categories ? (
+                    <>
+                      <button
+                        onClick={() => toggleMobileDropdown(item.id)}
+                        className="w-full flex items-center justify-between hover:text-[#00c3ff] transition-colors"
+                      >
+                        {item.label}
+                        <ChevronDown
+                          size={20}
+                          className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
+                        />
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
                         <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
                           {item.categories.map((cat, idx) => (
                             <Link
@@ -288,7 +350,6 @@ export default function Header({ initialUser = null }) {
         </div>
       </div>
 
-      {/* Drawers */}
       <SearchDrawer isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />

@@ -6,7 +6,6 @@ import { getProductBySlug } from "@/app/actions/products";
 
 export const revalidate = 60; 
 
-// Dynamic SEO / OpenGraph Metadata
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const product = await getProductBySlug(resolvedParams.id);

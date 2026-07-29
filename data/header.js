@@ -1,4 +1,5 @@
-// Right side icons
+// data/header.js
+
 export const NAV_ICONS = [
   { id: "search", src: "", href: "#", alt: "Search" },
   { id: "wishlistt", src: "/icons/wishlist.svg", href: "/wishlist", alt: "Wishlist" },
@@ -6,41 +7,37 @@ export const NAV_ICONS = [
   { id: "user", src: "/icons/user.svg", href: "/login?register=true", alt: "User" },
 ];
 
-// Main navigation data structure[cite: 2]
 export const NAV_DATA = [
   { id: 1, label: "Home", href: "/" },
-  { id: 2, label: "About", href: "/about" },
+  {
+    id: 2,
+    label: "For Women",
+    isMegaMenu: true, 
+    leftColumn: {
+      title: "ALL WOMEN'S CATEGORIES",
+      links: [
+        { label: "Ethnic Wear", href: "/ethnic" },
+        { label: "Western Wear", href: "/western" },
+        { label: "Bridal Wear Enquiry", href: "/customize" },
+      ],
+    },
+    rightColumn: {
+      title: "CUSTOM BRIDAL WEAR",
+      description: "Want to look special on your special day? Get our Custom Bridal Solution to Customize your Bridal Dress",
+      buttonText: "Click here to fillup the form",
+      buttonLink: "/customize",
+    },
+  },
   {
     id: 3,
-    label: "Products",
-    type: "nested-menu", // New type for nested dropdowns
+    label: "For Men",
     categories: [
-      {
-        id: "cat-women",
-        label: "Women",
-        href:"/women"
-      },
-      {
-        id: "cat-men",
-        label: "Men",
-        href:"/men"
-      },
-      {
-        id: "cat-kids",
-        label: "Kids",
-        href:"/kids"
-      },
+      { id: "men-ethnic", label: "Ethnic Wear", href: "/ethnic" },
+      { id: "men-western", label: "Western Wear", href: "/western" },
+      { id: "custom", label: "Custom Wear", href: "/customize" },
     ],
   },
-  {
-    id: 4,
-    label: "Customize",
-    type: "simple-menu",
-    categories: [
-      { label: "Custom Dress", href: "/customize" },
-      { label: "Custom Kids", href: "/kids" },
-    ],
-  },
-  { id: 5, label: "Blog", href: "/blog" },
-  { id: 6, label: "Contact Us", href: "/contact" },
+  { id: 4, label: "About", href: "/about" },
+  { id: 5, label: "Contact", href: "/contact" },
+  { id: 6, label: "Blog", href: "/blog" },
 ];

@@ -1,15 +1,11 @@
 'use server'
 
-import { createClient } from '@supabase/supabase-js'
-
-// সরাসরি Supabase ক্লায়েন্ট তৈরি করা হচ্ছে
-const publicSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { createClient } from '@/lib/supabase/server'
 
 export async function getProducts() {
-  const { data, error } = await publicSupabase
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
     .from('products')
     .select('*, product_variants(*), product_images(*), categories(*)')
     .eq('is_active', true)
@@ -23,12 +19,16 @@ export async function getProducts() {
 }
 
 export async function getProductBySlug(slug) {
-  const { data, error } = await publicSupabase
+  if (!slug) return null
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
     .from('products')
     .select('*, product_variants(*), product_images(*), categories(*)')
     .eq('slug', slug)
     .eq('is_active', true)
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error("Error fetching product by slug:", error)
@@ -38,16 +38,18 @@ export async function getProductBySlug(slug) {
 }
 
 export async function getProductsByCategory(categoryName) {
+  const supabase = await createClient()
+
   try {
-    const { data: category } = await publicSupabase
+    const { data: category } = await supabase
       .from('categories')
       .select('id')
       .ilike('name', categoryName)
-      .single()
+      .maybeSingle()
       
     if (!category) return []
 
-    const { data, error } = await publicSupabase
+    const { data, error } = await supabase
       .from('products')
       .select('*, product_variants(*), product_images(*), categories(*)')
       .eq('category_id', category.id)

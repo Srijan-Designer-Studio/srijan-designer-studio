@@ -9,7 +9,7 @@ export async function login(formData) {
   const email = formData.get('email')
   const password = formData.get('password')
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -19,7 +19,12 @@ export async function login(formData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/account')
+  
+  if (data?.user?.email === 'admin@srijan.com' || data?.user?.user_metadata?.role === 'admin') {
+    redirect('/admin')
+  } else {
+    redirect('/account')
+  }
 }
 
 export async function loginWithGoogle() {
