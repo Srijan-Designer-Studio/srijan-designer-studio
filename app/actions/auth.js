@@ -18,9 +18,28 @@ export async function login(formData) {
     throw new Error(error.message)
   }
 
-  // Refresh the layout and redirect to the dashboard
   revalidatePath('/', 'layout')
   redirect('/account')
+}
+
+export async function loginWithGoogle() {
+  const supabase = await createClient()
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
+  
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${siteUrl}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  if (data?.url) {
+    redirect(data.url)
+  }
 }
 
 export async function register(formData) {
@@ -30,8 +49,6 @@ export async function register(formData) {
   const firstName = formData.get('firstName')
   const lastName = formData.get('lastName')
 
-  // Supabase automatically triggers the handle_new_user() SQL function
-  // to insert this metadata into your public.profiles table
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -81,7 +98,6 @@ export async function resetPassword(formData) {
   const password = formData.get('password')
   const supabase = await createClient()
 
-  // This relies on the secure session established by the emailed magic link
   const { error } = await supabase.auth.updateUser({ password })
 
   if (error) throw new Error(error.message)
