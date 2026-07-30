@@ -20,11 +20,9 @@ export async function login(formData) {
 
   revalidatePath('/', 'layout')
   
-  if (data?.user?.email === 'admin@srijan.com' || data?.user?.user_metadata?.role === 'admin') {
-    redirect('/admin')
-  } else {
-    redirect('/account')
-  }
+  const isAdmin = data?.user?.email?.includes('admin') || data?.user?.user_metadata?.role === 'admin'
+  
+  return { success: true, redirectTo: isAdmin ? '/admin' : '/account' }
 }
 
 export async function loginWithGoogle() {
@@ -88,7 +86,6 @@ export async function logout() {
 export async function requestPasswordReset(formData) {
   const email = formData.get('email')
   const supabase = await createClient()
-
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
