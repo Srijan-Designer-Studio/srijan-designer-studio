@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import {
@@ -22,7 +23,7 @@ export default function Sidebar() {
     { name: 'Reviews', href: '/account/reviews', icon: Star },
     { name: 'Addresses', href: '/account/addresses', icon: MapPin },
     { name: 'Change Password', href: '/account/security', icon: Lock },
-    { name: 'Store Home', href: '/', icon: Home },
+    
   ];
 
   const adminLinks = [
@@ -35,7 +36,7 @@ export default function Sidebar() {
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Reports', href: '/admin/reports', icon: BarChart },
     { name: 'Search Keywords', href: '/admin/keywords', icon: Search },
-    { name: 'Store Home', href: '/', icon: Home },
+    
   ];
 
   const links = isAdmin ? adminLinks : customerLinks;
@@ -44,18 +45,26 @@ export default function Sidebar() {
     <aside 
       className={`w-64 flex flex-col hidden md:flex transition-colors duration-300 ${
         isAdmin 
-          ? 'bg-[#1a1a1a] text-gray-300 pt-0' 
-          : 'bg-white text-gray-600 border-r border-gray-200 pt-[100px] lg:pt-[120px]'
+          ? 'bg-[#9142ff] text-gray-300' 
+          : 'bg-white text-gray-600 border-r border-gray-200'
       }`}
     >
       
-      {isAdmin && (
-        <div className="h-20 flex items-center justify-center px-6 border-b border-white/5 shrink-0">
-          <h2 className="text-2xl font-serif tracking-wider text-[#cfa874]">
-            SRIJAN
-          </h2>
-        </div>
-      )}
+      
+      <div className={`h-24 flex items-center justify-center px-6 shrink-0 ${
+        isAdmin ? 'border-b border-white/5' : 'border-b border-gray-100'
+      }`}>
+        <Link href="/">
+          <Image
+            src="/images/logo3.png"
+            alt="SRIJAN Logo"
+            width={140}
+            height={50}
+            className="object-contain"
+            priority
+          />
+        </Link>
+      </div>
 
       <nav className="flex-1 overflow-y-auto py-6 px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <ul className="space-y-1.5">

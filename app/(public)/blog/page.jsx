@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import BlogHero from "@/components/blog/BlogHero";
 import LatestBlogs from "@/components/blog/LatestBlogs";
-import { getBlogs } from "@/app/actions/blog";
+import { getAllBlogs } from "@/app/actions/blogs";
 
 export const metadata = {
   title: "Our Blogs | SRIJAN Fashion",
@@ -10,13 +10,12 @@ export const metadata = {
 };
 
 export default async function BlogPage() {
-  // Fetch real blog posts from the database
-  const blogs = await getBlogs();
+ 
+  const blogs = await getAllBlogs();
 
   return (
     <main>
       <BlogHero />
-      {/* Pass the real database records to your existing component */}
       <LatestBlogs blogs={blogs} />
     </main>
   );
