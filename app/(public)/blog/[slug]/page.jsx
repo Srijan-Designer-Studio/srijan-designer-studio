@@ -12,6 +12,7 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  // seo props
   return {
     title: blog.meta_title || blog.title,
     description: blog.meta_description || "Read this amazing blog post on Srijan Fashion.",
