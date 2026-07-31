@@ -103,4 +103,4 @@ export async function getCustomerDashboardStats() {
     recentOrders: orders?.slice(0, 5) || [],
     activeTrackingOrder: activeOrders[0] || null
   }
-}
+} 
