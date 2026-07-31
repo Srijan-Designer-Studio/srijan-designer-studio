@@ -1,18 +1,18 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function createOrder(orderPayload) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) throw new Error("Unauthorized")
 
     const itemIds = orderPayload.items.map(item => item.variantId);
-  
+
     const { data: variants } = await supabase
       .from('product_variants')
       .select('id, inventory_count, products(base_price)')
@@ -37,11 +37,11 @@ export async function createOrder(orderPayload) {
       let realPrice = 0;
 
       if (dbVariant) {
-      
+
         if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock");
         realPrice = dbVariant.products?.base_price || 0;
       } else if (dbBaseProduct) {
-        
+
         realPrice = dbBaseProduct.base_price || 0;
       }
 
@@ -50,7 +50,7 @@ export async function createOrder(orderPayload) {
       orderItems.push({
         variant_id: item.variantId,
         quantity: item.quantity,
-        price: realPrice 
+        price: realPrice
       });
     }
 
@@ -58,7 +58,7 @@ export async function createOrder(orderPayload) {
       .from('orders')
       .insert({
         user_id: user.id,
-        total_amount: serverTotalAmount, 
+        total_amount: serverTotalAmount,
         payment_method: orderPayload.paymentMethod,
         payment_status: orderPayload.paymentStatus || 'Pending',
         status: orderPayload.status || 'pending',
@@ -75,7 +75,7 @@ export async function createOrder(orderPayload) {
     if (itemsError) throw new Error("Failed to save order items")
 
     revalidatePath('/account/orders')
-    
+
     return { success: true, data: order }
 
   } catch (error) {
@@ -84,7 +84,7 @@ export async function createOrder(orderPayload) {
 }
 
 export async function getUserOrders() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -123,10 +123,10 @@ export async function getUserOrders() {
       order_items: order.order_items.map(item => {
         const variantMatch = variants?.find(v => v.id === item.variant_id);
         const productMatch = products?.find(p => p.id === item.variant_id);
-        
-        const imageUrl = variantMatch?.products?.product_images?.[0]?.image_url || 
-                         productMatch?.product_images?.[0]?.image_url || 
-                         null;
+
+        const imageUrl = variantMatch?.products?.product_images?.[0]?.image_url ||
+          productMatch?.product_images?.[0]?.image_url ||
+          null;
 
         return {
           ...item,
@@ -149,7 +149,7 @@ export async function getUserOrders() {
 }
 
 export async function trackOrder(orderId) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')
@@ -159,7 +159,7 @@ export async function trackOrder(orderId) {
   const { data, error } = await supabase
     .from('orders')
     .select('id, status, created_at, tracking_number, updated_at')
-    .eq('id', cleanOrderId) 
+    .eq('id', cleanOrderId)
     .eq('user_id', user.id)
     .single()
 

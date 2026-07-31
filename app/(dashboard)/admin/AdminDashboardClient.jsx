@@ -30,7 +30,7 @@ export default function AdminDashboardClient({ initialStats }) {
   return (
     <div className="max-w-[1600px] mx-auto space-y-6 font-sans">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

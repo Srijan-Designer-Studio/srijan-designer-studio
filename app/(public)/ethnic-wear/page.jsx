@@ -2,7 +2,7 @@ export const revalidate = 3600;
 
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata = {
   title: "Ethnic Wear | SRIJAN Fashion",
@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 export default async function EthnicWearPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: ethnicProducts } = await supabase
     .from('products')
@@ -29,19 +29,19 @@ export default async function EthnicWearPage() {
   return (
     <main className="py-20 bg-white min-h-screen">
       <div className="max-w-[1320px] mx-auto px-6">
-        
+
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">
           Ethnic Wear Collection
         </h1>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
           {products.length > 0 ? (
             products.map((product) => {
               const imageUrl = product.product_images?.[0]?.image_url;
 
               return (
-                <Link 
-                  href={`/product/${product.id}`} 
+                <Link
+                  href={`/product/${product.id}`}
                   key={product.id}
                   className="group flex flex-col items-center cursor-pointer"
                 >
@@ -57,11 +57,11 @@ export default async function EthnicWearPage() {
                       <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">NO IMAGE</div>
                     )}
                   </div>
-                  
+
                   <h3 className="text-[13px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2 transition-colors group-hover:text-[#00c3ff]">
                     {product.title}
                   </h3>
-                  
+
                   <p className="text-[14px] font-bold text-black text-center">
                     ₹{product.base_price?.toLocaleString('en-IN')}
                   </p>
@@ -69,9 +69,9 @@ export default async function EthnicWearPage() {
               );
             })
           ) : (
-             <div className="col-span-full text-center text-gray-500 py-10">
-               No ethnic wear products found.
-             </div>
+            <div className="col-span-full text-center text-gray-500 py-10">
+              No ethnic wear products found.
+            </div>
           )}
         </div>
 

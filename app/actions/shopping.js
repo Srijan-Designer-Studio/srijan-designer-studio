@@ -1,12 +1,12 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function getCart() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) return null
 
   const { data, error } = await supabase
@@ -39,7 +39,7 @@ export async function getCart() {
 }
 
 export async function addToCart(variantId, quantity) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')
@@ -76,7 +76,7 @@ export async function addToCart(variantId, quantity) {
 }
 
 export async function toggleWishlist(productId) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')

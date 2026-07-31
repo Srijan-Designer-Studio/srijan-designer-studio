@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function searchProducts({
   searchTerm = '',
@@ -13,8 +13,8 @@ export async function searchProducts({
   page = 1,
   limit = 12
 }) {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -29,7 +29,7 @@ export async function searchProducts({
     .eq('is_active', true)
 
   if (searchTerm) {
-   query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+    query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
   }
 
   if (categorySlug) {
@@ -41,7 +41,7 @@ export async function searchProducts({
   if (sizes.length > 0) {
     query = query.in('product_variants.size', sizes)
   }
-  
+
   if (colors.length > 0) {
     query = query.in('product_variants.color', colors)
   }

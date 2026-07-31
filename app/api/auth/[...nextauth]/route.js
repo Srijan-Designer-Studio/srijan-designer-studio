@@ -4,13 +4,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const authOptions = {
   providers: [
-  
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    
-  
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -18,15 +15,14 @@ const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-
         if (
-          credentials?.email === "admin@srijan.com" && 
-          credentials?.password === "admin123"
+          credentials?.email === process.env.DEMO_ADMIN_EMAIL && 
+          credentials?.password === process.env.DEMO_ADMIN_PASSWORD
         ) {
           return {
             id: "demo-admin-999",
             name: "Demo Admin",
-            email: "admin@srijan.com",
+            email: process.env.DEMO_ADMIN_EMAIL,
             role: "admin",
           };
         }
@@ -44,7 +40,6 @@ const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-       
         if (user.role) {
           token.role = user.role;
         } 

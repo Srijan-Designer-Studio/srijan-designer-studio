@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function getKeywords() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('search_keywords')
     .select('*')
@@ -18,9 +18,9 @@ export async function getKeywords() {
 }
 
 export async function addKeyword(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user || user.user_metadata?.role !== 'admin') throw new Error('Unauthorized')
 
   const { error } = await supabase.from('search_keywords').insert({
@@ -31,7 +31,7 @@ export async function addKeyword(formData) {
   })
 
   if (error) throw new Error(error.message)
-  
+
   revalidatePath('/admin/keywords')
   return { success: true }
 }

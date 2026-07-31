@@ -45,7 +45,7 @@ export default function Sidebar() {
     <aside 
       className={`w-64 flex flex-col hidden md:flex transition-colors duration-300 ${
         isAdmin 
-          ? 'bg-[#9142ff] text-gray-300' 
+          ? 'bg-[#fff] text-gray-700' 
           : 'bg-white text-gray-600 border-r border-gray-200'
       }`}
     >
@@ -58,8 +58,8 @@ export default function Sidebar() {
           <Image
             src="/images/logo3.png"
             alt="SRIJAN Logo"
-            width={140}
-            height={50}
+            width={180}
+            height={90}
             className="object-contain"
             priority
           />

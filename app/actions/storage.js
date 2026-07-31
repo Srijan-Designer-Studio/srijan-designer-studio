@@ -1,18 +1,18 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function uploadProductImage(formData) {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   // Security Check: Verify Admin
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.user_metadata?.role !== 'admin') {
     throw new Error('Unauthorized upload attempt.')
   }
 
-  const file = formData.get('image') 
+  const file = formData.get('image')
   if (!file) throw new Error('No file provided.')
 
 
@@ -39,8 +39,8 @@ export async function uploadProductImage(formData) {
 }
 
 export async function deleteProductImage(imageUrl) {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   // Security Check
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.user_metadata?.role !== 'admin') throw new Error('Unauthorized.')

@@ -2,7 +2,7 @@
 
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 
@@ -14,13 +14,13 @@ const razorpay = new Razorpay({
 export async function createRazorpayOrder(amount, dbOrderId) {
   try {
     const options = {
-      amount: Math.round(amount * 100), 
+      amount: Math.round(amount * 100),
       currency: 'INR',
       receipt: `rcpt_${dbOrderId}`.substring(0, 40),
     }
 
     const order = await razorpay.orders.create(options)
-    
+
     if (!order) {
       throw new Error('Failed to create Razorpay order')
     }
@@ -44,14 +44,14 @@ export async function verifyRazorpayPayment(paymentId, orderId, signature, dbOrd
     const isAuthentic = expectedSignature === signature
 
     if (isAuthentic) {
-      const supabase = await createClient()
-      
+      const supabase = createAdminClient()
+
       // Update order status in Supabase after successful verification
       const { error } = await supabase
         .from('orders')
-        .update({ 
+        .update({
           payment_status: 'Paid',
-          status: 'processing' 
+          status: 'processing'
         })
         .eq('id', dbOrderId)
 

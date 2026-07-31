@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 export async function login(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const email = formData.get('email')
   const password = formData.get('password')
 
@@ -19,16 +19,16 @@ export async function login(formData) {
   }
 
   revalidatePath('/', 'layout')
-  
+
   const isAdmin = data?.user?.email?.includes('admin') || data?.user?.user_metadata?.role === 'admin'
-  
+
   return { success: true, redirectTo: isAdmin ? '/admin' : '/account' }
 }
 
 export async function loginWithGoogle() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -46,7 +46,7 @@ export async function loginWithGoogle() {
 }
 
 export async function register(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const email = formData.get('email')
   const password = formData.get('password')
   const firstName = formData.get('firstName')
@@ -72,7 +72,7 @@ export async function register(formData) {
 }
 
 export async function logout() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { error } = await supabase.auth.signOut()
 
   if (error) {
@@ -85,7 +85,7 @@ export async function logout() {
 
 export async function requestPasswordReset(formData) {
   const email = formData.get('email')
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -98,7 +98,7 @@ export async function requestPasswordReset(formData) {
 
 export async function resetPassword(formData) {
   const password = formData.get('password')
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { error } = await supabase.auth.updateUser({ password })
 

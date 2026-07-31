@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function addReview(productId, rating, comment) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('You must be logged in to leave a review.')
@@ -25,7 +25,7 @@ export async function addReview(productId, rating, comment) {
     user_id: user.id,
     rating: parseInt(rating),
     comment,
-    is_approved: false 
+    is_approved: false
   })
 
   if (error) throw new Error(error.message)
@@ -35,7 +35,7 @@ export async function addReview(productId, rating, comment) {
 }
 
 export async function getProductReviews(productId) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('reviews')
     .select('id, rating, comment, created_at, profiles(first_name, last_name)')
@@ -50,13 +50,13 @@ export async function getProductReviews(productId) {
 // --- ADMIN FUNCTIONS ---
 
 export async function getAllReviews() {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   // ইমেইলে 'admin' লেখা থাকলেই তাকে অ্যাডমিন হিসেবে ধরে নেবে
   const isAdmin = user && (user.email?.includes('admin') || user.user_metadata?.role === 'admin')
-  
+
   // পেজ ক্র্যাশ না করানোর জন্য Error থ্রো এর বদলে ফাঁকা Array রিটার্ন করা হলো
   if (!isAdmin) return []
 
@@ -70,16 +70,16 @@ export async function getAllReviews() {
     .order('created_at', { ascending: false })
 
   if (error) return []
-  
+
   return data
 }
 
 export async function updateReviewStatus(reviewId, isApproved) {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   const { data: { user } } = await supabase.auth.getUser()
   const isAdmin = user && (user.email?.includes('admin') || user.user_metadata?.role === 'admin')
-  
+
   if (!isAdmin) return { success: false, message: 'Unauthorized' }
 
   if (isApproved === 'deleted') {

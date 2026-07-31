@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function getAllBlogs() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   const { data, error } = await supabase
     .from('blogs')
@@ -16,14 +16,14 @@ export async function getAllBlogs() {
 }
 
 export async function getBlogCategories() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase.from('categories').select('*')
   if (error) return []
   return data
 }
 
 export async function createBlog(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const title = formData.get("title");
   const content = formData.get("content");
@@ -75,7 +75,7 @@ export async function createBlog(formData) {
 }
 
 export async function getBlogBySlug(slug) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   const { data, error } = await supabase
     .from('blogs')
@@ -88,7 +88,7 @@ export async function getBlogBySlug(slug) {
 }
 
 export async function deleteBlogById(id) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   const { error } = await supabase.from('blogs').delete().eq('id', id)
   
@@ -101,7 +101,7 @@ export async function deleteBlogById(id) {
 }
 
 export async function getBlogById(id) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   const { data, error } = await supabase
     .from('blogs')
@@ -114,7 +114,7 @@ export async function getBlogById(id) {
 }
 
 export async function updateBlog(id, formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const title = formData.get("title");
   const content = formData.get("content");
@@ -167,9 +167,8 @@ export async function updateBlog(id, formData) {
   return { success: true };
 }
 
-// CKEditor-এর ভেতর থেকে ছবি আপলোড করার ফাংশন
 export async function uploadImageForEditor(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const image = formData.get("image");
 
   if (!image || image.size === 0) {

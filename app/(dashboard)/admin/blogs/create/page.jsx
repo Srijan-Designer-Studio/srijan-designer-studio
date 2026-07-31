@@ -10,7 +10,6 @@ const CKEditor = dynamic(
   { ssr: false }
 );
 
-// 🛑 অত্যন্ত গুরুত্বপূর্ণ: এই ফাংশনটি 'AddBlog' কম্পোনেন্টের একদম বাইরে রাখতে হবে!
 function CustomUploadAdapterPlugin(editor) {
   editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
     return {
@@ -20,11 +19,11 @@ function CustomUploadAdapterPlugin(editor) {
             const formData = new FormData();
             formData.append("image", file);
             
-            // Server Action কল করে Supabase-এ ছবি আপলোড
+           
             const res = await uploadImageForEditor(formData);
             
             if (res.url) {
-              return { default: res.url }; // এডিটরকে ছবির লিংকটি ফেরত দেওয়া
+              return { default: res.url }; 
             } else {
               throw new Error("URL not returned");
             }
@@ -129,7 +128,7 @@ export default function AddBlog() {
               <CKEditor
                 editor={ClassicEditor}
                 data={form.content}
-                // এখানে config-এর মাধ্যমে প্লাগিনটি কল করা হলো
+              
                 config={{
                   extraPlugins: [CustomUploadAdapterPlugin],
                 }}

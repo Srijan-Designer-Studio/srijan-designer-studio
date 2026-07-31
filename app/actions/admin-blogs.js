@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 async function verifyAdmin(supabase) {
@@ -11,14 +11,14 @@ async function verifyAdmin(supabase) {
 }
 
 export async function getAdminBlogs() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   try {
     await verifyAdmin(supabase)
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
       .order('created_at', { ascending: false })
-    
+
     if (error) throw error
     return data || []
   } catch (error) {
@@ -27,28 +27,28 @@ export async function getAdminBlogs() {
 }
 
 export async function createBlog(formData) {
-  const supabase = await createClient()
-  
+  const supabase = createAdminClient()
+
   try {
     await verifyAdmin(supabase)
 
     const title = formData.get('title')
     const content = formData.get('content')
     const author = formData.get('author') || 'Admin'
-    const category = formData.get('category') || 'Uncategorized' 
-    
+    const category = formData.get('category') || 'Uncategorized'
+
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
 
     const imageFile = formData.get('image')
     let imageUrl = null
 
-   
+
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
       const { error: uploadError } = await supabase.storage
-        .from('blog-images') 
+        .from('blog-images')
         .upload(fileName, imageFile)
 
       if (uploadError) throw new Error("Failed to upload image")
@@ -76,7 +76,7 @@ export async function createBlog(formData) {
       .single()
 
     if (error) throw error
-    
+
     revalidatePath('/blog')
     return { success: true, data }
   } catch (error) {
@@ -85,7 +85,7 @@ export async function createBlog(formData) {
 }
 
 export async function deleteBlog(blogId) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   try {
     await verifyAdmin(supabase)
     const { error } = await supabase.from('blogs').delete().eq('id', blogId)

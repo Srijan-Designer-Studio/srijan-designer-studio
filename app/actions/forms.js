@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 
 export async function submitContactMessage(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { error } = await supabase.from('contact_messages').insert({
     name: formData.get('name'),
@@ -18,7 +18,7 @@ export async function submitContactMessage(formData) {
 }
 
 export async function submitCustomRequest(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { error } = await supabase.from('custom_requests').insert({
     name: formData.get('name'),

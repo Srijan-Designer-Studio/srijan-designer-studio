@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 // Get all addresses for the logged-in user
 export async function getUserAddresses() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return []
@@ -27,7 +27,7 @@ export async function getUserAddresses() {
 
 // Add a new address
 export async function addAddress(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')
@@ -60,7 +60,7 @@ export async function addAddress(formData) {
 
 // Update an existing address
 export async function updateAddress(formData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')
@@ -97,7 +97,7 @@ export async function updateAddress(formData) {
 
 // Delete an address
 export async function deleteAddress(addressId) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Authentication required')

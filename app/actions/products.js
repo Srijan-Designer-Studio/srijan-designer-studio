@@ -1,9 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function getProducts() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -21,7 +21,7 @@ export async function getProducts() {
 export async function getProductBySlug(slug) {
   if (!slug) return null
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -38,7 +38,7 @@ export async function getProductBySlug(slug) {
 }
 
 export async function getProductsByCategory(categoryName) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: category } = await supabase
@@ -46,7 +46,7 @@ export async function getProductsByCategory(categoryName) {
       .select('id')
       .ilike('name', categoryName)
       .maybeSingle()
-      
+
     if (!category) return []
 
     const { data, error } = await supabase

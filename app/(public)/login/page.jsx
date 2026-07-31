@@ -1,11 +1,12 @@
 "use client";
+
 export const dynamic = 'force-dynamic';
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
-import { login, register } from "@/app/actions/auth";
-import { createClient } from "@/lib/supabase/client";
+import { register } from "@/app/actions/auth";
+import { signIn } from "next-auth/react"; 
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,10 +15,20 @@ export default function AuthPage() {
 
   const handleLogin = (formData) => {
     setErrorMessage("");
+    const email = formData.get("email");
+    const password = formData.get("password");
+
     startTransition(async () => {
-      const result = await login(formData);
-      if (result?.error) {
-        setErrorMessage(result.error);
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false, 
+      });
+
+      if (res?.error) {
+        setErrorMessage("Invalid email or password");
+      } else if (res?.ok) {
+        window.location.href = "/admin"; 
       }
     });
   };
@@ -28,23 +39,18 @@ export default function AuthPage() {
       const result = await register(formData);
       if (result?.error) {
         setErrorMessage(result.error);
+      } else {
+        setIsLogin(true);
+        setErrorMessage("");
       }
     });
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     setErrorMessage("");
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
-      },
-    });
-    if (error) setErrorMessage(error.message);
+    signIn("google", { callbackUrl: "/admin" });
   };
 
-  // SVG Icon for Google
   const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
       <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
@@ -57,10 +63,8 @@ export default function AuthPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden">
       
-      {/* Main Glass Container */}
       <div className="relative w-full max-w-[1000px] h-[850px] md:h-[650px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex">
         
-        {/* ================= REGISTER FORM ================= */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0' 
@@ -139,7 +143,6 @@ export default function AuthPage() {
         </div>
 
        
-        {/* ================= LOGIN FORM ================= */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-100 pointer-events-auto translate-x-0' 
@@ -219,7 +222,6 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* ================= SIMULTANEOUS SLIDING IMAGE OVERLAY (Desktop Only) ================= */}
         <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${
           isLogin ? 'translate-x-[100%]' : 'translate-x-0'
         }`}>
