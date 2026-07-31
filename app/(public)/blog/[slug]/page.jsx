@@ -17,8 +17,8 @@ export async function generateMetadata({ params }) {
     description: blog.meta_description || "Read this amazing blog post on Srijan Fashion.",
     keywords: blog.keywords || "srijan fashion, fashion blog, trending clothes",
     alternates: {
-      canonical: `http://localhost:3000/blog/${slug}`
-    },
+      canonical: `https://srijandesignerstudio.com/blog/${slug}`,
+    }
     openGraph: {
       title: blog.meta_title || blog.title,
       description: blog.meta_description,
