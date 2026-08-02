@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getAdminProducts, getCategories } from '@/app/actions/admin';
 import ProductsClientWrapper from './ProductsClientWrapper';
 
@@ -12,9 +13,12 @@ export default async function AdminProductsPage() {
   ]);
 
   return (
-    <ProductsClientWrapper 
-      initialProducts={productsData || []} 
-      categories={categoriesData || []} 
-    />
+
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading products...</div>}>
+      <ProductsClientWrapper 
+        initialProducts={productsData || []} 
+        categories={categoriesData || []} 
+      />
+    </Suspense>
   );
 }
