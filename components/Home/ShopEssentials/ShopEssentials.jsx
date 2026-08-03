@@ -131,7 +131,7 @@ const ShopEssentials = ({ products = [] }) => {
                     )}
                   </div>
 
-                  <h3 className="text-[15px] leading-[1.4] text-gray-800 px-2 min-h-[42px] transition-colors group-hover:text-[#00c3ff] line-clamp-2">
+                  <h3 className="text-xl font-medium leading-[1.4] text-gray-800 px-2 min-h-[42px] transition-colors group-hover:text-[#00c3ff] line-clamp-2">
                     {product.title}
                   </h3>
                   <p className="text-lg font-bold text-black mt-3">

@@ -80,7 +80,7 @@ export default function AdminDashboardClient({ initialStats }) {
                   <img
                     src={product.image || '/images/placeholder.jpg'}
                     alt={product.title || 'Product image'}
-                   
+
                     className="object-cover opacity-80"
                     sizes="40px"
                   />

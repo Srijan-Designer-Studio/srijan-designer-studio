@@ -16,8 +16,8 @@ export const NAV_DATA = [
     leftColumn: {
       title: "ALL WOMEN'S CATEGORIES",
       links: [
-        { label: "Ethnic Wear", href: "/ethnic" },
-        { label: "Western Wear", href: "/western" },
+        { label: "Ethnic Wear", href: "/ethnic-wear" },
+        { label: "Western Wear", href: "/western-wear" },
         { label: "Bridal Wear Enquiry", href: "/customize" },
       ],
     },

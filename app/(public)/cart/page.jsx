@@ -7,7 +7,7 @@ import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, subtotal, isLoaded } = useCart();
-  
+
   if (!isLoaded) return <div className="min-h-screen bg-[#f8f9fa]"></div>;
 
   const shipping = subtotal > 0 ? 150 : 0;
@@ -37,18 +37,18 @@ export default function CartPage() {
                   <Link href={`/product/${item.slug || item.id}`} className="relative w-28 h-36 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
                     <img src={item.image || "/images/placeholder.jpg"} alt={item.title || "Product"} className="object-cover object-top" />
                   </Link>
-                  
+
                   <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left w-full">
                     <Link href={`/product/${item.slug || item.id}`}>
                       <h3 className="text-lg font-bold text-gray-900 mb-1 hover:text-[#00c3ff] transition-colors line-clamp-2">
                         {item.title}
                       </h3>
                     </Link>
-                    
+
                     {/* Render variant details if available */}
                     {(item.size || item.color) && (
                       <p className="text-sm text-gray-500 mb-2">
-                        {item.color && `Color: ${item.color}`} 
+                        {item.color && `Color: ${item.color}`}
                         {item.size && item.color && ' | '}
                         {item.size && `Size: ${item.size}`}
                       </p>
@@ -57,7 +57,7 @@ export default function CartPage() {
                     <p className="text-xl font-extrabold text-black mb-4">
                       ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                     </p>
-                    
+
                     <div className="flex items-center gap-6 w-full justify-center sm:justify-start">
                       <div className="flex items-center justify-between border border-gray-300 rounded-lg w-[120px] h-[40px] px-3 bg-gray-50">
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-gray-600 hover:text-black"><Minus size={18} /></button>

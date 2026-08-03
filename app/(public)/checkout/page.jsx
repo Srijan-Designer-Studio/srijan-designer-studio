@@ -71,7 +71,7 @@ export default function CheckoutPage() {
 
         const dbOrder = dbResult.data || dbResult.order;
         const dbOrderId = dbOrder?.id || dbResult.id;
-        
+
         // SECURITY FIX: Take the exact calculated amount from the backend!
         const secureTotalAmount = dbOrder?.total_amount || frontendTotal;
 
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                       <img
                         src={item.image || "/images/placeholder.jpg"}
                         alt={item.title}
-                       
+
                         className="object-cover object-top"
                         sizes="64px"
                       />

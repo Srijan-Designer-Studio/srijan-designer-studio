@@ -68,13 +68,13 @@ export default function WishlistPage() {
           <div key={item.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
             <div className="relative h-64 w-full bg-gray-100 overflow-hidden">
               <img
-                src={item.image || item.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
-                alt={item.title || item.name} 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                src={item.image || item.product_images?.[0]?.image_url || '/images/placeholder.jpg'}
+                alt={item.title || item.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              
-              <button 
+
+              <button
                 onClick={() => handleRemove(item)}
                 disabled={isPending && processingId === item.id}
                 className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full text-gray-500 hover:text-red-500 hover:bg-white transition-colors shadow-sm disabled:opacity-50"
@@ -83,9 +83,8 @@ export default function WishlistPage() {
               </button>
 
               <div className="absolute bottom-3 left-3">
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-md shadow-sm ${
-                  item.is_active !== false ? 'bg-white text-green-600' : 'bg-white text-red-600'
-                }`}>
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-md shadow-sm ${item.is_active !== false ? 'bg-white text-green-600' : 'bg-white text-red-600'
+                  }`}>
                   {item.is_active !== false ? 'In Stock' : 'Out of Stock'}
                 </span>
               </div>
@@ -101,14 +100,13 @@ export default function WishlistPage() {
                 </p>
               </div>
 
-              <button 
+              <button
                 onClick={() => handleMoveToCart(item)}
                 disabled={(isPending && processingId === item.id) || item.is_active === false}
-                className={`w-full py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
-                  item.is_active === false 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-black text-white hover:bg-gray-800 shadow-sm disabled:opacity-70'
-                }`}
+                className={`w-full py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors ${item.is_active === false
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-gray-800 shadow-sm disabled:opacity-70'
+                  }`}
               >
                 {isPending && processingId === item.id ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={14} />}
                 {item.is_active === false ? 'Out of Stock' : 'Move to Cart'}

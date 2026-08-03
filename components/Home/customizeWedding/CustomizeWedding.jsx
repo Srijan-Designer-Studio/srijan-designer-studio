@@ -7,40 +7,38 @@ import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { allProducts } from "@/data/products"; // Importing the products data
+import { allProducts } from "@/data/products";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function CustomizeWedding() {
   const containerRef = useRef(null);
 
-  // Filtering products to find those in the "Bridal" category
-  const bridalProducts = allProducts.filter((product) =>
-    product.category.includes("Bridal")
+  const bridalProducts = (allProducts || []).filter((product) =>
+    product?.category?.includes("Bridal")
   );
 
-  // Take up to 3 bridal products. If there aren't enough, fallback to hardcoded data
   const weddingImages = [
     {
       id: 1,
       src: bridalProducts[0]?.image || "/images/bidalinquery.png",
       alt: bridalProducts[0]?.title || "Pink Bridal Lehenga",
       placeholderBg: "bg-[#fbcfe8]",
-      link: bridalProducts[0] ? `/product/${bridalProducts[0].id}` : "/wedding",
+      link: "/product", 
     },
     {
       id: 2,
       src: bridalProducts[1]?.image || "/images/product2.png",
       alt: bridalProducts[1]?.title || "Couple Wedding Outfit",
       placeholderBg: "bg-[#fecdd3]",
-      link: bridalProducts[1] ? `/product/${bridalProducts[1].id}` : "/wedding",
+      link: "/product",
     },
     {
       id: 3,
-      src: bridalProducts[2]?.image || "/images/product2.png", // Changed from generic product2 to another fallback if needed, but left as is to match original fallback intent
+      src: bridalProducts[2]?.image || "/images/product2.png",
       alt: bridalProducts[2]?.title || "Red Bridal Lehenga",
       placeholderBg: "bg-[#e5e7eb]",
-      link: bridalProducts[2] ? `/product/${bridalProducts[2].id}` : "/wedding",
+      link: "/product", 
     },
   ];
 
@@ -91,7 +89,7 @@ export default function CustomizeWedding() {
           </p>
           <div className="wed-text inline-block">
             <Link
-              href="/wedding"
+              href="/product"
               className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               Explore Now
@@ -109,7 +107,7 @@ export default function CustomizeWedding() {
                     src={img.src}
                     alt={img.alt}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
                   <div

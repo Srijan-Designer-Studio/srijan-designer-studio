@@ -22,18 +22,18 @@ export default function OrdersClientWrapper({ initialOrders }) {
   };
 
   const formattedOrders = initialOrders?.map((order) => {
-    const formattedDate = new Intl.DateTimeFormat('en-IN', { 
-      year: 'numeric', month: 'short', day: 'numeric' 
+    const formattedDate = new Intl.DateTimeFormat('en-IN', {
+      year: 'numeric', month: 'short', day: 'numeric'
     }).format(new Date(order.created_at));
-    
+
     const itemCount = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
     const firstItem = order.order_items?.[0];
-    
+
     const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
 
     return {
-      rawOrder: order, 
-      id: order.id.split('-')[0].toUpperCase(), 
+      rawOrder: order,
+      id: order.id.split('-')[0].toUpperCase(),
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
@@ -43,9 +43,9 @@ export default function OrdersClientWrapper({ initialOrders }) {
   }) || [];
 
   const orderColumns = [
-    { 
-      header: 'Order ID', 
-      accessor: 'id', 
+    {
+      header: 'Order ID',
+      accessor: 'id',
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden shrink-0">
@@ -57,18 +57,18 @@ export default function OrdersClientWrapper({ initialOrders }) {
           </div>
           <span className="font-bold text-gray-900">#{row.id}</span>
         </div>
-      ) 
+      )
     },
     { header: 'Date', accessor: 'date' },
     { header: 'Items', accessor: 'items', render: (row) => <span className="text-gray-500">{row.items}</span> },
     { header: 'Total Amount', accessor: 'total', render: (row) => <span className="font-bold text-gray-900">{row.total}</span> },
     { header: 'Status', accessor: 'status', render: (row) => <StatusBadge status={row.status} /> },
-    { 
-      header: 'Actions', 
-      accessor: 'action', 
+    {
+      header: 'Actions',
+      accessor: 'action',
       render: (row) => (
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
             className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
           >
@@ -80,7 +80,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
             </button>
           )}
           {(row.status === 'Pending' || row.status === 'Processing') && (
-            <button 
+            <button
               onClick={() => handleCancelOrder(row.rawOrder.id)}
               className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             >
@@ -88,7 +88,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
             </button>
           )}
         </div>
-      ) 
+      )
     },
   ];
 
@@ -118,8 +118,8 @@ export default function OrdersClientWrapper({ initialOrders }) {
         <Pagination />
       </Card>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedOrder ? `Order Summary: #${selectedOrder.id.split('-')[0].toUpperCase()}` : "Order Details"}
         footer={
@@ -130,43 +130,46 @@ export default function OrdersClientWrapper({ initialOrders }) {
       >
         {selectedOrder && (
           <div className="space-y-4">
-             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
-                <div>
-                  <p className="text-xs text-gray-500">Order Placed</p>
-                  <p className="font-bold text-gray-900">
-                    {new Intl.DateTimeFormat('en-IN').format(new Date(selectedOrder.created_at))}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-500">Total Amount</p>
-                  <p className="font-bold text-[#cfa874] text-lg">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
-                </div>
-             </div>
-             
-             <div className="border border-gray-100 rounded-xl p-4 space-y-4">
-                <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
-                
-                {selectedOrder.order_items?.map((item, index) => {
-                  const imgUrl = item.product_variants?.products?.product_images?.[0]?.image_url || item.image_url || item.image || null;
-                  
-                  return (
-                    <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                      <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
-                          {imgUrl ? (
-                            <img src={imgUrl} alt="Product" className="w-full h-full object-cover" />
-                          ) : (
-                            <Package size={24} />
-                          )}
-                      </div>
-                      <div className="flex-1">
-                          <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
-                          <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
-                      </div>
-                      <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
+              <div>
+                <p className="text-xs text-gray-500">Order Placed</p>
+                <p className="font-bold text-gray-900">
+                  {new Intl.DateTimeFormat('en-IN').format(new Date(selectedOrder.created_at))}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Total Amount</p>
+                <p className="font-bold text-[#cfa874] text-lg">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
+              </div>
+            </div>
+
+            <div className="border border-gray-100 rounded-xl p-4 space-y-4">
+              <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
+
+              {selectedOrder.order_items?.map((item, index) => {
+                const imgUrl = item.product_variants?.products?.product_images?.[0]?.image_url || item.image_url || item.image || null;
+
+                return (
+                  <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                    <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                      {imgUrl ? (
+                        <Image
+                          fill
+                          unoptimized
+                          src={imgUrl} alt="Product" className="w-full h-full object-cover" />
+                      ) : (
+                        <Package size={24} />
+                      )}
                     </div>
-                  );
-                })}
-             </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
+                      <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </Modal>

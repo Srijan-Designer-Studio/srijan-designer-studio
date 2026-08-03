@@ -59,7 +59,7 @@ export default function ShopCollection({ collections = [] }) {
               SHOP BY COLLECTION
             </h2>
           </div>
-          <Link href="/products" className="collection-btn flex items-center gap-3 text-[22px] font-medium hover:gap-5 duration-300">
+          <Link href="/product" className="collection-btn flex items-center gap-3 text-[22px] font-medium hover:gap-5 duration-300">
             VIEW ALL PRODUCTS
             <ArrowRight size={24} />
           </Link>

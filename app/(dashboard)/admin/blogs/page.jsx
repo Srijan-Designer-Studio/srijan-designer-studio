@@ -140,7 +140,7 @@ export default function ShowBlogs() {
                     <td className="px-5 py-4">
                       {blog.image_url ? (
                         <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                           <img src={blog.image_url} alt={blog.title} className="object-cover" />
+                          <img src={blog.image_url} alt={blog.title} className="object-cover" />
                         </div>
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">

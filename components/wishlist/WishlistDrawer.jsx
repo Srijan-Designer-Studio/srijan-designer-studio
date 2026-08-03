@@ -46,16 +46,14 @@ export default function WishlistDrawer({ isOpen, onClose }) {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/50 z-[100] transition-opacity duration-300 ${
-          isOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 bg-black/50 z-[100] transition-opacity duration-300 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
         onClick={onClose}
       />
 
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div>
@@ -115,11 +113,10 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                     <button
                       onClick={() => handleMoveToCart(item)}
                       disabled={(isPending && processingId === item.id) || item.is_active === false}
-                      className={`w-full mt-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
-                        item.is_active === false
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-black text-white hover:bg-gray-800 disabled:opacity-70'
-                      }`}
+                      className={`w-full mt-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${item.is_active === false
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-black text-white hover:bg-gray-800 disabled:opacity-70'
+                        }`}
                     >
                       {isPending && processingId === item.id ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={14} />}
                       {item.is_active === false ? 'Out of Stock' : 'Move to Cart'}

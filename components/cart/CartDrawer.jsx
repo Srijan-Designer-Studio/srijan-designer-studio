@@ -23,7 +23,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
   return (
     <>
-  
+
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm transition-opacity duration-300"
@@ -32,9 +32,8 @@ export default function CartDrawer({ isOpen, onClose }) {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-[101] shadow-2xl transform transition-transform duration-500 ease-in-out flex flex-col ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-[101] shadow-2xl transform transition-transform duration-500 ease-in-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
@@ -59,8 +58,8 @@ export default function CartDrawer({ isOpen, onClose }) {
               <p className="text-xl font-bold text-gray-900">Your cart is empty</p>
               <p className="text-[15px] text-gray-500 mb-4">Looks like you haven't added anything yet.</p>
               <Link href="/product" className="bg-black hover:bg-gray-800 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-wide text-sm transition-colors shadow-lg">
-              Continue Shopping
-            </Link>
+                Continue Shopping
+              </Link>
             </div>
           ) : (
             <div className="space-y-6">
@@ -74,7 +73,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       className="object-cover object-top"
                     />
                   </div>
-                  
+
                   {/* Info */}
                   <div className="flex flex-col flex-1 justify-between py-1">
                     <div>
@@ -102,7 +101,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       <p className="text-[16px] font-extrabold text-black">
                         ₹{item.price.toLocaleString('en-IN')}
                       </p>
-                      
+
                       {/* Plus/Minus Buttons */}
                       <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 h-[34px]">
                         <button

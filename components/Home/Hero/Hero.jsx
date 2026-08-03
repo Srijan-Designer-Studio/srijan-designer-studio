@@ -70,7 +70,7 @@ export default function Hero() {
         loop
         onSlideChange={() => setSlideChangeTracker((prev) => prev + 1)}
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <SwiperSlide key={slide.id}>
             <div className="relative h-screen min-h-[700px] w-full overflow-hidden">
               <Image
@@ -85,9 +85,17 @@ export default function Hero() {
 
               <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
                 <div className="text-left text-white max-w-[650px] mt-[90px]">
-                  <h1 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-serif drop-shadow-md">
-                    {slide.title}
-                  </h1>
+                  
+                 
+                  {index === 0 ? (
+                    <h1 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-serif drop-shadow-md">
+                      {slide.title}
+                    </h1>
+                  ) : (
+                    <h2 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-serif drop-shadow-md">
+                      {slide.title}
+                    </h2>
+                  )}
 
                   <p className="hero-anim text-lg md:text-xl lg:text-[22px] font-medium leading-relaxed mb-10 drop-shadow-sm">
                     {slide.description}

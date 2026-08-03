@@ -1,36 +1,37 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getAllBlogs } from "@/app/actions/blogs";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const blogPosts = [
-  {
-    id: 1,
-    category: "Western",
-    title: "Trendy Mom Jeans Styles for Hot Indian Days | Srijan Fashion",
-    imageSrc: "/images/western1.png",
-    placeholderBg: "bg-[#94a3b8]",
-  },
-  {
-    id: 2,
-    category: "Western",
-    title: "Top Fabrics That Make Outfits for Plus Size More Comfortable | Srijan Fashion",
-    imageSrc: "/images/western6.png",
-    placeholderBg: "bg-[#cbd5e1]",
-  },
-];
-
 export default function Blogs() {
   const containerRef = useRef(null);
+  const [blogPosts, setBlogPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const data = await getAllBlogs(); 
+        if (data && data.length > 0) {
+          setBlogPosts(data.slice(0, 2)); 
+        }
+      } catch (error) {
+        console.error("Failed to fetch blogs:", error);
+      }
+    };
+    fetchBlogs();
+  }, []);
 
   useGSAP(() => {
+    if (blogPosts.length === 0) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -49,7 +50,7 @@ export default function Blogs() {
       { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "power4.out" },
       "-=0.4"
     );
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [blogPosts] }); 
 
   return (
     <section className="py-20 bg-gradient-to-br from-[#2b2d56] via-[#484a70] to-[#7a7c99]" ref={containerRef}>
@@ -67,7 +68,7 @@ export default function Blogs() {
 
             <div className="blog-text inline-block">
               <Link
-                href="/blogs"
+                href="/blog"
                 className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 View All Blogs
@@ -79,20 +80,21 @@ export default function Blogs() {
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {blogPosts.map((post) => (
               <Link
-                href={`/blog/${post.id}`}
+                href={`/blog/${post.slug || post.id}`} 
                 key={post.id}
                 className="blog-card bg-white rounded-[24px] p-3 sm:p-4 shadow-xl group hover:-translate-y-1 transition-transform duration-300 flex flex-col"
               >
                 <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
-                  {post.imageSrc ? (
+                  {post.image_url ? (
                     <Image
-                      src={post.imageSrc}
+                      src={post.image_url}
                       alt={post.title}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      unoptimized
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
-                    <div className={`w-full h-full ${post.placeholderBg} flex items-center justify-center`}>
+                    <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center">
                       <span className="text-white/80 font-bold tracking-widest bg-black/20 px-4 py-2 rounded-lg text-xs uppercase">
                         BLOG IMAGE
                       </span>
@@ -102,7 +104,7 @@ export default function Blogs() {
 
                 <div className="px-2 pb-2 flex-1 flex flex-col">
                   <span className="text-[#0070f3] text-sm font-semibold mb-2 block">
-                    {post.category}
+                    {post.categories?.name || "Fashion"}
                   </span>
                   <h3 className="text-[#111] text-base lg:text-[17px] font-bold leading-snug">
                     {post.title}

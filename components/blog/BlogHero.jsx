@@ -1,12 +1,16 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 export default function BlogHero() {
   const containerRef = useRef(null);
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   useGSAP(() => {
     // Background Image Zoom-out Effect
@@ -16,7 +20,6 @@ export default function BlogHero() {
       { scale: 1, duration: 1.5, ease: "power3.out" }
     );
 
-    // Text Fade-up Effect
     gsap.fromTo(
       ".hero-text",
       { y: 40, opacity: 0 },

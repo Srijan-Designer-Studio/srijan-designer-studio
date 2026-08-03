@@ -9,6 +9,11 @@ export default function BlogClient({ blog }) {
   const contentRef = useRef(null);
   const headingRefsMap = useRef([]);
 
+  // 🚀 FIX: পেজ ওপেন করলেই যেন স্ক্রল একদম উপরে থাকে, সেটি নিশ্চিত করা হলো
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   useEffect(() => {
     if (!blog?.content || !contentRef.current) return;
 
@@ -46,7 +51,7 @@ export default function BlogClient({ blog }) {
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
         <Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/blogs" className="hover:text-indigo-600 transition-colors">Blog</Link>
+        <Link href="/blog" className="hover:text-indigo-600 transition-colors">Blog</Link>
         {blog.categories?.name && (
           <>
             <span>/</span>

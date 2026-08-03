@@ -16,7 +16,7 @@ export default async function CustomerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 font-sans pt-[100px] lg:pt-[120px] px-4 lg:px-8 pb-10">
-      
+
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           Welcome back, {stats.firstName} 👋
@@ -43,7 +43,7 @@ export default async function CustomerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        
+
         <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
@@ -51,7 +51,7 @@ export default async function CustomerDashboard() {
               View All Orders &rarr;
             </Link>
           </div>
-          
+
           <div className="space-y-6">
             {stats.recentOrders.length === 0 ? (
               <p className="text-sm text-gray-500">You have no recent orders.</p>
@@ -71,12 +71,13 @@ export default async function CustomerDashboard() {
                   <div key={idx} className="flex items-center justify-between border-b border-gray-50 pb-4 last:border-0 last:pb-0">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-16 bg-gray-100 rounded-md overflow-hidden relative flex-shrink-0">
-                        <img
-                          src={product?.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
-                          alt={product?.title || 'Product'} 
-                        
+                        <Image
+                          src={product?.product_images?.[0]?.image_url || '/images/placeholder.jpg'}
+                          alt={product?.title || 'Product'}
+                          fill
+                          unoptimized
                           sizes="48px"
-                          className="object-cover opacity-80" 
+                          className="object-cover opacity-80"
                         />
                       </div>
                       <div>
@@ -101,10 +102,10 @@ export default async function CustomerDashboard() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          
+
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Order Tracking</h2>
-            
+
             {stats.activeTrackingOrder ? (
               <>
                 <div className="flex justify-between items-end mb-8">
@@ -120,16 +121,15 @@ export default async function CustomerDashboard() {
                 <div className="relative flex justify-between items-center px-2">
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-gray-100 -z-10"></div>
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-black -z-10 transition-all duration-500" style={{ width: `${progressPercentage}%` }}></div>
-                  
+
                   {['Placed', 'Processing', 'Shipped', 'Delivered'].map((step, i) => {
                     const isCompleted = i <= currentStepIndex;
                     const isCurrent = i === currentStepIndex;
-                    
+
                     return (
                       <div key={i} className="flex flex-col items-center gap-2">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                          isCompleted ? 'bg-black text-white' : 'bg-gray-200 text-transparent'
-                        }`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isCompleted ? 'bg-black text-white' : 'bg-gray-200 text-transparent'
+                          }`}>
                           ✓
                         </div>
                         <div className="text-center">
@@ -143,7 +143,7 @@ export default async function CustomerDashboard() {
             ) : (
               <div className="text-center py-6">
                 <p className="text-sm text-gray-500">No active orders to track.</p>
-                <Link href="/products" className="text-sm font-bold text-[#0ba6ff] hover:underline mt-2 inline-block">Shop Now</Link>
+                <Link href="/product" className="text-sm font-bold text-[#0ba6ff] hover:underline mt-2 inline-block">Shop Now</Link>
               </div>
             )}
           </div>
@@ -152,20 +152,20 @@ export default async function CustomerDashboard() {
             <div className="relative z-10">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Save more with Srijan</h3>
               <p className="text-xs text-gray-600 mb-4">Exclusive offers for our members</p>
-              <Link href="/products">
+              <Link href="/product">
                 <button className="bg-black text-white text-xs font-bold px-5 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   Shop Now
                 </button>
               </Link>
             </div>
             <div className="absolute right-0 top-0 h-full w-1/2 opacity-90">
-               <Image 
-                  src="/images/man1.png" 
-                  alt="Promo" 
-                  fill 
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-cover" 
-                />
+              <Image
+                src="/images/man1.png"
+                alt="Promo"
+                fill
+                sizes="(max-width: 768px) 50vw, 33vw"
+                className="object-cover"
+              />
             </div>
           </div>
 

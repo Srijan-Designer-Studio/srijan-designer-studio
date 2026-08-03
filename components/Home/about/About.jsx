@@ -62,17 +62,7 @@ export default function About() {
         "-=0.4"
       );
 
-    gsap.to(".about-img-main img", {
-      yPercent: 10,
-      ease: "none",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-      },
-    });
-
+   
     gsap.to(".about-img-overlay", {
       y: -30,
       ease: "none",
@@ -91,22 +81,25 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10 items-center">
 
           <div className="relative w-full flex justify-center lg:justify-end lg:pr-16">
-            <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg bg-[#eab308] flex items-center justify-center">
+           
+           <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg">
               <Image
-                src="/images/collection1.png"
+                src="/images/man3.png"
                 alt="Main About Image"
                 fill
-                className="object-cover"
+               
+                className="object-cover object-top"
               />
             </div>
 
             <div className="absolute top-1/2 -translate-y-1/2 -left-2 sm:left-4 lg:-left-4 z-10 about-img-overlay">
-              <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl bg-[#2dd4bf] border-[6px] border-white flex items-center justify-center relative">
+              
+              <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl border-[6px] border-white flex items-center justify-center relative bg-white">
                 <Image
-                  src="/images/collection2.png"
+                  src="/images/banner2.png"
                   alt="Overlay About Image"
-                  fill
-                  className="bg-center bg-cover"
+                  fill  
+                  className="object-cover object-center" 
                 />
               </div>
             </div>
