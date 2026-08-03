@@ -53,7 +53,7 @@ export default function ContactDetails() {
 
     return (
         <section className="py-20 bg-[#f8f9fa]" ref={containerRef}>
-            <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 text-black items-start">
 
                 <div>
                     <h2 className="contact-anim text-2xl md:text-[28px] font-bold text-black mb-8">Store Location</h2>
