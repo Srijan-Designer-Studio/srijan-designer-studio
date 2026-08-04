@@ -5,8 +5,8 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
-import { register } from "@/app/actions/auth";
 import { signIn } from "next-auth/react"; 
+import { createClient } from "@/lib/supabase/client"; // Client Supabase ইমপোর্ট করা হলো
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,36 +19,73 @@ export default function AuthPage() {
     const password = formData.get("password");
 
     startTransition(async () => {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false, 
-      });
+      try {
+        const supabase = createClient();
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (res?.error) {
-        setErrorMessage("Invalid email or password");
-      } else if (res?.ok) {
-        window.location.href = "/admin"; 
+        if (error) {
+          setErrorMessage("Invalid email or password");
+        } else if (data?.user) {
+        
+          const role = data.user.user_metadata?.role;
+          
+          if (role === 'admin' || email === 'admin@srijan.com') {
+            window.location.href = "/admin"; 
+          } else {
+            window.location.href = "/account";
+          }
+        }
+      } catch (error) {
+        setErrorMessage("Something went wrong. Please try again.");
       }
     });
   };
 
   const handleRegister = (formData) => {
     setErrorMessage("");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const firstName = formData.get("firstName");
+    const lastName = formData.get("lastName");
+
     startTransition(async () => {
-      const result = await register(formData);
-      if (result?.error) {
-        setErrorMessage(result.error);
-      } else {
-        setIsLogin(true);
-        setErrorMessage("");
+      try {
+        const supabase = createClient();
+        
+        // সরাসরি Client Side থেকে রেজিস্ট্রেশন
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              name: `${firstName} ${lastName}`,
+              role: 'customer'
+            }
+          }
+        });
+
+        if (error) {
+          setErrorMessage(error.message);
+        } else {
+          setIsLogin(true);
+          setErrorMessage("");
+          alert("Registration successful! You can now log in.");
+        }
+      } catch (error) {
+        setErrorMessage("Something went wrong during registration.");
       }
     });
   };
 
   const handleGoogleSignIn = () => {
     setErrorMessage("");
-    signIn("google", { callbackUrl: "/admin" });
+    signIn("google", { callbackUrl: "/account" });
   };
 
   const GoogleIcon = () => (
@@ -65,6 +102,7 @@ export default function AuthPage() {
       
       <div className="relative w-full max-w-[1000px] h-[850px] md:h-[650px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex">
         
+        {/* Register Section */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0' 
@@ -142,7 +180,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-       
+        {/* Login Section */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-100 pointer-events-auto translate-x-0' 
@@ -222,6 +260,7 @@ export default function AuthPage() {
           </div>
         </div>
 
+        {/* Desktop Side Image overlay */}
         <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${
           isLogin ? 'translate-x-[100%]' : 'translate-x-0'
         }`}>
@@ -229,7 +268,8 @@ export default function AuthPage() {
             <Image 
               src="/images/man1.png" 
               alt="Auth Image" 
-              fill 
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw" 
               className="object-cover" 
               priority
             />

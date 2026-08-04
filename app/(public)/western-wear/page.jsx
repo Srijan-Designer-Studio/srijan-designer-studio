@@ -16,6 +16,7 @@ export default async function WesternWearPage() {
     .from('products')
     .select(`
       id,
+      slug,
       title,
       base_price,
       product_images(image_url)
@@ -41,7 +42,7 @@ export default async function WesternWearPage() {
 
               return (
                 <Link
-                  href={`/product/${product.id}`}
+                  href={`/product/${product.slug || product.id}`}
                   key={product.id}
                   className="group flex flex-col items-center cursor-pointer"
                 >
@@ -58,7 +59,7 @@ export default async function WesternWearPage() {
                     )}
                   </div>
 
-                  <h3 className="text-[13px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2 transition-colors group-hover:text-[#00c3ff]">
+                  <h3 className="text-[15px] font-semibold text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2 transition-colors group-hover:text-[#00c3ff]">
                     {product.title}
                   </h3>
 

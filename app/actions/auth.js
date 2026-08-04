@@ -15,7 +15,7 @@ export async function login(formData) {
   })
 
   if (error) {
-    throw new Error(error.message)
+    return { error: error.message }
   }
 
   revalidatePath('/', 'layout')
@@ -27,7 +27,7 @@ export async function login(formData) {
 
 export async function loginWithGoogle() {
   const supabase = createAdminClient()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -52,23 +52,28 @@ export async function register(formData) {
   const firstName = formData.get('firstName')
   const lastName = formData.get('lastName')
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name: lastName,
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          name: `${firstName} ${lastName}`,
+          role: 'customer'
+        }
       }
+    })
+
+    if (error) {
+      return { error: error.message }
     }
-  })
 
-  if (error) {
-    throw new Error(error.message)
+    return { success: true }
+  } catch (err) {
+    return { error: "Something went wrong during registration." }
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/account')
 }
 
 export async function logout() {
@@ -92,7 +97,7 @@ export async function requestPasswordReset(formData) {
     redirectTo: `${siteUrl}/reset-password`,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   return { success: true }
 }
 
@@ -102,6 +107,6 @@ export async function resetPassword(formData) {
 
   const { error } = await supabase.auth.updateUser({ password })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   return { success: true }
 }

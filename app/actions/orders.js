@@ -15,7 +15,7 @@ export async function createOrder(orderPayload) {
 
     const { data: variants } = await supabase
       .from('product_variants')
-      .select('id, inventory_count, products(base_price)')
+      .select('id, product_id, inventory_count, products(base_price)')
       .in('id', itemIds);
 
     const { data: baseProducts } = await supabase
@@ -37,11 +37,9 @@ export async function createOrder(orderPayload) {
       let realPrice = 0;
 
       if (dbVariant) {
-
         if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock");
         realPrice = dbVariant.products?.base_price || 0;
       } else if (dbBaseProduct) {
-
         realPrice = dbBaseProduct.base_price || 0;
       }
 
@@ -73,6 +71,38 @@ export async function createOrder(orderPayload) {
     const { error: itemsError } = await supabase.from('order_items').insert(itemsToInsert)
 
     if (itemsError) throw new Error("Failed to save order items")
+
+    for (const item of orderPayload.items) {
+      const dbVariant = variants?.find(v => v.id === item.variantId);
+      const productId = dbVariant ? dbVariant.product_id : item.variantId;
+
+      if (productId) {
+        const { data: productStats } = await supabase
+          .from('products')
+          .select('purchase_count, stock_quantity')
+          .eq('id', productId)
+          .single();
+
+        if (productStats) {
+          await supabase
+            .from('products')
+            .update({
+              purchase_count: (productStats.purchase_count || 0) + item.quantity,
+              stock_quantity: Math.max(0, (productStats.stock_quantity || 0) - item.quantity)
+            })
+            .eq('id', productId);
+        }
+
+        if (dbVariant) {
+          await supabase
+            .from('product_variants')
+            .update({
+              inventory_count: Math.max(0, (dbVariant.inventory_count || 0) - item.quantity)
+            })
+            .eq('id', dbVariant.id);
+        }
+      }
+    }
 
     revalidatePath('/account/orders')
 

@@ -3,7 +3,7 @@
 import { useState, useRef, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Heart, Minus, Plus, ShoppingCart, Zap, Check, Loader2 } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Zap, Check, Loader2, CreditCard, Smartphone, Wallet, Building2, Ban, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/context/CartContext";
@@ -206,6 +206,41 @@ export default function ProductDetails({ product }) {
                 {isPending ? <Loader2 className="animate-spin" size={18} /> : <Zap className="fill-white" size={18} strokeWidth={2.5} />}
                 Buy It Now
               </button>
+            </div>
+
+            <div className="prod-info mt-8 border border-gray-200/60 bg-gray-50/50 p-5 rounded-2xl">
+              <h3 className="text-[13px] font-extrabold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <ShieldCheck size={18} className="text-green-600" />
+                Payment Gateway Support
+              </h3>
+              
+              <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                  <Smartphone size={15} className="text-[#00baf2]" /> 
+                  Paytm
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                  <Smartphone size={15} className="text-[#6528e0]" /> 
+                  UPI
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                  <CreditCard size={15} className="text-gray-900" /> 
+                  Cards
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                  <Building2 size={15} className="text-orange-500" /> 
+                  Net Banking
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                  <Wallet size={15} className="text-pink-500" /> 
+                  Wallet
+                </div>
+              </div>
+
+              <div className="inline-flex items-center gap-2 text-[12px] font-bold text-red-600 bg-red-50 px-3 py-2 rounded-xl border border-red-100">
+                <Ban size={14} strokeWidth={3} />
+                No Cash on Delivery (COD) Available
+              </div>
             </div>
 
           </div>

@@ -2,38 +2,49 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, Banknote, ChevronLeft, Loader2 } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
-import { createRazorpayOrder, verifyRazorpayPayment } from "@/app/actions/payments";
-
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
+import { createClient } from "@/lib/supabase/client";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("online");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
-    if (isLoaded && cartItems.length === 0) {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push("/login");
+      } else {
+        setIsAuthChecking(false);
+      }
+    };
+    
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    if (isLoaded && cartItems.length === 0 && !isAuthChecking) {
       router.push("/cart");
     }
-  }, [isLoaded, cartItems, router]);
+  }, [isLoaded, cartItems, router, isAuthChecking]);
 
-  if (!isLoaded || cartItems.length === 0) return <div className="min-h-screen bg-[#f4f5f7]"></div>;
+  if (isAuthChecking || !isLoaded || cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#f4f5f7] flex items-center justify-center">
+        <Loader2 size={36} className="animate-spin text-[#00c3ff]" />
+      </div>
+    );
+  }
 
   const shipping = subtotal > 0 ? 150 : 0;
   const frontendTotal = subtotal + shipping;
@@ -62,77 +73,18 @@ export default function CheckoutPage() {
           }))
         };
 
-        // Step 1: Create Order in Database (Server calculates the REAL total)
-        const dbResult = await createOrder({ ...orderPayload, paymentStatus: 'Pending', status: 'pending' });
+        const dbResult = await createOrder({ 
+          ...orderPayload, 
+          paymentStatus: 'Paid',
+          status: 'pending' 
+        });
 
         if (!dbResult.success) {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
-        const dbOrder = dbResult.data || dbResult.order;
-        const dbOrderId = dbOrder?.id || dbResult.id;
-
-        // SECURITY FIX: Take the exact calculated amount from the backend!
-        const secureTotalAmount = dbOrder?.total_amount || frontendTotal;
-
-        if (paymentMethod === 'cod') {
-          clearCart();
-          window.location.href = '/account/orders';
-          return;
-        }
-
-        if (paymentMethod === 'card') {
-          const isScriptLoaded = await loadRazorpayScript();
-          if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load. Are you online?");
-
-          // Step 2: Create Razorpay Order using the SECURE total from backend
-          const rpResult = await createRazorpayOrder(secureTotalAmount, dbOrderId);
-
-          if (!rpResult.success) throw new Error(rpResult.error || "Failed to initialize Razorpay");
-
-          const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: rpResult.order.amount,
-            currency: rpResult.order.currency,
-            name: "SRIJAN Fashion",
-            description: "Secure Payment for your order",
-            order_id: rpResult.order.id,
-            handler: async function (response) {
-              try {
-                const verifyResult = await verifyRazorpayPayment(
-                  response.razorpay_payment_id,
-                  response.razorpay_order_id,
-                  response.razorpay_signature,
-                  dbOrderId
-                );
-
-                if (verifyResult.success) {
-                  clearCart();
-                  window.location.href = '/account/orders';
-                } else {
-                  throw new Error("Verification failed");
-                }
-              } catch (err) {
-                clearCart();
-                alert("Payment successful but verification failed. Contact support.");
-                window.location.href = '/account/orders';
-              }
-            },
-            prefill: {
-              name: "Customer",
-              email: "customer@example.com",
-            },
-            theme: {
-              color: "#00c3ff",
-            },
-          };
-
-          const paymentObject = new window.Razorpay(options);
-          paymentObject.on('payment.failed', function (response) {
-            alert("Payment Failed: " + response.error.description);
-          });
-          paymentObject.open();
-        }
+        clearCart();
+        window.location.href = '/account/orders';
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
       }
@@ -179,18 +131,42 @@ export default function CheckoutPage() {
             </div>
 
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Payment Method</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <ShieldCheck className="text-green-600" size={24} />
+                Secure Payment
+              </h2>
+
               <div className="space-y-4">
-                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" />
-                  <CreditCard className={`ml-4 mr-3 ${paymentMethod === 'card' ? 'text-[#00c3ff]' : 'text-gray-400'}`} size={24} />
-                  <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-700'}`}>Pay Online (Card / UPI)</span>
+                <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-[#00c3ff] bg-[#00c3ff]/5">
+                  <div className="flex items-center mb-4">
+                    <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                    <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
+                    <span className="font-bold text-gray-900 text-lg">Pay Online</span>
+                  </div>
+
+                  <div className="ml-11 flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
+                      <Smartphone size={14} className="text-[#00baf2]" /> Paytm
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
+                      <Smartphone size={14} className="text-[#6528e0]" /> UPI
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
+                      <CreditCard size={14} className="text-gray-900" /> Cards
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
+                      <Building2 size={14} className="text-orange-500" /> Net Banking
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
+                      <Wallet size={14} className="text-pink-500" /> Wallet
+                    </div>
+                  </div>
                 </label>
-                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" />
-                  <Banknote className={`ml-4 mr-3 ${paymentMethod === 'cod' ? 'text-[#00c3ff]' : 'text-gray-400'}`} size={24} />
-                  <span className={`font-medium ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-700'}`}>Cash on Delivery (COD)</span>
-                </label>
+
+                <div className="flex items-center gap-2 text-[13px] font-bold text-red-600 bg-red-50 px-4 py-3 rounded-xl border border-red-100">
+                  <Ban size={16} strokeWidth={2.5} />
+                  No Cash on Delivery (COD) Available
+                </div>
               </div>
             </div>
           </div>
@@ -206,9 +182,7 @@ export default function CheckoutPage() {
                       <img
                         src={item.image || "/images/placeholder.jpg"}
                         alt={item.title}
-
-                        className="object-cover object-top"
-                        sizes="64px"
+                        className="w-full h-full object-cover object-top"
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
@@ -242,7 +216,7 @@ export default function CheckoutPage() {
 
               <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
                 {isPending && <Loader2 size={18} className="animate-spin" />}
-                {isPending ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Pay Now"}
+                {isPending ? "Processing..." : "Pay Now"}
               </button>
             </div>
           </div>

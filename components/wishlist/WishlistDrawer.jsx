@@ -1,4 +1,3 @@
-// components/wishlist/WishlistDrawer.jsx
 "use client";
 
 import { useState, useTransition } from "react";
@@ -16,10 +15,9 @@ export default function WishlistDrawer({ isOpen, onClose }) {
     setProcessingId(product.id);
     startTransition(async () => {
       try {
-        await toggleWishlistServer(product.id);
         toggleWishlist(product);
+        await toggleWishlistServer(product.id);
       } catch (error) {
-        console.error(error);
       } finally {
         setProcessingId(null);
       }
@@ -31,12 +29,11 @@ export default function WishlistDrawer({ isOpen, onClose }) {
     startTransition(async () => {
       try {
         const variantId = product.product_variants?.[0]?.id || product.id;
-        await addToCartServer(variantId, 1);
         addToCart(product, 1);
-        await toggleWishlistServer(product.id);
         toggleWishlist(product);
+        await addToCartServer(variantId, 1);
+        await toggleWishlistServer(product.id);
       } catch (error) {
-        console.error(error);
       } finally {
         setProcessingId(null);
       }

@@ -1,12 +1,100 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, Clock, PackageCheck, Undo2, Heart } from 'lucide-react';
-import { getCustomerDashboardStats } from '@/app/actions/dashboard';
+import { ShoppingBag, Clock, PackageCheck, Undo2, Heart, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
-export default async function CustomerDashboard() {
-  const stats = await getCustomerDashboardStats();
+export default function CustomerDashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        // ১. ডাটাবেস থেকে ইউজারের অর্ডারগুলো নিয়ে আসা
+        const { data: orders } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            total_amount,
+            status,
+            created_at,
+            order_items (
+              product_variants (
+                products (
+                  title,
+                  product_images (image_url)
+                )
+              )
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        const fetchedOrders = orders || [];
+        
+        // ২. অর্ডারের হিসাব-নিকাশ করা
+        const totalOrders = fetchedOrders.length;
+        const pendingOrders = fetchedOrders.filter(o => o.status === 'pending').length;
+        const deliveredOrders = fetchedOrders.filter(o => o.status === 'delivered').length;
+        const returnRequests = fetchedOrders.filter(o => o.status === 'returned').length;
+        
+        // ৩. রানিং অর্ডার বের করা (Track Order এর জন্য)
+        const activeTrackingOrder = fetchedOrders.find(o => 
+          ['pending', 'processing', 'shipped'].includes(o.status)
+        );
+
+        // ৪. উইশলিস্টের ডেটা নিয়ে আসা
+        let wishlistCount = 0;
+        try {
+          const { count } = await supabase
+            .from('wishlists') // আপনার ডাটাবেসের উইশলিস্ট টেবিলের নাম যদি 'wishlist' হয়, তবে 's' কেটে দেবেন
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id);
+          wishlistCount = count || 0;
+        } catch (e) {
+          console.log("Wishlist count error", e);
+        }
+
+        // ৫. স্টেট আপডেট করা
+        setStats({
+          firstName: user.user_metadata?.first_name || user.user_metadata?.name?.split(' ')[0] || 'Guest',
+          totalOrders,
+          pendingOrders,
+          deliveredOrders,
+          returnRequests,
+          wishlistCount,
+          recentOrders: fetchedOrders.slice(0, 5), // সর্বশেষ ৫টি অর্ডার
+          activeTrackingOrder: activeTrackingOrder || null
+        });
+
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh]">
+        <Loader2 className="w-12 h-12 animate-spin text-[#0ba6ff]" />
+      </div>
+    );
+  }
 
   if (!stats) return null;
 
@@ -16,7 +104,7 @@ export default async function CustomerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 font-sans pt-[100px] lg:pt-[120px] px-4 lg:px-8 pb-10">
-
+      
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           Welcome back, {stats.firstName} 👋
@@ -43,7 +131,6 @@ export default async function CustomerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-
         <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
@@ -102,7 +189,6 @@ export default async function CustomerDashboard() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Order Tracking</h2>
 
@@ -128,8 +214,7 @@ export default async function CustomerDashboard() {
 
                     return (
                       <div key={i} className="flex flex-col items-center gap-2">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isCompleted ? 'bg-black text-white' : 'bg-gray-200 text-transparent'
-                          }`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isCompleted ? 'bg-black text-white' : 'bg-gray-200 text-transparent'}`}>
                           ✓
                         </div>
                         <div className="text-center">
@@ -168,7 +253,6 @@ export default async function CustomerDashboard() {
               />
             </div>
           </div>
-
         </div>
       </div>
     </div>

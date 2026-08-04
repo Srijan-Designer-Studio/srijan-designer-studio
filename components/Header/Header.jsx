@@ -1,5 +1,3 @@
-// components/Header.jsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -136,11 +134,10 @@ export default function Header({ initialUser = null }) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-[90] transition-all duration-500 ease-in-out lg:bg-transparent lg:shadow-none lg:border-none ${
-          headerState === "top" && !isMobileMenuOpen ? "bg-transparent" : "bg-white/70 backdrop-blur-md shadow-sm border-b border-gray-200/50"
-        } ${headerState === "hidden" ? "-translate-y-full" : "translate-y-0"}`}
+        className={`fixed top-0 left-0 w-full z-[90] transition-transform duration-500 ease-in-out bg-transparent pointer-events-none ${headerState === "hidden" ? "-translate-y-full" : "translate-y-0"}`}
       >
-        <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between">
+        <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
+          
           <Link href="/" className="z-50" onClick={closeAllMenus}>
             <Image
               src="/images/logo3.png"

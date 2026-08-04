@@ -4,10 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { signOut } from "next-auth/react";
+import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, User, ShoppingBag, MapPin,
   Heart, Star, Lock, LogOut, Package, Users,
-  BarChart, Tag, Search, Home, FileText
+  BarChart, Tag, Search, Home, FileText, TrendingUp
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -23,11 +24,11 @@ export default function Sidebar() {
     { name: 'Reviews', href: '/account/reviews', icon: Star },
     { name: 'Addresses', href: '/account/addresses', icon: MapPin },
     { name: 'Change Password', href: '/account/security', icon: Lock },
-    
   ];
 
   const adminLinks = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag, badge: '15' },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Customers', href: '/admin/customers', icon: Users },
@@ -36,10 +37,20 @@ export default function Sidebar() {
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Reports', href: '/admin/reports', icon: BarChart },
     { name: 'Search Keywords', href: '/admin/keywords', icon: Search },
-    
   ];
 
   const links = isAdmin ? adminLinks : customerLinks;
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Logout Error:", error);
+    } finally {
+      signOut({ callbackUrl: '/login' });
+    }
+  };
 
   return (
     <aside 
@@ -49,8 +60,6 @@ export default function Sidebar() {
           : 'bg-white text-gray-600 border-r border-gray-200'
       }`}
     >
-      
-      
       <div className={`h-24 flex items-center justify-center px-6 shrink-0 ${
         isAdmin ? 'border-b border-white/5' : 'border-b border-gray-100'
       }`}>
@@ -102,8 +111,8 @@ export default function Sidebar() {
 
       <div className="p-4 mb-4 shrink-0">
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+          onClick={handleLogout}
+          className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
             isAdmin ? 'hover:bg-white/5 text-gray-400' : 'hover:bg-gray-50 text-gray-600'
           }`}
         >

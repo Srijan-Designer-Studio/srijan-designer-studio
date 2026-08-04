@@ -88,11 +88,11 @@ export default function Hero() {
                   
                  
                   {index === 0 ? (
-                    <h1 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-serif drop-shadow-md">
+                    <h1 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-['Helvetica'] drop-shadow-md">
                       {slide.title}
                     </h1>
                   ) : (
-                    <h2 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-serif drop-shadow-md">
+                    <h2 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-['Helvetica'] drop-shadow-md">
                       {slide.title}
                     </h2>
                   )}

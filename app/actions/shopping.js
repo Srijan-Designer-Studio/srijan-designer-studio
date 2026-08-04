@@ -71,6 +71,27 @@ export async function addToCart(variantId, quantity) {
 
   if (error) throw new Error(error.message)
 
+  const { data: variantData } = await supabase
+    .from('product_variants')
+    .select('product_id')
+    .eq('id', variantId)
+    .single()
+
+  if (variantData?.product_id) {
+    const { data: productData } = await supabase
+      .from('products')
+      .select('cart_count')
+      .eq('id', variantData.product_id)
+      .single()
+
+    if (productData) {
+      await supabase
+        .from('products')
+        .update({ cart_count: (productData.cart_count || 0) + 1 })
+        .eq('id', variantData.product_id)
+    }
+  }
+
   revalidatePath('/cart')
   return { success: true }
 }
@@ -92,6 +113,19 @@ export async function toggleWishlist(productId) {
     await supabase.from('wishlist').delete().eq('id', existing.id)
   } else {
     await supabase.from('wishlist').insert({ user_id: user.id, product_id: productId })
+
+    const { data: productData } = await supabase
+      .from('products')
+      .select('wishlist_count')
+      .eq('id', productId)
+      .single()
+
+    if (productData) {
+      await supabase
+        .from('products')
+        .update({ wishlist_count: (productData.wishlist_count || 0) + 1 })
+        .eq('id', productId)
+    }
   }
 
   revalidatePath('/wishlist')
