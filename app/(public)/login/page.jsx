@@ -4,17 +4,25 @@ export const dynamic = 'force-dynamic';
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react"; 
-import { createClient } from "@/lib/supabase/client"; // Client Supabase ইমপোর্ট করা হলো
+import { createClient } from "@/lib/supabase/client";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [popup, setPopup] = useState({ show: false, message: "", type: "success" });
+
+  const showPopupMessage = (message, type = "success") => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => {
+      setPopup({ show: false, message: "", type: "success" });
+    }, 3000);
+  };
 
   const handleLogin = (formData) => {
-    setErrorMessage("");
     const email = formData.get("email");
     const password = formData.get("password");
 
@@ -28,25 +36,27 @@ export default function AuthPage() {
         });
 
         if (error) {
-          setErrorMessage("Invalid email or password");
+          showPopupMessage("Invalid email or password", "error");
         } else if (data?.user) {
-        
+          showPopupMessage("Login Successful! Redirecting...", "success");
           const role = data.user.user_metadata?.role;
+          const adminEmail = process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL;
           
-          if (role === 'admin' || email === 'admin@srijan.com') {
-            window.location.href = "/admin"; 
-          } else {
-            window.location.href = "/account";
-          }
+          setTimeout(() => {
+            if (role === 'admin' || email === adminEmail) {
+              window.location.href = "/admin"; 
+            } else {
+              window.location.href = "/";
+            }
+          }, 1500);
         }
       } catch (error) {
-        setErrorMessage("Something went wrong. Please try again.");
+        showPopupMessage("Something went wrong. Please try again.", "error");
       }
     });
   };
 
   const handleRegister = (formData) => {
-    setErrorMessage("");
     const email = formData.get("email");
     const password = formData.get("password");
     const firstName = formData.get("firstName");
@@ -56,7 +66,6 @@ export default function AuthPage() {
       try {
         const supabase = createClient();
         
-        // সরাসরি Client Side থেকে রেজিস্ট্রেশন
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -71,21 +80,19 @@ export default function AuthPage() {
         });
 
         if (error) {
-          setErrorMessage(error.message);
+          showPopupMessage(error.message, "error");
         } else {
           setIsLogin(true);
-          setErrorMessage("");
-          alert("Registration successful! You can now log in.");
+          showPopupMessage("Registration successful! You can now log in.", "success");
         }
       } catch (error) {
-        setErrorMessage("Something went wrong during registration.");
+        showPopupMessage("Something went wrong during registration.", "error");
       }
     });
   };
 
   const handleGoogleSignIn = () => {
-    setErrorMessage("");
-    signIn("google", { callbackUrl: "/account" });
+    signIn("google", { callbackUrl: "/" });
   };
 
   const GoogleIcon = () => (
@@ -98,11 +105,19 @@ export default function AuthPage() {
   );
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden relative">
       
+      {popup.show && (
+        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 transform translate-y-0 ${
+          popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'
+        }`}>
+          {popup.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+          {popup.message}
+        </div>
+      )}
+
       <div className="relative w-full max-w-[1000px] h-[850px] md:h-[650px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex">
         
-        {/* Register Section */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0' 
@@ -113,7 +128,6 @@ export default function AuthPage() {
               Create Account
             </h1>
             <p className="text-gray-200 text-[13px] drop-shadow-sm">Sign up with your details</p>
-            {errorMessage && !isLogin && <p className="text-red-400 text-sm mt-2">{errorMessage}</p>}
           </div>
 
           <form action={handleRegister} className="space-y-5">
@@ -145,7 +159,10 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Password</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Lock className="text-white/80 mr-3 shrink-0" size={18} />
-                <input name="password" type="password" placeholder="••••••••••••••" minLength="6" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" />
+                <input name="password" type={showRegisterPassword ? "text" : "password"} placeholder="••••••••••••••" minLength="6" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" />
+                <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="text-white/80 hover:text-white transition-colors cursor-pointer">
+                  {showRegisterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
@@ -174,13 +191,12 @@ export default function AuthPage() {
 
           <div className="mt-8 text-center text-[13px] md:hidden">
             <span className="text-gray-300 font-medium drop-shadow-sm">Already have an account? </span>
-            <button onClick={() => { setIsLogin(true); setErrorMessage(""); }} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
+            <button onClick={() => setIsLogin(true)} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
               Login Now
             </button>
           </div>
         </div>
 
-        {/* Login Section */}
         <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
           isLogin 
             ? 'opacity-100 pointer-events-auto translate-x-0' 
@@ -191,7 +207,6 @@ export default function AuthPage() {
               Welcome Back
             </h1>
             <p className="text-gray-200 text-[13px] drop-shadow-sm">Login with Email or Google</p>
-            {errorMessage && isLogin && <p className="text-red-400 text-sm mt-2">{errorMessage}</p>}
           </div>
 
           <form action={handleLogin} className="space-y-5">
@@ -215,11 +230,14 @@ export default function AuthPage() {
                 <Lock className="text-white/80 mr-3 shrink-0" size={18} />
                 <input 
                   name="password"
-                  type="password" 
+                  type={showLoginPassword ? "text" : "password"} 
                   placeholder="••••••••••••••" 
                   className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" 
                   required
                 />
+                <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} className="text-white/80 hover:text-white transition-colors cursor-pointer">
+                  {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
@@ -254,13 +272,12 @@ export default function AuthPage() {
 
           <div className="mt-8 text-center text-[13px] md:hidden">
             <span className="text-gray-300 font-medium drop-shadow-sm">Don't have an account? </span>
-            <button onClick={() => { setIsLogin(false); setErrorMessage(""); }} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
+            <button onClick={() => setIsLogin(false)} className="font-extrabold text-white hover:text-[#0ba6ff] transition-colors drop-shadow-md ml-1 cursor-pointer">
               Register Now
             </button>
           </div>
         </div>
 
-        {/* Desktop Side Image overlay */}
         <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${
           isLogin ? 'translate-x-[100%]' : 'translate-x-0'
         }`}>
@@ -279,7 +296,7 @@ export default function AuthPage() {
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Hello, Friend!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
               <button 
-                onClick={() => { setIsLogin(false); setErrorMessage(""); }} 
+                onClick={() => setIsLogin(false)} 
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign Up
@@ -290,7 +307,7 @@ export default function AuthPage() {
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
               <button 
-                onClick={() => { setIsLogin(true); setErrorMessage(""); }} 
+                onClick={() => setIsLogin(true)} 
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign In

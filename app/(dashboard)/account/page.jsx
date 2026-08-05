@@ -21,7 +21,6 @@ export default function CustomerDashboard() {
           return;
         }
 
-        // ১. ডাটাবেস থেকে ইউজারের অর্ডারগুলো নিয়ে আসা
         const { data: orders } = await supabase
           .from('orders')
           .select(`
@@ -43,30 +42,26 @@ export default function CustomerDashboard() {
 
         const fetchedOrders = orders || [];
         
-        // ২. অর্ডারের হিসাব-নিকাশ করা
         const totalOrders = fetchedOrders.length;
         const pendingOrders = fetchedOrders.filter(o => o.status === 'pending').length;
         const deliveredOrders = fetchedOrders.filter(o => o.status === 'delivered').length;
         const returnRequests = fetchedOrders.filter(o => o.status === 'returned').length;
         
-        // ৩. রানিং অর্ডার বের করা (Track Order এর জন্য)
         const activeTrackingOrder = fetchedOrders.find(o => 
           ['pending', 'processing', 'shipped'].includes(o.status)
         );
 
-        // ৪. উইশলিস্টের ডেটা নিয়ে আসা
         let wishlistCount = 0;
         try {
           const { count } = await supabase
-            .from('wishlists') // আপনার ডাটাবেসের উইশলিস্ট টেবিলের নাম যদি 'wishlist' হয়, তবে 's' কেটে দেবেন
+            .from('wishlists')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id);
           wishlistCount = count || 0;
         } catch (e) {
-          console.log("Wishlist count error", e);
+          console.log(e);
         }
 
-        // ৫. স্টেট আপডেট করা
         setStats({
           firstName: user.user_metadata?.first_name || user.user_metadata?.name?.split(' ')[0] || 'Guest',
           totalOrders,
@@ -74,12 +69,12 @@ export default function CustomerDashboard() {
           deliveredOrders,
           returnRequests,
           wishlistCount,
-          recentOrders: fetchedOrders.slice(0, 5), // সর্বশেষ ৫টি অর্ডার
+          recentOrders: fetchedOrders.slice(0, 5),
           activeTrackingOrder: activeTrackingOrder || null
         });
 
       } catch (error) {
-        console.error("Error fetching stats:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }

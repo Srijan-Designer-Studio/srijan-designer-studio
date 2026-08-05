@@ -3,6 +3,7 @@ import ProductDetails from "@/components/product/ProductDetails";
 import CustomerReviews from "@/components/product/CustomerReviews";
 import SimilarProducts from "@/components/product/SimilarProducts";
 import { getProductBySlug } from "@/app/actions/products";
+import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export const revalidate = 60; 
 
@@ -45,6 +46,7 @@ export default async function SingleProductPage({ params }) {
 
   return (
     <main>
+      <ScrollToTop />
       <ProductDetails product={product} />
       <CustomerReviews productId={product.id} />
       <SimilarProducts 

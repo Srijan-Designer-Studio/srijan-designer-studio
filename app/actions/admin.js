@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import nodemailer from 'nodemailer'
 
 async function verifyAdmin() {
   return true;
@@ -116,7 +117,6 @@ export async function getAllOrders() {
       .from('orders')
       .select(`
         *,
-        profiles (first_name, last_name),
         order_items (
           variant_id,
           quantity,
@@ -127,6 +127,20 @@ export async function getAllOrders() {
 
     if (error) throw error
     if (!orders || orders.length === 0) return []
+
+    const userIds = [...new Set(orders.map(o => o.user_id).filter(Boolean))];
+    let profilesMap = {};
+
+    if (userIds.length > 0) {
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, email')
+        .in('id', userIds);
+      
+      if (profilesData) {
+        profilesMap = Object.fromEntries(profilesData.map(p => [p.id, p]));
+      }
+    }
 
     const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))];
 
@@ -143,6 +157,7 @@ export async function getAllOrders() {
 
     const formattedOrders = orders.map(order => ({
       ...order,
+      profiles: profilesMap[order.user_id] || { first_name: 'Guest', last_name: 'User', email: 'N/A' },
       order_items: order.order_items ? order.order_items.map(item => {
         const variantMatch = variants.find(v => v.id === item.variant_id);
         const productMatch = products.find(p => p.id === item.variant_id);
@@ -171,12 +186,97 @@ export async function updateOrderStatus(orderId, newStatus) {
 
   try {
     await verifyAdmin()
-    const { error } = await supabase
+    
+    const { error: updateError } = await supabase
       .from('orders')
       .update({ status: newStatus })
       .eq('id', orderId)
 
-    if (error) throw error
+    if (updateError) throw updateError
+
+    const { data: orderData, error: fetchError } = await supabase
+      .from('orders')
+      .select(`
+        id,
+        status,
+        total_amount,
+        user_id
+      `)
+      .eq('id', orderId)
+      .single();
+
+    let customerEmail = null;
+    let customerName = 'Customer';
+
+    if (!fetchError && orderData?.user_id) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, email')
+        .eq('id', orderData.user_id)
+        .single();
+      
+      if (profileData) {
+        customerEmail = profileData.email;
+        customerName = profileData.first_name || 'Customer';
+      }
+    }
+
+    if (customerEmail) {
+      const displayOrderId = orderData.id.split('-')[0].toUpperCase();
+
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      let subject = '';
+      let messageHtml = '';
+
+      if (newStatus === 'processing') {
+        subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
+        messageHtml = `<p>Hi ${customerName},</p><p>Great news! Your order <strong>#${displayOrderId}</strong> has been accepted and is now being processed. We will notify you once it is shipped.</p>`;
+      } else if (newStatus === 'shipped') {
+        subject = `Order Shipped - #${displayOrderId} | SRIJAN Fashion`;
+        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been shipped and is on its way to you!</p>`;
+      } else if (newStatus === 'delivered') {
+        subject = `Order Delivered - #${displayOrderId} | SRIJAN Fashion`;
+        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been delivered successfully. Thank you for shopping with SRIJAN Fashion!</p>`;
+      } else if (newStatus === 'cancelled') {
+        subject = `Order Cancelled - #${displayOrderId} | SRIJAN Fashion`;
+        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been cancelled. If you have already paid, your refund will be initiated soon.</p>`;
+      } else if (newStatus === 'returned') {
+        subject = `Order Returned - #${displayOrderId} | SRIJAN Fashion`;
+        messageHtml = `<p>Hi ${customerName},</p><p>Your return request for order <strong>#${displayOrderId}</strong> has been processed successfully.</p>`;
+      }
+
+      if (subject !== '') {
+        const mailOptions = {
+          from: `"SRIJAN Fashion" <${process.env.SMTP_USER}>`,
+          to: customerEmail,
+          subject: subject,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <h2 style="color: #0ba6ff; border-bottom: 2px solid #0ba6ff; padding-bottom: 10px; margin-top: 0;">SRIJAN Fashion</h2>
+              <div style="color: #4a5568; font-size: 16px; margin-top: 20px; line-height: 1.6;">
+                ${messageHtml}
+                <p style="margin-top: 20px; font-weight: bold;">Order Amount: ₹${Number(orderData.total_amount).toLocaleString('en-IN')}</p>
+              </div>
+              <p style="color: #718096; font-size: 12px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                This is an automated email, please do not reply. For support, visit our website.
+              </p>
+            </div>
+          `,
+        };
+
+        await transporter.sendMail(mailOptions);
+      }
+    }
+
     return { success: true }
   } catch (error) {
     return { success: false, error: error.message }

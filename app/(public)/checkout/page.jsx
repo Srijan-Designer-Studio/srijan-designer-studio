@@ -1,4 +1,5 @@
 "use client";
+
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useTransition } from "react";
@@ -7,7 +8,9 @@ import { useRouter } from "next/navigation";
 import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
+import { initiatePaytmTransaction } from "@/app/actions/paytm";
 import { createClient } from "@/lib/supabase/client";
+import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -16,6 +19,7 @@ export default function CheckoutPage() {
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -25,6 +29,7 @@ export default function CheckoutPage() {
       if (!user) {
         router.push("/login");
       } else {
+        setUserProfile(user);
         setIsAuthChecking(false);
       }
     };
@@ -75,7 +80,7 @@ export default function CheckoutPage() {
 
         const dbResult = await createOrder({ 
           ...orderPayload, 
-          paymentStatus: 'Paid',
+          paymentStatus: 'Pending',
           status: 'pending' 
         });
 
@@ -83,8 +88,47 @@ export default function CheckoutPage() {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
+        const orderId = dbResult.data.id;
+        const customerId = userProfile?.id || `CUST_${Date.now()}`;
+
+        const paytmResult = await initiatePaytmTransaction(orderId, frontendTotal, customerId);
+
+        if (!paytmResult.success) {
+          throw new Error(paytmResult.error || "Paytm initialization failed");
+        }
+
+        const txnToken = paytmResult.data.txnToken;
+        const mid = process.env.NEXT_PUBLIC_PAYTM_MID;
+        const isProduction = process.env.NODE_ENV === 'production';
+        const hostname = isProduction ? 'securegw.paytm.in' : 'securegw-stage.paytm.in';
+
         clearCart();
-        window.location.href = '/account/orders';
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `https://${hostname}/theia/api/v1/showPaymentPage?mid=${mid}&orderId=${orderId}`;
+
+        const midInput = document.createElement('input');
+        midInput.type = 'hidden';
+        midInput.name = 'mid';
+        midInput.value = mid;
+        form.appendChild(midInput);
+
+        const orderIdInput = document.createElement('input');
+        orderIdInput.type = 'hidden';
+        orderIdInput.name = 'orderId';
+        orderIdInput.value = orderId;
+        form.appendChild(orderIdInput);
+
+        const txnTokenInput = document.createElement('input');
+        txnTokenInput.type = 'hidden';
+        txnTokenInput.name = 'txnToken';
+        txnTokenInput.value = txnToken;
+        form.appendChild(txnTokenInput);
+
+        document.body.appendChild(form);
+        form.submit();
+
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
       }
@@ -93,8 +137,8 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
+      <ScrollToTop />
       <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-
         <div className="mb-8">
           <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
             <ChevronLeft size={18} className="mr-1" /> Back to Cart
@@ -103,7 +147,6 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
@@ -141,7 +184,7 @@ export default function CheckoutPage() {
                   <div className="flex items-center mb-4">
                     <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
                     <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
-                    <span className="font-bold text-gray-900 text-lg">Pay Online</span>
+                    <span className="font-bold text-gray-900 text-lg">Pay with Paytm</span>
                   </div>
 
                   <div className="ml-11 flex flex-wrap items-center gap-2">

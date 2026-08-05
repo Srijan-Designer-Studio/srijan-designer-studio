@@ -1,4 +1,3 @@
-//forms.js
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -34,7 +33,7 @@ export async function submitContactMessage(formData) {
 
     const mailOptions = {
       from: `"${name}" <${process.env.SMTP_USER}>`,
-      to: "[EMAIL_ADDRESS]",
+      to: process.env.SMTP_USER, 
       replyTo: email,
       subject: `New Contact Form Submission from ${name}`,
       html: `
