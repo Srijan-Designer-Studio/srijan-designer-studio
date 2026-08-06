@@ -9,9 +9,15 @@ export async function createOrder(orderPayload) {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    let user = session?.user
+    
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    }
 
-    if (authError || !user) throw new Error("Unauthorized")
+    if (!user) throw new Error("Unauthorized")
 
     const itemIds = orderPayload.items.map(item => item.variantId)
 
@@ -120,7 +126,14 @@ export async function getUserOrders() {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    let user = session?.user
+    
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    }
+
     if (!user) return []
 
     const { data: orders, error } = await adminDb
@@ -186,7 +199,14 @@ export async function trackOrder(orderId) {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    let user = session?.user
+    
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    }
+
     if (!user) throw new Error('Authentication required')
 
     const cleanOrderId = orderId.replace(/^#/, '').trim()

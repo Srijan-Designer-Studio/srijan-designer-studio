@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -87,28 +88,33 @@ export default function OccasionsEdit() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10 w-full mb-12">
-          {currentData.map((item) => (
-            <div key={item.id} className="occasion-card flex flex-col items-center cursor-pointer group">
-              <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
-                {item.imageSrc && (
-                  <Image
-                    src={item.imageSrc}
-                    alt={item.title}
-                    fill
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
-              </div>
-              <h3 className="text-[13px] sm:text-[15px] font-bold text-black text-center">
-                {item.title}
-              </h3>
-            </div>
-          ))}
+          {currentData.map((item) => {
+            // "Sangeet Edits" থেকে "sangeet" স্লাগ তৈরি করা হচ্ছে
+            const slug = item.title.toLowerCase().replace(/\s+/g, '-').replace('-edits', '');
+            
+            return (
+              <Link 
+                href={`/occasions/${slug}`} 
+                key={item.id} 
+                className="occasion-card flex flex-col items-center cursor-pointer group"
+              >
+                <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
+                  {item.imageSrc && (
+                    <Image
+                      src={item.imageSrc}
+                      alt={item.title}
+                      fill
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                </div>
+                <h3 className="text-[13px] sm:text-[15px] font-bold text-black text-center group-hover:text-[#00c3ff] transition-colors">
+                  {item.title}
+                </h3>
+              </Link>
+            );
+          })}
         </div>
-
-        <button className="occasion-btn px-8 py-3.5 bg-[#00c3ff] text-white rounded-full font-bold text-[13px] tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md">
-          Choose Your Occassion
-        </button>
 
       </div>
     </section>

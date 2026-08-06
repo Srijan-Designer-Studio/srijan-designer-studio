@@ -476,7 +476,8 @@ export async function updateProduct(productId, formData) {
         slug: slug,
         base_price: parseFloat(formData.get('price') || 0),
         category_id: formData.get('category') || null,
-        product_type: formData.get('type') || null
+        product_type: formData.get('type') || null,
+        tags: formData.get('tags') || null
       })
       .eq('id', productId)
       .select()
@@ -575,6 +576,7 @@ export async function createProduct(formData) {
         base_price: parseFloat(formData.get('price') || 0),
         category_id: formData.get('category') || null,
         product_type: formData.get('type') || null,
+        tags: formData.get('tags') || null,
         is_active: true
       })
       .select()

@@ -310,6 +310,17 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tags / Occasions</label>
+            <input
+              name="tags"
+              type="text"
+              placeholder="e.g. sangeet, haldi, party"
+              defaultValue={selectedProduct?.tags || ""}
+              className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
