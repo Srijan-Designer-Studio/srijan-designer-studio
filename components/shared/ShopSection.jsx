@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import gsap from "gsap";
@@ -13,9 +12,28 @@ gsap.registerPlugin(ScrollTrigger);
 export default function ShopSection({ title, category, type, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
 
-  const productsData = products
-    .filter((product) => product.categories?.name === category && product.product_type === type)
-    .slice(0, 4);
+  // স্মার্ট ফিল্টার: এটি ক্যাটাগরি, টাইপ এবং টাইটেল সব জায়গায় চেক করবে
+  const productsData = products.filter((product) => {
+    const dbCategory = String(product.categories?.name || "").toLowerCase();
+    const dbType = String(product.product_type || "").toLowerCase();
+    const dbTitle = String(product.title || "").toLowerCase();
+    
+    const searchCategory = String(category || "").toLowerCase();
+    const searchType = String(type || "").toLowerCase();
+    
+    let isMatch = false;
+
+    // ক্যাটাগরি কি-ওয়ার্ডটি নাম, টাইপ বা টাইটেলের কোথাও আছে কি না চেক
+    if (searchCategory && (dbCategory.includes(searchCategory) || dbTitle.includes(searchCategory) || dbType.includes(searchCategory))) {
+        isMatch = true;
+    }
+    // টাইপ কি-ওয়ার্ডটি নাম, ক্যাটাগরি বা টাইটেলের কোথাও আছে কি না চেক
+    if (searchType && (dbType.includes(searchType) || dbCategory.includes(searchType) || dbTitle.includes(searchType))) {
+        isMatch = true;
+    }
+    
+    return isMatch;
+  }).slice(0, 4);
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -37,6 +55,22 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
       "-=0.3"
     );
   }, { scope: containerRef });
+
+  // যদি কোনো ডেটা না পায়, তবে অন্তত সেকশনটি ফাঁকা না দেখিয়ে একটি মেসেজ দেখাবে
+  if (productsData.length === 0) {
+    return (
+      <section className="py-16 bg-white border-b border-gray-200" ref={containerRef}>
+        <div className="max-w-[1320px] mx-auto px-6">
+          <div className="shop-head flex items-center justify-between mb-8">
+            <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-[#111]">{title}</h2>
+          </div>
+          <div className="flex justify-center items-center h-32 bg-gray-50 rounded-xl border border-gray-100">
+            <p className="text-gray-500 font-medium">No products available in this section yet.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-white border-b border-gray-200" ref={containerRef}>

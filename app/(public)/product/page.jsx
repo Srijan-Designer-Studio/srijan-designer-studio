@@ -9,7 +9,8 @@ export const metadata = {
 };
 
 export default async function ProductPage() {
-  const allProducts = await getProducts(); 
+  const response = await getProducts(); 
+  const allProducts = Array.isArray(response) ? response : (response?.data || []);
 
   return (
     <main>
@@ -18,6 +19,7 @@ export default async function ProductPage() {
       <ShopSection 
         title="Trending in Women's Wear" 
         category="Women" 
+        type="Saree"
         viewAllLink="/women" 
         products={allProducts} 
       />
@@ -25,6 +27,7 @@ export default async function ProductPage() {
       <ShopSection 
         title="Best in Men's Ethnic" 
         category="Men" 
+        type="Ethnic Wear"
         viewAllLink="/ethnic-wear" 
         products={allProducts} 
       />
@@ -32,6 +35,7 @@ export default async function ProductPage() {
       <ShopSection 
         title="Exclusive Bridal Collection" 
         category="Bridal" 
+        type="Lehenga"
         viewAllLink="/wedding" 
         products={allProducts}
       />

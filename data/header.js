@@ -18,7 +18,7 @@ export const NAV_DATA = [
       links: [
         { label: "Ethnic Wear", href: "/ethnic-wear" },
         { label: "Western Wear", href: "/western-wear" },
-        { label: "Bridal Wear Enquiry", href: "/customize" },
+        { label: "Bridal Wear Enquiry", href: "/wedding" },
       ],
     },
     rightColumn: {

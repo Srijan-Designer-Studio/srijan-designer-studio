@@ -1,16 +1,21 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { sendWeddingInquiry } from "@/app/actions/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function WeddingContactForm() {
   const containerRef = useRef(null);
+  const formRef = useRef(null);
   const bgImageSrc = "/images/bidalinquery.png";
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState({ type: '', message: '' });
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -32,6 +37,27 @@ export default function WeddingContactForm() {
       "-=0.8"
     );
   }, { scope: containerRef });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFeedback({ type: '', message: '' });
+
+    const formData = new FormData(e.target);
+    const result = await sendWeddingInquiry(formData);
+
+    if (result.success) {
+      setFeedback({ type: 'success', message: result.message });
+      formRef.current.reset();
+    } else {
+      setFeedback({ type: 'error', message: result.error });
+    }
+    
+    setIsSubmitting(false);
+    
+    // ৩ সেকেন্ড পর মেসেজ হাইড করে দেওয়া
+    setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
+  };
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
@@ -57,51 +83,77 @@ export default function WeddingContactForm() {
             </div>
           </div>
 
-          <div className="wed-contact-right w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
-            <h3 className="text-2xl font-normal text-black mb-8">
+          <div className="wed-contact-right w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center relative">
+            <h3 className="text-2xl font-normal text-black mb-6">
               Fill In the Form To Get Started
             </h3>
 
-            <form className="flex flex-col gap-5">
+            {/* Success/Error Message Popup */}
+            {feedback.message && (
+              <div className={`mb-4 p-3 rounded-md text-sm font-medium ${feedback.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                {feedback.message}
+              </div>
+            )}
+
+            <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Full Name*</label>
                 <input
                   type="text"
+                  name="fullName"
+                  required
                   className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black transition-colors"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] text-gray-500">Select date for call back*</label>
+                <label className="text-[12px] text-gray-500">Phone Number*</label>
                 <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
+                  type="tel"
+                  name="phone"
+                  required
+                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black transition-colors"
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] text-gray-500">Select time for call back*</label>
-                <input
-                  type="time"
-                  className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] text-gray-500">Call back date*</label>
+                  <input
+                    type="date"
+                    name="date"
+                    required
+                    className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] text-gray-500">Call back time*</label>
+                  <input
+                    type="time"
+                    name="time"
+                    required
+                    className="w-full border border-gray-300 rounded-md h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] text-gray-500">Message</label>
                 <textarea
-                  className="w-full border border-gray-300 rounded-md h-[100px] p-4 outline-none focus:border-black resize-none transition-colors"
+                  name="message"
+                  className="w-full border border-gray-300 rounded-md h-[80px] p-4 outline-none focus:border-black resize-none transition-colors"
                 ></textarea>
               </div>
 
               <button
-                type="button"
-                className="w-full bg-[#00c3ff] text-white font-bold h-[50px] rounded-full mt-2 hover:bg-[#00a0d6] transition-colors shadow-md"
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#00c3ff] text-white font-bold h-[50px] rounded-full mt-2 hover:bg-[#00a0d6] transition-colors shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Submit Now
+                {isSubmitting ? 'Sending...' : 'Submit Now'}
               </button>
 
-              <p className="text-[9px] text-center text-gray-400 mt-2">
+              <p className="text-[9px] text-center text-gray-400 mt-1">
                 Your Contact profile name will be shared. Never submit password.
               </p>
             </form>
