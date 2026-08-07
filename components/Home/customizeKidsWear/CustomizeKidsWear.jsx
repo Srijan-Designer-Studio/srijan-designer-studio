@@ -14,12 +14,12 @@ const kidsCards = [
   {
     id: 0,
     step: "Step 1",
-    title: "Occasion & Theme",
+    title: "Ocassion & Theme",
     desc: "Tell us about the occasion and your preferred theme. We'll design an outfit that brings your vision to life.",
     img: "/images/kids.png", 
     bgColor: "bg-white",
     titleColor: "text-black",
-    descColor: "text-gray-600"
+    descColor: "text-gray-800"
   },
   {
     id: 1,
@@ -43,15 +43,22 @@ const kidsCards = [
   }
 ];
 
+const marqueeWords = [
+  "BESPOKE FASHION",
+  "TIMELESS ELEGANCE",
+  "DESIGNER COLLECTION",
+  "BRIDAL SPECIALISTS",
+  "CUSTOM-FIT"
+];
+
 export default function CustomizeKidsWear() {
   const containerRef = useRef(null);
-  const marqueeText = "   ✿ BESPOKE FASHION    ✿ TIMELESS ELEGANCE    ✿ DESIGNER COLLECTION    ✿ BRIDAL SPECIALISTS    ✿ CUSTOM-FIT    ";
 
   useGSAP(() => {
     gsap.set(".kid-card", {
       y: (i) => i * 15,
       x: (i) => i * 15,
-      scale: (i) => 1 - (i * 0.05),
+      scale: (i) => 1 - (i * 0.04),
       zIndex: (i) => 30 - i
     });
 
@@ -68,14 +75,14 @@ export default function CustomizeKidsWear() {
 
     tl.to(".card-0", { yPercent: -120, opacity: 0.5, rotate: -5, duration: 1, ease: "power2.inOut" }, "step1")
       .to(".card-1", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step1")
-      .to(".card-2", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step1")
+      .to(".card-2", { y: 15, x: 15, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step1")
       .set(".card-0", { zIndex: 10 }) 
-      .to(".card-0", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
+      .to(".card-0", { yPercent: 0, y: 30, x: 30, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
       .to(".card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
       .to(".card-2", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step2")
-      .to(".card-0", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step2")
+      .to(".card-0", { y: 15, x: 15, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step2")
       .set(".card-1", { zIndex: 10 }) 
-      .to(".card-1", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
+      .to(".card-1", { yPercent: 0, y: 30, x: 30, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
 
   }, { scope: containerRef });
 
@@ -114,29 +121,29 @@ export default function CustomizeKidsWear() {
             </div>
           </div>
 
-          <div className="relative w-full max-w-[420px] mx-auto lg:ml-auto aspect-[3/4] lg:aspect-[4/5] mt-10 lg:mt-0">
+          <div className="relative w-full max-w-[400px] mx-auto lg:ml-auto aspect-[3/4] lg:aspect-[4/5] mt-10 lg:mt-0">
             {kidsCards.map((card) => (
               <div 
                 key={card.id} 
                 className={`kid-card card-${card.id} absolute top-0 left-0 w-full h-full rounded-[24px] overflow-hidden shadow-2xl flex flex-col ${card.bgColor}`}
               >
-                <div className="relative w-full h-[55%] bg-gray-200">
-                  <div className="absolute top-4 left-4 z-10 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-md">
+                <div className="relative w-full h-[65%]">
+                  <div className="absolute top-4 left-4 z-10 bg-black text-white text-[13px] sm:text-sm font-bold px-4 py-1.5 rounded-md shadow-md">
                     {card.step}
                   </div>
                   <Image
                     src={card.img}
                     alt={card.title}
                     fill
-                    className="object-cover"
+                    className="object-cover object-center"
                     onLoad={() => ScrollTrigger.refresh()}
                   />
                 </div>
-                <div className="p-6 sm:p-8 flex-1 flex flex-col justify-center">
-                  <h3 className={`text-xl font-bold mb-3 ${card.titleColor}`}>
+                <div className="p-6 flex-1 flex flex-col justify-start">
+                  <h3 className={`text-[20px] font-bold mb-2.5 ${card.titleColor}`}>
                     {card.title}
                   </h3>
-                  <p className={`text-sm leading-relaxed ${card.descColor}`}>
+                  <p className={`text-[15px] leading-relaxed ${card.descColor}`}>
                     {card.desc}
                   </p>
                 </div>
@@ -155,17 +162,25 @@ export default function CustomizeKidsWear() {
               100% { transform: translateX(-50%); }
             }
             .animate-marquee {
-              display: inline-flex;
-              white-space: nowrap;
+              display: flex;
+              width: max-content;
               animation: marquee 25s linear infinite;
             }
           `}
         </style>
         <div className="animate-marquee">
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center">
+              {marqueeWords.map((word, index) => (
+                <div key={index} className="flex items-center">
+                  <span className="text-white font-bold tracking-widest text-sm sm:text-base whitespace-nowrap">
+                    {word}
+                  </span>
+                  <span className="text-white text-sm sm:text-base mx-6 sm:mx-10">✿</span>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 

@@ -89,7 +89,7 @@ export default function OccasionsEdit() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10 w-full mb-12">
           {currentData.map((item) => {
-            // "Sangeet Edits" থেকে "sangeet" স্লাগ তৈরি করা হচ্ছে
+           
             const slug = item.title.toLowerCase().replace(/\s+/g, '-').replace('-edits', '');
             
             return (

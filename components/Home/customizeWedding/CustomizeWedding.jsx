@@ -1,44 +1,51 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { allProducts } from "@/data/products";
+import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function CustomizeWedding() {
   const containerRef = useRef(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Women");
 
   const bridalProducts = (allProducts || []).filter((product) =>
     product?.category?.includes("Bridal")
   );
 
+  const openPopup = (category) => {
+    setSelectedCategory(category);
+    setIsPopupOpen(true);
+  };
+
   const weddingImages = [
     {
       id: 1,
-      src: bridalProducts[0]?.image || "/images/bidalinquery.png",
-      alt: bridalProducts[0]?.title || "Pink Bridal Lehenga",
-      placeholderBg: "bg-[#fbcfe8]",
-      link: "/product", 
+      src: bridalProducts[0]?.image || "/images/collection1.png",
+      alt: "Custom For Women",
+      category: "Women",
+     
     },
     {
       id: 2,
-      src: bridalProducts[1]?.image || "/images/product2.png",
-      alt: bridalProducts[1]?.title || "Couple Wedding Outfit",
-      placeholderBg: "bg-[#fecdd3]",
-      link: "/product",
+      src: "/images/man1.png",
+      alt: "Custom For Men",
+      category: "Men",
+      
     },
     {
       id: 3,
-      src: bridalProducts[2]?.image || "/images/product2.png",
-      alt: bridalProducts[2]?.title || "Red Bridal Lehenga",
-      placeholderBg: "bg-[#e5e7eb]",
-      link: "/product", 
+      src: "/images/kids.png",
+      alt: "Custom For Kids",
+      category: "Kids",
+     
     },
   ];
 
@@ -88,41 +95,47 @@ export default function CustomizeWedding() {
             around your fashion styles, perfect fit and special moments.
           </p>
           <div className="wed-text inline-block">
-            <Link
-              href="/product"
-              className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            <button
+              onClick={() => openPopup("Women")}
+              className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
             >
               Explore Now
               <ArrowRight size={18} strokeWidth={2.5} />
-            </Link>
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {weddingImages.map((img) => (
-            <Link href={img.link} key={img.id} className="block">
-              <div className="wed-img relative w-full aspect-square sm:aspect-[4/4.5] rounded-[32px] overflow-hidden shadow-lg group cursor-pointer">
-                {img.src ? (
+            <div 
+              key={img.id} 
+              onClick={() => openPopup(img.category)}
+              className="block w-full"
+            >
+              <div className="wed-img relative w-full aspect-square sm:aspect-[4/4.5] rounded-[32px] overflow-hidden shadow-lg group cursor-pointer bg-gray-100">
+                {img.src && (
                   <Image
                     src={img.src}
                     alt={img.alt}
                     fill
                     className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
-                ) : (
-                  <div
-                    className={`w-full h-full ${img.placeholderBg} flex items-center justify-center`}
-                  >
-                    <span className="text-gray-600 font-bold tracking-widest bg-white/50 px-4 py-2 rounded-lg text-sm uppercase">
-                      WEDDING IMAGE {img.id}
-                    </span>
-                  </div>
                 )}
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition-opacity duration-300"></div>
+                
+                
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
+
+      <CustomStylesPopup 
+        isOpen={isPopupOpen} 
+        onClose={() => setIsPopupOpen(false)} 
+        category={selectedCategory} 
+      />
     </section>
   );
 }

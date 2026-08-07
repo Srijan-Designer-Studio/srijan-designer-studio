@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -8,7 +8,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const reviews = [
+// Dummy data: Replace this array with data fetched from your backend
+const initialReviews = [
   {
     id: 1,
     name: "Elena Rodriguez",
@@ -34,7 +35,31 @@ const reviews = [
     placeholderBg: "bg-[#64748b]",
   },
   {
-    id: 4,
+    id: 5,
+    name: "Priya Desai",
+    role: "Architect, Delhi",
+    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
+    imageSrc: "/images/amit.png",
+    placeholderBg: "bg-[#d4a373]",
+  },
+  {
+    id: 6,
+    name: "Priya Desai",
+    role: "Architect, Delhi",
+    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
+    imageSrc: "/images/amit.png",
+    placeholderBg: "bg-[#d4a373]",
+  },
+  {
+    id: 7,
+    name: "Priya Desai",
+    role: "Architect, Delhi",
+    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
+    imageSrc: "/images/amit.png",
+    placeholderBg: "bg-[#d4a373]",
+  },
+  {
+    id: 8,
     name: "Priya Desai",
     role: "Architect, Delhi",
     review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
@@ -51,49 +76,69 @@ const StarIcon = () => (
 
 export default function Testimonials() {
   const containerRef = useRef(null);
+  
+  // State to hold reviews (ready for backend fetching)
+  const [reviews, setReviews] = useState(initialReviews);
+
+  /* 
+   * Example Backend Fetch (Uncomment and update URL when backend is ready)
+   * 
+   * useEffect(() => {
+   *   const fetchReviews = async () => {
+   *     try {
+   *       const res = await fetch('/api/reviews');
+   *       const data = await res.json();
+   *       setReviews(data);
+   *     } catch (error) {
+   *       console.error("Failed to fetch reviews:", error);
+   *     }
+   *   };
+   *   fetchReviews();
+   * }, []);
+   */
 
   useGSAP(() => {
     const container = containerRef.current;
     const cardsContainer = container.querySelector(".cards-container");
 
-    // টাইমলাইনের মাধ্যমে সেকশন পিন করা হলো
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: container,
-        start: "top top", // যখন সেকশনের টপ ভিউপোর্টের টপে আসবে
-        end: "+=250%", // কতক্ষণ পিন হয়ে থাকবে (স্ক্রল ডিসটেন্স)
-        pin: true, // সেকশনটিকে লক/পিন করবে
-        scrub: 1, // স্মুথ স্ক্রাবিং
-        invalidateOnRefresh: true, // স্ক্রিন রিসাইজ হলে ভ্যালু রিক্যালকুলেট করবে
+        start: "top top",
+        
+        end: `+=${reviews.length * 60}%`, 
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
       },
     });
 
-    // ১. ব্যাকগ্রাউন্ড টেক্সট হালকা ফেড ও স্কেল ডাউন হবে
     tl.to(".bg-text-wrapper", {
-        scale: 0.85,
-        opacity: 0.2,
-        y: -50,
-        ease: "none",
-      },
-      0
-    );
+      scale: 0.85,
+      opacity: 0.2,
+      y: -50,
+      ease: "none",
+    }, 0);
 
-    // ২. কার্ডের কন্টেইনার নিচ থেকে স্ক্রল হয়ে একদম ওপর দিয়ে বেরিয়ে যাবে
     tl.fromTo(cardsContainer, {
-        y: () => window.innerHeight, // একদম স্ক্রিনের নিচ থেকে শুরু
-      },
-      {
-        y: () => -(cardsContainer.offsetHeight + 100), // স্ক্রিনের একদম ওপর দিয়ে বেরিয়ে যাবে
-        ease: "none",
-      },
-      0
-    );
-  }, { scope: containerRef });
+      y: () => window.innerHeight,
+    }, {
+      y: () => -(cardsContainer.offsetHeight + 100),
+      ease: "none",
+    }, 0);
+  }, { scope: containerRef, dependencies: [reviews] });
+
+ 
+  const alignmentPatterns = [
+    "self-start md:mr-[-4%]",                 
+    "self-end md:mr-[17%]",       
+    "self-start md:ml-[17%]",     
+    "self-end"                   
+  ];
 
   return (
-    // মেইন সেকশনকে h-screen ও overflow-hidden করে দেওয়া হয়েছে যাতে ভেতরের স্ক্রল বাইরে না যায়
     <section ref={containerRef} className="relative w-full h-screen bg-white overflow-hidden">
-      
+
       {/* BACKGROUND TEXT */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 px-4">
         <div className="bg-text-wrapper flex flex-col items-start -mt-20 lg:-mt-10">
@@ -106,30 +151,19 @@ export default function Testimonials() {
         </div>
       </div>
 
-      {/* CARDS CONTAINER (এই পুরো কন্টেইনারটি ওপরের দিকে স্ক্রল হবে) */}
       <div className="cards-container absolute top-0 left-0 right-0 z-10 w-full max-w-[1200px] mx-auto px-6 flex flex-col pb-[20vh]">
         {reviews.map((item, index) => {
-          let alignmentClass = "";
-          let marginClass = "";
-
-          if (index === 0) {
-            alignmentClass = "self-start";
-            marginClass = "mt-0";
-          } else if (index === 1) {
-            alignmentClass = "self-end";
-            marginClass = "mt-[15vh]";
-          } else if (index === 2) {
-            alignmentClass = "self-start md:self-center";
-            marginClass = "mt-[15vh]";
-          } else if (index === 3) {
-            alignmentClass = "self-end md:self-start";
-            marginClass = "mt-[15vh]";
-          }
+          
+          // Automatically loops through the 4 alignment styles using modulo (%)
+          const alignmentClass = alignmentPatterns[index % 4];
+          
+          // Only the very first item gets mt-0, all others get mt-[5vh] for consistent spacing
+          const marginClass = index === 0 ? "mt-0" : "mt-[5vh]";
 
           return (
             <div
               key={item.id}
-              className={`w-full max-w-[360px] md:max-w-[400px] ${alignmentClass} ${marginClass} bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100 will-change-transform`}
+              className={`w-full max-w-[300px] md:max-w-[350px] ${alignmentClass} ${marginClass} bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100 will-change-transform`}
             >
               {/* User Info Header */}
               <div className="flex items-center gap-4 mb-5">
