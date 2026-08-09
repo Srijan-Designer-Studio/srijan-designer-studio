@@ -19,6 +19,7 @@ export default function Header({ initialUser = null }) {
   const [status, setStatus] = useState(initialUser ? "authenticated" : "unauthenticated");
 
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeTab, setActiveTab] = useState("women");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
   const [headerState, setHeaderState] = useState("top");
@@ -38,6 +39,7 @@ export default function Header({ initialUser = null }) {
 
   const closeAllMenus = () => {
     setActiveDropdown(null);
+    setActiveTab("women");
     setIsMobileMenuOpen(false);
     setMobileActiveDropdown(null);
   };
@@ -153,14 +155,17 @@ export default function Header({ initialUser = null }) {
             <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide">
               {NAV_DATA.map((item) => {
                 const isOpen = activeDropdown === item.id;
+                
                 return (
                   <li
                     key={item.id}
                     className="relative"
-                    onMouseEnter={() => setActiveDropdown(item.id)}
-                    onMouseLeave={() => setActiveDropdown(null)}
+                    onMouseEnter={() => { setActiveDropdown(item.id); }}
+                    onMouseLeave={() => { setActiveDropdown(null); setActiveTab("women"); }}
                   >
-                    {item.isMegaMenu ? (
+                    
+                    {/* Tabbed Mega Menu (Products) */}
+                    {item.isTabbedMegaMenu ? (
                       <>
                         <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer">
                           {item.label}
@@ -172,18 +177,104 @@ export default function Header({ initialUser = null }) {
                         </button>
 
                         <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
-                          <div className="w-[600px] bg-white rounded-lg text-black shadow-2xl flex border border-gray-100 cursor-default">
+                          <div className="w-[850px] bg-white rounded-xl text-black shadow-2xl flex border border-gray-100 cursor-default overflow-hidden">
+                            
+                            {/* Left Sidebar Tabs - (Hover) */}
+                            <div className="w-[220px] bg-white p-4 flex flex-col gap-2">
+                              {item.tabs.map((tab) => {
+                                const currentTab = activeTab || item.tabs[0].id;
+                                const isActive = currentTab === tab.id;
+                                return (
+                                  <div
+                                    key={tab.id}
+                                    onMouseEnter={() => setActiveTab(tab.id)} 
+                                    className={`text-left px-5 py-3.5 rounded-lg font-bold text-[15px] transition-all duration-200 cursor-pointer ${
+                                      isActive 
+                                        ? "bg-black text-white shadow-md" 
+                                        : "text-gray-700 hover:text-black"
+                                    }`}
+                                  >
+                                    {tab.label}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Right Content for Active Tab */}
+                            <div className="flex-1 flex bg-white border-l border-gray-100">
+                              {item.tabs.map((tab) => {
+                                const currentTab = activeTab || item.tabs[0].id;
+                                if (currentTab !== tab.id) return null;
+                                
+                                return (
+                                  <div key={tab.id} className="flex flex-1 w-full animate-in fade-in duration-300">
+                                    
+                                    <div className="flex-1 p-8 border-r border-gray-100">
+                                      <h3 className="text-[14px] font-extrabold tracking-wide mb-6 uppercase text-gray-900">
+                                        {tab.leftColumn.title}
+                                      </h3>
+                                      <ul className="flex flex-col gap-5">
+                                        {tab.leftColumn.links.map((link, idx) => (
+                                          <li key={idx}>
+                                            <Link
+                                              href={link.href}
+                                              onClick={closeAllMenus}
+                                              className="inline-block text-gray-600 text-[15px] font-medium transition-all duration-300 hover:text-[#00c3ff] hover:translate-x-2"
+                                            >
+                                              {link.label}
+                                            </Link>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+
+                                    <div className="flex-1 p-8 bg-[#fafafa] flex flex-col items-center justify-center text-center">
+                                      <h3 className="text-[14px] font-extrabold tracking-wide mb-3 uppercase text-gray-900">
+                                        {tab.rightColumn.title}
+                                      </h3>
+                                      <p className="text-gray-500 text-[13px] leading-relaxed mb-6 font-medium px-2">
+                                        {tab.rightColumn.description}
+                                      </p>
+                                      <Link
+                                        href={tab.rightColumn.buttonLink}
+                                        onClick={closeAllMenus}
+                                        className="inline-block bg-black text-white text-[13px] rounded-lg font-bold px-8 py-3.5 transition-all duration-300 hover:bg-[#00c3ff] hover:shadow-lg hover:-translate-y-1"
+                                      >
+                                        {tab.rightColumn.buttonText}
+                                      </Link>
+                                    </div>
+                                    
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : item.isMegaMenu ? (
+                      <>
+                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer">
+                          {item.label}
+                          <ChevronDown
+                            size={16}
+                            strokeWidth={2.5}
+                            className={`transition transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                          <div className="w-[600px] bg-white rounded-xl text-black shadow-2xl flex border border-gray-100 cursor-default overflow-hidden">
                             <div className="flex-1 p-8 border-r border-gray-100">
-                              <h3 className="text-[13px] font-extrabold tracking-wide mb-6 uppercase text-gray-900">
+                              <h3 className="text-[14px] font-extrabold tracking-wide mb-6 uppercase text-gray-900">
                                 {item.leftColumn.title}
                               </h3>
-                              <ul className="flex flex-col gap-4">
+                              <ul className="flex flex-col gap-5">
                                 {item.leftColumn.links.map((link, idx) => (
                                   <li key={idx}>
                                     <Link
                                       href={link.href}
                                       onClick={closeAllMenus}
-                                      className="text-gray-600 text-[14px] hover:text-[#00c3ff] transition-colors font-medium"
+                                      className="inline-block text-gray-600 text-[15px] font-medium transition-all duration-300 hover:text-[#00c3ff] hover:translate-x-2"
                                     >
                                       {link.label}
                                     </Link>
@@ -191,18 +282,17 @@ export default function Header({ initialUser = null }) {
                                 ))}
                               </ul>
                             </div>
-
                             <div className="flex-1 p-8 bg-[#fafafa] flex flex-col items-center justify-center text-center">
-                              <h3 className="text-[13px] font-extrabold tracking-wide mb-3 uppercase text-gray-900">
+                              <h3 className="text-[14px] font-extrabold tracking-wide mb-3 uppercase text-gray-900">
                                 {item.rightColumn.title}
                               </h3>
-                              <p className="text-gray-500 text-[13px] leading-relaxed mb-6 font-medium">
+                              <p className="text-gray-500 text-[13px] leading-relaxed mb-6 font-medium px-2">
                                 {item.rightColumn.description}
                               </p>
                               <Link
                                 href={item.rightColumn.buttonLink}
                                 onClick={closeAllMenus}
-                                className="bg-black text-white text-[13px] rounded-lg font-bold px-6 py-3 hover:bg-[#00c3ff] transition-colors"
+                                className="inline-block bg-black text-white text-[13px] rounded-lg font-bold px-8 py-3.5 transition-all duration-300 hover:bg-[#00c3ff] hover:shadow-lg hover:-translate-y-1"
                               >
                                 {item.rightColumn.buttonText}
                               </Link>
@@ -228,7 +318,7 @@ export default function Header({ initialUser = null }) {
                                 key={cat.id || idx}
                                 href={cat.href || `/${cat.label.toLowerCase()}`}
                                 onClick={closeAllMenus}
-                                className="block px-6 py-3 text-[14px] font-medium hover:text-[#00c3ff] transition-colors"
+                                className="block px-6 py-3 text-[14px] font-medium transition-all duration-300 hover:text-[#00c3ff] hover:pl-8"
                               >
                                 {cat.label}
                               </Link>
@@ -265,6 +355,7 @@ export default function Header({ initialUser = null }) {
         </div>
       </header>
 
+      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 bg-white/80 backdrop-blur-xl z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ top: "90px" }}
@@ -280,7 +371,7 @@ export default function Header({ initialUser = null }) {
               const isDropdownOpen = mobileActiveDropdown === item.id;
               return (
                 <li key={item.id} className="border-b border-gray-200/50 pb-4">
-                  {item.isMegaMenu ? (
+                  {item.isTabbedMegaMenu ? (
                     <>
                       <button
                         onClick={() => toggleMobileDropdown(item.id)}
@@ -292,7 +383,54 @@ export default function Header({ initialUser = null }) {
                           className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
                         />
                       </button>
-                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-screen mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-[2000px] mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
+                        <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-6 text-base text-gray-700">
+                          {item.tabs.map((tab, tIdx) => (
+                            <div key={tab.id} className={tIdx > 0 ? "pt-4 border-t border-gray-200/50" : ""}>
+                              <span className="font-extrabold text-black text-[15px] block mb-3 uppercase">{tab.label}</span>
+                              
+                              <div className="flex flex-col gap-3 pl-2 mb-4">
+                                {tab.leftColumn.links.map((link, idx) => (
+                                  <Link
+                                    key={idx}
+                                    href={link.href}
+                                    onClick={closeAllMenus}
+                                    className="block font-medium text-gray-600 hover:text-[#00c3ff] hover:pl-2 transition-all duration-300"
+                                  >
+                                    {link.label}
+                                  </Link>
+                                ))}
+                              </div>
+
+                              <div className="pl-2 bg-gray-50 p-4 rounded-lg">
+                                <span className="font-bold text-gray-900 text-[13px] block mb-2 uppercase">{tab.rightColumn.title}</span>
+                                <p className="text-gray-500 text-[12px] mb-3 leading-relaxed">{tab.rightColumn.description}</p>
+                                <Link
+                                  href={tab.rightColumn.buttonLink}
+                                  onClick={closeAllMenus}
+                                  className="inline-block bg-black text-white text-[12px] font-bold px-4 py-2 hover:bg-[#00c3ff] transition-colors rounded"
+                                >
+                                  {tab.rightColumn.buttonText}
+                                </Link>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : item.isMegaMenu ? (
+                    <>
+                      <button
+                        onClick={() => toggleMobileDropdown(item.id)}
+                        className="w-full flex items-center justify-between hover:text-[#00c3ff] transition-colors cursor-pointer"
+                      >
+                        {item.label}
+                        <ChevronDown
+                          size={20}
+                          className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
+                        />
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-[1000px] mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
                         <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
                           <span className="font-bold text-gray-900 text-sm mt-2">{item.leftColumn.title}</span>
                           {item.leftColumn.links.map((link, idx) => (
@@ -300,7 +438,7 @@ export default function Header({ initialUser = null }) {
                               key={idx}
                               href={link.href}
                               onClick={closeAllMenus}
-                              className="block font-semibold hover:text-[#00c3ff]"
+                              className="block font-semibold text-gray-600 hover:text-[#00c3ff] hover:pl-2 transition-all duration-300"
                             >
                               {link.label}
                             </Link>
@@ -337,7 +475,7 @@ export default function Header({ initialUser = null }) {
                               key={cat.id || idx}
                               href={cat.href || `/${cat.label.toLowerCase()}`}
                               onClick={closeAllMenus}
-                              className="block font-semibold hover:text-[#00c3ff]"
+                              className="block font-semibold text-gray-600 hover:text-[#00c3ff] hover:pl-2 transition-all duration-300"
                             >
                               {cat.label}
                             </Link>

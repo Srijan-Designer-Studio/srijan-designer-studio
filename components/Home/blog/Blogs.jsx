@@ -13,6 +13,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Blogs() {
   const containerRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const tweenRef = useRef(null);
   const [blogPosts, setBlogPosts] = useState([]);
 
   useEffect(() => {
@@ -20,10 +22,10 @@ export default function Blogs() {
       try {
         const data = await getAllBlogs(); 
         if (data && data.length > 0) {
-          setBlogPosts(data.slice(0, 2)); 
+          setBlogPosts(data.slice(0, 6)); 
         }
       } catch (error) {
-        console.error("Failed to fetch blogs:", error);
+        console.error(error);
       }
     };
     fetchBlogs();
@@ -44,20 +46,26 @@ export default function Blogs() {
       ".blog-text",
       { y: 40, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
-    ).fromTo(
-      ".blog-card",
-      { y: 60, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "power4.out" },
-      "-=0.4"
     );
+
+    tweenRef.current = gsap.to(marqueeRef.current, {
+      xPercent: -50,
+      ease: "none",
+      duration: 30,
+      repeat: -1,
+    });
+
   }, { scope: containerRef, dependencies: [blogPosts] }); 
 
+  const handleMouseEnter = () => tweenRef.current?.pause();
+  const handleMouseLeave = () => tweenRef.current?.play();
+
   return (
-    <section className="py-20 bg-gradient-to-br from-[#2b2d56] via-[#484a70] to-[#7a7c99]" ref={containerRef}>
+    <section className="py-20 bg-gradient-to-br from-[#2b2d56] via-[#484a70] to-[#7a7c99] overflow-hidden" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-          <div className="lg:col-span-4 flex flex-col items-start max-w-[400px]">
+          <div className="lg:col-span-4 flex flex-col items-start max-w-[400px] z-10">
             <span className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
               BLOGS
             </span>
@@ -77,41 +85,88 @@ export default function Blogs() {
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {blogPosts.map((post) => (
-              <Link
-                href={`/blog/${post.slug || post.id}`} 
-                key={post.id}
-                className="blog-card bg-white rounded-[24px] p-3 sm:p-4 shadow-xl group hover:-translate-y-1 transition-transform duration-300 flex flex-col"
-              >
-                <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
-                  {post.image_url ? (
-                    <Image
-                      src={post.image_url}
-                      alt={post.title}
-                      fill
-                      unoptimized
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center">
-                      <span className="text-white/80 font-bold tracking-widest bg-black/20 px-4 py-2 rounded-lg text-xs uppercase">
-                        BLOG IMAGE
-                      </span>
+          <div 
+            className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
+            onMouseEnter={handleMouseEnter} 
+            onMouseLeave={handleMouseLeave}
+          >
+            <div ref={marqueeRef} className="flex w-max">
+              
+              <div className="flex gap-6 pr-6">
+                {blogPosts.map((post) => (
+                  <Link
+                    href={`/blog/${post.slug || post.id}`} 
+                    key={`first-${post.id}`}
+                    className="blog-card bg-white rounded-[24px] p-3 sm:p-4 shadow-xl hover:-translate-y-1 transition-transform duration-300 flex flex-col w-[280px] sm:w-[350px] shrink-0"
+                  >
+                    <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
+                      {post.image_url ? (
+                        <Image
+                          src={post.image_url}
+                          alt={post.title}
+                          fill
+                          unoptimized
+                          className="object-cover object-top transition-transform duration-700 hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center">
+                          <span className="text-white/80 font-bold tracking-widest bg-black/20 px-4 py-2 rounded-lg text-xs uppercase">
+                            BLOG IMAGE
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
 
-                <div className="px-2 pb-2 flex-1 flex flex-col">
-                  <span className="text-[#0070f3] text-sm font-semibold mb-2 block">
-                    {post.categories?.name || "Fashion"}
-                  </span>
-                  <h3 className="text-[#111] text-base lg:text-[17px] font-bold leading-snug">
-                    {post.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
+                    <div className="px-2 pb-2 flex-1 flex flex-col">
+                      <span className="text-[#0070f3] text-sm font-semibold mb-2 block">
+                        {post.categories?.name || "Fashion"}
+                      </span>
+                      <h3 className="text-[#111] text-base lg:text-[17px] font-bold leading-snug whitespace-normal">
+                        {post.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex gap-6 pr-6">
+                {blogPosts.map((post) => (
+                  <Link
+                    href={`/blog/${post.slug || post.id}`} 
+                    key={`second-${post.id}`}
+                    className="blog-card bg-white rounded-[24px] p-3 sm:p-4 shadow-xl hover:-translate-y-1 transition-transform duration-300 flex flex-col w-[280px] sm:w-[350px] shrink-0"
+                  >
+                    <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
+                      {post.image_url ? (
+                        <Image
+                          src={post.image_url}
+                          alt={post.title}
+                          fill
+                          unoptimized
+                          className="object-cover object-top transition-transform duration-700 hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center">
+                          <span className="text-white/80 font-bold tracking-widest bg-black/20 px-4 py-2 rounded-lg text-xs uppercase">
+                            BLOG IMAGE
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-2 pb-2 flex-1 flex flex-col">
+                      <span className="text-[#0070f3] text-sm font-semibold mb-2 block">
+                        {post.categories?.name || "Fashion"}
+                      </span>
+                      <h3 className="text-[#111] text-base lg:text-[17px] font-bold leading-snug whitespace-normal">
+                        {post.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+            </div>
           </div>
 
         </div>

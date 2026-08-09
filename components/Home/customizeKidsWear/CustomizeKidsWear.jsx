@@ -55,34 +55,50 @@ export default function CustomizeKidsWear() {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    gsap.set(".kid-card", {
-      y: (i) => i * 15,
-      x: (i) => i * 15,
-      scale: (i) => 1 - (i * 0.04),
-      zIndex: (i) => 30 - i
+    const mm = gsap.matchMedia();
+
+    const createAnimation = (offset, scrollEnd) => {
+      gsap.set(".kid-card", {
+        y: (i) => i * offset,
+        x: (i) => i * offset,
+        scale: (i) => 1 - (i * 0.04),
+        zIndex: (i) => 30 - i
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top", 
+          end: scrollEnd, 
+          scrub: 1, 
+          pin: true,
+          anticipatePin: 1
+        }
+      });
+
+      tl.to(".card-0", { yPercent: -120, opacity: 0.5, rotate: -5, duration: 1, ease: "power2.inOut" }, "step1")
+        .to(".card-1", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step1")
+        .to(".card-2", { y: offset, x: offset, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step1")
+        .set(".card-0", { zIndex: 10 }) 
+        .to(".card-0", { yPercent: 0, y: offset * 2, x: offset * 2, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
+        .to(".card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
+        .to(".card-2", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step2")
+        .to(".card-0", { y: offset, x: offset, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step2")
+        .set(".card-1", { zIndex: 10 }) 
+        .to(".card-1", { yPercent: 0, y: offset * 2, x: offset * 2, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
+
+      return tl;
+    };
+
+    mm.add("(min-width: 1024px)", () => {
+      const tl = createAnimation(15, "+=2000");
+      return () => tl.kill();
     });
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top top", 
-        end: "+=2000", 
-        scrub: 1, 
-        pin: true,
-        anticipatePin: 1
-      }
+    mm.add("(max-width: 1023px)", () => {
+      const tl = createAnimation(10, "+=1500");
+      return () => tl.kill();
     });
-
-    tl.to(".card-0", { yPercent: -120, opacity: 0.5, rotate: -5, duration: 1, ease: "power2.inOut" }, "step1")
-      .to(".card-1", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step1")
-      .to(".card-2", { y: 15, x: 15, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step1")
-      .set(".card-0", { zIndex: 10 }) 
-      .to(".card-0", { yPercent: 0, y: 30, x: 30, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
-      .to(".card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
-      .to(".card-2", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step2")
-      .to(".card-0", { y: 15, x: 15, scale: 0.96, duration: 1, ease: "power2.inOut" }, "step2")
-      .set(".card-1", { zIndex: 10 }) 
-      .to(".card-1", { yPercent: 0, y: 30, x: 30, scale: 0.92, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
 
   }, { scope: containerRef });
 
@@ -94,10 +110,10 @@ export default function CustomizeKidsWear() {
   }, []);
 
   return (
-    <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-20 lg:pt-28 overflow-hidden flex flex-col justify-between min-h-screen" ref={containerRef}>
+    <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-20 lg:pt-28 pb-10 lg:pb-0 overflow-hidden flex flex-col justify-between min-h-screen" ref={containerRef}>
       
-      <div className="max-w-[1320px] mx-auto px-6 w-full mb-20 lg:mb-28 h-full flex flex-col justify-center flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center h-full">
+      <div className="max-w-[1320px] mx-auto px-6 w-full mb-10 lg:mb-28 h-full flex flex-col justify-center flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-8 items-center h-full">
           
           <div className="max-w-[500px]">
             <span className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
@@ -121,7 +137,7 @@ export default function CustomizeKidsWear() {
             </div>
           </div>
 
-          <div className="relative w-full max-w-[400px] mx-auto lg:ml-auto aspect-[3/4] lg:aspect-[4/5] mt-10 lg:mt-0">
+          <div className="relative w-full max-w-[360px] sm:max-w-[400px] mx-auto lg:ml-auto h-[480px] sm:h-[520px] lg:h-auto lg:aspect-[4/5] mt-6 lg:mt-0">
             {kidsCards.map((card) => (
               <div 
                 key={card.id} 

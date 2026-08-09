@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -8,7 +8,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Dummy data: Replace this array with data fetched from your backend
 const initialReviews = [
   {
     id: 1,
@@ -35,6 +34,14 @@ const initialReviews = [
     placeholderBg: "bg-[#64748b]",
   },
   {
+    id: 4,
+    name: "Priya Desai",
+    role: "Architect, Delhi",
+    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
+    imageSrc: "/images/amit.png",
+    placeholderBg: "bg-[#d4a373]",
+  },
+  {
     id: 5,
     name: "Priya Desai",
     role: "Architect, Delhi",
@@ -49,23 +56,7 @@ const initialReviews = [
     review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
     imageSrc: "/images/amit.png",
     placeholderBg: "bg-[#d4a373]",
-  },
-  {
-    id: 7,
-    name: "Priya Desai",
-    role: "Architect, Delhi",
-    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
-    imageSrc: "/images/amit.png",
-    placeholderBg: "bg-[#d4a373]",
-  },
-  {
-    id: 8,
-    name: "Priya Desai",
-    role: "Architect, Delhi",
-    review: `"From the initial design consultation to the final fitting, the bespoke experience was seamless and the dress is breathtaking."`,
-    imageSrc: "/images/amit.png",
-    placeholderBg: "bg-[#d4a373]",
-  },
+  }
 ];
 
 const StarIcon = () => (
@@ -76,26 +67,12 @@ const StarIcon = () => (
 
 export default function Testimonials() {
   const containerRef = useRef(null);
-  
-  // State to hold reviews (ready for backend fetching)
   const [reviews, setReviews] = useState(initialReviews);
 
-  /* 
-   * Example Backend Fetch (Uncomment and update URL when backend is ready)
-   * 
-   * useEffect(() => {
-   *   const fetchReviews = async () => {
-   *     try {
-   *       const res = await fetch('/api/reviews');
-   *       const data = await res.json();
-   *       setReviews(data);
-   *     } catch (error) {
-   *       console.error("Failed to fetch reviews:", error);
-   *     }
-   *   };
-   *   fetchReviews();
-   * }, []);
-   */
+  const groupedReviews = [];
+  for (let i = 0; i < reviews.length; i += 2) {
+    groupedReviews.push(reviews.slice(i, i + 2));
+  }
 
   useGSAP(() => {
     const container = containerRef.current;
@@ -105,8 +82,7 @@ export default function Testimonials() {
       scrollTrigger: {
         trigger: container,
         start: "top top",
-        
-        end: `+=${reviews.length * 60}%`, 
+        end: `+=${groupedReviews.length * 70}%`,
         pin: true,
         scrub: 1,
         invalidateOnRefresh: true,
@@ -126,20 +102,10 @@ export default function Testimonials() {
       y: () => -(cardsContainer.offsetHeight + 100),
       ease: "none",
     }, 0);
-  }, { scope: containerRef, dependencies: [reviews] });
-
- 
-  const alignmentPatterns = [
-    "self-start md:mr-[-4%]",                 
-    "self-end md:mr-[17%]",       
-    "self-start md:ml-[17%]",     
-    "self-end"                   
-  ];
+  }, { scope: containerRef, dependencies: [reviews.length] });
 
   return (
     <section ref={containerRef} className="relative w-full h-screen bg-white overflow-hidden">
-
-      {/* BACKGROUND TEXT */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 px-4">
         <div className="bg-text-wrapper flex flex-col items-start -mt-20 lg:-mt-10">
           <h2 className="text-[clamp(3.5rem,10vw,9rem)] font-normal text-gray-400 tracking-tighter leading-[0.9] opacity-80">
@@ -151,53 +117,49 @@ export default function Testimonials() {
         </div>
       </div>
 
-      <div className="cards-container absolute top-0 left-0 right-0 z-10 w-full max-w-[1200px] mx-auto px-6 flex flex-col pb-[20vh]">
-        {reviews.map((item, index) => {
-          
-          // Automatically loops through the 4 alignment styles using modulo (%)
-          const alignmentClass = alignmentPatterns[index % 4];
-          
-          // Only the very first item gets mt-0, all others get mt-[5vh] for consistent spacing
-          const marginClass = index === 0 ? "mt-0" : "mt-[5vh]";
+      <div className="cards-container absolute top-[10vh] left-0 right-0 z-10 w-full max-w-[1200px] mx-auto px-6 flex flex-col pb-[20vh]">
+        {groupedReviews.map((group, groupIndex) => {
+          const alignmentClass = groupIndex % 2 === 0 ? "self-start" : "self-end";
 
           return (
-            <div
-              key={item.id}
-              className={`w-full max-w-[300px] md:max-w-[350px] ${alignmentClass} ${marginClass} bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100 will-change-transform`}
-            >
-              {/* User Info Header */}
-              <div className="flex items-center gap-4 mb-5">
-                <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-gray-200">
-                  {item.imageSrc ? (
-                    <Image src={item.imageSrc} alt={item.name} fill className="object-cover" />
-                  ) : (
-                    <div className={`w-full h-full ${item.placeholderBg} flex items-center justify-center`}>
-                      <span className="text-white text-sm font-bold uppercase">
-                        {item.name.charAt(0)}
-                      </span>
+            <div key={groupIndex} className={`flex flex-col md:flex-row gap-6 md:gap-10 w-full lg:w-[85%] mb-[12vh] ${alignmentClass}`}>
+              {group.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex-1 w-full bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100 will-change-transform"
+                >
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-gray-200">
+                      {item.imageSrc ? (
+                        <Image src={item.imageSrc} alt={item.name} fill className="object-cover" />
+                      ) : (
+                        <div className={`w-full h-full ${item.placeholderBg} flex items-center justify-center`}>
+                          <span className="text-white text-sm font-bold uppercase">
+                            {item.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
+
+                    <div>
+                      <h4 className="text-[16px] font-bold text-black leading-tight">
+                        {item.name}
+                      </h4>
+                      <p className="text-[13px] text-gray-500 mt-0.5">{item.role}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon key={i} />
+                    ))}
+                  </div>
+
+                  <p className="text-gray-800 text-[15px] leading-[1.7] font-medium">
+                    {item.review}
+                  </p>
                 </div>
-
-                <div>
-                  <h4 className="text-[16px] font-bold text-black leading-tight">
-                    {item.name}
-                  </h4>
-                  <p className="text-[13px] text-gray-500 mt-0.5">{item.role}</p>
-                </div>
-              </div>
-
-              {/* 5 Stars */}
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} />
-                ))}
-              </div>
-
-              {/* Review Text */}
-              <p className="text-gray-800 text-[15px] leading-[1.7] font-medium">
-                {item.review}
-              </p>
+              ))}
             </div>
           );
         })}

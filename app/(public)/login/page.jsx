@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react"; 
 import { createClient } from "@/lib/supabase/client";
+import  ScrollToTop  from "@/components/providers/ScrollToTop";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -106,7 +107,7 @@ export default function AuthPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden relative">
-      
+      <ScrollToTop />
       {popup.show && (
         <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 transform translate-y-0 ${
           popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'

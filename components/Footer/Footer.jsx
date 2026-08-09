@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Mail } from "lucide-react";
 import gsap from "gsap";
@@ -70,6 +70,26 @@ const CustomQIcon = () => (
 export default function Footer() {
   const footerRef = useRef(null);
 
+  useEffect(() => {
+    // Aggressive GSAP Refresh: পেজ লোড হওয়ার পর বিভিন্ন সময়ে হাইট চেক করে ফিক্স করবে
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 500);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
+    const t3 = setTimeout(() => ScrollTrigger.refresh(), 3000);
+
+    // ResizeObserver: পেজের হাইট যখনই চেঞ্জ হবে, সাথে সাথে GSAP আপডেট হবে
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    resizeObserver.observe(document.body);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   useGSAP(() => {
     gsap.fromTo(
       ".footer-col",
@@ -80,6 +100,7 @@ export default function Footer() {
         duration: 0.5,
         stagger: 0.1,
         ease: "power2.out",
+        clearProps: "all",
         scrollTrigger: {
           trigger: footerRef.current,
           start: "top 90%",
@@ -96,6 +117,7 @@ export default function Footer() {
         opacity: 1,
         duration: 0.6,
         ease: "power2.out",
+        clearProps: "all",
         scrollTrigger: {
           trigger: footerRef.current,
           start: "top 90%",
@@ -120,15 +142,13 @@ export default function Footer() {
   }, { scope: footerRef });
 
   return (
-    <footer className="bg-[#04051a] pt-16 pb-8 border-t border-gray-800" ref={footerRef}>
+    <footer className="bg-[#04051a] pt-16 pb-8" ref={footerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         
-        <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8">
           
-          <div className="flex-1 flex flex-col justify-between max-w-[700px]">
-            
+          <div className="flex flex-col justify-between h-full w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 sm:gap-6 mb-12">
-              
               <div className="footer-col">
                 <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                   MAIN MENU
@@ -166,7 +186,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="footer-col">
+            <div className="footer-col mb-12 lg:mb-0">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>
@@ -192,43 +212,43 @@ export default function Footer() {
                 <CustomQIcon />
               </div>
             </div>
-          </div>
 
-          <div className="footer-map-card w-full lg:w-[450px] shrink-0">
-            <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl">
-              
-              <h3 className="text-white font-bold text-2xl mb-6">Location</h3>
-              
-              <div className="flex items-start gap-3 text-white mb-6">
-                <MapPin size={24} className="shrink-0 mt-1" />
-                <p className="text-[15px] leading-relaxed">
-                  Chhobi Apartment, Sani Mandir, Panchasayar Main Road, 
-                  Panchasayar, Kolkata-700094, West Bengal
-                </p>
-              </div>
-
-              <div className="w-full h-[250px] rounded-xl overflow-hidden bg-white shadow-inner">
-                <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin" 
-                  width="100%" 
-                  height="100%" 
-                  style={{ border: 0 }} 
-                  allowFullScreen="" 
-                  loading="lazy" 
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Srijan Fashion Location"
-                ></iframe>
-              </div>
-
+            <div className="footer-copyright mt-12 lg:mt-16">
+              <p className="text-white/80 text-sm sm:text-[15px] font-medium">
+                © Copyright 2026 By SRIJAN Fashion. All right reserved.
+              </p>
             </div>
           </div>
 
-        </div>
+          <div className="flex items-center justify-center lg:justify-end h-full w-full">
+            <div className="footer-map-card w-full max-w-[550px]">
+              <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl h-full flex flex-col">
+                <h3 className="text-white font-bold text-2xl mb-6">Location</h3>
+                
+                <div className="flex items-start gap-3 text-white mb-6">
+                  <MapPin size={24} className="shrink-0 mt-1" />
+                  <p className="text-[15px] leading-relaxed">
+                    Chhobi Apartment, Sani Mandir, Panchasayar Main Road, 
+                    Panchasayar, Kolkata-700094, West Bengal
+                  </p>
+                </div>
 
-        <div className="footer-copyright pt-8 mt-4">
-          <p className="text-white/80 text-sm sm:text-[15px] font-medium">
-            © Copyright 2026 By SRIJAN Fashion. All right reserved.
-          </p>
+                <div className="w-full h-[350px] lg:h-[420px] rounded-xl overflow-hidden bg-white shadow-inner relative mt-auto">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin" 
+                    width="100%" 
+                    height="100%" 
+                    className="border-0 pointer-events-none w-full h-full" 
+                    allowFullScreen="" 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Srijan Fashion Location"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>

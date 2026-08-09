@@ -1,18 +1,22 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function BlogHero() {
   const containerRef = useRef(null);
-  
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, []);
 
   useGSAP(() => {
+    // পেজের হাইট রিক্যালকুলেট করার জন্য রিফ্রেশ
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 500);
+
     // Background Image Zoom-out Effect
     gsap.fromTo(
       ".hero-img",
@@ -33,7 +37,9 @@ export default function BlogHero() {
         src="/images/banner.png"
         alt="Our Blogs"
         fill
+        priority
         className="hero-img object-cover object-top object-center"
+        onLoad={() => ScrollTrigger.refresh()} // ইমেজ লোড হলে স্ক্রল রিফ্রেশ হবে
       />
       <div className="absolute inset-0 bg-black/40"></div>
       <div className="absolute inset-0 flex items-center z-10">

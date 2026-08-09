@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -45,40 +45,50 @@ export default function FAQ() {
   const [openId, setOpenId] = useState(null);
   const containerRef = useRef(null);
 
-  useGSAP(() => {
-    gsap.from(".faq-header", {
-      y: 50,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 80%",
-      }
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
     });
 
-    gsap.from(".faq-item", {
-      y: 50,
-      opacity: 0,
-      duration: 0.8,
+    resizeObserver.observe(document.body);
+
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1000);
+
+    return () => {
+      resizeObserver.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useGSAP(() => {
+    gsap.to(".faq-animate", {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
       stagger: 0.1,
-      ease: "power3.out",
+      ease: "power2.out",
       scrollTrigger: {
-        trigger: ".faq-grid",
+        trigger: containerRef.current,
         start: "top 85%",
+        once: true,
       }
     });
   }, { scope: containerRef });
 
   const toggleFAQ = (id) => {
     setOpenId((prevId) => (prevId === id ? null : id));
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 350);
   };
 
   return (
     <section ref={containerRef} className="py-20 bg-white">
-      <div className="max-w-[1100px] mx-auto px-6">
+      <div className="max-w-[1350px] mx-auto px-6">
         
-        <div className="faq-header text-center mb-12">
+        <div className="faq-animate opacity-0 translate-y-8 text-center mb-12">
           <span className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-3 block">
             FAQS
           </span>
@@ -87,20 +97,20 @@ export default function FAQ() {
           </h2>
         </div>
 
-        <div className="faq-grid grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 lg:gap-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 lg:gap-y-6">
           {faqData.map((faq) => {
             const isOpen = openId === faq.id;
 
             return (
               <div
                 key={faq.id}
-                className="faq-item bg-[#eaf4fc] rounded-xl overflow-hidden h-fit transition-colors duration-300"
+                className="faq-animate opacity-0 translate-y-8 bg-[#eaf4fc] rounded-xl overflow-hidden h-fit transition-colors duration-300"
               >
                 <button
                   onClick={() => toggleFAQ(faq.id)}
-                  className="w-full flex justify-between items-center text-left p-5 focus:outline-none"
+                  className="w-full flex justify-between items-center text-left p-6 focus:outline-none"
                 >
-                  <span className="text-[15px] lg:text-[16px] text-gray-800 font-semibold pr-4">
+                  <span className="text-[15px] lg:text-[17px] text-gray-800 font-semibold pr-4">
                     {faq.question}
                   </span>
                   
@@ -119,7 +129,7 @@ export default function FAQ() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-5 text-sm lg:text-[15px] text-gray-600 leading-relaxed">
+                    <p className="px-6 pb-6 text-sm lg:text-[16px] text-gray-600 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
