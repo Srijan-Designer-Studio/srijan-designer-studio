@@ -7,12 +7,12 @@ export async function getProducts() {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_variants(*), product_images(*), categories(*)')
+    .select('*, product_variants(*), product_images(*), categories!category_id(*)')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("Error fetching products:", error)
+    console.error("Error fetching products:", error.message || JSON.stringify(error, null, 2))
     return []
   }
   return data || []
@@ -25,13 +25,13 @@ export async function getProductBySlug(slug) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_variants(*), product_images(*), categories(*)')
+    .select('*, product_variants(*), product_images(*), categories!category_id(*)')
     .eq('slug', slug)
     .eq('is_active', true)
     .maybeSingle()
 
   if (error) {
-    console.error("Error fetching product by slug:", error)
+    console.error("Error fetching product by slug:", error.message || JSON.stringify(error, null, 2))
     return null
   }
   return data
@@ -51,7 +51,7 @@ export async function getProductsByCategory(categoryName) {
 
     const { data, error } = await supabase
       .from('products')
-      .select('*, product_variants(*), product_images(*), categories(*)')
+      .select('*, product_variants(*), product_images(*), categories!category_id(*)')
       .eq('category_id', category.id)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
@@ -59,7 +59,7 @@ export async function getProductsByCategory(categoryName) {
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error("Error fetching products by category:", error)
+    console.error("Error fetching products by category:", error?.message || JSON.stringify(error, null, 2))
     return []
   }
 }
