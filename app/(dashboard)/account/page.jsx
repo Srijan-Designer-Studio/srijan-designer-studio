@@ -223,7 +223,7 @@ export default function CustomerDashboard() {
             ) : (
               <div className="text-center py-6">
                 <p className="text-sm text-gray-500">No active orders to track.</p>
-                <Link href="/product" className="text-sm font-bold text-[#0ba6ff] hover:underline mt-2 inline-block">Shop Now</Link>
+                <Link href="/shop-style" className="text-sm font-bold text-[#0ba6ff] hover:underline mt-2 inline-block">Shop Now</Link>
               </div>
             )}
           </div>
@@ -232,7 +232,7 @@ export default function CustomerDashboard() {
             <div className="relative z-10">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Save more with Srijan</h3>
               <p className="text-xs text-gray-600 mb-4">Exclusive offers for our members</p>
-              <Link href="/product">
+              <Link href="/shop-style">
                 <button className="bg-black text-white text-xs font-bold px-5 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   Shop Now
                 </button>

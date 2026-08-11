@@ -10,10 +10,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const womenData = [
-  { id: 1, title: "Sarees", imageSrc: "/images/western1.png", link: "/women" },
-  { id: 2, title: "Gowns", imageSrc: "/images/western2.png", link: "/women" },
-  { id: 3, title: "Drapes", imageSrc: "/images/western3.png", link: "/women" },
-  { id: 4, title: "Capes", imageSrc: "/images/western4.png", link: "/women" },
+  { id: 1, title: "Sarees", imageSrc: "/images/western1.png", link: "/buy-designer-outfits-for-women-online" },
+  { id: 2, title: "Gowns", imageSrc: "/images/western2.png", link: "/buy-designer-outfits-for-women-online" },
+  { id: 3, title: "Drapes", imageSrc: "/images/western3.png", link: "/buy-designer-outfits-for-women-online" },
+  { id: 4, title: "Capes", imageSrc: "/images/western4.png", link: "/buy-designer-outfits-for-women-online" },
   { id: 5, title: "Bridal Suits", imageSrc: "/images/western5.png", link: "/wedding" },
 ];
 

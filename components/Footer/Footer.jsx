@@ -11,11 +11,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 const menuLinks = [
   { name: "Home", href: "/" },
-  { name: "About Us", href: "/about" },
-  { name: "Products", href: "/products" },
-  { name: "Customize", href: "/customize" },
+  { name: "About Us", href: "/about-us" },
+  { name: "Products", href: "/shop-style" },
+  { name: "Customize", href: "/create-designer-dress" },
   { name: "Blog", href: "/blog" },
-  { name: "Contact Us", href: "/contact" },
+  { name: "Contact Us", href: "/contact-us" },
 ];
 
 const policyLinks = [
@@ -29,28 +29,28 @@ const policyLinks = [
 
 const FacebookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hover:text-[#00c3ff] transition-colors cursor-pointer">
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 
 const InstagramIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hover:text-[#00c3ff] transition-colors cursor-pointer">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
   </svg>
 );
 
 const YoutubeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hover:text-[#00c3ff] transition-colors cursor-pointer">
-    <path d="M2.5 7.1C2.5 5.4 3.9 4 5.6 4h12.8c1.7 0 3.1 1.4 3.1 3.1v9.8c0 1.7-1.4 3.1-3.1 3.1H5.6C3.9 20 2.5 18.6 2.5 16.9V7.1z"/>
-    <path d="m10 15 5-3-5-3v6z"/>
+    <path d="M2.5 7.1C2.5 5.4 3.9 4 5.6 4h12.8c1.7 0 3.1 1.4 3.1 3.1v9.8c0 1.7-1.4 3.1-3.1 3.1H5.6C3.9 20 2.5 18.6 2.5 16.9V7.1z" />
+    <path d="m10 15 5-3-5-3v6z" />
   </svg>
 );
 
 const XIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="hover:text-[#00c3ff] transition-colors cursor-pointer" viewBox="0 0 16 16">
-    <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z"/>
+    <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z" />
   </svg>
 );
 
@@ -144,9 +144,9 @@ export default function Footer() {
   return (
     <footer className="bg-[#04051a] pt-16 pb-8" ref={footerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8">
-          
+
           <div className="flex flex-col justify-between h-full w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 sm:gap-6 mb-12">
               <div className="footer-col">
@@ -190,13 +190,13 @@ export default function Footer() {
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>
-              
+
               <div className="space-y-4 mb-6">
                 <a href="tel:+916290686399" className="flex items-center gap-3 text-white hover:text-[#00c3ff] transition-colors">
                   <Phone size={20} strokeWidth={2} />
                   <span className="text-[15px] font-medium">+ 91 6290686399</span>
                 </a>
-                
+
                 <a href="mailto:contact@srijandesignerstudio.com" className="flex items-center gap-3 text-white hover:text-[#00c3ff] transition-colors">
                   <Mail size={20} strokeWidth={2} />
                   <span className="text-[15px] font-medium">contact@srijandesignerstudio.com</span>
@@ -204,12 +204,24 @@ export default function Footer() {
               </div>
 
               <div className="flex items-center gap-5 text-white">
-                <FacebookIcon />
-                <InstagramIcon />
-                <XIcon />
-                <YoutubeIcon />
-                <PinterestIcon />
-                <CustomQIcon />
+                <Link href="https://www.facebook.com/srijanfashion2022" target="_blank" rel="noopener noreferrer">
+                  <FacebookIcon />
+                </Link>
+                <Link href="https://www.instagram.com/srijanfashion2022" target="_blank" rel="noopener noreferrer">
+                  <InstagramIcon />
+                </Link>
+                <Link href="https://x.com/SrijanFashion" target="_blank" rel="noopener noreferrer">
+                  <XIcon />
+                </Link>
+                <Link href="https://www.youtube.com/@srijanfashion" target="_blank" rel="noopener noreferrer">
+                  <YoutubeIcon />
+                </Link>
+                <Link href="https://in.pinterest.com/srijanfashion" target="_blank" rel="noopener noreferrer">
+                  <PinterestIcon />
+                </Link>
+                <Link href="https://www.quora.com/profile/Srijan-Fashion" target="_blank" rel="noopener noreferrer">
+                  <CustomQIcon />
+                </Link>
               </div>
             </div>
 
@@ -224,25 +236,24 @@ export default function Footer() {
             <div className="footer-map-card w-full max-w-[550px]">
               <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl h-full flex flex-col">
                 <h3 className="text-white font-bold text-2xl mb-6">Location</h3>
-                
+
                 <div className="flex items-start gap-3 text-white mb-6">
                   <MapPin size={24} className="shrink-0 mt-1" />
                   <p className="text-[15px] leading-relaxed">
-                    Chhobi Apartment, Sani Mandir, Panchasayar Main Road, 
+                    Chhobi Apartment, Sani Mandir, Panchasayar Main Road,
                     Panchasayar, Kolkata-700094, West Bengal
                   </p>
                 </div>
 
                 <div className="w-full h-[350px] lg:h-[420px] rounded-xl overflow-hidden bg-white shadow-inner relative mt-auto">
-                  <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin" 
-                    width="100%" 
-                    height="100%" 
-                    className="border-0 pointer-events-none w-full h-full" 
-                    allowFullScreen="" 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Srijan Fashion Location"
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1887709.7714258232!2d86.09533549375!3d22.4691464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0273d54c6ea3a7%3A0x8a5bebfa270fffe9!2sSrijan%20Fashion!5e0!3m2!1sen!2sin!4v1786361637593!5m2!1sen!2sin"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="strict-origin-when-cross-origin"
                   ></iframe>
                 </div>
               </div>

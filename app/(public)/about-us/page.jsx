@@ -9,8 +9,8 @@ import OurPromise from "@/components/About/OurPromise";
 import Faq from "@/components/Home/faq/FAQ";
 
 export const metadata = {
-  title: "About Us | SRIJAN Fashion",
-  description: "Discover the story behind SRIJAN Fashion. Learn about our founder, our mission, and our promise to deliver premium custom designs.",
+  title: "About Us - The Ultimate Designer Studio - SRIJAN Fashion",
+  description: "Discover Srijan Fashion, built on creativity, craftsmanship & personal style. Learn our story, what we do, our mission, vision & promise to you with purpose.",
 };
 
 export default function AboutPage() {

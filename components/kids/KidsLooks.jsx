@@ -80,7 +80,7 @@ export default function KidsLooks() {
         </div>
 
         <div className="look-btn">
-          <Link href="/product">
+          <Link href="/shop-style">
             <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3.5 px-10 rounded-full transition-colors shadow-md">
               Choose Your Look
             </button>

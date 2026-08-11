@@ -17,7 +17,7 @@ const slides = [
     title: "Discover Fashion That Feels Made for You",
     description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
     buttonText: "Shop Now",
-    href: "/product",
+    href: "/shop-style",
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ const slides = [
     title: "Discover Fashion That Feels Made for You",
     description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
     buttonText: "Shop Now",
-    href: "/product",
+    href: "/shop-style",
   },
 ];
 

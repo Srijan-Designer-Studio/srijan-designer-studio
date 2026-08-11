@@ -96,7 +96,7 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
 
             return (
               <Link
-                href={`/product/${product.slug}`}
+                href={`/product/${product.id}`}
                 key={product.id}
                 className="shop-card group flex flex-col items-center cursor-pointer"
               >

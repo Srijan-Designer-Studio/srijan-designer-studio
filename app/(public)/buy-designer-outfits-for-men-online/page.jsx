@@ -5,6 +5,11 @@ import ShopSection from "@/components/shared/ShopSection";
 import MenDescription from "@/components/men/MenDescription";
 import { getProducts } from "@/app/actions/products";
 
+export const metadata = {
+  title: "Buy Designer Outfits for Men Online | SRIJAN Fashion",
+  description: "Shop stylish outfits for men at SRIJAN Fashion. Discover trendy men wear and versatile men outfits for every occasion. Buy online with comfort and ease.",
+};
+
 export default async function MenPage() {
   const allProducts = await getProducts();
 

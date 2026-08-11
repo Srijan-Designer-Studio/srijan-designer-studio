@@ -82,7 +82,7 @@ export default function BaseStyles() {
         </div>
 
         <div className="base-btn">
-          <Link href="/product">
+          <Link href="/shop-style">
             <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-1 transition-transform">
               Choose Your Style
             </button>

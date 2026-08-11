@@ -15,7 +15,7 @@ export default function WishlistPage() {
 
   useEffect(() => {
     if (isLoaded && wishlistItems.length === 0) {
-      router.push('/products');
+      router.push('/shop-style');
     }
   }, [isLoaded, wishlistItems, router]);
 

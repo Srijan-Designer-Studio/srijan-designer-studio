@@ -4,8 +4,8 @@ import ShopSection from "@/components/shared/ShopSection";
 import { getProducts } from "@/app/actions/products";
 
 export const metadata = {
-  title: "All Products | SRIJAN Fashion",
-  description: "Explore our wide range of collections for men, women, and bridal wear.",
+  title: "Shop Styles from Our Designer Collection | SRIJAN Fashion",
+  description: "Shop styles from SRIJAN Fashion's designer collection for every occasion. Find unique ethnic, western & custom wear made to express your own style.",
 };
 
 export default async function ProductPage() {
@@ -20,7 +20,7 @@ export default async function ProductPage() {
         title="Trending in Women's Wear" 
         category="Women" 
         type="Saree"
-        viewAllLink="/women" 
+        viewAllLink="/buy-designer-outfits-for-women-online" 
         products={allProducts} 
       />
       

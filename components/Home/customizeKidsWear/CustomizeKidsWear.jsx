@@ -128,7 +128,7 @@ export default function CustomizeKidsWear() {
             </p>
             <div>
               <Link
-                href="/kids"
+                href="/create-custom-kids-wear"
                 className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Design Now

@@ -57,7 +57,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               </div>
               <p className="text-xl font-bold text-gray-900">Your cart is empty</p>
               <p className="text-[15px] text-gray-500 mb-4">Looks like you haven't added anything yet.</p>
-              <Link href="/product" className="bg-black hover:bg-gray-800 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-wide text-sm transition-colors shadow-lg">
+              <Link href="/shop-style" className="bg-black hover:bg-gray-800 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-wide text-sm transition-colors shadow-lg">
                 Continue Shopping
               </Link>
             </div>

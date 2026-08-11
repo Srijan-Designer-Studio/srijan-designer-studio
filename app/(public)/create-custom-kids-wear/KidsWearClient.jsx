@@ -71,7 +71,7 @@ export default function KidsWearClient() {
       {/* 1. Hero Section */}
       <section className="relative w-full h-[50vh] md:h-[70vh] bg-[#a8a196] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img src="/images/kids-hero.jpg" alt="Customize Kids Wear" className="w-full h-full object-cover object-right md:object-center opacity-80" />
+          <img src="/images/kids.png" alt="Customize Kids Wear" className="w-full h-full object-cover object-right md:object-center opacity-80" />
         </div>
         <div className="relative z-10 max-w-[1320px] mx-auto px-6 w-full">
           <div className="max-w-xl text-white">
@@ -84,7 +84,7 @@ export default function KidsWearClient() {
       {/* 2. Camera Graphic Section */}
       <section className="py-20 max-w-[1320px] mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
         <div className="reveal-up relative">
-          <img src="/images/kids-camera.png" alt="Camera Graphic" className="w-full h-auto drop-shadow-2xl" />
+          <img src="/images/kids.png" alt="Camera Graphic" className="w-full h-auto drop-shadow-2xl" />
         </div>
         <div className="reveal-up">
           <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">Click Small Sizes, Big Memories</h2>

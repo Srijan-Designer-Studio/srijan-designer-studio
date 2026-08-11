@@ -62,7 +62,7 @@ export default function AboutIntro() {
         <div className="flex justify-center mt-12">
           <div className="about-btn">
             <Link
-              href="/about"
+              href="/about-us"
               className="inline-flex items-center gap-3 text-[18px] font-semibold uppercase tracking-[1px] hover:gap-5 transition-all duration-300"
             >
               ABOUT US

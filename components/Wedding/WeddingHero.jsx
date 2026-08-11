@@ -35,14 +35,14 @@ export default function WeddingHero() {
           />
         )}
       </div>
-      <div className="absolute inset-0 bg-black/30 z-10"></div>
+      <div className="absolute inset-0 bg-black/20 z-10"></div>
       <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6 w-full z-20">
-        <div className="max-w-[600px] mt-[90px]">
-          <h1 className="wed-hero-text text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-md">
-            Wedding Edit
+        <div className="max-w-[550px] mt-[90px]">
+          <h1 className="wed-hero-text text-5xl sm:text-6xl md:text-[72px] font-bold text-white mb-6 drop-shadow-lg leading-[1.1]">
+            The Wedding<br />Wear Edit
           </h1>
-          <p className="wed-hero-text text-lg sm:text-xl text-white font-semibold leading-relaxed drop-shadow-sm">
-            Find the wedding wear that feels right for your big day or create a custom look that's truly yours.
+          <p className="wed-hero-text text-xl sm:text-2xl text-white font-bold leading-snug drop-shadow-md max-w-[480px]">
+            Shop wedding dresses that feels like you or design one from scratch. It's your day, so it's your call
           </p>
         </div>
       </div>

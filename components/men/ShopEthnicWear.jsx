@@ -7,14 +7,14 @@ import { ChevronRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { allProducts } from "@/data/products"; // Product Data Import করা হলো
+import { allProducts } from "@/data/products"; 
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function ShopEthnicWear() {
   const containerRef = useRef(null);
 
-  // allProducts থেকে Ethnic ক্যাটাগরির প্রথম ৪টি প্রোডাক্ট ফিল্টার করা হলো
+  
   const ethnicProducts = allProducts
     .filter(product => product.category.includes("Ethnic"))
     .slice(0, 4);
@@ -50,7 +50,7 @@ export default function ShopEthnicWear() {
           </h2>
 
           <Link
-            href="/men/ethnic-wear"
+            href="/ethnic-wear"
             className="flex items-center text-sm font-medium text-gray-600 hover:text-black transition-colors"
           >
             View All

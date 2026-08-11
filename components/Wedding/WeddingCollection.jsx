@@ -1,30 +1,56 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getAdminProducts } from "@/app/actions/admin";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const weddingProducts = [
-  { id: 1, imageSrc: "/images/collection1.png" },
-  { id: 2, imageSrc: "/images/collection2.png" },
-  { id: 3, imageSrc: "/images/collection3.png" },
-];
-
 export default function WeddingCollection() {
   const containerRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const tweenRef = useRef(null);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAdminProducts();
+        if (data && data.length > 0) {
+          setProducts(data.slice(0, 8));
+        } else {
+          setProducts([
+            { id: 1, title: "Bridal Lehenga", image_url: "/images/collection1.png" },
+            { id: 2, title: "Wedding Saree", image_url: "/images/collection2.png" },
+            { id: 3, title: "Designer Gown", image_url: "/images/collection3.png" },
+            { id: 4, title: "Silk Saree", image_url: "/images/collection1.png" },
+          ]);
+        }
+      } catch (error) {
+        setProducts([
+          { id: 1, title: "Bridal Lehenga", image_url: "/images/collection1.png" },
+          { id: 2, title: "Wedding Saree", image_url: "/images/collection2.png" },
+          { id: 3, title: "Designer Gown", image_url: "/images/collection3.png" },
+          { id: 4, title: "Silk Saree", image_url: "/images/collection1.png" },
+        ]);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   useGSAP(() => {
+    if (products.length === 0) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
-        start: "top 75%",
-        toggleActions: "play none none reverse",
+        start: "top 80%",
+        once: true,
       }
     });
 
@@ -34,14 +60,24 @@ export default function WeddingCollection() {
       { x: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
     ).fromTo(
       ".wed-coll-img",
-      { y: 40, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" },
       "-=0.6"
     );
-  }, { scope: containerRef });
+
+    tweenRef.current = gsap.to(marqueeRef.current, {
+      xPercent: -50,
+      ease: "none",
+      duration: 25,
+      repeat: -1,
+    });
+  }, { scope: containerRef, dependencies: [products] });
+
+  const handleMouseEnter = () => tweenRef.current?.pause();
+  const handleMouseLeave = () => tweenRef.current?.play();
 
   return (
-    <section className="py-20 bg-[#f4f5f8]" ref={containerRef}>
+    <section className="py-20 bg-[#f4f5f8] overflow-hidden" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
@@ -63,23 +99,61 @@ export default function WeddingCollection() {
             </div>
           </div>
 
-          <div className="w-full lg:w-2/3">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {weddingProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="wed-coll-img relative w-full aspect-[3/4] bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
-                >
-                  {product.imageSrc && (
-                    <Image
-                      src={product.imageSrc}
-                      alt="Wedding Dress"
-                      fill
-                      className="object-cover object-top"
-                    />
-                  )}
-                </div>
-              ))}
+          <div 
+            className="w-full lg:w-2/3 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div ref={marqueeRef} className="flex w-max pt-4 pb-6">
+              
+              <div className="flex gap-6 pr-6">
+                {products.map((product, index) => (
+                  <Link 
+                    href={`/product/${product.id}`} 
+                    key={`first-${product.id || index}`} 
+                    className="wed-coll-img relative shrink-0 w-[240px] sm:w-[280px] aspect-[2/3] bg-white rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group"
+                  >
+                    {product.image_url ? (
+                      <Image 
+                        src={product.image_url} 
+                        alt={product.title || "Wedding Dress"} 
+                        fill 
+                        unoptimized
+                        className="object-cover object-top group-hover:scale-105 transition-transform duration-700" 
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm">
+                        No Image
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex gap-6 pr-6">
+                {products.map((product, index) => (
+                  <Link 
+                    href={`/product/${product.id}`} 
+                    key={`second-${product.id || index}`} 
+                    className="wed-coll-img relative shrink-0 w-[240px] sm:w-[280px] aspect-[2/3] bg-white rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group"
+                  >
+                    {product.image_url ? (
+                      <Image 
+                        src={product.image_url} 
+                        alt={product.title || "Wedding Dress"} 
+                        fill 
+                        unoptimized
+                        className="object-cover object-top group-hover:scale-105 transition-transform duration-700" 
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm">
+                        No Image
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+
             </div>
           </div>
 

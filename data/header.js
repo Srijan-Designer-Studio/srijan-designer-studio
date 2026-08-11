@@ -10,7 +10,7 @@ export const NAV_ICONS = [
 
 export const NAV_DATA = [
   { id: 1, label: "Home", href: "/" },
-  { id: 2, label: "About", href: "/about" },
+  { id: 2, label: "About", href: "/about-us" },
   {
     id: 3,
     label: "Products",
@@ -31,7 +31,7 @@ export const NAV_DATA = [
           title: "CUSTOM BRIDAL WEAR",
           description: "Want to look special on your special day? Get our Custom Bridal Solution to Customize your Bridal Dress",
           buttonText: "Click here to fillup the form",
-          buttonLink: "/customize",
+          buttonLink: "/create-designer-dress",
         },
       },
       {
@@ -40,16 +40,16 @@ export const NAV_DATA = [
         leftColumn: {
           title: "ALL MEN'S CATEGORIES",
           links: [
-            { label: "Ethnic Wear", href: "/ethnic" },
-            { label: "Western Wear", href: "/western" },
-            { label: "Custom Wear", href: "/customize" },
+            { label: "Ethnic Wear", href: "/ethnic-wear" },
+            { label: "Western Wear", href: "/western-wear" },
+            { label: "Custom Wear", href: "/create-designer-dress" },
           ],
         },
         rightColumn: {
           title: "CUSTOM MEN'S WEAR",
           description: "Elevate your style with bespoke ethnic and western wear tailored to perfection for any occasion.",
           buttonText: "Design Men's Outfit",
-          buttonLink: "/customize",
+          buttonLink: "/cuscreate-designer-dresstomize",
         },
       },
       {
@@ -67,7 +67,7 @@ export const NAV_DATA = [
           title: "CUSTOM KIDS WEAR",
           description: "Make every celebration extra special with adorable custom outfits designed for your little ones.",
           buttonText: "Design Kids Outfit",
-          buttonLink: "/kids",
+          buttonLink: "/create-custom-kids-wear",
         },
       }
     ]
@@ -76,11 +76,11 @@ export const NAV_DATA = [
     id: 4,
     label: "Customize",
     categories: [
-      { id: "cust-women", label: "For Women", href: "/customize" },
-      { id: "cust-men", label: "For Men", href: "/customize" },
-      { id: "cust-kids", label: "For Kids", href: "/kids" },
+      { id: "cust-women", label: "For Women", href: "/custocreate-designer-dressmize" },
+      { id: "cust-men", label: "For Men", href: "/create-designer-dress" },
+      { id: "cust-kids", label: "For Kids", href: "/create-custom-kids-wear" },
     ],
   },
   { id: 5, label: "Blog", href: "/blog" },
-  { id: 6, label: "Contact Us", href: "/contact" },
+  { id: 6, label: "Contact Us", href: "/contact-us" },
 ];

@@ -107,7 +107,7 @@ export default function SearchDrawer({ isOpen, onClose }) {
                 {suggestions.map((item) => (
                   <Link
                     key={item.id}
-                    href={`/product/${item.slug}`}
+                    href={`/product/${item.id}`}
                     onClick={handleClose}
                     className="flex items-center justify-between p-4 bg-gray-50 hover:bg-[#00c3ff]/10 border border-transparent hover:border-[#00c3ff]/20 rounded-xl transition-all group cursor-pointer"
                   >

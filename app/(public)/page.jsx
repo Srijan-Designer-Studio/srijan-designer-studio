@@ -17,9 +17,8 @@ import { getCategories } from "@/app/actions/admin";
 
 // SEO Metadata 
 export const metadata = {
-  title: 'Srijan Fashion | Luxury Designer Studio & Custom Ethnic Wear',
-  description: 'Discover luxury fashion at Srijan Fashion. Explore our exclusive collection of premium sarees, lehengas, kurtas, and custom designer outfits tailored just for you.',
-  keywords: 'srijan fashion, luxury fashion brand, designer studio, buy sarees online, premium lehengas, custom ethnic wear, designer kurtas',
+  title: 'SRIJAN Fashion | Fashion Styles for Every Occasion & Look',
+  description: ' Explore SRIJAN Fashion for unique fashion styles & online shopping featuring designer, ethnic and custom wear crafted to bring your personal style to life.',
   alternates: {
     canonical: 'https://srijandesignerstudio.com',
   },

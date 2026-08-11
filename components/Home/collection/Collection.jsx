@@ -53,7 +53,7 @@ export default function Collection() {
             SHOP BY COLLECTION
           </h2>
           <Link
-            href="/product"
+            href="/shop-style"
             className="flex items-center gap-1 text-white text-sm md:text-base hover:text-[#00c3ff] transition-colors duration-300 uppercase tracking-wider"
           >
             SHOP ALL COLLECTIONS

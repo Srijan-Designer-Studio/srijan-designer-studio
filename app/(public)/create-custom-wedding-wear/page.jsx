@@ -2,12 +2,13 @@ export const dynamic = 'force-dynamic';
 
 import WeddingHero from "@/components/Wedding/WeddingHero";
 import WeddingInspiration from "@/components/Wedding/WeddingInspiration";
+import WeddingCollection from "@/components/Wedding/WeddingCollection";
 import HowItWorks from "@/components/Wedding/HowItWorks";
 import OccasionsEdit from "@/components/Wedding/OccasionsEdit";
 import EditByCategory from "@/components/Wedding/EditByCategory";
 import WeddingContactForm from "@/components/Wedding/WeddingContactForm";
 import WeddingFAQ from "@/components/Wedding/WeddingFAQ";
-import ShopSection from "@/components/shared/ShopSection";
+
 import { getProducts } from "@/app/actions/products";
 
 export const metadata = {
@@ -22,12 +23,7 @@ export default async function WeddingPage() {
   return (
     <main>
       <WeddingHero />
-      <ShopSection
-        title="Our Exclusive Wedding Collection"
-        category="Bridal"
-        viewAllLink="/bridal"
-        products={allProducts}
-      />
+      <WeddingCollection />
       <HowItWorks />
       <OccasionsEdit />
       <EditByCategory />

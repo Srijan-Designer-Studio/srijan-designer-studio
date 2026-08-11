@@ -4,8 +4,8 @@ import ContactDetails from "@/components/Contact/ContactDetails";
 
 
 export const metadata = {
-  title: "Contact Us | SRIJAN Fashion",
-  description: "Connect with SRIJAN Fashion. Drop your message or visit our store.",
+  title: "Contact SRIJAN Fashion | Visit Our Studio & Get in Touch",
+  description: "Get in touch with Srijan Fashion for custom outfits, styling queries or consultations. Visit our Kolkata studio, call us or send a message to discuss your ideas.",
 };
 
 export default function ContactPage() {

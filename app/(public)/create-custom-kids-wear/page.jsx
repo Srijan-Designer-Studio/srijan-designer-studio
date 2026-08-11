@@ -4,8 +4,8 @@ import KidsWearClient from './KidsWearClient';
 import ScrollToTop from '@/components/providers/ScrollToTop';
 
 export const metadata = {
-    title: "Customize Kids Wear | SRIJAN Fashion",
-    description: "Capture every little moment, dressed just right. Custom tailor-made kids wear for special occasions.",
+    title: "Customize Kids Wear | Custom Kids Outfits | SRIJAN Fashion",
+    description: "Create unique kids wear with Srijan Fashion. Explore custom kids outfits designed around your kid's style, occasion & comfort, made for every special moment.",
 };
 
 export default function KidsWearPage() {

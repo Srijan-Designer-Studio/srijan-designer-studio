@@ -25,7 +25,7 @@ export default function CartPage() {
             <ShoppingBag size={80} className="text-gray-200 mb-6" />
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
             <p className="text-gray-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
-            <Link href="/product" className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md uppercase tracking-wide">
+            <Link href="/shop-style" className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md uppercase tracking-wide">
               Continue Shopping
             </Link>
           </div>

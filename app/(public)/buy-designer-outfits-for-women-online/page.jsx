@@ -6,8 +6,8 @@ import WomenDescription from "@/components/women/WomenDescription";
 import { getProducts } from "@/app/actions/products";
 
 export const metadata = {
-  title: "Women's Fashion | SRIJAN Fashion",
-  description: "Discover elegant designer outfits and trendy women wear crafted to match your style, comfort and every occasion.",
+  title: "Buy Designer Outfits for Women Online | SRIJAN Fashion",
+  description: "Shop stylish outfits for women at SRIJAN Fashion. Explore designer outfits & premium women wear perfect for every occasion. Buy online with ease today.",
 };
 
 export default async function WomenPage() {

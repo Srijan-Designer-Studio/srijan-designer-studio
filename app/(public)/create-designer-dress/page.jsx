@@ -6,8 +6,8 @@ import PerfectFit from "@/components/customize/PerfectFit";
 import CustomizeFaq from "@/components/customize/CustomizeFaq";
 
 export const metadata = {
-  title: "Customize Your Dress | SRIJAN Fashion",
-  description: "Design a one of a kind outfit with our custom dresses service.",
+  title: "Designer Dress | Custom Dresses Made for Your Unique Style",
+  description: "Create your perfect designer dress with Srijan Fashion. Explore custom dresses built around your ideas, measurements & style, from sketch to final stitch.",
 };
 
 export default function CustomizePage() {
