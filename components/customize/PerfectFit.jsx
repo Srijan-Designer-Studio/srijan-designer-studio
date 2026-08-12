@@ -26,6 +26,11 @@ export default function PerfectFit() {
       { x: 0, opacity: 1, duration: 1, ease: "power4.out", scrollTrigger: { trigger: ".pf-top-sec", start: "top 75%", toggleActions: "play none none reverse" } }
     );
     gsap.fromTo(
+      ".pf-left-text",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power4.out", scrollTrigger: { trigger: ".pf-top-sec", start: "top 75%", toggleActions: "play none none reverse" } }
+    );
+    gsap.fromTo(
       ".pf-right-content",
       { x: 50, opacity: 0 },
       { x: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power4.out", scrollTrigger: { trigger: ".pf-top-sec", start: "top 75%", toggleActions: "play none none reverse" } }
@@ -60,30 +65,35 @@ export default function PerfectFit() {
 
   return (
     <div ref={containerRef}>
-      <section className="pf-top-sec py-16 bg-white">
-        <div className="max-w-[1320px] mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-12 items-center">
-            <div className="w-full md:w-1/2 flex flex-col sm:flex-row gap-4">
-              <div className="pf-left-img relative w-full sm:w-1/2 aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 shadow-sm border border-gray-200">
-                {leftImage && <Image src={leftImage} alt="Custom Fit Example 1" fill className="object-cover" />}
-              </div>
-            </div>
-            <div className="w-full md:w-1/2">
-              <h2 className="pf-right-content text-3xl font-bold text-black mb-6 text-right">Your body isn't the problem</h2>
-              <div className="pf-right-content relative w-full aspect-[4/5] rounded-3xl overflow-hidden bg-gray-100 mb-6 shadow-md border border-gray-200">
-                {rightImage && <Image src={rightImage} alt="Custom Fit Example 2" fill className="object-cover object-top" />}
-              </div>
-              <p className="pf-right-content text-gray-600 text-sm md:text-base leading-relaxed text-right">
-                Forget standard sizes that never feel quite right. We create every designer dress around your measurements, style and comfort. The result is a custom fit that looks natural, feels confident and is made just for you.
-              </p>
-            </div>
-          </div>
+      <section className="pf-top-sec py-16 lg:py-24 bg-white">
+  <div className="max-w-[1320px] mx-auto px-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
+      
+      <div className="flex flex-col gap-6 lg:gap-10">
+        <div className="pf-left-img relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+          {leftImage && <Image src="/Create Custom-img/17.webp" alt="Custom Fit Example 1" fill className="object-cover object-top" />}
         </div>
-      </section>
+        <p className="pf-left-text text-gray-700 text-[15px] sm:text-[17px] leading-[1.7] max-w-[450px]">
+          Forget "small, medium, large" and everything that never quite fits. Every designer dress we make is built around your exact measurements, your comfort and your style. So, it looks natural and feels like you.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6 lg:gap-10">
+        <h2 className="pf-right-content text-3xl sm:text-4xl lg:text-[42px] font-bold text-black leading-[1.2]">
+          Your Body Isn't the Problem.<br className="hidden lg:block" /> Standard Sizes Are
+        </h2>
+        <div className="pf-right-content relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+          {rightImage && <Image src="/Create Custom-img/18.webp" alt="Custom Fit Example 2" fill className="object-cover object-top" />}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       <section className="pf-bottom-sec flex flex-col lg:flex-row min-h-[600px] bg-[#f8f9fa]">
         <div className="relative w-full lg:w-1/2 flex items-center p-8 lg:p-20 overflow-hidden">
-          <Image src="/images/tailoring.jpg" alt="Tailoring" fill className="object-cover absolute inset-0 z-0" />
+          <Image src="/Create Custom-img/Untitled design (4).webp" alt="Tailoring" fill className="object-cover absolute inset-0 z-0" />
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <div className="relative z-20 text-white max-w-lg">
             <h2 className="pf-banner-text text-4xl md:text-5xl font-bold mb-6 leading-tight">Perfect Fit<br />Guaranteed</h2>

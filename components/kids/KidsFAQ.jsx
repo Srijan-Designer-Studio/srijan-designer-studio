@@ -52,7 +52,7 @@ export default function KidsFAQ() {
   return (
     <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <h2 className="kfaq-head text-4xl md:text-[42px] font-bold text-center text-black font-serif mb-16">
+        <h2 className="kfaq-head text-2xl md:text-[42px] font-bold text-center text-black font-serif mb-16">
           Frequently Asked Questions
         </h2>
 

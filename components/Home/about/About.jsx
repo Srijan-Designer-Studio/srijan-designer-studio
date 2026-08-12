@@ -84,7 +84,7 @@ export default function About() {
            
            <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg">
               <Image
-                src="/images/man3.png"
+                src="/Home_img/2.webp"
                 alt="Main About Image"
                 fill
                
@@ -96,7 +96,7 @@ export default function About() {
               
               <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl border-[6px] border-white flex items-center justify-center relative bg-white">
                 <Image
-                  src="/images/banner2.png"
+                  src="/Home_img/1.webp"
                   alt="Overlay About Image"
                   fill  
                   className="object-cover object-center" 
@@ -106,14 +106,14 @@ export default function About() {
           </div>
 
           <div className="max-w-[550px] mt-10 lg:mt-0">
-            <span className="about-text-sub text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+            <h2 className="about-text-sub text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
               ABOUT US
-            </span>
+            </h2>
 
             <div className="overflow-hidden pb-2">
-              <h2 className="about-text-head text-4xl sm:text-5xl lg:text-[46px] font-bold text-[#111] leading-[1.2] mb-6">
+              <h3 className="about-text-head text-3xl sm:text-5xl lg:text-[46px] font-bold text-[#111] leading-[1.2] mb-6">
                 Fashion Made for Every Style
-              </h2>
+              </h3>
             </div>
 
             <p className="about-text-desc text-lg sm:text-[19px] text-[#444] leading-relaxed">

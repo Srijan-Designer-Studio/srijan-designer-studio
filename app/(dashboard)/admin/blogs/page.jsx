@@ -68,7 +68,7 @@ export default function ShowBlogs() {
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">All Blogs</h1>
+          <h1 className="text-2xl font-bold text-gray-900">All Blogs</h1>
           <p className="text-sm text-gray-500 mt-1">
             {blogs.length} blog{blogs.length !== 1 ? "s" : ""} total
           </p>

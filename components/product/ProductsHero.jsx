@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 
 export default function ProductsHero() {
   const containerRef = useRef(null);
-  const bgImageSrc = "/images/banner.png"; 
+  const bgImageSrc = "/other-img/Shop All HERO Section.webp"; 
 
   useGSAP(() => {
     gsap.fromTo(

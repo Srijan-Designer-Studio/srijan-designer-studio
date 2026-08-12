@@ -29,7 +29,7 @@ const servicesData = [
 
 export default function WhatWeDo() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/whatwedo.png";
+  const imageSrc = "/About-img/12.webp";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -57,22 +57,28 @@ export default function WhatWeDo() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-          <div className="w-full flex justify-center lg:justify-start">
-            <div className="wwd-img relative w-full max-w-[480px] aspect-[4/5] rounded-[32px] overflow-hidden bg-[#f0f4f8]">
+          <div className="w-full flex justify-center lg:justify-start pt-16 pb-12">
+
+            <div className="relative  w-full max-w-[320px sm:max-w-[380px] aspect-[4/5]">
+
               {imageSrc ? (
-                <Image
-                  src={imageSrc}
-                  alt="Srijan Fashion Mannequin"
-                  fill
-                  className="object-contain p-4"
-                />
+
+                <div className="absolute inset-x-0 bottom-0 h-[120%] z-10 pointer-events-none">
+                  <Image
+                    src={imageSrc}
+                    alt="Srijan Fashion Mannequin"
+                    fill
+                    className="object-contain object-bottom rounded-3xl drop-shadow-2xl pointer-events-auto"
+                  />
+                </div>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
-                  <span className="text-gray-500 font-bold tracking-widest bg-white/60 px-4 py-2 rounded-lg text-sm uppercase">
+                  <span className="text-gray-500 font-bold tracking-widest bg-white px-4 py-2 rounded-lg text-sm uppercase shadow-sm border border-gray-100">
                     WHAT WE DO IMAGE
                   </span>
                 </div>
               )}
+
             </div>
           </div>
 

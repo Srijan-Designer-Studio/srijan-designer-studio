@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutSrijan() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/aboutmodel.png";
+  const imageSrc = "/About-img/11.webp";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -59,21 +59,26 @@ export default function AboutSrijan() {
           </div>
 
           <div className="flex justify-center lg:justify-end w-full">
-            <div className="about-srijan-img relative w-full max-w-[420px] aspect-[4/5] rounded-[24px] overflow-hidden shadow-xl">
+            <div className="relative  w-full max-w-[320px sm:max-w-[380px] aspect-[4/5]">
+
               {imageSrc ? (
-                <Image
-                  src={imageSrc}
-                  alt="Srijan Fashion Creation"
-                  fill
-                  className="object-cover"
-                />
+
+                <div className="absolute inset-x-0 bottom-0 h-[120%] z-10 pointer-events-none">
+                  <Image
+                    src={imageSrc}
+                    alt="Srijan Fashion Mannequin"
+                    fill
+                    className="object-contain object-bottom rounded-3xl drop-shadow-2xl pointer-events-auto"
+                  />
+                </div>
               ) : (
-                <div className="w-full h-full bg-gradient-to-b from-[#a4a5b9] to-[#45455e] flex flex-col items-center justify-center p-6 text-center">
-                  <span className="text-white/70 font-bold tracking-widest bg-black/20 px-4 py-2 rounded-lg text-sm uppercase">
-                    ABOUT IMAGE
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                  <span className="text-gray-500 font-bold tracking-widest bg-white px-4 py-2 rounded-lg text-sm uppercase shadow-sm border border-gray-100">
+                    WHAT WE DO IMAGE
                   </span>
                 </div>
               )}
+
             </div>
           </div>
 

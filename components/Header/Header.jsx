@@ -1,6 +1,9 @@
+
+
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X, Search } from "lucide-react";
@@ -22,11 +25,14 @@ export default function Header({ initialUser = null }) {
   const [activeTab, setActiveTab] = useState("women");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
-  const [headerState, setHeaderState] = useState("top");
+  const [isVisible, setIsVisible] = useState(true);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const scrollTimeout = useRef(null);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -47,12 +53,29 @@ export default function Header({ initialUser = null }) {
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      if (currentScroll > 300) setHeaderState("scrolled");
-      else if (currentScroll > 100) setHeaderState("hidden");
-      else setHeaderState("top");
+
+      if (currentScroll > lastScrollY.current && currentScroll > 80) {
+        setIsVisible(false);
+      } else if (currentScroll < lastScrollY.current) {
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScroll;
+
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
+      scrollTimeout.current = setTimeout(() => {
+        setIsVisible(true);
+      }, 400);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -86,8 +109,8 @@ export default function Header({ initialUser = null }) {
         else targetHref = '/login';
       }
 
-      const iconSize = isMobile ? "w-11 h-11" : "w-10 h-10 lg:w-11 lg:h-11";
-      const imgSize = isMobile ? "w-5 h-5" : "w-5 h-5 lg:w-5 lg:h-5";
+      const iconContainerSize = isMobile ? "w-11 h-11" : "w-[50px] h-[50px]";
+      const iconSize = isMobile ? "w-5 h-5" : "w-[22px] h-[22px]";
 
       if (isCart || isWishlist || isSearch) {
         return (
@@ -101,11 +124,11 @@ export default function Header({ initialUser = null }) {
             }}
             className="relative inline-block group focus:outline-none cursor-pointer"
           >
-            <div className={`${iconSize} bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm`}>
+            <div className={`${iconContainerSize} bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm`}>
               {isSearch ? (
-                <Search size={isMobile ? 22 : 20} className="text-white" strokeWidth={2.5} />
+                <Search className={`text-white ${iconSize}`} strokeWidth={2.5} />
               ) : (
-                <img src={icon.src} alt={icon.alt} className={`${imgSize} object-contain`} />
+                <img src={icon.src} alt={icon.alt} className={`${iconSize} object-contain`} />
               )}
             </div>
 
@@ -125,8 +148,8 @@ export default function Header({ initialUser = null }) {
           onClick={() => isMobile && setIsMobileMenuOpen(false)}
           className={`relative inline-block group ${isUserIcon && status === 'loading' ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          <div className={`${iconSize} bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm`}>
-            <img src={icon.src} alt={icon.alt} className={`${imgSize} object-contain`} />
+          <div className={`${iconContainerSize} bg-black rounded-full flex items-center justify-center group-hover:bg-gray-600 transition-colors shadow-sm`}>
+            <img src={icon.src} alt={icon.alt} className={`${iconSize} object-contain`} />
           </div>
         </Link>
       );
@@ -136,38 +159,37 @@ export default function Header({ initialUser = null }) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-[90] transition-transform duration-500 ease-in-out bg-transparent pointer-events-none ${headerState === "hidden" ? "-translate-y-full" : "translate-y-0"}`}
+        className={`fixed top-0 left-0 w-full z-[90] transition-transform duration-500 ease-in-out bg-transparent pointer-events-none ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
       >
-        <div className="max-w-[1320px] h-[90px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
+        <div className="max-w-[1320px] h-[80px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
           
           <Link href="/" className="z-50" onClick={closeAllMenus}>
             <Image
               src="/images/logo3.png"
               alt="Logo"
-              width={130}
-              height={40}
+              width={250}
+              height={120}
               priority
-              className="object-cover bg-center lg:w-[250px] lg:h-[120px]"
+              className="object-cover bg-center h-[50px] w-auto lg:h-[120px] lg:w-[250px]"
             />
           </Link>
 
-          <nav className="hidden lg:block bg-[#9696a6]/60 backdrop-blur-md border border-white/20 px-8 py-3 rounded-full shadow-lg">
-            <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide">
+          <nav className="hidden lg:flex bg-[#9696a6]/60 backdrop-blur-md border border-white/20 px-8 rounded-full shadow-lg h-[50px] items-center">
+            <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide h-full">
               {NAV_DATA.map((item) => {
                 const isOpen = activeDropdown === item.id;
                 
                 return (
                   <li
                     key={item.id}
-                    className="relative"
+                    className="relative flex items-center h-full"
                     onMouseEnter={() => { setActiveDropdown(item.id); }}
                     onMouseLeave={() => { setActiveDropdown(null); setActiveTab("women"); }}
                   >
                     
-                    {/* Tabbed Mega Menu (Products) */}
                     {item.isTabbedMegaMenu ? (
                       <>
-                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer">
+                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer h-full">
                           {item.label}
                           <ChevronDown
                             size={16}
@@ -176,10 +198,9 @@ export default function Header({ initialUser = null }) {
                           />
                         </button>
 
-                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[25px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
                           <div className="w-[850px] bg-white rounded-xl text-black shadow-2xl flex border border-gray-100 cursor-default overflow-hidden">
                             
-                            {/* Left Sidebar Tabs - (Hover) */}
                             <div className="w-[220px] bg-white p-4 flex flex-col gap-2">
                               {item.tabs.map((tab) => {
                                 const currentTab = activeTab || item.tabs[0].id;
@@ -200,7 +221,6 @@ export default function Header({ initialUser = null }) {
                               })}
                             </div>
 
-                            {/* Right Content for Active Tab */}
                             <div className="flex-1 flex bg-white border-l border-gray-100">
                               {item.tabs.map((tab) => {
                                 const currentTab = activeTab || item.tabs[0].id;
@@ -253,7 +273,7 @@ export default function Header({ initialUser = null }) {
                       </>
                     ) : item.isMegaMenu ? (
                       <>
-                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer">
+                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer h-full">
                           {item.label}
                           <ChevronDown
                             size={16}
@@ -262,7 +282,7 @@ export default function Header({ initialUser = null }) {
                           />
                         </button>
 
-                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[25px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
                           <div className="w-[600px] bg-white rounded-xl text-black shadow-2xl flex border border-gray-100 cursor-default overflow-hidden">
                             <div className="flex-1 p-8 border-r border-gray-100">
                               <h3 className="text-[14px] font-extrabold tracking-wide mb-6 uppercase text-gray-900">
@@ -302,7 +322,7 @@ export default function Header({ initialUser = null }) {
                       </>
                     ) : item.categories ? (
                       <>
-                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer">
+                        <button className="flex items-center gap-1 hover:text-gray-200 transition-colors duration-300 cursor-pointer h-full">
                           {item.label}
                           <ChevronDown
                             size={16}
@@ -311,7 +331,7 @@ export default function Header({ initialUser = null }) {
                           />
                         </button>
 
-                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[18px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
+                        <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-[25px] z-50 transition-all duration-300 ease-out origin-top ${isOpen ? "opacity-100 visible translate-y-0 scale-100" : "opacity-0 invisible translate-y-4 scale-95"}`}>
                           <div className="w-[200px] bg-white text-gray-800 shadow-xl rounded-lg border border-gray-100 py-3">
                             {item.categories.map((cat, idx) => (
                               <Link
@@ -329,7 +349,7 @@ export default function Header({ initialUser = null }) {
                     ) : (
                       <Link
                         href={item.href}
-                        className="hover:text-gray-200 transition-colors duration-300"
+                        className="hover:text-gray-200 transition-colors duration-300 h-full flex items-center"
                       >
                         {item.label}
                       </Link>
@@ -341,7 +361,7 @@ export default function Header({ initialUser = null }) {
           </nav>
 
           <div className="flex items-center gap-3 lg:gap-5 shrink-0 z-50">
-            <div className="hidden lg:flex items-center gap-4 lg:gap-5">
+            <div className="hidden lg:flex items-center gap-4 h-[50px]">
               {renderIcons(false)}
             </div>
 
@@ -355,10 +375,9 @@ export default function Header({ initialUser = null }) {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 bg-white/80 backdrop-blur-xl z-[80] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
-        style={{ top: "90px" }}
+        style={{ top: "80px" }}
       >
         <div className="p-6 pb-24">
           
@@ -384,37 +403,51 @@ export default function Header({ initialUser = null }) {
                         />
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ${isDropdownOpen ? "max-h-[2000px] mt-4 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
-                        <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-6 text-base text-gray-700">
-                          {item.tabs.map((tab, tIdx) => (
-                            <div key={tab.id} className={tIdx > 0 ? "pt-4 border-t border-gray-200/50" : ""}>
-                              <span className="font-extrabold text-black text-[15px] block mb-3 uppercase">{tab.label}</span>
-                              
-                              <div className="flex flex-col gap-3 pl-2 mb-4">
-                                {tab.leftColumn.links.map((link, idx) => (
-                                  <Link
-                                    key={idx}
-                                    href={link.href}
-                                    onClick={closeAllMenus}
-                                    className="block font-medium text-gray-600 hover:text-[#00c3ff] hover:pl-2 transition-all duration-300"
-                                  >
-                                    {link.label}
-                                  </Link>
-                                ))}
-                              </div>
-
-                              <div className="pl-2 bg-gray-50 p-4 rounded-lg">
-                                <span className="font-bold text-gray-900 text-[13px] block mb-2 uppercase">{tab.rightColumn.title}</span>
-                                <p className="text-gray-500 text-[12px] mb-3 leading-relaxed">{tab.rightColumn.description}</p>
-                                <Link
-                                  href={tab.rightColumn.buttonLink}
-                                  onClick={closeAllMenus}
-                                  className="inline-block bg-black text-white text-[12px] font-bold px-4 py-2 hover:bg-[#00c3ff] transition-colors rounded"
+                        <div className="pl-4 border-l-2 border-[#00c3ff]/30 flex flex-col gap-4 text-base text-gray-700">
+                          {item.tabs.map((tab, tIdx) => {
+                            const isInnerOpen = activeTab === tab.id;
+                            return (
+                              <div key={tab.id} className={tIdx > 0 ? "pt-3 border-t border-gray-200/50" : ""}>
+                                <button
+                                  onClick={() => setActiveTab(isInnerOpen ? null : tab.id)}
+                                  className="w-full flex items-center justify-between font-extrabold text-black text-[14px] uppercase"
                                 >
-                                  {tab.rightColumn.buttonText}
-                                </Link>
+                                  {tab.label}
+                                  <ChevronDown
+                                    size={16}
+                                    className={`transition-transform duration-300 ${isInnerOpen ? "rotate-180 text-[#00c3ff]" : ""}`}
+                                  />
+                                </button>
+
+                                <div className={`overflow-hidden transition-all duration-300 ${isInnerOpen ? "max-h-[1000px] mt-3 opacity-100 visible" : "max-h-0 opacity-0 invisible"}`}>
+                                  <div className="flex flex-col gap-3 pl-2 mb-4">
+                                    {tab.leftColumn.links.map((link, idx) => (
+                                      <Link
+                                        key={idx}
+                                        href={link.href}
+                                        onClick={closeAllMenus}
+                                        className="block font-medium text-gray-600 hover:text-[#00c3ff] hover:pl-2 transition-all duration-300"
+                                      >
+                                        {link.label}
+                                      </Link>
+                                    ))}
+                                  </div>
+
+                                  <div className="pl-2 bg-gray-50 p-4 rounded-lg">
+                                    <span className="font-bold text-gray-900 text-[13px] block mb-2 uppercase">{tab.rightColumn.title}</span>
+                                    <p className="text-gray-500 text-[12px] mb-3 leading-relaxed">{tab.rightColumn.description}</p>
+                                    <Link
+                                      href={tab.rightColumn.buttonLink}
+                                      onClick={closeAllMenus}
+                                      className="inline-block bg-black text-white text-[12px] font-bold px-4 py-2 hover:bg-[#00c3ff] transition-colors rounded"
+                                    >
+                                      {tab.rightColumn.buttonText}
+                                    </Link>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </>

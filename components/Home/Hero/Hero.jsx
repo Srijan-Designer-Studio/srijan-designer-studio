@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -13,20 +12,12 @@ import { useGSAP } from "@gsap/react";
 const slides = [
   {
     id: 1,
-    image: "/images/banner1.png", 
+    video: "/videos/HomePage HERO SectionVideo.mp4",
     title: "Discover Fashion That Feels Made for You",
     description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
     buttonText: "Shop Now",
     href: "/shop-style",
-  },
-  {
-    id: 2,
-    image: "/images/banner2.png", 
-    title: "Discover Fashion That Feels Made for You",
-    description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
-    buttonText: "Shop Now",
-    href: "/shop-style",
-  },
+  }
 ];
 
 export default function Hero() {
@@ -73,37 +64,33 @@ export default function Hero() {
         {slides.map((slide, index) => (
           <SwiperSlide key={slide.id}>
             <div className="relative h-screen min-h-[700px] w-full overflow-hidden">
-              <Image
-                src={slide.image}
-                alt={slide.title}
-                fill
-                priority={slide.id === 1}
-                className="hero-img object-cover object-center"
-              />
+              <video
+                src={slide.video}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="hero-img absolute inset-0 w-full h-full object-cover object-center"
+              ></video>
 
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
 
               <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
-                <div className="text-left text-white max-w-[650px] mt-[90px]">
+                <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">
                   
-                 
-                  {index === 0 ? (
-                    <h1 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-['Helvetica'] drop-shadow-md">
+                  {
+                    <h1 className="hero-anim text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
                       {slide.title}
                     </h1>
-                  ) : (
-                    <h2 className="hero-anim text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] mb-6 font-['Helvetica'] drop-shadow-md">
-                      {slide.title}
-                    </h2>
-                  )}
+                  }
 
-                  <p className="hero-anim text-lg md:text-xl lg:text-[22px] font-medium leading-relaxed mb-10 drop-shadow-sm">
+                  <p className="hero-anim text-base sm:text-lg md:text-xl lg:text-[22px] font-medium leading-relaxed mb-6 md:mb-10 drop-shadow-sm">
                     {slide.description}
                   </p>
 
                   <div className="hero-anim inline-block">
                     <Link
-                      className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-lg px-10 py-4 rounded-full transition-colors duration-300 shadow-lg inline-block"
+                      className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-base md:text-lg px-8 py-3.5 md:px-10 md:py-4 rounded-full transition-colors duration-300 shadow-lg inline-block"
                       href={slide.href}
                     >
                       {slide.buttonText}

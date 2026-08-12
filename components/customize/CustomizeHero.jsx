@@ -25,7 +25,7 @@ export default function CustomizeHero() {
   return (
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
-        src="/images/man1.png"
+        src="/Create Custom-img/Custom Dress HERO Section.webp"
         alt="Create Your Own Designer Dress"
         fill
         priority
@@ -36,11 +36,13 @@ export default function CustomizeHero() {
         <div className="max-w-[1320px] w-full mx-auto px-6">
           <div className="max-w-xl text-white">
             <h1 className="cust-hero-text text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Create Your Own<br />Designer Dress
+              Designer Dress<br />That's Only Yours
             </h1>
             <p className="cust-hero-text text-lg md:text-xl font-medium">
-              Design a one of a kind outfit with our custom dresses service. Made to match your style, your fit and your vision.
-            </p>
+              No copies. No compromises. Just
+              custom dresses built around your
+              style, your fit and your vision: from
+              the first sketch to the final stitch. </p>
           </div>
         </div>
       </div>

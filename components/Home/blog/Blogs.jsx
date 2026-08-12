@@ -66,13 +66,13 @@ export default function Blogs() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
           <div className="lg:col-span-4 flex flex-col items-start max-w-[400px] z-10">
-            <span className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
+            <h2 className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
               BLOGS
-            </span>
-
-            <h2 className="blog-text text-3xl sm:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-8">
-              Dive Into SRIJAN Styles & Tips
             </h2>
+
+            <h3 className="blog-text text-2xl sm:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-8">
+              Dive Into SRIJAN Styles & Tips
+            </h3>
 
             <div className="blog-text inline-block">
               <Link

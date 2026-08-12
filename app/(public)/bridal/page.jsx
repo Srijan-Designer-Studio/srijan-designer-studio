@@ -40,7 +40,7 @@ export default async function BridalPage() {
       <ScrollToTop />
       <div className="max-w-[1320px] mx-auto px-6">
 
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">
+        <h1 className="text-2xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">
           Bridal Collection
         </h1>
 

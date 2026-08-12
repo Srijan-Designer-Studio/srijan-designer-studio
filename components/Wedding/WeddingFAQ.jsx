@@ -64,7 +64,7 @@ export default function WeddingFAQ() {
                 />
               )}
               <div className="absolute top-8 left-0 right-0 text-center z-10 px-6">
-                <h3 className="text-3xl sm:text-4xl font-bold text-white leading-tight font-serif drop-shadow-md">
+                <h3 className="text-2xl sm:text-4xl font-bold text-white leading-tight font-serif drop-shadow-md">
                   Frequently Asked <br /> Questions
                 </h3>
               </div>

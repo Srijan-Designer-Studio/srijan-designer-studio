@@ -28,23 +28,23 @@ export default function CustomizeWedding() {
   const weddingImages = [
     {
       id: 1,
-      src: bridalProducts[0]?.image || "/images/collection1.png",
+      src: bridalProducts[0]?.image || "/Home_img/8.webp",
       alt: "Custom For Women",
       category: "Women",
      
     },
     {
       id: 2,
-      src: "/images/man1.png",
+      src: "/Home_img/9.webp",
       alt: "Custom For Men",
       category: "Men",
       
     },
     {
       id: 3,
-      src: "/images/kids.png",
-      alt: "Custom For Kids",
-      category: "Kids",
+      src: "/Home_img/10.webp",
+      alt: "Custom For Groom",
+      category: "Groom",
      
     },
   ];
@@ -84,12 +84,12 @@ export default function CustomizeWedding() {
     <section className="py-20 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 text-center">
         <div className="max-w-[850px] mx-auto mb-12">
-          <span className="wed-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+          <h2 className="wed-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
             CUSTOMIZE WEDDING WEAR
-          </span>
-          <h2 className="wed-text text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#111] leading-[1.3] mb-6">
-            Your Dream Wedding Outfit, Made for You
           </h2>
+          <h3 className="wed-text text-2xl sm:text-4xl lg:text-[42px] font-bold text-[#111] leading-[1.3] mb-6">
+            Your Dream Wedding Outfit, Made for You
+          </h3>
           <p className="wed-text text-[#444] text-base sm:text-[19px] leading-[1.6] mb-8 max-w-[750px] mx-auto">
             Bring your dream wedding look to life with custom outfits designed
             around your fashion styles, perfect fit and special moments.

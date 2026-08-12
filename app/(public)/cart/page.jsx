@@ -16,7 +16,7 @@ export default function CartPage() {
   return (
     <main className="py-16 md:py-24 bg-[#f8f9fa] min-h-screen">
       <div className="max-w-[1200px] mx-auto px-6">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-black uppercase tracking-wider mb-10 text-center">
+        <h1 className="text-2xl md:text-4xl font-extrabold text-black uppercase tracking-wider mb-10 text-center">
           Your Shopping Cart
         </h1>
 

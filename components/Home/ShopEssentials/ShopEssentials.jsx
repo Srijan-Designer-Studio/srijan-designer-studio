@@ -77,7 +77,7 @@ const ShopEssentials = ({ products = [] }) => {
 
         <div className="text-center mb-12">
           <div className="overflow-hidden">
-            <h2 className="essentials-title text-3xl md:text-4xl font-extrabold text-black uppercase tracking-wider mb-6">
+            <h2 className="essentials-title text-2xl md:text-4xl font-extrabold text-black uppercase tracking-wider mb-6">
               SHOP ESSENTIALS
             </h2>
           </div>

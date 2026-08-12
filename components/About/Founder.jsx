@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/neha.png";
+  const imageSrc = "/About-img/Founder.webp";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -58,13 +58,13 @@ export default function Founder() {
           </div>
 
           <div className="lg:col-span-7 max-w-[650px]">
-            <span className="founder-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+            <h2 className="founder-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
               A WORD FROM THE FOUNDER
-            </span>
-            <h2 className="founder-text text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-6">
+            </h2>
+            <h3 className="founder-text text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-6">
               Mithu Roy — Founder, <br className="hidden sm:block" />
               SRIJAN Fashion
-            </h2>
+            </h3>
             <p className="founder-text text-[16px] lg:text-[18px] text-gray-100 leading-[1.7]">
               At SRIJAN Fashion, we believe every outfit should reflect your personality.
               Our goal is to create designs that make you feel confident, comfortable,

@@ -2,7 +2,7 @@
 // data/header.js
 
 export const NAV_ICONS = [
-  { id: "search", src: "", href: "#", alt: "Search" },
+  // { id: "search", src: "", href: "#", alt: "Search" },
   { id: "wishlistt", src: "/icons/wishlist.svg", href: "/wishlist", alt: "Wishlist" },
   { id: "cart", src: "/icons/cart.svg", href: "/cart", alt: "Cart" },
   { id: "user", src: "/icons/user.svg", href: "/login?register=true", alt: "User" },
@@ -76,7 +76,7 @@ export const NAV_DATA = [
     id: 4,
     label: "Customize",
     categories: [
-      { id: "cust-women", label: "For Women", href: "/custocreate-designer-dressmize" },
+      { id: "cust-women", label: "For Women", href: "/create-designer-dress" },
       { id: "cust-men", label: "For Men", href: "/create-designer-dress" },
       { id: "cust-kids", label: "For Kids", href: "/create-custom-kids-wear" },
     ],

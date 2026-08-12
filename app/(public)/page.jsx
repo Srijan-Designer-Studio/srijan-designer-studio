@@ -4,6 +4,7 @@ import Hero from "@/components/Home/Hero/Hero";
 import AboutIntro from "@/components/Home/about/About";
 import Collection from "@/components/Home/collection/Collection";
 import ShopEssentials from "@/components/Home/ShopEssentials/ShopEssentials";
+import FeaturedVideo from "@/components/Home/home-video/FeaturedVideo";
 import CustomizeWear from "@/components/Home/customizeWear/CustomizeWear";
 import CustomizeWedding from "@/components/Home/customizeWedding/CustomizeWedding";
 import CustomizeKidsWear from "@/components/Home/customizeKidsWear/CustomizeKidsWear";
@@ -53,6 +54,7 @@ export default async function Home() {
       <AboutIntro />
       <Collection categories={categories} />
       <ShopEssentials products={essentialProducts} />
+      <FeaturedVideo />
       <CustomizeWear />
       <CustomizeWedding />
       <CustomizeKidsWear />

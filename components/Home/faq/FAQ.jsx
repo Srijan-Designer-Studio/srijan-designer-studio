@@ -89,12 +89,12 @@ export default function FAQ() {
       <div className="max-w-[1350px] mx-auto px-6">
         
         <div className="faq-animate opacity-0 translate-y-8 text-center mb-12">
-          <span className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-3 block">
+          <h2 className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-3 block">
             FAQS
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold font-serif text-[#111] leading-tight">
-            Frequently Asked Questions
           </h2>
+          <h3 className="text-2xl sm:text-4xl lg:text-[42px] font-bold font-serif text-[#111] leading-tight">
+            Frequently Asked Questions
+          </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 lg:gap-y-6">

@@ -19,10 +19,14 @@ export default function BaseStyles() {
   const petiteProduct = allProducts.find(p => p.category === "Bridal");
 
   const styles = [
-    { id: 1, title: "Custom Styles", image: customProduct?.image, link: customProduct ? `/product/${customProduct.id}` : "/product" },
-    { id: 2, title: "Gown & Evening Styles", image: gownProduct?.image, link: gownProduct ? `/product/${gownProduct.id}` : "/product" },
-    { id: 3, title: "Plus Size Styles", image: plusSizeProduct?.image, link: plusSizeProduct ? `/product/${plusSizeProduct.id}` : "/product" },
-    { id: 4, title: "Petite Styles", image: petiteProduct?.image, link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" }
+    { id: 1, title: "Custom Styles", image: "/Create Custom-img/Card 1.webp", link: customProduct ? `/product/${customProduct.id}` : "/product" },
+    { id: 2, title: "Gown & Evening Styles", image: "/Create Custom-img/Card 2.webp", link: gownProduct ? `/product/${gownProduct.id}` : "/product" },
+    { id: 3, title: "Plus Size Styles", image: "/Create Custom-img/Card 3.webp", link: plusSizeProduct ? `/product/${plusSizeProduct.id}` : "/product" },
+    { id: 4, title: "Petite Styles", image: "/Create Custom-img/Card 4.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
+    { id: 5, title: "Kids Wear", image: "/Create Custom-img/Card 5.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
+    { id: 6, title: "Wedding Styles", image: "/Create Custom-img/Card 6.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
+    { id: 7, title: "Indian Wear", image: "/Create Custom-img/Card 7.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
+    { id: 8, title: "Men's Wear", image: "/Create Custom-img/Card 8.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" }
   ];
 
   useGSAP(() => {
@@ -41,7 +45,7 @@ export default function BaseStyles() {
     ).fromTo(
       ".base-card",
       { y: 50, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
       "-=0.4"
     ).fromTo(
       ".base-btn",
@@ -52,17 +56,36 @@ export default function BaseStyles() {
   }, { scope: containerRef });
 
   return (
-    <section className="py-16 bg-white" ref={containerRef}>
-      <div className="max-w-[1320px] mx-auto px-6 text-center">
+    <section className="py-16 bg-white overflow-hidden" ref={containerRef}>
+      
+      <style>
+        {`
+          @keyframes baseMarquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-base-marquee {
+            display: flex;
+            width: max-content;
+            animation: baseMarquee 30s linear infinite;
+          }
+          .animate-base-marquee:hover {
+            animation-play-state: paused;
+          }
+        `}
+      </style>
 
+      <div className="max-w-[1320px] mx-auto text-center px-6">
         <h2 className="base-title text-3xl font-bold text-black mb-10">Start With a Base Style</h2>
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-          {styles.map((style) => (
+      <div className="relative w-full overflow-hidden mb-10 px-4 sm:px-0">
+        <div className="animate-base-marquee gap-6 py-4">
+          {[...styles, ...styles].map((style, index) => (
             <Link
               href={style.link}
-              key={style.id}
-              className="base-card flex flex-col items-center group cursor-pointer"
+              key={`${style.id}-${index}`}
+              className="base-card w-[220px] sm:w-[260px] md:w-[280px] shrink-0 flex flex-col items-center group cursor-pointer"
             >
               <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200 transition-shadow group-hover:shadow-lg">
                 {style.image && (
@@ -80,7 +103,9 @@ export default function BaseStyles() {
             </Link>
           ))}
         </div>
+      </div>
 
+      <div className="max-w-[1320px] mx-auto text-center px-6">
         <div className="base-btn">
           <Link href="/shop-style">
             <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-1 transition-transform">
@@ -88,8 +113,8 @@ export default function BaseStyles() {
             </button>
           </Link>
         </div>
-
       </div>
+      
     </section>
   );
 }

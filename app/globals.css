@@ -118,3 +118,7 @@ body {
   color: #4b5563 !important;
   font-style: italic !important;
 }
+
+body, h1, h2, h3, h4, h5, h6, p, a, span, button, input, textarea, select {
+  font-family: 'Helvetica', Arial, sans-serif !important;
+}

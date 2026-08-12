@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function CustomizeWear() {
   const containerRef = useRef(null);
-  const imageSrc = "/images/desiner.png";
+  const imageSrc = "/Home_img/7.webp";
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -56,13 +56,13 @@ export default function CustomizeWear() {
           </div>
 
           <div className="flex flex-col items-start max-w-[550px]">
-            <span className="cw-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
+            <h2 className="cw-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
               CUSTOMIZE WEAR
-            </span>
-            <h2 className="cw-text text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#111] leading-[1.3] mb-6">
+            </h2>
+            <h3 className="cw-text text-2xl sm:text-4xl lg:text-[40px] font-bold text-[#111] leading-[1.3] mb-6">
               Create Your Own <br className="hidden lg:block" />
               Custom Dress
-            </h2>
+            </h3>
             <p className="cw-text text-gray-600 text-base sm:text-[17px] leading-[1.7] mb-10">
               Have a design in mind? We'll turn your ideas into a custom outfit made to fit
               your style, your size and your occasion. From fabric to the final stitch, every

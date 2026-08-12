@@ -95,7 +95,7 @@ export default function AddBlog() {
   return (
     <div className="min-h-screen py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-sm border rounded-2xl p-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">Add New Blog</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-8">Add New Blog</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6 text-black">
           <input

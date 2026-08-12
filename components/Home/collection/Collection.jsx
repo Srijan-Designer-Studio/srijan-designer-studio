@@ -14,9 +14,9 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Collection() {
   const containerRef = useRef(null);
 
-  const ethnicCover = allProducts.find(product => product.category.includes("Ethnic"))?.image || "/images/collection1.png";
-  const westernCover = allProducts.find(product => product.category.includes("Western"))?.image || "/images/collection2.png";
-  const newArrivalCover = allProducts[allProducts.length - 1]?.image || "/images/collection3.png";
+  const ethnicCover = allProducts.find(product => product.category.includes("Ethnic"))?.image || "/Home_img/4.webp";
+  const westernCover = allProducts.find(product => product.category.includes("Western"))?.image || "/Home_img/5.webp";
+  const newArrivalCover = allProducts[allProducts.length - 1]?.image || "/Home_img/6.webp";
 
   const collections = [
     { id: 1, buttonText: "Shop Ethnic Wear", placeholderBg: "bg-[#2dd4bf]", imageSrc: ethnicCover, link: "/ethnic-wear" },
@@ -49,7 +49,7 @@ export default function Collection() {
     <section className="py-20 lg:py-28 bg-gradient-to-b from-[#0e0c29] via-[#1a1b41] to-[#8f90a6]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="coll-head flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-          <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold text-white uppercase tracking-wide">
+          <h2 className="text-2xl md:text-4xl lg:text-[42px] font-bold text-white uppercase tracking-wide">
             SHOP BY COLLECTION
           </h2>
           <Link
