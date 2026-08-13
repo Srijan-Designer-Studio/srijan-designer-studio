@@ -24,10 +24,10 @@ export default async function WeddingPage() {
     <main>
       <WeddingHero />
       <WeddingCollection />
+      <WeddingInspiration />
       <HowItWorks />
       <OccasionsEdit />
       <EditByCategory />
-      <WeddingInspiration />
       <WeddingContactForm />
       <WeddingFAQ />
     </main>

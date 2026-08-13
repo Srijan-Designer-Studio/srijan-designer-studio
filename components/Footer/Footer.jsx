@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -186,12 +187,12 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="footer-col mb-12 lg:mb-0">
+            <div className="footer-col mb-[95px] lg:mb-">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>
 
-              <div className="space-y-4 mb-6">
+              <div className="space-y-3 mb-6">
                 <a href="tel:+916290686399" className="flex items-center gap-3 text-white hover:text-[#00c3ff] transition-colors">
                   <Phone size={20} strokeWidth={2} />
                   <span className="text-[15px] font-medium">+ 91 6290686399</span>
@@ -220,16 +221,17 @@ export default function Footer() {
                   <PinterestIcon />
                 </Link>
                 <Link href="https://www.quora.com/profile/Srijan-Fashion" target="_blank" rel="noopener noreferrer">
-                  <CustomQIcon />
+                  <Image
+                    src="/others-img/Quora Logo.webp"
+                    alt="Quora"
+                    width={22}
+                    height={22}
+                  />
                 </Link>
               </div>
             </div>
 
-            <div className="footer-copyright mt-12 lg:mt-16">
-              <p className="text-white/80 text-sm sm:text-[15px] font-medium">
-                © Copyright 2026 By SRIJAN Fashion. All right reserved.
-              </p>
-            </div>
+
           </div>
 
           <div className="flex items-center justify-center lg:justify-end h-full w-full">
@@ -260,6 +262,12 @@ export default function Footer() {
             </div>
           </div>
 
+        </div>
+
+        <div className="footer-copyright mt-6 lg:mb-[120px] lg:-mt-4">
+          <p className="text-white/80 text-sm sm:text-[15px] font-medium">
+            © Copyright 2026 By SRIJAN Fashion. All right reserved.
+          </p>
         </div>
 
       </div>

@@ -12,12 +12,12 @@ import { submitKidsForm } from "@/app/actions/kids";
 gsap.registerPlugin(ScrollTrigger);
 
 const looksData = [
-  { id: 1, title: "Party Perfect Clicks", img: "/images/kids-look1.jpg", slug: "party-perfect" },
-  { id: 2, title: "Everyday Happy Clicks", img: "/images/kids-look2.jpg", slug: "everyday-happy" },
-  { id: 3, title: "Magical Theme Clicks", img: "/images/kids-look3.jpg", slug: "magical-theme" },
-  { id: 4, title: "First Birthday Clicks", img: "/images/kids-look4.jpg", slug: "first-birthday" },
-  { id: 5, title: "Picture-Perfect Gown Clicks", img: "/images/kids-look5.jpg", slug: "picture-perfect" },
-  { id: 6, title: "Festive Ethnic Clicks", img: "/images/kids-look6.jpg", slug: "festive-ethnic" },
+  { id: 1, title: "Party Perfect Clicks", img: "/Custom Kids Wear/Kids Card 1.webp", slug: "party-perfect" },
+  { id: 2, title: "Everyday Happy Clicks", img: "/Custom Kids Wear/Kids Card 2.webp", slug: "everyday-happy" },
+  { id: 3, title: "Magical Theme Clicks", img: "/Custom Kids Wear/Kids Card 3.webp", slug: "magical-theme" },
+  { id: 4, title: "First Birthday Clicks", img: "/Custom Kids Wear/Kids Card 4.webp", slug: "first-birthday" },
+  { id: 5, title: "Picture-Perfect Gown Clicks", img: "/Custom Kids Wear/Kids Card 5.webp", slug: "picture-perfect" },
+  { id: 6, title: "Festive Ethnic Clicks", img: "/Custom Kids Wear/Kids Card 6.webp", slug: "festive-ethnic" },
 ];
 
 const faqs = [
@@ -42,7 +42,7 @@ export default function KidsWearClient() {
   useGSAP(() => {
     // Reveal Animations
     gsap.utils.toArray('.reveal-up').forEach(elem => {
-      gsap.fromTo(elem, 
+      gsap.fromTo(elem,
         { y: 50, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } }
       );
@@ -52,7 +52,7 @@ export default function KidsWearClient() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     startTransition(async () => {
       const res = await submitKidsForm(formData);
       if (res.success) {
@@ -66,17 +66,17 @@ export default function KidsWearClient() {
   };
 
   return (
-    <div ref={containerRef} className="pt-[80px] lg:pt-[100px] bg-white font-sans overflow-hidden">
-      
+    <div ref={containerRef} className="font-sans w-full text-black overflow-hidden">
+
       {/* 1. Hero Section */}
-      <section className="relative w-full h-[50vh] md:h-[70vh] bg-[#a8a196] flex items-center">
+      <section className="relative w-full h-screen md:h-screen bg-[#a8a196] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img src="/images/kids.png" alt="Customize Kids Wear" className="w-full h-full object-cover object-right md:object-center opacity-80" />
+          <img src="/Custom Kids Wear/Custom Kids Wear HERO Section.webp" alt="Customize Kids Wear" className="w-full h-full object-cover object-right md:object-center opacity-80" />
         </div>
         <div className="relative z-10 max-w-[1320px] mx-auto px-6 w-full">
           <div className="max-w-xl text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-md">Customize Kids Wear</h1>
-            <p className="text-lg md:text-xl font-medium drop-shadow-md">Capture every little moment, dressed just right.</p>
+            <p className="text-lg md:text-xl font-medium drop-shadow-md">Capture every little moment,<br /> dressed just right.</p>
           </div>
         </div>
       </section>
@@ -84,7 +84,7 @@ export default function KidsWearClient() {
       {/* 2. Camera Graphic Section */}
       <section className="py-20 max-w-[1320px] mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
         <div className="reveal-up relative">
-          <img src="/images/kids.png" alt="Camera Graphic" className="w-full h-auto drop-shadow-2xl" />
+          <img src="/Custom Kids Wear/Untitled design (4).webp" alt="Camera Graphic" className="w-full h-auto drop-shadow-2xl" />
         </div>
         <div className="reveal-up">
           <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">Click Small Sizes, Big Memories</h2>
@@ -100,7 +100,7 @@ export default function KidsWearClient() {
           <h2 className="reveal-up text-3xl font-bold text-center mb-12">Choose Click By Looks</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
             {looksData.map((look) => (
-              <Link href={`/occasions/${look.slug}`} key={look.id} className="reveal-up group block cursor-pointer">
+              <Link href="#" key={look.id} className="reveal-up group block cursor-pointer">
                 <div className="relative aspect-[4/5] rounded-[20px] overflow-hidden mb-4 shadow-sm group-hover:shadow-xl transition-all">
                   <img src={look.img} alt={look.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
@@ -115,42 +115,113 @@ export default function KidsWearClient() {
       </section>
 
       {/* 4. Trusted By Parents */}
-      <section className="py-20 max-w-[1320px] mx-auto px-6">
-        <h2 className="reveal-up text-3xl font-bold text-center mb-16">Trusted By Parents</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
-          {[
-            { icon: Palette, title: "Pick your fabric", desc: "Choose the fabric and colour for your kid." },
-            { icon: Scissors, title: "Design a dress", desc: "Share your ideas and create your kid perfect look." },
-            { icon: Ruler, title: "Get measured", desc: "Send your measurements for a perfect fit." },
-            { icon: UserCheck, title: "Consult with designer", desc: "Discuss your vision with fashion designer." },
-            { icon: Truck, title: "Get delivered", desc: "Receive your custom-made dress at your doorstep." }
-          ].map((item, idx) => (
-            <div key={idx} className="reveal-up flex flex-col items-center">
-              <div className="w-16 h-16 mb-4 flex items-center justify-center text-gray-800">
-                <item.icon size={40} strokeWidth={1.5} />
+      <section className="hiw-sec py-20 bg-white">
+        <div className="max-w-[1320px] mx-auto px-6 text-center">
+          <h2 className="hiw-title text-3xl sm:text-[38px] font-bold text-black mb-16 lg:mb-20">
+            Trusted By Parents
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-8 mb-12 lg:mb-16">
+
+            <div className="hiw-step flex flex-col items-center">
+              <div className="mb-6 flex h-14 items-center justify-center">
+                <img src="/Create Custom-img/icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+              <h3 className="font-bold text-black text-[19px] mb-2.5">Pick your fabric</h3>
+              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+                Choose the fabric and colour you love.
+              </p>
             </div>
-          ))}
+
+            <div className="hiw-step flex flex-col items-center">
+              <div className="mb-6 flex h-14 items-center justify-center">
+                <img src="/Create Custom-img/icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
+              </div>
+              <h3 className="font-bold text-black text-[19px] mb-2.5">Design a dress</h3>
+              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+                Share your ideas and create your perfect look.
+              </p>
+            </div>
+
+            <div className="hiw-step flex flex-col items-center">
+              <div className="mb-6 flex h-14 items-center justify-center">
+                <img src="/Create Custom-img/icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
+              </div>
+              <h3 className="font-bold text-black text-[19px] mb-2.5">Get measured</h3>
+              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+                Send your measurements for a perfect fit.
+              </p>
+            </div>
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-8 max-w-[850px] mx-auto">
+
+            <div className="hiw-step flex flex-col items-center">
+              <div className="mb-6 flex h-14 items-center justify-center">
+                <img src="/Create Custom-img/icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
+              </div>
+              <h3 className="font-bold text-black text-[19px] mb-2.5">Consult with designer</h3>
+              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+                Discuss your vision with fashion designer.
+              </p>
+            </div>
+
+            <div className="hiw-step flex flex-col items-center">
+              <div className="mb-6 flex h-14 items-center justify-center">
+                <img src="/Create Custom-img/icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
+              </div>
+              <h3 className="font-bold text-black text-[19px] mb-2.5">Get delivered</h3>
+              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+                Receive your custom-made dress at your doorstep.
+              </p>
+            </div>
+
+          </div>
+
         </div>
       </section>
 
       {/* 5. Click Gallery */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-[1320px] mx-auto px-6">
-          <h2 className="reveal-up text-3xl font-bold text-center mb-10">Our Click Gallery</h2>
-          {/* Masonry / Bento Box simulation */}
-          <div className="reveal-up grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[150px] md:auto-rows-[200px]">
-            <img src="/images/gal1.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal2.jpg" className="w-full h-full object-cover rounded-xl row-span-2" />
-            <img src="/images/gal3.jpg" className="w-full h-full object-cover rounded-xl row-span-2 col-span-2 md:col-span-1" />
-            <img src="/images/gal4.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal5.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal6.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal7.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal8.jpg" className="w-full h-full object-cover rounded-xl" />
-            <img src="/images/gal9.jpg" className="w-full h-full object-cover rounded-xl" />
+      <section className="py-16 bg-white">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <h2 className="reveal-up text-3xl md:text-[38px] font-bold text-center mb-10 text-black">
+            Our Click Gallery
+          </h2>
+
+          {/* Bento Box Grid Setup */}
+          <div className="reveal-up grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+
+            {/* --- ROW 1 & 2 BLOCKS --- */}
+            {/* 1. Top Left Small Image */}
+            <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
+            {/* 2. Center-Left Large Image */}
+            <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+
+            {/* 3. Center-Right Large Image */}
+            <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+
+            {/* 4. Top Right Small Image */}
+            <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
+            {/* 5. Bottom Left Small Image (Auto-flows under image 1) */}
+            <img src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
+            {/* 6. Bottom Right Small Image (Auto-flows under image 4) */}
+            <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
+            {/* --- ROW 3 BLOCKS --- */}
+            {/* 7 through 12. Bottom Row Small Images */}
+            <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
+            {/* You will need to add these last 3 images to your folder to complete the 12-block grid */}
+            <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+
           </div>
         </div>
       </section>
@@ -160,11 +231,11 @@ export default function KidsWearClient() {
         <div className="max-w-[1000px] mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="reveal-up">
             <h2 className="text-4xl font-bold text-black mb-6 leading-tight">Let's click some special moment</h2>
-            <img src="/images/kids-form-img.jpg" alt="Special Moment" className="w-full rounded-2xl shadow-lg object-cover" />
+            <img src="/Custom Kids Wear/Untitled design (5).webp" alt="Special Moment" className="w-full object-cover" />
           </div>
           <div className="reveal-up bg-white p-8 rounded-2xl shadow-xl">
             <h3 className="text-xl font-bold mb-6 text-gray-800">Fill In the Form To Get Started</h3>
-            
+
             {formStatus && (
               <div className={`p-3 rounded-md mb-4 text-sm font-bold ${formStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 {formStatus.message}
@@ -202,7 +273,7 @@ export default function KidsWearClient() {
         <div className="reveal-up grid md:grid-cols-2 gap-4">
           {faqs.map((faq, index) => (
             <div key={index} className="border border-gray-200 rounded-lg bg-blue-50/30 overflow-hidden h-fit">
-              <button 
+              <button
                 onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
                 className="w-full flex items-center justify-between p-4 text-left focus:outline-none cursor-pointer hover:bg-blue-50/50 transition-colors"
               >

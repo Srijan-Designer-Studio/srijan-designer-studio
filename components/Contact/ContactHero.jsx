@@ -26,7 +26,7 @@ export default function ContactHero() {
     
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
-        src="/images/man1.png"
+        src="/others-img/Contact Us HERO Section.webp"
         alt="Connect with Srijan Fashion"
         fill
         className="contact-hero-img object-cover object-top"

@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 
 export default function WeddingHero() {
   const containerRef = useRef(null);
-  const bgImageSrc = "/images/banner2.png";
+  const bgImageSrc = "/Custom Wedding Wear/Custom Wedding Wear HERO Section.webp";
 
   useGSAP(() => {
     gsap.fromTo(

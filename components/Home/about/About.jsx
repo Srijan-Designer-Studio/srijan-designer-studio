@@ -94,7 +94,7 @@ export default function About() {
 
             <div className="absolute top-1/2 -translate-y-1/2 -left-2 sm:left-4 lg:-left-4 z-10 about-img-overlay">
               
-              <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl border-[6px] border-white flex items-center justify-center relative bg-white">
+              <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center relative bg-white">
                 <Image
                   src="/Home_img/1.webp"
                   alt="Overlay About Image"

@@ -10,7 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const faqData = [
-  "Can I customize my wedding dress at Srijan Fashion?",
+  "Can I customize my wedding dress at SRIJAN Fashion?",
   "Do you make wedding wear for different ceremonies like Haldi, Sangeet and Reception?",
   "Can I bring my own design idea or reference image?",
   "How long does it take to create a custom wedding outfit?",
@@ -21,7 +21,7 @@ const faqData = [
 export default function WeddingFAQ() {
   const [openIndex, setOpenIndex] = useState(null);
   const containerRef = useRef(null);
-  const bgImageSrc = "/images/bidalinquery.png";
+  const bgImageSrc = "/Custom Wedding Wear/Untitled design (4).webp";
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -38,7 +38,7 @@ export default function WeddingFAQ() {
 
     tl.fromTo(
       ".faq-img-anim",
-      { scale: 0.9, opacity: 0 },
+      { scale: 0.8, opacity: 0 }, // Changed starting scale slightly so the animation looks smooth with the new bigger size
       { scale: 1, opacity: 1, duration: 1, ease: "power4.out" }
     ).fromTo(
       ".faq-item-anim",
@@ -49,47 +49,57 @@ export default function WeddingFAQ() {
   }, { scope: containerRef });
 
   return (
-    <section className="py-20 bg-white" ref={containerRef}>
-      <div className="max-w-[1100px] mx-auto px-6">
-        <div className="flex flex-col md:flex-row gap-12 lg:gap-20 items-start">
+    <section className="pt-20 pb-12 sm:pb-16 bg-white relative z-10" ref={containerRef}>
+      {/* Slightly increased max-width to give the larger image more breathing room */}
+      <div className="max-w-[1150px] mx-auto px-3">
+        <div className="flex flex-col md:flex-row gap-12 lg:gap-16 items-start">
 
-          <div className="w-full md:w-[45%]">
-            <div className="faq-img-anim relative w-full aspect-square md:aspect-[4/5] rounded-[24px] bg-[#898a9d] overflow-hidden shadow-lg">
+          {/* Changed width to 50% */}
+          <div className="w-full md:w-1/2">
+            {/* Added scale-110 lg:scale-[1.20] origin-top to significantly enlarge the image visually */}
+            <div className="faq-img-anim relative w-full aspect-square -mb-28 md:-mb-36 lg:-mb-48 z-20 pointer-events-none scale-105 sm:scale-110 lg:scale-[1.20] origin-top">
               {bgImageSrc && (
                 <Image
                   src={bgImageSrc}
                   alt="Frequently Asked Questions"
                   fill
-                  className="object-cover object-bottom"
+                  className="object-contain object-bottom"
                 />
               )}
-              <div className="absolute top-8 left-0 right-0 text-center z-10 px-6">
-                <h3 className="text-2xl sm:text-4xl font-bold text-white leading-tight font-serif drop-shadow-md">
+              {/* Text Overlay */}
+              <div className="absolute top-[6%] sm:top-[6%] left-0 right-0 text-center z-10 px-6">
+                <h2 className="text-[32px] sm:text-[38px] md:text-[40px] font-bold text-white leading-[1.1] font-serif drop-shadow-md tracking-wide">
                   Frequently Asked <br /> Questions
-                </h3>
+                </h2>
               </div>
             </div>
           </div>
 
-          <div className="w-full md:w-[55%] flex flex-col gap-4 pt-4">
+          {/* Changed width to 50% and added md:pt-12 so the FAQ aligns nicely with the scaled image */}
+          <div className="w-full md:w-1/2 flex flex-col gap-4 pt-8 md:pt-12 relative z-20">
             {faqData.map((question, index) => (
-              <div key={index} className="faq-item-anim flex flex-col">
+              <div key={index} className="faq-item-anim flex flex-col shadow-sm">
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full flex items-center justify-between bg-[#e6f3fd] p-4 rounded-lg text-left transition-colors hover:bg-[#d6ecfb]"
+                  className={`w-full flex items-center justify-between bg-[#e6f3fd] px-6 py-4 text-left transition-colors hover:bg-[#d6ecfb] ${
+                    openIndex === index ? "rounded-t-[24px]" : "rounded-[24px]"
+                  }`}
                 >
-                  <span className="text-[14px] text-gray-800 pr-4">{question}</span>
+                  <span className="text-[14px] font-medium text-gray-800 pr-4">{question}</span>
                   <ChevronDown
                     size={20}
-                    className={`text-black shrink-0 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
-                      }`}
+                    strokeWidth={2.5}
+                    className={`text-black shrink-0 transition-transform duration-300 ${
+                      openIndex === index ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
                 <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    openIndex === index ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                  }`}
                 >
-                  <div className="px-4 py-3 text-[14px] text-gray-600 bg-gray-50 rounded-b-lg border border-t-0 border-gray-100">
+                  <div className="px-6 py-4 text-[14px] text-gray-600 bg-[#f4f9fd] rounded-b-[24px] border border-t-0 border-[#e6f3fd]">
                     Yes, we provide completely customized designer outfits tailored to your exact measurements and preferences.
                   </div>
                 </div>

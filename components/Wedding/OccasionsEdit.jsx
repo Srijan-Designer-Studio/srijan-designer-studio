@@ -10,21 +10,21 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const womenData = [
-  { id: 1, title: "Sangeet Edits", imageSrc: "/images/collection1.png" },
-  { id: 2, title: "Engagement Edits", imageSrc: "/images/collection2.png" },
-  { id: 3, title: "Reception Edits", imageSrc: "/images/collection3.png" },
-  { id: 4, title: "Cocktail Edits", imageSrc: "/images/collection4.png" },
-  { id: 5, title: "Haldi Mehendi Edits", imageSrc: "/images/collection5.png" },
-  { id: 6, title: "Pooja Edits", imageSrc: "/images/collection6.png" },
+  { id: 1, title: "Sangeet Edits", imageSrc: "/Custom Wedding Wear/Women Card 1.webp" },
+  { id: 2, title: "Engagement Edits", imageSrc: "/Custom Wedding Wear/Women Card 2.webp" },
+  { id: 3, title: "Reception Edits", imageSrc: "/Custom Wedding Wear/Women Card 3.webp" },
+  { id: 4, title: "Cocktail Edits", imageSrc: "/Custom Wedding Wear/Women Card 4.webp" },
+  { id: 5, title: "Haldi Mehendi Edits", imageSrc: "/Custom Wedding Wear/Women Card 5.webp" },
+  { id: 6, title: "Pooja Edits", imageSrc: "/Custom Wedding Wear/Women Card 6.webp" },
 ];
 
 const menData = [
-  { id: 11, title: "Sangeet Edits", imageSrc: "/images/man1.png" },
-  { id: 12, title: "Engagement Edits", imageSrc: "/images/man2.png" },
-  { id: 13, title: "Reception Edits", imageSrc: "/images/man3.png" },
-  { id: 14, title: "Cocktail Edits", imageSrc: "/images/man4.png" },
-  { id: 15, title: "Haldi Mehendi Edits", imageSrc: "/images/man5.png" },
-  { id: 16, title: "Pooja Edits", imageSrc: "/images/man6.png" },
+  { id: 11, title: "Sangeet Edits", imageSrc: "/Custom Wedding Wear/Men Card 1.webp" },
+  { id: 12, title: "Engagement Edits", imageSrc: "/Custom Wedding Wear/Men Card 2.webp" },
+  { id: 13, title: "Reception Edits", imageSrc: "/Custom Wedding Wear/Men Card 3.webp" },
+  { id: 14, title: "Cocktail Edits", imageSrc: "/Custom Wedding Wear/Men Card 4.webp" },
+  { id: 15, title: "Haldi Mehendi Edits", imageSrc: "/Custom Wedding Wear/Men Card 5.webp" },
+  { id: 16, title: "Pooja Edits", imageSrc: "/Custom Wedding Wear/Men Card 6.webp" },
 ];
 
 export default function OccasionsEdit() {
@@ -89,13 +89,13 @@ export default function OccasionsEdit() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10 w-full mb-12">
           {currentData.map((item) => {
-           
+
             const slug = item.title.toLowerCase().replace(/\s+/g, '-').replace('-edits', '');
-            
+
             return (
-              <Link 
-                href={`/occasions/${slug}`} 
-                key={item.id} 
+              <Link
+                href={`/occasions/${slug}`}
+                key={item.id}
                 className="occasion-card flex flex-col items-center cursor-pointer group"
               >
                 <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
@@ -114,6 +114,13 @@ export default function OccasionsEdit() {
               </Link>
             );
           })}
+        </div>
+        <div className="w-full flex items-center justify-center my-2">
+          <Link href={"/custom-wedding-wear"}>
+            <p className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md">
+              Choose Your Occasion
+            </p>
+          </Link>
         </div>
 
       </div>

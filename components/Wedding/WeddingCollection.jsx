@@ -25,10 +25,10 @@ export default function WeddingCollection() {
           setProducts(data.slice(0, 8));
         } else {
           setProducts([
-            { id: 1, title: "Bridal Lehenga", image_url: "/images/collection1.png" },
-            { id: 2, title: "Wedding Saree", image_url: "/images/collection2.png" },
-            { id: 3, title: "Designer Gown", image_url: "/images/collection3.png" },
-            { id: 4, title: "Silk Saree", image_url: "/images/collection1.png" },
+            { id: 1, title: "Bridal Lehenga", image_url: "/Custom Wedding Wear/.webp" },
+            { id: 2, title: "Wedding Saree", image_url: "/Custom Wedding Wear/.webp" },
+            { id: 3, title: "Designer Gown", image_url: "/Custom Wedding Wear/.webp" },
+            { id: 4, title: "Silk Saree", image_url: "/Custom Wedding Wear/.webp" },
           ]);
         }
       } catch (error) {

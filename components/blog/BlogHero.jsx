@@ -12,12 +12,12 @@ export default function BlogHero() {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    // পেজের হাইট রিক্যালকুলেট করার জন্য রিফ্রেশ
+    
     setTimeout(() => {
       ScrollTrigger.refresh();
     }, 500);
 
-    // Background Image Zoom-out Effect
+    
     gsap.fromTo(
       ".hero-img",
       { scale: 1.15 },
@@ -34,12 +34,12 @@ export default function BlogHero() {
   return (
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
-        src="/images/banner.png"
+        src="/others-img/Blogs HERO Section.webp"
         alt="Our Blogs"
         fill
         priority
         className="hero-img object-cover object-top object-center"
-        onLoad={() => ScrollTrigger.refresh()} // ইমেজ লোড হলে স্ক্রল রিফ্রেশ হবে
+        onLoad={() => ScrollTrigger.refresh()}
       />
       <div className="absolute inset-0 bg-black/40"></div>
       <div className="absolute inset-0 flex items-center z-10">

@@ -170,7 +170,7 @@ export default function Header({ initialUser = null }) {
               width={250}
               height={120}
               priority
-              className="object-cover bg-center h-[50px] w-auto lg:h-[120px] lg:w-[250px]"
+              className="object-cover bg-center h-[90px] w-auto lg:h-[120px] lg:w-[250px]"
             />
           </Link>
 
