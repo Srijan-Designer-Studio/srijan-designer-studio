@@ -11,6 +11,7 @@ import { createOrder } from "@/app/actions/orders";
 import { initiatePaytmTransaction } from "@/app/actions/paytm";
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
+import PaymentNotification from "@/components/ui/PaymentNotification";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -42,6 +43,19 @@ export default function CheckoutPage() {
       router.push("/cart");
     }
   }, [isLoaded, cartItems, router, isAuthChecking]);
+
+  const loadPaytmScript = (mid) => {
+    return new Promise((resolve) => {
+      const isProduction = process.env.NODE_ENV === 'production';
+      const hostname = isProduction ? 'securegw.paytm.in' : 'securegw-stage.paytm.in';
+      const script = document.createElement('script');
+      script.src = `https://${hostname}/merchantpgpui/checkoutjs/merchants/${mid}.js`;
+      script.crossOrigin = 'anonymous';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   if (isAuthChecking || !isLoaded || cartItems.length === 0) {
     return (
@@ -99,35 +113,40 @@ export default function CheckoutPage() {
 
         const txnToken = paytmResult.data.txnToken;
         const mid = process.env.NEXT_PUBLIC_PAYTM_MID;
-        const isProduction = process.env.NODE_ENV === 'production';
-        const hostname = isProduction ? 'securegw.paytm.in' : 'securegw-stage.paytm.in';
+
+        const isScriptLoaded = await loadPaytmScript(mid);
+        
+        if (!isScriptLoaded) {
+          throw new Error("Paytm SDK failed to load. Please check your internet connection.");
+        }
 
         clearCart();
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `https://${hostname}/theia/api/v1/showPaymentPage?mid=${mid}&orderId=${orderId}`;
+        const config = {
+          root: "",
+          flow: "DEFAULT",
+          data: {
+            orderId: orderId,
+            token: txnToken,
+            tokenType: "TXN_TOKEN",
+            amount: String(frontendTotal)
+          },
+          handler: {
+            notifyMerchant: function(eventName, data) {
+              console.log("Paytm Event: ", eventName);
+            }
+          }
+        };
 
-        const midInput = document.createElement('input');
-        midInput.type = 'hidden';
-        midInput.name = 'mid';
-        midInput.value = mid;
-        form.appendChild(midInput);
-
-        const orderIdInput = document.createElement('input');
-        orderIdInput.type = 'hidden';
-        orderIdInput.name = 'orderId';
-        orderIdInput.value = orderId;
-        form.appendChild(orderIdInput);
-
-        const txnTokenInput = document.createElement('input');
-        txnTokenInput.type = 'hidden';
-        txnTokenInput.name = 'txnToken';
-        txnTokenInput.value = txnToken;
-        form.appendChild(txnTokenInput);
-
-        document.body.appendChild(form);
-        form.submit();
+        if (window.Paytm && window.Paytm.CheckoutJS) {
+          window.Paytm.CheckoutJS.init(config).then(function onSuccess() {
+            window.Paytm.CheckoutJS.invoke();
+          }).catch(function onError(error) {
+            setErrorMsg("Could not open payment window.");
+          });
+        } else {
+          throw new Error("Paytm checkout unavailable.");
+        }
 
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -138,6 +157,7 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
       <ScrollToTop />
+      <PaymentNotification />
       <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
         <div className="mb-8">
           <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">

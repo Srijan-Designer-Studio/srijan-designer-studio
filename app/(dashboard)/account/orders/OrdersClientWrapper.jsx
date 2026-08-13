@@ -2,7 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Download, Eye, XCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Package, Eye, XCircle } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -10,6 +11,7 @@ import Search from '@/components/dashboard/shared/Search';
 import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
+import DownloadInvoice from '@/components/ui/DownloadInvoice';
 
 export default function OrdersClientWrapper({ initialOrders }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,18 +69,18 @@ export default function OrdersClientWrapper({ initialOrders }) {
       header: 'Actions',
       accessor: 'action',
       render: (row) => (
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
             className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
           >
             <Eye size={16} /> View
           </button>
+          
           {row.status === 'Delivered' && (
-            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-              <Download size={16} /> Invoice
-            </button>
+            <DownloadInvoice order={row.rawOrder} />
           )}
+
           {(row.status === 'Pending' || row.status === 'Processing') && (
             <button
               onClick={() => handleCancelOrder(row.rawOrder.id)}
@@ -151,7 +153,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
 
                 return (
                   <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                    <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                    <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0 relative">
                       {imgUrl ? (
                         <Image
                           fill

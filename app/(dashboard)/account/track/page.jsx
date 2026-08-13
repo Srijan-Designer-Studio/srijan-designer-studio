@@ -3,11 +3,13 @@
 import { useState, useTransition } from 'react';
 import { Search, Package, Truck, CheckCircle2, MapPin, Clock, Loader2 } from 'lucide-react';
 import { trackOrder } from '@/app/actions/orders';
+import CustomerTracking from '@/components/track/CustomerTracking'; 
 
 export default function TrackOrderPage() {
   const [orderId, setOrderId] = useState('');
   const [isPending, startTransition] = useTransition();
   const [trackingData, setTrackingData] = useState(null);
+  const [rawOrderData, setRawOrderData] = useState(null); 
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleTrackOrder = (e) => {
@@ -15,10 +17,12 @@ export default function TrackOrderPage() {
     if (!orderId) return;
     setErrorMsg('');
     setTrackingData(null);
+    setRawOrderData(null);
 
     startTransition(async () => {
       try {
         const data = await trackOrder(orderId);
+        setRawOrderData(data); 
         
         const createdDate = new Date(data.created_at);
         const estimatedDate = new Date(createdDate);
@@ -38,7 +42,7 @@ export default function TrackOrderPage() {
           id: data.id.split('-')[0].toUpperCase(),
           estimatedDelivery: new Intl.DateTimeFormat('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }).format(estimatedDate),
           status: data.status.charAt(0).toUpperCase() + data.status.slice(1),
-          courier: data.tracking_number ? 'Srijan Logistics' : 'Pending Assignment',
+          courier: data.tracking_number ? 'Shiprocket Partner' : 'Pending Assignment',
           currentLocation: data.tracking_number ? 'In Transit' : 'Warehouse',
           steps
         });
@@ -49,7 +53,7 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className="max-w-3xl pt-[100px] lg:pt-[120px] mx-auto space-y-6">
+    <div className="max-w-3xl pt-[100px] lg:pt-[120px] mx-auto space-y-6 px-4 sm:px-0">
       
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Track Your Order</h1>
@@ -103,7 +107,7 @@ export default function TrackOrderPage() {
           </div>
 
           <div className="bg-blue-50/50 px-6 py-4 flex items-center gap-3 border-b border-blue-100/50">
-            <div className="p-2 bg-blue-100 text-blue-600 rounded-full">
+            <div className="p-2 bg-blue-100 text-blue-600 rounded-full shrink-0">
               <Truck size={20} />
             </div>
             <div>
@@ -114,43 +118,50 @@ export default function TrackOrderPage() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-10">
-            <div className="relative">
-              {trackingData.steps.map((step, index) => (
-                <div key={index} className="flex gap-4 sm:gap-6 mb-8 last:mb-0 relative">
-                  
-                  {index !== trackingData.steps.length - 1 && (
-                    <div 
-                      className={`absolute left-3.5 sm:left-4 top-10 bottom-[-32px] w-0.5 ${step.completed ? 'bg-black' : 'bg-gray-200'}`}
-                    ></div>
-                  )}
-
-                  <div className={`relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${
-                    step.completed 
-                      ? 'bg-black border-black text-white' 
-                      : step.active 
-                        ? 'bg-white border-black text-black' 
-                        : 'bg-white border-gray-200 text-gray-300'
-                  }`}>
-                    {step.completed ? (
-                      <CheckCircle2 size={16} />
-                    ) : (
-                      <div className={`w-2 h-2 rounded-full ${step.active ? 'bg-black' : 'bg-gray-200'}`}></div>
+         
+          {rawOrderData && rawOrderData.liveTracking ? (
+             <div className="p-6 sm:p-10 border-t border-gray-100">
+                <CustomerTracking order={rawOrderData} />
+             </div>
+          ) : (
+            <div className="p-6 sm:p-10">
+              <div className="relative">
+                {trackingData.steps.map((step, index) => (
+                  <div key={index} className="flex gap-4 sm:gap-6 mb-8 last:mb-0 relative">
+                    
+                    {index !== trackingData.steps.length - 1 && (
+                      <div 
+                        className={`absolute left-3.5 sm:left-4 top-10 bottom-[-32px] w-0.5 ${step.completed ? 'bg-black' : 'bg-gray-200'}`}
+                      ></div>
                     )}
-                  </div>
 
-                  <div className="flex-1 pb-2">
-                    <h4 className={`text-base font-semibold ${step.completed || step.active ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {step.title}
-                    </h4>
-                    <p className={`text-sm mt-1 ${step.completed || step.active ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {step.date}
-                    </p>
+                    <div className={`relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${
+                      step.completed 
+                        ? 'bg-black border-black text-white' 
+                        : step.active 
+                          ? 'bg-white border-black text-black' 
+                          : 'bg-white border-gray-200 text-gray-300'
+                    }`}>
+                      {step.completed ? (
+                        <CheckCircle2 size={16} />
+                      ) : (
+                        <div className={`w-2 h-2 rounded-full ${step.active ? 'bg-black' : 'bg-gray-200'}`}></div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 pb-2">
+                      <h4 className={`text-base font-semibold ${step.completed || step.active ? 'text-gray-900' : 'text-gray-400'}`}>
+                        {step.title}
+                      </h4>
+                      <p className={`text-sm mt-1 ${step.completed || step.active ? 'text-gray-500' : 'text-gray-400'}`}>
+                        {step.date}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
       )}

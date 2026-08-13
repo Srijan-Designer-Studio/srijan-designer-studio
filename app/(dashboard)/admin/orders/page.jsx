@@ -8,7 +8,7 @@ import Search from '@/components/dashboard/shared/Search';
 import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
-import { getAllOrders, updateOrderStatus } from '@/app/actions/admin';
+import { getAllOrders, updateOrderStatus, pushOrderToShiprocket, requestPickup, generateLabel, generateInvoice, cancelShipment, initiateReturn } from '@/app/actions/admin';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -16,6 +16,7 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const [isPushing, setIsPushing] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -42,6 +43,25 @@ export default function AdminOrdersPage() {
       setOrders(updatedData);
       setIsModalOpen(false);
     });
+  };
+
+  const handleShiprocketSync = async () => {
+    setIsPushing(true);
+    try {
+      const result = await pushOrderToShiprocket(selectedOrder.id);
+      if (result.success) {
+        alert("Order successfully pushed to Shiprocket!");
+        const updatedData = await getAllOrders();
+        setOrders(updatedData);
+        setSelectedOrder(updatedData.find(o => o.id === selectedOrder.id) || selectedOrder);
+      } else {
+        alert("Error: " + result.error);
+      }
+    } catch (error) {
+      alert("Something went wrong.");
+    } finally {
+      setIsPushing(false);
+    }
   };
 
   const handleViewOrder = (order) => {
@@ -112,13 +132,13 @@ export default function AdminOrdersPage() {
     { label: 'Shipped', value: 'shipped' },
     { label: 'Delivered', value: 'delivered' },
     { label: 'Cancelled', value: 'cancelled' },
+    { label: 'Returned', value: 'returned' },
   ];
 
   if (isLoading) {
     return (
       <div className="min-h-[400px] w-full flex flex-col items-center justify-center space-y-5">
         <div className="relative w-12 h-12">
-          {/* Background Ring */}
           <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
           <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
         </div>
@@ -185,6 +205,7 @@ export default function AdminOrdersPage() {
                 <option value="shipped">Shipped</option>
                 <option value="delivered">Delivered</option>
                 <option value="cancelled">Cancelled</option>
+                <option value="returned">Returned</option>
               </select>
             </div>
 
@@ -215,22 +236,132 @@ export default function AdminOrdersPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <button 
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                disabled={isPending}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-              >
-                Close
-              </button>
-              <button 
-                type="submit"
-                disabled={isPending}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70"
-              >
-                {isPending ? 'Updating...' : 'Update Status'}
-              </button>
+            <div className="flex flex-col gap-3 pt-4 border-t border-gray-200 mt-4">
+              {selectedOrder.shiprocket_order_id ? (
+                <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <span className="w-full text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">
+                    Shiprocket Actions (AWB: {selectedOrder.tracking_number || 'Pending'})
+                  </span>
+                  
+                  {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
+                    <>
+                      <button 
+                        type="button"
+                        onClick={async () => {
+                          const res = await requestPickup(selectedOrder.shiprocket_shipment_id);
+                          if (res.success) alert("Pickup scheduled successfully!");
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
+                      >
+                        Schedule Pickup
+                      </button>
+
+                      <button 
+                        type="button"
+                        onClick={async () => {
+                          const res = await generateLabel(selectedOrder.shiprocket_shipment_id);
+                          if (res.success && res.data.label_created) {
+                            window.open(res.data.label_url, '_blank');
+                          } else {
+                            alert("Could not generate label.");
+                          }
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 rounded-md border border-indigo-200 hover:bg-indigo-200 transition-colors"
+                      >
+                        Download Label
+                      </button>
+                    </>
+                  )}
+
+                  <button 
+                    type="button"
+                    onClick={async () => {
+                      const res = await generateInvoice(selectedOrder.shiprocket_order_id);
+                      if (res.success && res.data.is_invoice_created) {
+                        window.open(res.data.invoice_url, '_blank');
+                      } else {
+                        alert("Could not generate invoice.");
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 rounded-md border border-indigo-200 hover:bg-indigo-200 transition-colors"
+                  >
+                    Download Invoice
+                  </button>
+
+                  {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
+                    <button 
+                      type="button"
+                      onClick={async () => {
+                        const confirmCancel = window.confirm("Are you sure you want to cancel this shipment in Shiprocket?");
+                        if (confirmCancel) {
+                          const res = await cancelShipment(selectedOrder.id, selectedOrder.tracking_number);
+                          if (res.success) {
+                            alert("Shipment cancelled.");
+                            const updatedData = await getAllOrders();
+                            setOrders(updatedData);
+                            setIsModalOpen(false);
+                          } else {
+                            alert("Failed to cancel.");
+                          }
+                        }
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-md border border-red-200 hover:bg-red-200 transition-colors"
+                    >
+                      Cancel Shipment
+                    </button>
+                  )}
+
+                  {selectedOrder.status === 'delivered' && (
+                    <button 
+                      type="button"
+                      onClick={async () => {
+                        const confirmReturn = window.confirm("Create a return pickup for this order?");
+                        if (confirmReturn) {
+                          const res = await initiateReturn(selectedOrder.id);
+                          if (res.success) {
+                            alert("Return pickup scheduled successfully!");
+                            const updatedData = await getAllOrders();
+                            setOrders(updatedData);
+                            setIsModalOpen(false);
+                          } else {
+                            alert("Failed to create return.");
+                          }
+                        }
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-100 rounded-md border border-orange-200 hover:bg-orange-200 transition-colors"
+                    >
+                      Initiate Return
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  type="button"
+                  onClick={handleShiprocketSync}
+                  disabled={isPushing || selectedOrder.status === 'cancelled' || selectedOrder.status === 'returned'}
+                  className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {isPushing ? 'Pushing...' : 'Push to Shiprocket'}
+                </button>
+              )}
+
+              <div className="flex justify-end gap-3 mt-2">
+                <button 
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  disabled={isPending}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Close
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isPending}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70"
+                >
+                  {isPending ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
             </div>
           </form>
         )}

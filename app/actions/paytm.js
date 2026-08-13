@@ -13,7 +13,7 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
       "orderId": orderId,
       "callbackUrl": `${process.env.NEXT_PUBLIC_SITE_URL}/api/paytm-callback`,
       "txnAmount": {
-        "value": String(amount),
+        "value": Number(amount).toFixed(2).toString(),
         "currency": "INR",
       },
       "userInfo": {
@@ -36,7 +36,7 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': post_data.length
+        'Content-Length': post_data.length.toString()
       },
       body: post_data
     })

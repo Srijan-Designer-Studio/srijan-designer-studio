@@ -3,6 +3,18 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import nodemailer from 'nodemailer'
+import {
+  scheduleShiprocketPickup,
+  getShiprocketLabel,
+  getShiprocketInvoice,
+  cancelShiprocketOrder,
+  createShiprocketReturn,
+  takeNDRAction,
+  checkServiceability,
+  createShiprocketOrder,
+  generateAWB,
+  trackShiprocketOrder
+} from '@/lib/utils/shiprocket'
 
 async function verifyAdmin() {
   return true;
@@ -135,7 +147,7 @@ export async function getAllOrders() {
         .from('profiles')
         .select('id, first_name, last_name, email')
         .in('id', userIds);
-      
+
       if (profilesData) {
         profilesMap = Object.fromEntries(profilesData.map(p => [p.id, p]));
       }
@@ -184,7 +196,7 @@ export async function updateOrderStatus(orderId, newStatus) {
 
   try {
     await verifyAdmin()
-    
+
     const { error: updateError } = await supabase
       .from('orders')
       .update({ status: newStatus })
@@ -212,7 +224,7 @@ export async function updateOrderStatus(orderId, newStatus) {
         .select('first_name, last_name, email')
         .eq('id', orderData.user_id)
         .single();
-      
+
       if (profileData) {
         customerEmail = profileData.email;
         customerName = profileData.first_name || 'Customer';
@@ -487,7 +499,7 @@ export async function updateProduct(productId, formData) {
     const { data: productData, error: productError } = await supabase
       .from('products')
       .update({
-        title, 
+        title,
         slug: seo_slug,
         base_price: basePrice,
         short_description, full_description, brand, product_type, department, purchase_type,
@@ -600,7 +612,7 @@ export async function createProduct(formData) {
     const { data: newProduct, error: productError } = await supabase
       .from('products')
       .insert({
-        title, 
+        title,
         slug: seo_slug,
         base_price: basePrice,
         short_description, full_description, brand, product_type, department, purchase_type,
@@ -666,5 +678,220 @@ export async function createProduct(formData) {
     return { success: true, data: newProduct }
   } catch (error) {
     return { success: false, error: error.message }
+  }
+}
+
+// push order to shiprocket (adhoc)
+export async function pushOrderToShiprocket(orderId) {
+  const supabase = createAdminClient();
+
+  try {
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("*, order_items(*), profiles(first_name, last_name, email)")
+      .eq("id", orderId)
+      .single();
+
+    if (error) throw error;
+
+    const pickupPincode = "741404";
+    const deliveryPincode = order.shipping_address_pincode || "110001";
+    const weight = 0.5;
+    const isCOD = order.payment_method === "COD" ? 1 : 0;
+
+    const serviceability = await checkServiceability(pickupPincode, deliveryPincode, weight, isCOD);
+
+    if (serviceability.status !== 200 || !serviceability.data?.available_courier_companies?.length) {
+      console.warn("Serviceability issue or no couriers found, but proceeding to create order.");
+    }
+
+    const shiprocketOrderData = {
+      order_id: order.id,
+      order_date: new Date(order.created_at).toISOString().split('T')[0],
+      pickup_location: "Primary",
+      billing_customer_name: order.profiles?.first_name || "Customer",
+      billing_last_name: order.profiles?.last_name || "",
+      billing_address: order.shipping_address || "No Address Provided",
+      billing_city: order.shipping_city || "Santipur",
+      billing_pincode: deliveryPincode,
+      billing_state: order.shipping_state || "West Bengal",
+      billing_country: "India",
+      billing_email: order.profiles?.email || "noemail@example.com",
+      billing_phone: order.customer_phone || "0000000000",
+      shipping_is_billing: true,
+      order_items: order.order_items.map((item) => ({
+        name: "Product Variant " + item.variant_id,
+        sku: "SKU-" + item.variant_id,
+        units: item.quantity,
+        selling_price: item.price,
+      })),
+      payment_method: order.payment_method === "COD" ? "COD" : "Prepaid",
+      sub_total: order.total_amount,
+      length: 10,
+      breadth: 10,
+      height: 10,
+      weight: weight,
+    };
+
+    const shiprocketResponse = await createShiprocketOrder(shiprocketOrderData);
+
+    if (shiprocketResponse.status_code === 1 || shiprocketResponse.order_id) {
+      const shipmentId = shiprocketResponse.shipment_id;
+
+      const awbResponse = await generateAWB(shipmentId);
+      const awbCode = awbResponse.response?.data?.awb_code || null;
+
+      await supabase
+        .from("orders")
+        .update({
+          status: "processing",
+          shiprocket_order_id: shiprocketResponse.order_id,
+          shiprocket_shipment_id: shipmentId,
+          tracking_number: awbCode
+        })
+        .eq("id", orderId);
+
+      return { success: true, data: { order: shiprocketResponse, awb: awbResponse } };
+    } else {
+      throw new Error(shiprocketResponse.message || "Failed to create order in Shiprocket");
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getTrackingDetails(awbCode) {
+  try {
+    const response = await trackShiprocketOrder(awbCode);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function cancelShipment(orderId, awbCode) {
+  const supabase = createAdminClient();
+  try {
+    const response = await cancelShiprocketOrder([awbCode]);
+    
+    await supabase
+      .from("orders")
+      .update({ status: "cancelled" })
+      .eq("id", orderId);
+
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function initiateReturn(orderId) {
+  const supabase = createAdminClient();
+  try {
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("*, order_items(*), profiles(first_name, last_name, email)")
+      .eq("id", orderId)
+      .single();
+
+    if (error) throw error;
+
+    const returnPayload = {
+      order_id: `${order.id}-RET`,
+      order_date: new Date().toISOString().split('T')[0],
+      channel_id: "",
+      pickup_customer_name: order.profiles?.first_name || "Customer",
+      pickup_last_name: order.profiles?.last_name || "",
+      pickup_address: order.shipping_address || "Address",
+      pickup_address_2: "",
+      pickup_city: order.shipping_city || "City",
+      pickup_state: order.shipping_state || "State",
+      pickup_country: "India",
+      pickup_pincode: order.shipping_address_pincode || "110001",
+      pickup_email: order.profiles?.email || "email@example.com",
+      pickup_phone: order.customer_phone || "0000000000",
+      shipping_customer_name: "Srijan Fashion",
+      shipping_last_name: "",
+      shipping_address: "Your Warehouse Address",
+      shipping_address_2: "",
+      shipping_city: "Santipur",
+      shipping_country: "India",
+      shipping_pincode: "741404",
+      shipping_state: "West Bengal",
+      shipping_email: "support@srijanfashion.com",
+      shipping_phone: "0000000000",
+      order_items: order.order_items.map(item => ({
+        name: "Product Variant " + item.variant_id,
+        sku: "SKU-" + item.variant_id,
+        units: item.quantity,
+        selling_price: item.price
+      })),
+      payment_method: "PREPAID",
+      sub_total: order.total_amount,
+      length: 10,
+      breadth: 10,
+      height: 10,
+      weight: 0.5
+    };
+
+    const response = await createShiprocketReturn(returnPayload);
+    
+    if (response.order_id) {
+       await supabase
+         .from("orders")
+         .update({ status: "returned" })
+         .eq("id", orderId);
+    }
+
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function submitNDRAction(orderId, awb, actionType) {
+  const supabase = createAdminClient();
+  try {
+    const response = await takeNDRAction(awb, actionType);
+    
+    if (actionType === 'return') {
+      await supabase
+        .from("orders")
+        .update({ status: "returned" })
+        .eq("id", orderId);
+    }
+    
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Added Missing Functions Below
+
+export async function requestPickup(shipmentId) {
+  try {
+    const response = await scheduleShiprocketPickup(shipmentId);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function generateLabel(shipmentId) {
+  try {
+    const response = await getShiprocketLabel(shipmentId);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function generateInvoice(shiprocketOrderId) {
+  try {
+    const response = await getShiprocketInvoice(shiprocketOrderId);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
   }
 }
