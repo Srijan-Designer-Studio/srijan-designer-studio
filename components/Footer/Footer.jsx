@@ -264,7 +264,7 @@ export default function Footer() {
 
         </div>
 
-        <div className="footer-copyright mt-6 lg:mb-[120px] lg:-mt-4">
+        <div className="footer-copyright mt-6 lg:mb-10 lg:-mt-4">
           <p className="text-white/80 text-sm sm:text-[15px] font-medium">
             © Copyright 2026 By SRIJAN Fashion. All right reserved.
           </p>
