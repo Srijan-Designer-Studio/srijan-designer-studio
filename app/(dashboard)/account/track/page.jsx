@@ -53,7 +53,7 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className="max-w-3xl pt-[100px] lg:pt-[120px] mx-auto space-y-6 px-4 sm:px-0">
+    <div className="max-w-3xl pt-[100px] text-black lg:pt-[120px] mx-auto space-y-6 px-4 sm:px-0">
       
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Track Your Order</h1>

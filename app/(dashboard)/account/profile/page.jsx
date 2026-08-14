@@ -126,7 +126,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl pt-[100px] lg:pt-[120px] space-y-6 font-sans relative">
+    <div className="max-w-4xl pt-[100px] lg:pt-[120px] text-black space-y-6 font-sans relative">
       
       {popup.show && (
         <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 ${
@@ -151,7 +151,7 @@ export default function ProfilePage() {
               className="relative w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-gray-50 shadow-sm bg-gray-100 flex items-center justify-center group cursor-pointer"
             >
               <img 
-                src={profile.avatar_url || "/images/man1.png"} 
+                src={profile.avatar_url || "/images/user.png"} 
                 alt="Profile" 
                 className="object-cover w-full h-full" 
               />

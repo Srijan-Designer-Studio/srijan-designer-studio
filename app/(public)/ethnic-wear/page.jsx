@@ -3,6 +3,7 @@ export const revalidate = 3600;
 import Image from "next/image";
 import Link from "next/link";
 import { createAdminClient } from '@/lib/supabase/admin';
+import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export const metadata = {
   title: "Ethnic Wear | SRIJAN Fashion",
@@ -29,6 +30,7 @@ export default async function EthnicWearPage() {
 
   return (
     <main className="py-20 bg-white min-h-screen">
+      <ScrollToTop />
       <div className="max-w-[1320px] mx-auto px-6">
 
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">

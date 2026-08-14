@@ -18,8 +18,11 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
       },
       "userInfo": {
         "custId": customerId,
-      },
+      }
     }
+    
+    console.log("Paytm Payload Check:", paytmParams.body);
+    console.log("Key Check:", process.env.PAYTM_MERCHANT_KEY);
 
     const checksum = await PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY)
 
@@ -27,8 +30,8 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
       "signature": checksum
     }
 
-    const isProduction = process.env.NODE_ENV === 'production'
-    const hostname = isProduction ? 'securegw.paytm.in' : 'securegw-stage.paytm.in'
+    const hostname = 'securegw.paytm.in'
+    console.log("Paytm URL:", hostname);
 
     const post_data = JSON.stringify(paytmParams)
 
@@ -41,7 +44,20 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
       body: post_data
     })
 
-    const data = await response.json()
+    const textResponse = await response.text()
+    console.log("Paytm Raw Response:", textResponse); 
+    
+    let data;
+    try {
+      data = JSON.parse(textResponse)
+    } catch (e) {
+      return { success: false, error: "Paytm server is temporarily down or returned invalid data." }
+    }
+
+    if (data.body && data.body.resultInfo && data.body.resultInfo.resultStatus === "F") {
+      return { success: false, error: data.body.resultInfo.resultMsg || "Payment failed at Paytm Gateway" }
+    }
+
     return { success: true, data: data.body }
   } catch (error) {
     return { success: false, error: error.message }

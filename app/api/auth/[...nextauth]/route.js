@@ -16,13 +16,13 @@ const authOptions = {
       },
       async authorize(credentials) {
         if (
-          credentials?.email === process.env.DEMO_ADMIN_EMAIL && 
-          credentials?.password === process.env.DEMO_ADMIN_PASSWORD
+          credentials?.email === process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL &&
+          credentials?.password === process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD
         ) {
           return {
             id: "demo-admin-999",
             name: "Demo Admin",
-            email: process.env.DEMO_ADMIN_EMAIL,
+            email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL,
             role: "admin",
           };
         }
@@ -30,32 +30,32 @@ const authOptions = {
       }
     })
   ],
-  session: {
-    strategy: "jwt",
+session: {
+  strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: '/login', 
+  signIn: '/login', 
   },
-  callbacks: {
+callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        if (user.role) {
-          token.role = user.role;
-        } 
-        else {
-          token.role = (user.email === process.env.ADMIN_EMAIL) ? 'admin' : 'customer';
-        }
+    if (user) {
+      if (user.role) {
+        token.role = user.role;
       }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role;
+      else {
+        token.role = (user.email === process.env.ADMIN_EMAIL) ? 'admin' : 'customer';
       }
-      return session;
     }
+    return token;
+  },
+    async session({ session, token }) {
+    if (session.user) {
+      session.user.role = token.role;
+    }
+    return session;
   }
+}
 };
 
 const handler = NextAuth(authOptions);

@@ -72,21 +72,34 @@ export default function Footer() {
   const footerRef = useRef(null);
 
   useEffect(() => {
-    // Aggressive GSAP Refresh: পেজ লোড হওয়ার পর বিভিন্ন সময়ে হাইট চেক করে ফিক্স করবে
-    const t1 = setTimeout(() => ScrollTrigger.refresh(), 500);
-    const t2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
-    const t3 = setTimeout(() => ScrollTrigger.refresh(), 3000);
+    let timeoutId;
 
-    // ResizeObserver: পেজের হাইট যখনই চেঞ্জ হবে, সাথে সাথে GSAP আপডেট হবে
+    
     const resizeObserver = new ResizeObserver(() => {
-      ScrollTrigger.refresh();
+      
+      clearTimeout(timeoutId);
+      
+      
+      timeoutId = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 200); 
     });
+
     resizeObserver.observe(document.body);
 
+    
+    document.fonts.ready.then(() => {
+      ScrollTrigger.refresh();
+    });
+
+    
+    const loadTimeout = setTimeout(() => {
+        ScrollTrigger.refresh();
+    }, 1000);
+
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      clearTimeout(timeoutId);
+      clearTimeout(loadTimeout);
       resizeObserver.disconnect();
     };
   }, []);
