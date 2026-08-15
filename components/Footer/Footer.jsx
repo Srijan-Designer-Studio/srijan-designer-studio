@@ -20,12 +20,12 @@ const menuLinks = [
 ];
 
 const policyLinks = [
-  { name: "Terms & Conditions", href: "/terms" },
-  { name: "Privacy Policy", href: "/privacy" },
-  { name: "Return Policy", href: "/return" },
-  { name: "Refund & Cancellation Policy", href: "/refund" },
+  { name: "Terms & Conditions", href: "/terms-and-conditions" },
+  { name: "Privacy Policy", href: "/privacy-policy" },
+  { name: "Return Policy", href: "/return-policy" },
+  { name: "Refund & Cancellation Policy", href: "/refund-cancellation-policy" },
   { name: "Customization Policy", href: "/customization-policy" },
-  { name: "Shipping Policy", href: "/shipping" },
+  { name: "Shipping Policy", href: "/shipping-policy" },
 ];
 
 const FacebookIcon = () => (

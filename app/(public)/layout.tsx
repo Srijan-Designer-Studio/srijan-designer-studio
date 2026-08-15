@@ -2,6 +2,7 @@ import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
@@ -23,6 +24,7 @@ export default async function PublicLayout({
           <main className="flex-grow w-full">
             {children}
           </main>
+          <WhatsAppButton />
           <Footer />
         </div>
       </CartProvider>

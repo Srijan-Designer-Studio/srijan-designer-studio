@@ -33,7 +33,8 @@ export async function initiatePaytmTransaction(orderId, amount, customerId) {
     const hostname = 'securegw.paytm.in'
     console.log("Paytm URL:", hostname);
 
-    const post_data = JSON.stringify(paytmParams)
+    const post_data = JSON.stringify(paytmParams);
+    console.log("FINAL POSTMAN DATA:", post_data);
 
     const response = await fetch(`https://${hostname}/theia/api/v1/initiateTransaction?mid=${process.env.NEXT_PUBLIC_PAYTM_MID}&orderId=${orderId}`, {
       method: 'POST',

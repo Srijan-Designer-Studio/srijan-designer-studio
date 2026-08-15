@@ -12,26 +12,26 @@ gsap.registerPlugin(ScrollTrigger);
 export default function ShopSection({ title, category, type, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
 
-  // স্মার্ট ফিল্টার: এটি ক্যাটাগরি, টাইপ এবং টাইটেল সব জায়গায় চেক করবে
+
   const productsData = products.filter((product) => {
     const dbCategory = String(product.categories?.name || "").toLowerCase();
     const dbType = String(product.product_type || "").toLowerCase();
     const dbTitle = String(product.title || "").toLowerCase();
-    
+
     const searchCategory = String(category || "").toLowerCase();
     const searchType = String(type || "").toLowerCase();
-    
+
     let isMatch = false;
 
-    // ক্যাটাগরি কি-ওয়ার্ডটি নাম, টাইপ বা টাইটেলের কোথাও আছে কি না চেক
+
     if (searchCategory && (dbCategory.includes(searchCategory) || dbTitle.includes(searchCategory) || dbType.includes(searchCategory))) {
-        isMatch = true;
+      isMatch = true;
     }
-    // টাইপ কি-ওয়ার্ডটি নাম, ক্যাটাগরি বা টাইটেলের কোথাও আছে কি না চেক
+
     if (searchType && (dbType.includes(searchType) || dbCategory.includes(searchType) || dbTitle.includes(searchType))) {
-        isMatch = true;
+      isMatch = true;
     }
-    
+
     return isMatch;
   }).slice(0, 4);
 
@@ -56,7 +56,7 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
     );
   }, { scope: containerRef });
 
-  // যদি কোনো ডেটা না পায়, তবে অন্তত সেকশনটি ফাঁকা না দেখিয়ে একটি মেসেজ দেখাবে
+
   if (productsData.length === 0) {
     return (
       <section className="py-16 bg-white border-b border-gray-200" ref={containerRef}>
@@ -95,9 +95,7 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
             const mainImage = product.product_images?.[0]?.image_url;
 
             return (
-              <Link
-                href={`/product/${product.id}`}
-                key={product.id}
+              <Link href={`/product/${product.slug}`} key={product.id}
                 className="shop-card group flex flex-col items-center cursor-pointer"
               >
                 <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">

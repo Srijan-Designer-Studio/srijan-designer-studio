@@ -17,14 +17,14 @@ const ShopEssentials = ({ products = [] }) => {
       const cat = product.categories?.name?.toLowerCase() || '';
       return cat.includes("women") || cat.includes("sarees") || cat.includes("lehengas") || cat.includes("bridal");
     })
-    .slice(0, 4);
+    .slice(0, 8);
 
   const menProducts = products
     .filter((product) => {
       const cat = product.categories?.name?.toLowerCase() || '';
       return (cat.includes("men") && !cat.includes("women")) || cat.includes("kurtas") || cat.includes("suits");
     })
-    .slice(0, 4);
+    .slice(0, 8);
 
   const currentProducts = activeTab === "WOMEN" ? womenProducts : menProducts;
 

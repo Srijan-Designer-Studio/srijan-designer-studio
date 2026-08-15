@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck, Truck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
 import { initiatePaytmTransaction } from "@/app/actions/paytm";
@@ -16,7 +16,7 @@ import PaymentNotification from "@/components/ui/PaymentNotification";
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [paymentMethod, setPaymentMethod] = useState("cod"); 
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -77,7 +77,7 @@ export default function CheckoutPage() {
       try {
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: paymentMethod,
+          paymentMethod: "cod", // ডাটাবেসে COD হিসেবে সেভ হবে
           address: {
             addressLine1: formData.get('address1'),
             addressLine2: formData.get('address2'),
@@ -102,6 +102,10 @@ export default function CheckoutPage() {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
+        // ==========================================
+        // PAYTM INTEGRATION (TEMPORARILY COMMENTED OUT)
+        // ==========================================
+        /*
         const orderId = dbResult.data.id;
         const customerId = userProfile?.id || `CUST_${Date.now()}`;
 
@@ -147,6 +151,13 @@ export default function CheckoutPage() {
         } else {
           throw new Error("Paytm checkout unavailable.");
         }
+        */
+
+        // ==========================================
+        // TEMPORARY COD BYPASS LOGIC
+        // ==========================================
+        clearCart(); 
+        router.push("/success"); 
 
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -195,41 +206,35 @@ export default function CheckoutPage() {
 
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <ShieldCheck className="text-green-600" size={24} />
-                Secure Payment
+                <Truck className="text-green-600" size={24} />
+                Payment Method
               </h2>
 
               <div className="space-y-4">
+                
+                {/* Paytm UI Commented Out
                 <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-[#00c3ff] bg-[#00c3ff]/5">
                   <div className="flex items-center mb-4">
                     <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
                     <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
                     <span className="font-bold text-gray-900 text-lg">Pay with Paytm</span>
                   </div>
+                  ...
+                </label>
+                */}
 
-                  <div className="ml-11 flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
-                      <Smartphone size={14} className="text-[#00baf2]" /> Paytm
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
-                      <Smartphone size={14} className="text-[#6528e0]" /> UPI
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
-                      <CreditCard size={14} className="text-gray-900" /> Cards
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
-                      <Building2 size={14} className="text-orange-500" /> Net Banking
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-2 py-1.5 rounded-lg shadow-sm">
-                      <Wallet size={14} className="text-pink-500" /> Wallet
-                    </div>
+                {/* New COD UI */}
+                <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-green-500 bg-green-50">
+                  <div className="flex items-center mb-2">
+                    <input type="radio" name="payment" value="cod" checked readOnly className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
+                    <Wallet className="ml-4 mr-3 text-green-600" size={24} />
+                    <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
                   </div>
+                  <p className="ml-11 text-sm text-gray-600 font-medium">
+                    Pay via cash or UPI when the product arrives at your doorstep.
+                  </p>
                 </label>
 
-                <div className="flex items-center gap-2 text-[13px] font-bold text-red-600 bg-red-50 px-4 py-3 rounded-xl border border-red-100">
-                  <Ban size={16} strokeWidth={2.5} />
-                  No Cash on Delivery (COD) Available
-                </div>
               </div>
             </div>
           </div>
@@ -277,9 +282,9 @@ export default function CheckoutPage() {
 
               {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
-              <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
+              <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
                 {isPending && <Loader2 size={18} className="animate-spin" />}
-                {isPending ? "Processing..." : "Pay Now"}
+                {isPending ? "Processing..." : "Place Order (COD)"}
               </button>
             </div>
           </div>
