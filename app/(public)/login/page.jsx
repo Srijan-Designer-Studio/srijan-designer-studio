@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
 import { signIn } from "next-auth/react"; 
 import { createClient } from "@/lib/supabase/client";
 import  ScrollToTop  from "@/components/providers/ScrollToTop";
@@ -318,6 +318,18 @@ export default function AuthPage() {
         </div>
 
       </div>
+
+      {/* Back to Home Button placed at the very bottom */}
+      <div className="absolute bottom-6 md:bottom-8 z-50 flex justify-center w-full">
+        <Link 
+          href="/" 
+          className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/20 transition-all text-[14px] font-medium bg-white/10 px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 shadow-lg"
+        >
+          <ArrowLeft size={18} />
+          Back to Home
+        </Link>
+      </div>
+
     </main>
   );
 }

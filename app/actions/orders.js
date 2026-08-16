@@ -69,7 +69,8 @@ export async function createOrder(orderPayload) {
         payment_method: orderPayload.paymentMethod,
         payment_status: orderPayload.paymentStatus || 'Pending',
         status: orderPayload.status || 'pending',
-        shipping_address: orderPayload.address
+        shipping_address: orderPayload.address,
+        customer_phone: orderPayload.customer_phone
       })
       .select()
       .single()

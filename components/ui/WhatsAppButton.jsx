@@ -1,10 +1,16 @@
 "use client";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210"; 
   const defaultMessage = "Hello SRIJAN Fashion! I need some help.";
+
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") {
+    return null;
+  }
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
     defaultMessage
@@ -31,7 +37,6 @@ export default function WhatsAppButton() {
         </svg>
       </div>
 
-      
       <span className="font-bold text-[15px] tracking-wide whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-400 ease-in-out pr-5">
         WhatsApp
       </span>

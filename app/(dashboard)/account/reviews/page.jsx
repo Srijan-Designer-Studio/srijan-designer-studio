@@ -37,7 +37,7 @@ export default function CustomerReviewsPage() {
           rating,
           comment,
           created_at,
-          status,
+          is_approved,
           products (
             id,
             title,
@@ -74,7 +74,7 @@ export default function CustomerReviewsPage() {
         .update({ 
           rating: editRating, 
           comment: editComment,
-          status: 'Pending' 
+          is_approved: false 
         })
         .eq('id', selectedReview.id);
 
@@ -135,18 +135,23 @@ export default function CustomerReviewsPage() {
       <div className="space-y-6">
         {reviews.map((review) => {
           const product = review.products;
-          const imageUrl = product?.product_images?.[0]?.image_url || '/images/placeholder.jpg';
+          let imageUrl = '/images/placeholder.jpg';
+          const images = product?.product_images;
+          if (Array.isArray(images) && images.length > 0) {
+            imageUrl = typeof images[0] === 'string' ? images[0] : (images[0]?.image_url || '/images/placeholder.jpg');
+          }
+
           const date = new Date(review.created_at).toLocaleDateString('en-IN', {
             year: 'numeric', month: 'short', day: 'numeric'
           });
-          const reviewStatus = review.status || 'Published';
+          const reviewStatus = review.is_approved === true ? 'Published' : 'Pending';
 
           return (
             <Card key={review.id} className="p-6 shadow-sm border-gray-100 flex flex-col md:flex-row gap-6">
               
               <div className="flex items-start gap-4 md:w-1/3">
                 <div className="w-20 h-24 rounded-lg bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
-                  <img src={imageUrl} alt={product?.title} fill="true" className="object-cover w-full h-full" />
+                  <img src={imageUrl} alt={product?.title} className="object-cover w-full h-full" onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'} />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-sm text-gray-900 line-clamp-2">{product?.title}</h3>
@@ -172,13 +177,13 @@ export default function CustomerReviewsPage() {
                 <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100 justify-end">
                   <button 
                     onClick={() => handleEditClick(review)}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Edit2 size={14} /> Edit Review
                   </button>
                   <button 
                     onClick={() => handleDeleteReview(review.id)}
-                    className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors"
+                    className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Trash2 size={14} /> Delete
                   </button>
@@ -207,14 +212,14 @@ export default function CustomerReviewsPage() {
             <button 
               disabled={isUpdating}
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
             >
               Cancel
             </button>
             <button 
               disabled={isUpdating}
               onClick={handleUpdateReview}
-              className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isUpdating && <Loader2 size={14} className="animate-spin" />}
               Update Review
@@ -227,9 +232,16 @@ export default function CustomerReviewsPage() {
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-md overflow-hidden relative border border-gray-200">
                 <img 
-                  src={selectedReview.products?.product_images?.[0]?.image_url || '/images/placeholder.jpg'} 
+                  src={(() => {
+                    const images = selectedReview.products?.product_images;
+                    if (Array.isArray(images) && images.length > 0) {
+                      return typeof images[0] === 'string' ? images[0] : (images[0]?.image_url || '/images/placeholder.jpg');
+                    }
+                    return '/images/placeholder.jpg';
+                  })()} 
                   alt={selectedReview.products?.title}  
                   className="object-cover w-full h-full" 
+                  onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'}
                 />
               </div>
               <p className="font-bold text-sm text-gray-900 line-clamp-1">{selectedReview.products?.title}</p>

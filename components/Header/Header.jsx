@@ -1,11 +1,9 @@
-
-
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +15,7 @@ import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
 import SearchDrawer from "@/components/search/SearchDrawer";
 
 export default function Header({ initialUser = null }) {
+  const pathname = usePathname();
   const { cartItems, wishlistItems, isLoaded } = useCart();
   const [user, setUser] = useState(initialUser);
   const [status, setStatus] = useState(initialUser ? "authenticated" : "unauthenticated");
@@ -92,6 +91,10 @@ export default function Header({ initialUser = null }) {
   const toggleMobileDropdown = (id) => {
     setMobileActiveDropdown(mobileActiveDropdown === id ? null : id);
   };
+
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") {
+    return null;
+  }
 
   const renderIcons = (isMobile = false) => {
     return NAV_ICONS.map((icon) => {

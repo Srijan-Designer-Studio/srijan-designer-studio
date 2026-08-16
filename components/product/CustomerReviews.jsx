@@ -64,17 +64,15 @@ export default function CustomerReviews({ productId }) {
     
     startTransition(async () => {
       try {
-        // ব্যাকএন্ড থেকে আসা রেসপন্সটি রিসিভ করা হচ্ছে
         const response = await addReview(productId, rating, comment);
         
         if (response?.success) {
-          setMessage(response.message); // সাকসেস মেসেজ দেখাবে
+          setMessage(response.message);
           setIsWriting(false);
           setComment("");
           setRating(5);
         }
       } catch (error) {
-        // প্রোডাক্ট না কিনে থাকলে যে এরর থ্রো করবে, সেটি এখানে দেখাবে
         setMessage(error.message);
       }
     });
@@ -124,7 +122,7 @@ export default function CustomerReviews({ productId }) {
             {!isWriting && (
               <button
                 onClick={() => setIsWriting(true)}
-                className="w-full md:w-[280px] h-[52px] bg-[#00c3ff] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md"
+                className="w-full md:w-[280px] h-[52px] bg-[#00c3ff] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[#00a0d6] transition-colors shadow-md cursor-pointer"
               >
                 Write A Review
               </button>
@@ -135,7 +133,7 @@ export default function CustomerReviews({ productId }) {
 
         {isWriting && (
           <div className="bg-white text-black p-6 rounded-xl shadow-sm mb-12 border border-gray-100 relative">
-            <button onClick={() => setIsWriting(false)} className="absolute top-4 right-4 text-gray-400 hover:text-black">
+            <button onClick={() => setIsWriting(false)} className="absolute top-4 right-4 text-gray-400 hover:text-black cursor-pointer">
               <X size={20} />
             </button>
             <h3 className="text-lg font-bold mb-4">Write your review</h3>
@@ -144,7 +142,7 @@ export default function CustomerReviews({ productId }) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <button type="button" key={star} onClick={() => setRating(star)}>
+                    <button type="button" key={star} onClick={() => setRating(star)} className="cursor-pointer">
                       <Star size={24} fill={rating >= star ? "#c04f36" : "none"} color="#c04f36" />
                     </button>
                   ))}
@@ -161,7 +159,7 @@ export default function CustomerReviews({ productId }) {
                   placeholder="What did you like or dislike about this product?"
                 ></textarea>
               </div>
-              <button disabled={isPending} type="submit" className="bg-black text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-gray-800 disabled:opacity-70 flex items-center gap-2">
+              <button disabled={isPending} type="submit" className="bg-black text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-gray-800 disabled:opacity-70 flex items-center gap-2 cursor-pointer">
                 {isPending && <Loader2 size={16} className="animate-spin" />}
                 Submit Review
               </button>

@@ -1,9 +1,9 @@
-// OrdersClientWrapper.jsx
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Package, Eye, XCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Package, Eye, XCircle, Star } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -78,7 +78,15 @@ export default function OrdersClientWrapper({ initialOrders }) {
           </button>
           
           {row.status === 'Delivered' && (
-            <DownloadInvoice order={row.rawOrder} />
+            <>
+              <DownloadInvoice order={row.rawOrder} />
+              <button
+                onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
+                className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer"
+              >
+                <Star size={16} className="fill-yellow-600" /> Review
+              </button>
+            </>
           )}
 
           {(row.status === 'Pending' || row.status === 'Processing') && (
@@ -165,7 +173,16 @@ export default function OrdersClientWrapper({ initialOrders }) {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 mb-2">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+                      
+                      {selectedOrder.status.toLowerCase() === 'delivered' && (
+                        <Link 
+                          href={`/shop-style`} 
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded transition-colors"
+                        >
+                          <Star size={10} className="fill-white" /> Write Review
+                        </Link>
+                      )}
                     </div>
                     <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                   </div>

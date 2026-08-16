@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { MapPin, Phone, Mail } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -69,17 +70,14 @@ const CustomQIcon = () => (
 );
 
 export default function Footer() {
+  const pathname = usePathname();
   const footerRef = useRef(null);
 
   useEffect(() => {
     let timeoutId;
 
-    
     const resizeObserver = new ResizeObserver(() => {
-      
       clearTimeout(timeoutId);
-      
-      
       timeoutId = setTimeout(() => {
         ScrollTrigger.refresh();
       }, 200); 
@@ -87,12 +85,10 @@ export default function Footer() {
 
     resizeObserver.observe(document.body);
 
-    
     document.fonts.ready.then(() => {
       ScrollTrigger.refresh();
     });
 
-    
     const loadTimeout = setTimeout(() => {
         ScrollTrigger.refresh();
     }, 1000);
@@ -154,6 +150,10 @@ export default function Footer() {
       }
     );
   }, { scope: footerRef });
+
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") {
+    return null;
+  }
 
   return (
     <footer className="bg-[#04051a] pt-16 pb-8" ref={footerRef}>

@@ -78,7 +78,9 @@ export default function CheckoutPage() {
         const orderPayload = {
           totalAmount: frontendTotal,
           paymentMethod: "cod", // ডাটাবেসে COD হিসেবে সেভ হবে
+          customer_phone: formData.get('phone'), // ফোন নম্বর ডাটাবেসের জন্য যুক্ত করা হলো
           address: {
+            phone: formData.get('phone'),
             addressLine1: formData.get('address1'),
             addressLine2: formData.get('address2'),
             city: formData.get('city'),
@@ -182,6 +184,13 @@ export default function CheckoutPage() {
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                {/* Phone Number Field Added Here */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                  <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                </div>
+
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
                   <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />

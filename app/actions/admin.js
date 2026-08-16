@@ -26,7 +26,6 @@ export async function getDashboardStats() {
   try {
     await verifyAdmin()
 
-    
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('id, total_amount, status, created_at, payment_method, user_id')
@@ -43,42 +42,32 @@ export async function getDashboardStats() {
           totalRevenue += Number(o.total_amount || 0);
         }
       });
-    
     }
 
-      
     const { count: totalCustomers } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
 
-      
     const { data: recentOrders } = await supabase
       .from('orders')
       .select('id, total_amount, status, profiles(first_name, last_name)')
       .order('created_at', { ascending: false })
       .limit(5)
 
-    // ==========================================
-    // 📊 DYNAMIC CHART DATA CALCULATION START
-    // ==========================================
-
-    // ৪. Dynamic Sales Data 
     const salesData = [];
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      const dateString = d.toISOString().split('T')[0]; // YYYY-MM-DD
+      const dateString = d.toISOString().split('T')[0];
       const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
 
-     
       const dayOrders = orders?.filter(o => o.created_at.startsWith(dateString)) || [];
       const dayRev = dayOrders.reduce((sum, o) => o.status !== 'cancelled' ? sum + Number(o.total_amount || 0) : sum, 0);
 
       salesData.push({ date: dayName, revenue: dayRev, orders: dayOrders.length });
     }
 
-    // ৫. Dynamic Revenue Data (Online vs COD)
     let onlineRev = 0;
     let codRev = 0;
     orders?.forEach(o => {
@@ -100,7 +89,6 @@ export async function getDashboardStats() {
       { name: 'COD', value: codPct || 0, color: '#eab308' },
     ];
 
-    // ৬. Dynamic Category Sales
     const { data: orderItems } = await supabase
       .from('order_items')
       .select(`
@@ -113,7 +101,6 @@ export async function getDashboardStats() {
 
     const categoryMap = {};
     orderItems?.forEach(item => {
-     
       const catName = item.product_variants?.products?.department || item.product_variants?.products?.product_type || 'Others';
       const itemTotal = Number(item.price || 0) * Number(item.quantity || 1);
       categoryMap[catName] = (categoryMap[catName] || 0) + itemTotal;
@@ -132,7 +119,6 @@ export async function getDashboardStats() {
       categoryData = [{ name: 'No Sales Yet', value: 100, color: '#e5e7eb' }];
     }
 
-    // ৭. Dynamic Top Products 
     const topProducts = [];
  
     const { data: topProductsData } = await supabase
@@ -147,15 +133,12 @@ export async function getDashboardStats() {
           id: p.id,
           title: p.title,
           image: p.product_images?.[0]?.image_url || null,
-          revenue: Number(p.base_price || 0), // এটি আরও ডায়নামিক করা যায়
+          revenue: Number(p.base_price || 0),
           sales: 1
         });
       });
     }
 
-    // ==========================================
-    // ⚠️ Note for "Search Keywords":
-    // ==========================================
     const keywords = [
       { word: 'srijan fashion', clicks: 245, impressions: '1.2k', ctr: '20.4%', position: 1.2 },
       { word: 'buy lehenga online', clicks: 182, impressions: '3.4k', ctr: '5.3%', position: 4.5 },
@@ -224,10 +207,10 @@ export async function getAllOrders() {
     let variants = [];
 
     if (itemIds.length > 0) {
-      const { data: pData } = await supabase.from('products').select('id, title').in('id', itemIds);
+      const { data: pData } = await supabase.from('products').select('id, title, product_images(image_url)').in('id', itemIds);
       products = pData || [];
 
-      const { data: vData } = await supabase.from('product_variants').select('id, sku, products(title)').in('id', itemIds);
+      const { data: vData } = await supabase.from('product_variants').select('id, sku, products(title, product_images(image_url))').in('id', itemIds);
       variants = vData || [];
     }
 
@@ -243,7 +226,8 @@ export async function getAllOrders() {
           product_variants: {
             sku: variantMatch?.sku || 'N/A',
             products: {
-              title: variantMatch?.products?.title || productMatch?.title || 'Unknown Product'
+              title: variantMatch?.products?.title || productMatch?.title || 'Unknown Product',
+              product_images: variantMatch?.products?.product_images || productMatch?.product_images || []
             }
           }
         };
@@ -746,7 +730,6 @@ export async function createProduct(formData) {
   }
 }
 
-// push order to shiprocket (adhoc)
 export async function pushOrderToShiprocket(orderId) {
   const supabase = createAdminClient();
 
@@ -931,8 +914,6 @@ export async function submitNDRAction(orderId, awb, actionType) {
     return { success: false, error: error.message };
   }
 }
-
-// Added Missing Functions Below
 
 export async function requestPickup(shipmentId) {
   try {

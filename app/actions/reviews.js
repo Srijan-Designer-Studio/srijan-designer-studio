@@ -9,15 +9,18 @@ export async function addReview(productId, rating, comment) {
 
   if (!user) throw new Error('You must be logged in to leave a review.')
 
-  const { data: hasPurchased } = await supabase
+  const { data: hasPurchased, error: checkError } = await supabase
     .from('orders')
-    .select('order_items!inner(variant_id, product_variants!inner(product_id))')
+    .select('id, status, order_items!inner(variant_id, product_variants!inner(product_id))')
     .eq('user_id', user.id)
     .eq('order_items.product_variants.product_id', productId)
+    .eq('status', 'delivered')
     .limit(1)
 
+  if (checkError) throw new Error('Failed to verify purchase history.')
+
   if (!hasPurchased || hasPurchased.length === 0) {
-    throw new Error('You can only review products you have purchased.')
+    throw new Error('You can only review products after they have been delivered to you.')
   }
 
   const { error } = await supabase.from('reviews').insert({
@@ -47,17 +50,13 @@ export async function getProductReviews(productId) {
   return data
 }
 
-// --- ADMIN FUNCTIONS ---
-
 export async function getAllReviews() {
   const supabase = createAdminClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // ইমেইলে 'admin' লেখা থাকলেই তাকে অ্যাডমিন হিসেবে ধরে নেবে
   const isAdmin = user && (user.email?.includes('admin') || user.user_metadata?.role === 'admin')
 
-  // পেজ ক্র্যাশ না করানোর জন্য Error থ্রো এর বদলে ফাঁকা Array রিটার্ন করা হলো
   if (!isAdmin) return []
 
   const { data, error } = await supabase

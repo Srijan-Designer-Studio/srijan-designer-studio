@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Image from 'next/image';
 import { Star, CheckCircle, XCircle, MessageSquare, Loader2, Trash2 } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
@@ -55,17 +54,25 @@ export default function ReviewsClientWrapper({ initialReviews }) {
     });
   };
 
-  const formattedReviews = reviews.map(r => ({
-    raw: r,
-    id: r.id,
-    customer: `${r.profiles?.first_name} ${r.profiles?.last_name}`,
-    product: r.products?.title,
-    rating: r.rating,
-    comment: r.comment,
-    date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(r.created_at)),
-    status: r.is_approved === true ? 'Published' : r.is_approved === false ? 'Pending' : 'Rejected',
-    image: r.products?.product_images?.[0]?.image_url || '/images/placeholder.jpg'
-  }));
+  const formattedReviews = reviews.map(r => {
+    let imageUrl = '/images/placeholder.jpg';
+    const images = r.products?.product_images;
+    if (Array.isArray(images) && images.length > 0) {
+      imageUrl = typeof images[0] === 'string' ? images[0] : (images[0]?.image_url || '/images/placeholder.jpg');
+    }
+
+    return {
+      raw: r,
+      id: r.id,
+      customer: `${r.profiles?.first_name || 'Guest'} ${r.profiles?.last_name || ''}`.trim(),
+      product: r.products?.title || 'Unknown Product',
+      rating: r.rating,
+      comment: r.comment,
+      date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(r.created_at)),
+      status: r.is_approved === true ? 'Published' : r.is_approved === false ? 'Pending' : 'Rejected',
+      image: imageUrl
+    };
+  });
 
   const reviewColumns = [
     { 
@@ -74,7 +81,12 @@ export default function ReviewsClientWrapper({ initialReviews }) {
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-md bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
-            <Image src={row.image} alt={row.product} fill className="object-cover opacity-80" />
+            <img 
+              src={row.image} 
+              alt={row.product} 
+              className="object-cover w-full h-full opacity-80" 
+              onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'}
+            />
           </div>
           <div>
             <p className="font-semibold text-gray-900 text-xs line-clamp-1">{row.product}</p>
@@ -110,17 +122,17 @@ export default function ReviewsClientWrapper({ initialReviews }) {
         <div className="flex items-center gap-2">
           {row.status === 'Pending' && (
             <>
-              <button disabled={isPending} onClick={() => handleReviewAction(row, 'published')} className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors disabled:opacity-50">
+              <button disabled={isPending} onClick={() => handleReviewAction(row, 'published')} className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors cursor-pointer disabled:opacity-50">
                 <CheckCircle size={16} />
               </button>
-              <button disabled={isPending} onClick={() => handleReviewAction(row, 'deleted')} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50">
+              <button disabled={isPending} onClick={() => handleReviewAction(row, 'deleted')} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer disabled:opacity-50">
                 <XCircle size={16} />
               </button>
             </>
           )}
           <button 
             onClick={() => handleReviewAction(row, 'view')}
-            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors ml-2"
+            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors ml-2 cursor-pointer"
           >
             <MessageSquare size={16} />
           </button>
@@ -157,20 +169,20 @@ export default function ReviewsClientWrapper({ initialReviews }) {
           <div className="w-full flex justify-end gap-3">
              {selectedReview?.status === 'Pending' && (
                <>
-                 <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'deleted')} className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 flex items-center gap-2">
+                 <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'deleted')} className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 flex items-center gap-2 cursor-pointer">
                    {isPending && <Loader2 size={14} className="animate-spin" />} Reject
                  </button>
-                 <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'published')} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 shadow-sm flex items-center gap-2">
+                 <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'published')} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 shadow-sm flex items-center gap-2 cursor-pointer">
                    {isPending && <Loader2 size={14} className="animate-spin" />} Approve & Publish
                  </button>
                </>
              )}
              {selectedReview?.status !== 'Pending' && (
                <>
-                <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'deleted')} className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 transition-colors flex items-center gap-2">
+                <button disabled={isPending} onClick={() => handleReviewAction(selectedReview, 'deleted')} className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-800 transition-colors flex items-center gap-2 cursor-pointer">
                   <Trash2 size={16} /> Delete
                 </button>
-                <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer">
                   Close
                 </button>
                </>
@@ -182,7 +194,12 @@ export default function ReviewsClientWrapper({ initialReviews }) {
           <div className="space-y-6">
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
               <div className="w-16 h-16 rounded-lg bg-white overflow-hidden relative flex-shrink-0 shadow-sm">
-                <Image src={selectedReview.image} alt={selectedReview.product} fill className="object-cover" />
+                <img 
+                  src={selectedReview.image} 
+                  alt={selectedReview.product} 
+                  className="object-cover w-full h-full" 
+                  onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'}
+                />
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Product</p>
