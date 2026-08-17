@@ -34,12 +34,28 @@ export default function Founder() {
   }, { scope: containerRef });
 
   return (
-    <section className="py-20 lg:py-32 bg-gradient-to-br from-[#1c1d42] via-[#383a5e] to-[#808197]" ref={containerRef}>
+    <section className="py-16 lg:py-32 bg-gradient-to-br from-[#34365A] via-[#35375B] to-[#808197]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
 
-          <div className="lg:col-span-5 flex justify-center lg:justify-start w-full">
-            <div className="founder-img relative w-full max-w-[500px] aspect-[4/3] rounded-[24px] overflow-hidden shadow-2xl">
+
+          <div className="lg:col-span-7 max-w-[650px] order-1 lg:order-2">
+            <h2 className="founder-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+              A WORD FROM THE FOUNDER
+            </h2>
+            <h3 className="founder-text text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-6">
+              Mithu Roy — Founder, <br className="hidden sm:block" />
+              SRIJAN Fashion
+            </h3>
+            <p className="founder-text text-[15px] lg:text-[18px] text-gray-100 leading-[1.7]">
+              At SRIJAN Fashion, we believe every outfit should reflect your personality.
+              Our goal is to create designs that make you feel confident, comfortable,
+              and special on every occasion. Thank you for being a part of our journey.
+            </p>
+          </div>
+
+          <div className="lg:col-span-5 flex justify-center lg:justify-start w-full order-2 lg:order-1 mt-6 lg:mt-0">
+            <div className="founder-img relative w-full max-w-[360px] lg:max-w-[500px] aspect-[3/2] rounded-[24px] overflow-hidden shadow-2xl mx-auto lg:mx-0">
               {imageSrc ? (
                 <Image
                   src={imageSrc}
@@ -55,21 +71,6 @@ export default function Founder() {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="lg:col-span-7 max-w-[650px]">
-            <h2 className="founder-text text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
-              A WORD FROM THE FOUNDER
-            </h2>
-            <h3 className="founder-text text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-6">
-              Mithu Roy — Founder, <br className="hidden sm:block" />
-              SRIJAN Fashion
-            </h3>
-            <p className="founder-text text-[16px] lg:text-[18px] text-gray-100 leading-[1.7]">
-              At SRIJAN Fashion, we believe every outfit should reflect your personality.
-              Our goal is to create designs that make you feel confident, comfortable,
-              and special on every occasion. Thank you for being a part of our journey.
-            </p>
           </div>
 
         </div>

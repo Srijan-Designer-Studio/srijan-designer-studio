@@ -45,7 +45,6 @@ const kidsCards = [
 
 export default function CustomizeKidsWear() {
   const containerRef = useRef(null);
-  const marqueeText = "   ✿ BESPOKE FASHION    ✿ TIMELESS ELEGANCE    ✿ DESIGNER COLLECTION    ✿ BRIDAL SPECIALISTS    ✿ CUSTOM-FIT    ";
 
   useGSAP(() => {
     let mm = gsap.matchMedia();
@@ -110,7 +109,7 @@ export default function CustomizeKidsWear() {
             </p>
             <div>
               <Link
-                href="/kids"
+                href="/create-custom-kids-wear"
                 className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Design Now
@@ -183,7 +182,7 @@ export default function CustomizeKidsWear() {
         </div>
       </div>
 
-      <div className="w-full bg-[#00c3ff] py-3.5 border-t border-white/20 overflow-hidden relative flex items-center shrink-0 mt-auto">
+      <div className="w-full bg-[#00c3ff] py-4 border-t border-white/20 overflow-hidden relative flex items-center shrink-0 mt-auto">
         <style>
           {`
             @keyframes marquee {
@@ -193,7 +192,7 @@ export default function CustomizeKidsWear() {
             .animate-marquee {
               display: inline-flex;
               white-space: nowrap;
-              animation: marquee 25s linear infinite;
+              animation: marquee 35s linear infinite;
             }
             @keyframes cardMarquee {
               0% { transform: translateX(0%); }
@@ -210,10 +209,17 @@ export default function CustomizeKidsWear() {
           `}
         </style>
         <div className="animate-marquee">
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
-          <span className="text-white font-bold tracking-widest text-sm sm:text-base">{marqueeText}</span>
+          {/* 4 times map to ensure the loop is seamless */}
+          {[1, 2, 3, 4].map((index) => (
+            <div key={index} className="flex items-center text-white font-bold tracking-widest text-sm sm:text-base shrink-0">
+              <span className="mx-3 sm:mx-5">✿</span> BESPOKE FASHION
+              <span className="mx-3 sm:mx-5">✿</span> TIMELESS ELEGANCE
+              <span className="mx-3 sm:mx-5">✿</span> DESIGNER COLLECTION
+              <span className="mx-3 sm:mx-5">✿</span> WEDDING STYLIST
+              <span className="mx-3 sm:mx-5">✿</span> CUSTOM-MADE OUTFITS
+              <span className="mx-3 sm:mx-5">✿</span> KIDS FASHION
+            </div>
+          ))}
         </div>
       </div>
 

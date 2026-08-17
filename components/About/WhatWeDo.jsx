@@ -53,17 +53,15 @@ export default function WhatWeDo() {
   }, { scope: containerRef });
 
   return (
-    <section className="py-20 lg:py-32 bg-white" ref={containerRef}>
+    <section className="py-16 lg:py-32 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
-          <div className="w-full flex justify-center lg:justify-start pt-16 pb-12">
 
-            <div className="relative  w-full max-w-[320px sm:max-w-[380px] aspect-[4/5]">
-
+          <div className="w-full flex justify-center lg:justify-start pt-10 pb-8 lg:pt-16 lg:pb-12 order-2 lg:order-1">
+            <div className="wwd-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[4/5] mx-auto lg:mx-0">
               {imageSrc ? (
-
-                <div className="absolute inset-x-0 bottom-0 h-[120%] z-10 pointer-events-none">
+                <div className="absolute inset-x-0 bottom-0 h-[115%] lg:h-[120%] z-10 pointer-events-none">
                   <Image
                     src={imageSrc}
                     alt="Srijan Fashion Mannequin"
@@ -78,21 +76,20 @@ export default function WhatWeDo() {
                   </span>
                 </div>
               )}
-
             </div>
           </div>
 
-          <div className="max-w-[650px]">
+          <div className="max-w-[650px] order-1 lg:order-2">
             <h2 className="wwd-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-6">
               What We Do
             </h2>
-            <p className="wwd-text text-[17px] text-gray-800 leading-relaxed mb-8">
+            <p className="wwd-text text-[16px] lg:text-[17px] text-gray-800 leading-relaxed mb-8">
               We are not just a boutique; we are a full-spectrum fashion hub.
             </p>
             <ul className="space-y-6 list-disc pl-5 marker:text-black">
               {servicesData.map((service, index) => (
                 <li key={index} className="wwd-text pl-2">
-                  <p className="text-[16px] lg:text-[17px] leading-[1.65] text-gray-800">
+                  <p className="text-[15px] lg:text-[17px] leading-[1.65] text-gray-800">
                     <strong className="font-bold text-black">
                       {service.title}
                     </strong>{" "}

@@ -73,7 +73,7 @@ export default function Hero() {
                 className="hero-img absolute inset-0 w-full h-full object-cover object-center"
               ></video>
 
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+              {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60 via-black/30"></div> */}
 
               <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
                 <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">

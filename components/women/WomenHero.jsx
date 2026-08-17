@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 
 export default function WomenHero() {
   const containerRef = useRef(null);
-  const bgImageSrc = "/other-img/For Women HERO Section.webp"; 
+  const bgImageSrc = "/others-img/For Women HERO Section.webp"; 
 
   useGSAP(() => {
     gsap.fromTo(

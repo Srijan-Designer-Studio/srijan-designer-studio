@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { getCart } from "@/app/actions/shopping";
+import { getCart, addToCart as addToCartDB, removeFromCartDB, updateCartQuantityDB } from "@/app/actions/shopping";
 import { createBrowserClient } from '@supabase/ssr'
 
 const CartContext = createContext();
@@ -24,14 +24,14 @@ export function CartProvider({ children }) {
           const dbCart = await getCart();
           if (dbCart && dbCart.cart_items) {
             const mappedCart = dbCart.cart_items.map(item => ({
-              id: item.product_variants.products.id,
-              variantId: item.variant_id,
-              title: item.product_variants.products.title,
-              price: item.product_variants.products.base_price,
-              image: item.product_variants.products.product_images?.[0]?.image_url,
+              id: item.product_variants?.products?.id || item.id,
+              variantId: item.variant_id || item.id,
+              title: item.product_variants?.products?.title || 'Unknown Product',
+              price: item.product_variants?.products?.base_price || 0,
+              image: item.product_variants?.products?.product_images?.[0]?.image_url,
               quantity: item.quantity,
-              size: item.product_variants.size,
-              color: item.product_variants.color,
+              size: item.product_variants?.size,
+              color: item.product_variants?.color,
             }));
             setCartItems(mappedCart);
           }
@@ -58,27 +58,47 @@ export function CartProvider({ children }) {
     }
   }, [cartItems, wishlistItems, isLoaded]);
 
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = async (product, quantity = 1) => {
+    const targetId = product.variantId || product.id;
+    let newQuantity = quantity;
+
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.variantId === product.variantId);
+      const existing = prev.find((item) => (item.variantId || item.id) === targetId);
       if (existing) {
+        newQuantity = existing.quantity + quantity;
         return prev.map((item) =>
-          item.variantId === product.variantId ? { ...item, quantity: item.quantity + quantity } : item
+          (item.variantId || item.id) === targetId ? { ...item, quantity: newQuantity } : item
         );
       }
       return [...prev, { ...product, quantity }];
     });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await addToCartDB(targetId, newQuantity);
+    }
   };
 
-  const removeFromCart = (variantId) => {
-    setCartItems((prev) => prev.filter((item) => item.variantId !== variantId));
+  const removeFromCart = async (idToRemove) => {
+    setCartItems((prev) => prev.filter((item) => (item.variantId || item.id) !== idToRemove));
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await removeFromCartDB(idToRemove);
+    }
   };
 
-  const updateQuantity = (variantId, quantity) => {
+  const updateQuantity = async (idToUpdate, quantity) => {
     if (quantity < 1) return;
+    
     setCartItems((prev) =>
-      prev.map((item) => (item.variantId === variantId ? { ...item, quantity } : item))
+      prev.map((item) => ((item.variantId || item.id) === idToUpdate ? { ...item, quantity } : item))
     );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await updateCartQuantityDB(idToUpdate, quantity);
+    }
   };
 
   const toggleWishlist = (product) => {

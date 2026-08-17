@@ -11,33 +11,33 @@ gsap.registerPlugin(ScrollTrigger);
 const faqData = [
   {
     id: 1,
-    question: "Can I enjoy online shopping and order custom outfits from Srijan Fashion?",
-    answer: "Yes. You can enjoy online shopping for our ready-to-wear collections or contact us to create a custom outfit designed to match your style, size and occasion.",
+    question: "Can I shop online and customize outfits from SRIJAN Fashion?",
+    answer: "Yes. You can indulge in online shopping for our readymade collections or simply get in touch with us to design an outfit especially made for you according to your tastes, sizes and occasions.",
   },
   {
     id: 2,
     question: "What fashion styles are available at Srijan Fashion?",
-    answer: "We offer a wide range of fashion styles, including ethnic wear, Indo-western outfits, festive wear, casual wear and custom designs for women, men and kids.",
+    answer: "We have a large collection of various fashion styles that include ethnic wear, Indo-western wear, party wear, casual wear and customized designs for women, men and kids.",
   },
   {
     id: 3,
     question: "Do you create custom wedding wear?",
-    answer: "Yes. We design custom wedding wear for brides, grooms, bridesmaids and family members. Every outfit is tailored to your measurements, preferences and special occasion.",
+    answer: "Yes. We have specialized designs for brides, grooms, bridesmaids and families for wedding wear.",
   },
   {
     id: 4,
     question: "Can I customize outfits for my child's birthday or special event?",
-    answer: "Absolutely! Our customize kids wear service lets you create outfits for birthdays, naming ceremonies, festivals and themed celebrations with a comfortable fit and unique design.",
+    answer: "Yes. Through our customize kids wear facility you can make outfits for birthdays, festivals and theme parties.",
   },
   {
     id: 5,
     question: "How does the custom dress design process work?",
-    answer: "Simply share your ideas, preferred fashion styles, fabric choices, or reference images. We'll work with you to create a custom dress that fits perfectly and reflects your vision.",
+    answer: "You just have to share your ideas, fashion styles, fabrics of your choice and even some images. We will design and create the custom dress according to your wishes and requirements.",
   },
   {
     id: 6,
     question: "Do you offer online shopping across India?",
-    answer: "Yes. Our online shopping service allows customers across India to explore our collections and order stylish outfits with ease. You can also contact us for personalized customization services.",
+    answer: "Yes. With our online shopping facility, customers from all across India can shop for our stylish outfits conveniently.",
   },
 ];
 

@@ -1,5 +1,4 @@
 // data/header.js
-// data/header.js
 
 export const NAV_ICONS = [
   // { id: "search", src: "", href: "#", alt: "Search" },
@@ -14,73 +13,23 @@ export const NAV_DATA = [
   {
     id: 3,
     label: "Products",
-    isTabbedMegaMenu: true,
-    tabs: [
-      {
-        id: "women",
-        label: "For Women",
-        leftColumn: {
-          title: "ALL WOMEN'S CATEGORIES",
-          links: [
-            { label: "Ethnic Wear", href: "/ethnic-wear" },
-            { label: "Western Wear", href: "/western-wear" },
-            { label: "Bridal Wear", href: "/create-custom-wedding-wear" },
-          ],
-        },
-        rightColumn: {
-          title: "CUSTOM BRIDAL WEAR",
-          description: "Want to look special on your special day? Get our Custom Bridal Solution to Customize your Bridal Dress",
-          buttonText: "Click here to fillup the form",
-          buttonLink: "/create-designer-dress",
-        },
-      },
-      {
-        id: "men",
-        label: "For Men",
-        leftColumn: {
-          title: "ALL MEN'S CATEGORIES",
-          links: [
-            { label: "Ethnic Wear", href: "/ethnic-wear" },
-            { label: "Western Wear", href: "/western-wear" },
-            { label: "Custom Wear", href: "/create-designer-dress" },
-          ],
-        },
-        rightColumn: {
-          title: "CUSTOM MEN'S WEAR",
-          description: "Elevate your style with bespoke ethnic and western wear tailored to perfection for any occasion.",
-          buttonText: "Design Men's Outfit",
-          buttonLink: "/cuscreate-designer-dresstomize",
-        },
-      },
-      {
-        id: "kids",
-        label: "For Kids",
-        leftColumn: {
-          title: "ALL KIDS' CATEGORIES",
-          links: [
-            { label: "Party Wear", href: "/kids/party" },
-            { label: "Ethnic Wear", href: "/kids/ethnic" },
-            { label: "Casual Wear", href: "/kids/casual" },
-          ],
-        },
-        rightColumn: {
-          title: "CUSTOM KIDS WEAR",
-          description: "Make every celebration extra special with adorable custom outfits designed for your little ones.",
-          buttonText: "Design Kids Outfit",
-          buttonLink: "/create-custom-kids-wear",
-        },
-      }
-    ]
+    type: "nested-menu",
+    categories: [
+      { id: "cat-women", label: "For Women", href: "/buy-designer-outfits-for-women-online" },
+      { id: "cat-men", label: "For Men", href: "/buy-designer-outfits-for-men-online" },
+
+    ],
   },
   {
     id: 4,
     label: "Customize",
+    type: "simple-menu",
     categories: [
-      { id: "cust-women", label: "For Women", href: "/create-designer-dress" },
-      { id: "cust-men", label: "For Men", href: "/create-designer-dress" },
-      { id: "cust-kids", label: "For Kids", href: "/create-custom-kids-wear" },
+      { label: "Create Custom Dress", href: "/create-designer-dress" },
+      { label: "Custom Wedding Wear", href: "/create-custom-wedding-wear" },
+      { label: "Custom Kids Wear", href: "/create-custom-kids-wear" },
     ],
   },
   { id: 5, label: "Blog", href: "/blog" },
-  { id: 6, label: "Contact Us", href: "/contact-us" },
+  { id: 6, label: "Contact Us", href: "/contact" },
 ];

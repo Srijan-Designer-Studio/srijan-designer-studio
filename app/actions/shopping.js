@@ -19,6 +19,7 @@ export async function getCart() {
         cart_items (
           id,
           quantity,
+          variant_id,
           product_variants (
             id,
             size,
@@ -102,6 +103,70 @@ export async function addToCart(variantId, quantity) {
           .eq('id', variantData.product_id)
       }
     }
+
+    revalidatePath('/cart')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function removeFromCartDB(variantId) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) return { success: false, error: 'Authentication required' }
+
+    const adminDb = createAdminClient()
+    
+    const { data: cart } = await adminDb
+      .from('cart')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!cart) return { success: false, error: 'Cart not found' }
+
+    const { error } = await adminDb
+      .from('cart_items')
+      .delete()
+      .eq('cart_id', cart.id)
+      .eq('variant_id', variantId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/cart')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateCartQuantityDB(variantId, quantity) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) return { success: false, error: 'Authentication required' }
+
+    const adminDb = createAdminClient()
+    
+    const { data: cart } = await adminDb
+      .from('cart')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!cart) return { success: false, error: 'Cart not found' }
+
+    const { error } = await adminDb
+      .from('cart_items')
+      .update({ quantity })
+      .eq('cart_id', cart.id)
+      .eq('variant_id', variantId)
+
+    if (error) return { success: false, error: error.message }
 
     revalidatePath('/cart')
     return { success: true }

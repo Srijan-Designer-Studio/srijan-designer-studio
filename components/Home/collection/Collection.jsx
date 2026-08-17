@@ -70,7 +70,7 @@ export default function Collection() {
                     src={item.imageSrc}
                     alt={item.buttonText}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                   />
                 ) : (
                   <div className={`w-full h-full ${item.placeholderBg} flex items-center justify-center`}>

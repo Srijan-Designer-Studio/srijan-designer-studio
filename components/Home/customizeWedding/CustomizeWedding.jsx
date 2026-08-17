@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -95,13 +96,18 @@ export default function CustomizeWedding() {
             around your fashion styles, perfect fit and special moments.
           </p>
           <div className="wed-text inline-block">
-            <button
+            {/* <button
               onClick={() => openPopup("Women")}
               className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
             >
               Explore Now
               <ArrowRight size={18} strokeWidth={2.5} />
-            </button>
+            </button> */}
+
+            <Link href="/create-custom-wedding-wear" className="inline-flex items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] px-8 py-3.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer">
+              Explore Now
+              <ArrowRight size={18} strokeWidth={2.5} />
+            </Link>
           </div>
         </div>
 
