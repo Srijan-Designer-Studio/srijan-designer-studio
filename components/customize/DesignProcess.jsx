@@ -92,7 +92,7 @@ export default function DesignProcess() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <img src="/Create Custom-img/icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
+                <img src="/Create Custom-img/Icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Pick your fabric</h3>
               <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -102,7 +102,7 @@ export default function DesignProcess() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <img src="/Create Custom-img/icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
+                <img src="/Create Custom-img/Icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Design a dress</h3>
               <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -112,7 +112,7 @@ export default function DesignProcess() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <img src="/Create Custom-img/icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
+                <img src="/Create Custom-img/Icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get measured</h3>
               <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -126,7 +126,7 @@ export default function DesignProcess() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <img src="/Create Custom-img/icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
+                <img src="/Create Custom-img/Icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Consult with designer</h3>
               <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -136,7 +136,7 @@ export default function DesignProcess() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <img src="/Create Custom-img/icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
+                <img src="/Create Custom-img/Icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get delivered</h3>
               <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">

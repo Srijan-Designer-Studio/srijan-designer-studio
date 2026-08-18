@@ -2,10 +2,10 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup"; 
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,6 +29,7 @@ const menData = [
 
 export default function OccasionsEdit() {
   const [activeTab, setActiveTab] = useState("WOMEN");
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const containerRef = useRef(null);
 
   const currentData = activeTab === "WOMEN" ? womenData : menData;
@@ -64,6 +65,14 @@ export default function OccasionsEdit() {
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
+      
+      {/* Popup Component Call */}
+      <CustomStylesPopup 
+        isOpen={isPopupOpen} 
+        onClose={() => setIsPopupOpen(false)} 
+        category={activeTab === "WOMEN" ? "Women" : "Men"} // Passing category dynamically
+      />
+
       <div className="max-w-[1320px] mx-auto px-6 flex flex-col items-center">
 
         <h2 className="occasion-head text-2xl sm:text-3xl font-bold text-black mb-6 text-center">
@@ -88,39 +97,35 @@ export default function OccasionsEdit() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10 w-full mb-12">
-          {currentData.map((item) => {
-
-            const slug = item.title.toLowerCase().replace(/\s+/g, '-').replace('-edits', '');
-
-            return (
-              <Link
-                href={`/occasions/${slug}`}
-                key={item.id}
-                className="occasion-card flex flex-col items-center cursor-pointer group"
-              >
-                <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
-                  {item.imageSrc && (
-                    <Image
-                      src={item.imageSrc}
-                      alt={item.title}
-                      fill
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-                <h3 className="text-[13px] sm:text-[15px] font-bold text-black text-center group-hover:text-[#00c3ff] transition-colors">
-                  {item.title}
-                </h3>
-              </Link>
-            );
-          })}
+          {currentData.map((item) => (
+            <div
+              key={item.id}
+              className="occasion-card flex flex-col items-center cursor-pointer group"
+            >
+              <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
+                {item.imageSrc && (
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.title}
+                    fill
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+              </div>
+              <h3 className="text-[13px] sm:text-[15px] font-bold text-black text-center group-hover:text-[#00c3ff] transition-colors">
+                {item.title}
+              </h3>
+            </div>
+          ))}
         </div>
+        
         <div className="w-full flex items-center justify-center my-2">
-          <Link href={"/custom-wedding-wear"}>
-            <p className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md">
-              Choose Your Occasion
-            </p>
-          </Link>
+          <button 
+            onClick={() => setIsPopupOpen(true)} // Opens Popup
+            className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md"
+          >
+            Choose Your Occasion
+          </button>
         </div>
 
       </div>

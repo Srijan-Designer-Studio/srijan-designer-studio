@@ -10,126 +10,126 @@ const popupData = [
     category: "Women",
     title: "Custom Styles",
     desc: "Bring to life your ideas through our custom dresses which will definitely be perfect for you. Regardless of whether you have a drawing, an idea or even a picture from which we can get the inspiration, we will help create for you a dress which is absolutely your style.",
-    image: "/images/dress7.png", 
+    image: "/Custom Wedding Wear/Women Card 1.webp", 
     bgColor: "bg-[#a8a8a8]", 
-    link: "/custom-styles"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 2,
     category: "Women",
     title: "Gown & Evening Styles",
     desc: "Create unforgettable memories on your important days using our customized evening outfits. They will be perfectly matched to your style, your figure and your character. Whether you prefer a classical dress or something more modern, we will help you choose a suitable outfit which will make you feel confident.",
-    image: "/images/dress9.png",
+    image: "/Custom Wedding Wear/Women Card 2.webp",
     bgColor: "bg-[#a8a8a8]",
-    link: "/custom-styles"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 3,
     category: "Women",
     title: "Plus Size Styles",
     desc: "Flaunt your individual style wearing our designer dress which will definitely match and compliment your figure. The comfort and elegance of our customized outfits will make sure that you feel yourself at ease and beautiful.",
-    image: "/images/ethnic1.png",
+    image: "/Custom Wedding Wear/Women Card 3.webp",
     bgColor: "bg-[#a8a8a8]",
-    link: "/custom-styles"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 4,
     category: "Women",
     title: "Petite Styles",
     desc: "Looking for a dress that is meant to suit your body with a flawless design and fitting. Our designers will craft dresses in such a way to make you look and feel great.",
-    image: "/images/ethnic2.png",
+    image: "/Custom Wedding Wear/Women Card 4.webp",
     bgColor: "bg-[#a8a8a8]",
-    link: "/custom-styles"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 5,
     category: "Men",
     title: "Sangeet Edits",
     desc: "Dazzle the crowd with our premium men's ethnic wear for Sangeet. From embroidered kurtas to stylish Nehru jackets, we customize every detail to match your vibe and the occasion.",
-    image: "/images/man4.png",
+    image: "/Custom Wedding Wear/Men Card 1.webp",
     bgColor: "bg-[#5c2c2c]",
-    link: "/occasions/sangeet"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 6,
     category: "Men",
     title: "Reception Styles",
     desc: "Look sharp and sophisticated on your special day. Our custom suits and sherwanis are crafted with premium fabrics and impeccable tailoring for a picture-perfect reception look.",
-    image: "/images/man5.png",
+    image: "/Custom Wedding Wear/Men Card 2.webp",
     bgColor: "bg-[#1a1a1a]",
-    link: "/occasions/reception"
+    link: "/create-custom-wedding-wear"
   },
   {
     id: 7,
     category: "Kids",
     title: "Party Perfect Clicks",
     desc: "Dress your little ones in outfits as cute as their smiles. Our custom kids wear is designed with soft, child-safe fabrics ensuring they stay comfortable while looking party-ready.",
-    image: "/images/kids.png",
+    image: "/Custom Kids Wear/Kids Card 1.webp",
     bgColor: "bg-[#f0f4f8]",
-    link: "/kids-wear"
+    link: "/create-custom-kids-wear"
   },
   {
     id: 8,
     category: "Kids",
     title: "First Birthday Clicks",
     desc: "Make their first milestone extra special. Share your vision and we will stitch a magical outfit that fits perfectly and looks breathtaking in all those precious birthday photos.",
-    image: "/images/kids-look4.png",
+    image: "/Custom Kids Wear/Kids Card 2.webp",
     bgColor: "bg-[#fce4ec]",
-    link: "/kids-wear"
+    link: "/create-custom-kids-wear"
   },
   {
   id: 9,
   category: "Men",
   title: "Classic Tailoring",
   desc: "Discover timeless tailoring designed for the modern gentleman. From formal occasions to business wear, every piece is crafted with premium fabrics and exceptional attention to detail.",
-  image: "/images/classic-tailoring.png",
+  image: "/Custom Wedding Wear/Men Card 3.webp",
   bgColor: "bg-[#8b7d72]",
-  link: "/custom-styles"
+  link: "/create-custom-wedding-wear"
 },
 {
   id: 10,
   category: "Men",
   title: "Smart Casual",
   desc: "Upgrade your everyday wardrobe with smart casual styles that combine comfort, versatility, and effortless sophistication for every occasion.",
-  image: "/images/man6.png",
+  image: "/Custom Wedding Wear/Men Card 4.webp",
   bgColor: "bg-[#6f7f86]",
-  link: "/custom-styles"
+  link: "/create-custom-wedding-wear"
 },
 {
   id: 11,
   category: "Men",
   title: "Wedding Collection",
   desc: "Celebrate your special moments with luxurious sherwanis, suits, and traditional attire designed to make a lasting impression with elegance and confidence.",
-  image: "/images/man7.png",
+  image: "/Custom Wedding Wear/Men Card 5.webp",
   bgColor: "bg-[#9a8667]",
-  link: "/custom-styles"
+  link: "/create-custom-wedding-wear"
 },
 {
   id: 12,
   category: "Kids",
   title: "Little Princess",
   desc: "Adorable dresses designed with soft fabrics, playful patterns, and charming details to keep your little princess comfortable, stylish, and full of confidence.",
-  image: "/images/kids.png",
+  image: "/Custom Kids Wear/Kids Card 3.webp",
   bgColor: "bg-[#d8a7b8]",
-  link: "/custom-styles"
+  link: "/create-custom-kids-wear"
 },
 {
   id: 13,
   category: "Kids",
   title: "Little Gentleman",
   desc: "Dress your little gentleman in stylish outfits crafted for comfort and elegance, perfect for birthdays, weddings, and every memorable occasion.",
-  image: "/images/little-gentleman.png",
+  image: "/Custom Kids Wear/Kids Card 4.webp",
   bgColor: "bg-[#8a9ba8]",
-  link: "/custom-styles"
+  link: "/create-custom-kids-wear"
 },
 {
   id: 14,
   category: "Kids",
   title: "Festive Fun",
   desc: "Bright and cheerful festive wear designed for active kids, combining vibrant colors, premium fabrics, and all-day comfort for every celebration.",
-  image: "/images/festive-kids.png",
+  image: "/Custom Kids Wear/Kids Card 5.webp",
   bgColor: "bg-[#c9a66b]",
-  link: "/custom-styles"
+  link: "/create-custom-kids-wear"
 }
 ];
 

@@ -49,6 +49,7 @@ export default function CustomizeKidsWear() {
   useGSAP(() => {
     let mm = gsap.matchMedia();
 
+    // Desktop Animation (Original Stacking Effect)
     mm.add("(min-width: 1024px)", () => {
       gsap.set(".desk-card", {
         y: (i) => i * 15,
@@ -118,6 +119,7 @@ export default function CustomizeKidsWear() {
             </div>
           </div>
 
+          {/* Desktop Cards (Original GSAP Animation) */}
           <div className="hidden lg:block relative w-full max-w-[420px] mx-auto lg:ml-auto aspect-[4/5]">
             {kidsCards.map((card) => (
               <div 
@@ -148,8 +150,9 @@ export default function CustomizeKidsWear() {
             ))}
           </div>
 
+          {/* Mobile Cards (Step Animation - 2s hold, 1s slide) */}
           <div className="block lg:hidden w-screen relative -ml-6 overflow-hidden mt-6">
-            <div className="animate-card-marquee py-2">
+            <div className="animate-card-step py-2">
               {[...kidsCards, ...kidsCards].map((card, idx) => (
                 <div 
                   key={`mob-${idx}`} 
@@ -185,6 +188,7 @@ export default function CustomizeKidsWear() {
       <div className="w-full bg-[#00c3ff] py-4 border-t border-white/20 overflow-hidden relative flex items-center shrink-0 mt-auto">
         <style>
           {`
+            /* Text Marquee (Smooth Continuous Scroll) */
             @keyframes marquee {
               0% { transform: translateX(0%); }
               100% { transform: translateX(-50%); }
@@ -194,30 +198,34 @@ export default function CustomizeKidsWear() {
               white-space: nowrap;
               animation: marquee 35s linear infinite;
             }
-            @keyframes cardMarquee {
-              0% { transform: translateX(0%); }
+
+            /* Step Animation specifically for Mobile Cards */
+            /* 9s total: 3 cards * (2s hold + 1s move) */
+            @keyframes cardMarqueeStep {
+              0%, 22.22% { transform: translateX(0%); }
+              33.33%, 55.55% { transform: translateX(-16.666%); }
+              66.66%, 88.88% { transform: translateX(-33.333%); }
               100% { transform: translateX(-50%); }
             }
-            .animate-card-marquee {
+            .animate-card-step {
               display: flex;
               width: max-content;
-              animation: cardMarquee 20s linear infinite;
+              animation: cardMarqueeStep 9s infinite;
             }
-            .animate-card-marquee:hover {
+            .animate-card-step:hover {
               animation-play-state: paused;
             }
           `}
         </style>
         <div className="animate-marquee">
-          {/* 4 times map to ensure the loop is seamless */}
           {[1, 2, 3, 4].map((index) => (
             <div key={index} className="flex items-center text-white font-bold tracking-widest text-sm sm:text-base shrink-0">
-              <span className="mx-3 sm:mx-5">✿</span> BESPOKE FASHION
-              <span className="mx-3 sm:mx-5">✿</span> TIMELESS ELEGANCE
-              <span className="mx-3 sm:mx-5">✿</span> DESIGNER COLLECTION
-              <span className="mx-3 sm:mx-5">✿</span> WEDDING STYLIST
-              <span className="mx-3 sm:mx-5">✿</span> CUSTOM-MADE OUTFITS
-              <span className="mx-3 sm:mx-5">✿</span> KIDS FASHION
+              <span className="mx-6 sm:mx-10">✿</span> BESPOKE FASHION
+              <span className="mx-6 sm:mx-10">✿</span> TIMELESS ELEGANCE
+              <span className="mx-6 sm:mx-10">✿</span> DESIGNER COLLECTION
+              <span className="mx-6 sm:mx-10">✿</span> WEDDING STYLIST
+              <span className="mx-6 sm:mx-10">✿</span> CUSTOM-MADE OUTFITS
+              <span className="mx-6 sm:mx-10">✿</span> KIDS FASHION
             </div>
           ))}
         </div>

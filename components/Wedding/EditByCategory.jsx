@@ -31,11 +31,8 @@ export default function EditByCategory() {
   const marqueeTween = useRef(null);
 
   const currentData = activeTab === "WOMEN" ? womenData : menData;
-  
-  // Array take 3 bar duplicate kora holo jate boro screen-eo faka jayga na toiri hoy
-  const loopedData = [...currentData, ...currentData, ...currentData];
+  const extendedData = [...currentData, ...currentData];
 
-  // Handles the initial scroll trigger for the header section
   useGSAP(() => {
     gsap.fromTo(
       ".edit-category-head",
@@ -57,12 +54,20 @@ export default function EditByCategory() {
       { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.05, ease: "power4.out" }
     );
 
-    marqueeTween.current = gsap.to(".marquee-track", {
-      xPercent: -50,
-      repeat: -1,
-      duration: 20, // Duration barano holo karon track ekhon onek lomba
-      ease: "none",
-    });
+    const marqueeTl = gsap.timeline({ repeat: -1 });
+    const totalCards = extendedData.length;
+    const stepPercentage = 50 / totalCards;
+
+    for (let i = 1; i <= totalCards; i++) {
+      marqueeTl.to(".marquee-track", {
+        xPercent: -(stepPercentage * i),
+        duration: 0.8,
+        ease: "power2.inOut"
+      }, "+=2");
+    }
+    
+    marqueeTween.current = marqueeTl;
+
   }, { scope: containerRef, dependencies: [activeTab] });
 
   return (
@@ -90,16 +95,14 @@ export default function EditByCategory() {
           </button>
         </div>
 
-        {/* Marquee Wrapper */}
-        <div className="w-full relative max-w-[1000px] mx-auto">
+        <div className="w-full relative mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] py-4">
           <div 
             className="marquee-track flex w-max"
             onMouseEnter={() => marqueeTween.current?.pause()}
             onMouseLeave={() => marqueeTween.current?.play()}
           >
-            {/* Set 1 */}
             <div className="flex gap-6 sm:gap-10 pr-6 sm:pr-10">
-              {loopedData.map((category, index) => (
+              {extendedData.map((category, index) => (
                 <Link key={`set1-${category.id}-${index}`} href={category.link} className="edit-category-item flex flex-col items-center cursor-pointer group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
                   <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all shadow-lg">
                     {category.imageSrc && (
@@ -118,9 +121,8 @@ export default function EditByCategory() {
               ))}
             </div>
 
-            {/* Set 2 (Duplicate for seamless loop) */}
             <div className="flex gap-6 sm:gap-10 pr-6 sm:pr-10">
-              {loopedData.map((category, index) => (
+              {extendedData.map((category, index) => (
                 <Link key={`set2-${category.id}-${index}`} href={category.link} className="edit-category-item flex flex-col items-center cursor-pointer group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
                   <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all shadow-lg">
                     {category.imageSrc && (

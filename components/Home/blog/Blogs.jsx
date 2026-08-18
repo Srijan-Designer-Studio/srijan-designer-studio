@@ -34,26 +34,33 @@ export default function Blogs() {
   useGSAP(() => {
     if (blogPosts.length === 0) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
+    // Title Entrance Animation
+    gsap.fromTo(
+      ".blog-text",
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", scrollTrigger: {
         trigger: containerRef.current,
         start: "top 80%",
         toggleActions: "play none none reverse",
-      }
-    });
-
-    tl.fromTo(
-      ".blog-text",
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
+      }}
     );
 
-    tweenRef.current = gsap.to(marqueeRef.current, {
-      xPercent: -50,
-      ease: "none",
-      duration: 30,
-      repeat: -1,
-    });
+    // Step Scroll Animation (2s pause, 1s slide) for ALL screens
+    const marqueeTl = gsap.timeline({ repeat: -1 });
+    const totalCards = blogPosts.length;
+    
+    // Calculates exact width percentage to shift per card (50% is the halfway mark due to duplicated array)
+    const stepPercentage = 50 / totalCards; 
+
+    for (let i = 1; i <= totalCards; i++) {
+      marqueeTl.to(marqueeRef.current, {
+        xPercent: -(stepPercentage * i),
+        duration: 0.8, // Slide speed
+        ease: "power2.inOut"
+      }, "+=2"); // Wait 2 seconds before every slide
+    }
+    
+    tweenRef.current = marqueeTl;
 
   }, { scope: containerRef, dependencies: [blogPosts] }); 
 
@@ -86,9 +93,9 @@ export default function Blogs() {
             </div>
           </div>
 
-          {/* Marquee Section */}
+          {/* Marquee Section (Masking edges adjusted slightly to fit 2 cards perfectly) */}
           <div 
-            className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] py-8"
+            className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] py-8"
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
@@ -100,7 +107,8 @@ export default function Blogs() {
                   <Link
                     href={`/blog/${post.slug || post.id}`} 
                     key={`first-${post.id}`}
-                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[280px] sm:w-[350px] shrink-0 border border-white/5 group"
+                    // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
+                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
                   >
                     <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
                       {post.image_url ? (
@@ -131,7 +139,6 @@ export default function Blogs() {
                         {post.title}
                       </h3>
 
-                      {/* Cyan Circular Arrow Button */}
                       <div className="mt-6 pt-2 pb-1">
                         <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
                           <ArrowUpRight size={22} strokeWidth={2.5} className="text-white" />
@@ -142,13 +149,14 @@ export default function Blogs() {
                 ))}
               </div>
 
-              {/* Second Set of Cards (Duplicate for Marquee) */}
+              {/* Second Set of Cards (Duplicate for Seamless Loop) */}
               <div className="flex gap-6 pr-6">
                 {blogPosts.map((post) => (
                   <Link
                     href={`/blog/${post.slug || post.id}`} 
                     key={`second-${post.id}`}
-                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[280px] sm:w-[350px] shrink-0 border border-white/5 group"
+                    // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
+                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
                   >
                     <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
                       {post.image_url ? (
@@ -179,7 +187,6 @@ export default function Blogs() {
                         {post.title}
                       </h3>
 
-                      {/* Cyan Circular Arrow Button */}
                       <div className="mt-6 pt-2 pb-1">
                         <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
                           <ArrowUpRight size={22} strokeWidth={2.5} className="text-white" />

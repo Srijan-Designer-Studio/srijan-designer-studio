@@ -5,9 +5,9 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
-import { signIn } from "next-auth/react"; 
+import { signIn } from "next-auth/react";
 import { createClient } from "@/lib/supabase/client";
-import  ScrollToTop  from "@/components/providers/ScrollToTop";
+import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,7 +30,7 @@ export default function AuthPage() {
     startTransition(async () => {
       try {
         const supabase = createClient();
-        
+
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -42,10 +42,10 @@ export default function AuthPage() {
           showPopupMessage("Login Successful! Redirecting...", "success");
           const role = data.user.user_metadata?.role;
           const adminEmail = process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL;
-          
+
           setTimeout(() => {
             if (role === 'admin' || email === adminEmail) {
-              window.location.href = "/admin"; 
+              window.location.href = "/admin";
             } else {
               window.location.href = "/";
             }
@@ -66,7 +66,7 @@ export default function AuthPage() {
     startTransition(async () => {
       try {
         const supabase = createClient();
-        
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -98,10 +98,10 @@ export default function AuthPage() {
 
   const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
-      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
-      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
     </svg>
   );
 
@@ -109,21 +109,19 @@ export default function AuthPage() {
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden relative">
       <ScrollToTop />
       {popup.show && (
-        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 transform translate-y-0 ${
-          popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'
-        }`}>
+        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 transform translate-y-0 ${popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'
+          }`}>
           {popup.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
           {popup.message}
         </div>
       )}
 
       <div className="relative w-full max-w-[1000px] h-[850px] md:h-[650px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex">
-        
-        <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
-          isLogin 
-            ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0' 
+
+        <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${isLogin
+            ? 'opacity-0 pointer-events-none -translate-x-full md:translate-x-0'
             : 'opacity-100 pointer-events-auto translate-x-0 md:translate-x-[100%]'
-        }`}>
+          }`}>
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Create Account
@@ -172,21 +170,20 @@ export default function AuthPage() {
                 {isPending && <Loader2 size={16} className="animate-spin" />}
                 REGISTER
               </button>
-              
+
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
-                <span className="mx-4 text-xs font-medium text-white/50">OR</span>
+                
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleGoogleSignIn}
+              <Link
+                href="/"
                 className="w-full cursor-pointer flex items-center justify-center gap-3 bg-white/10 border border-white/30 hover:bg-white hover:text-black text-white font-bold text-[13px] py-3 rounded-xl transition-all uppercase tracking-wide group"
               >
-                <GoogleIcon />
-                Sign up with Google
-              </button>
+                <ArrowLeft size={18} />
+                Back to Home
+              </Link>
             </div>
           </form>
 
@@ -198,16 +195,15 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${
-          isLogin 
-            ? 'opacity-100 pointer-events-auto translate-x-0' 
+        <div className={`absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-14 flex flex-col justify-center transition-all duration-700 ease-in-out z-20 ${isLogin
+            ? 'opacity-100 pointer-events-auto translate-x-0'
             : 'opacity-0 pointer-events-none translate-x-[100%]'
-        }`}>
+          }`}>
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Welcome Back
             </h1>
-            <p className="text-gray-200 text-[13px] drop-shadow-sm">Login with Email or Google</p>
+            <p className="text-gray-200 text-[13px] drop-shadow-sm">Login with Email</p>
           </div>
 
           <form action={handleLogin} className="space-y-5">
@@ -215,11 +211,11 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Email</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Mail className="text-white/80 mr-3 shrink-0" size={18} />
-                <input 
+                <input
                   name="email"
-                  type="email" 
-                  placeholder="admin@srijan.com" 
-                  className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
+                  type="email"
+                  placeholder="admin@srijan.com"
+                  className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40"
                   required
                 />
               </div>
@@ -229,11 +225,11 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Password</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Lock className="text-white/80 mr-3 shrink-0" size={18} />
-                <input 
+                <input
                   name="password"
-                  type={showLoginPassword ? "text" : "password"} 
-                  placeholder="••••••••••••••" 
-                  className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40" 
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="••••••••••••••"
+                  className="w-full bg-transparent outline-none text-[14px] text-white font-medium tracking-widest placeholder:text-white/40"
                   required
                 />
                 <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} className="text-white/80 hover:text-white transition-colors cursor-pointer">
@@ -256,18 +252,17 @@ export default function AuthPage() {
 
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
-                <span className="mx-4 text-xs font-medium text-white/50">OR</span>
+                
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleGoogleSignIn}
+              <Link
+                href="/"
                 className="w-full cursor-pointer flex items-center justify-center gap-3 bg-white/10 border border-white/30 hover:bg-white hover:text-black text-white font-bold text-[13px] py-3 rounded-xl transition-all uppercase tracking-wide group"
               >
-                <GoogleIcon />
-                Sign in with Google
-              </button>
+                <ArrowLeft size={18} />
+                Back to Home
+              </Link>
             </div>
           </form>
 
@@ -279,25 +274,24 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${
-          isLogin ? 'translate-x-[100%]' : 'translate-x-0'
-        }`}>
+        <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${isLogin ? 'translate-x-[100%]' : 'translate-x-0'
+          }`}>
           <div className="relative w-full h-full overflow-hidden shadow-2xl">
-            <Image 
-              src="/images/man1.png" 
-              alt="Auth Image" 
+            <Image
+              src="/others-img/Login.webp"
+              alt="Auth Image"
               fill
-              sizes="(max-width: 768px) 100vw, 50vw" 
-              className="object-cover" 
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
               priority
             />
             <div className="absolute inset-0 bg-[#0e163d]/40 backdrop-blur-[2px]"></div>
-            
+
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Hello, Friend!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
-              <button 
-                onClick={() => setIsLogin(false)} 
+              <button
+                onClick={() => setIsLogin(false)}
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign Up
@@ -307,8 +301,8 @@ export default function AuthPage() {
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${!isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
               <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
-              <button 
-                onClick={() => setIsLogin(true)} 
+              <button
+                onClick={() => setIsLogin(true)}
                 className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
               >
                 Sign In
@@ -319,16 +313,7 @@ export default function AuthPage() {
 
       </div>
 
-      {/* Back to Home Button placed at the very bottom */}
-      <div className="absolute bottom-6 md:bottom-8 z-50 flex justify-center w-full">
-        <Link 
-          href="/" 
-          className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/20 transition-all text-[14px] font-medium bg-white/10 px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 shadow-lg"
-        >
-          <ArrowLeft size={18} />
-          Back to Home
-        </Link>
-      </div>
+      
 
     </main>
   );

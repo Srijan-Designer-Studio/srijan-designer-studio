@@ -23,7 +23,6 @@ export default function KidsHero() {
   }, { scope: containerRef });
 
   return (
-    
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
         src="/images/kids.png"
@@ -35,17 +34,14 @@ export default function KidsHero() {
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute inset-0 flex items-center z-10">
         <div className="max-w-[1320px] w-full mx-auto px-6">
-          
-        
-          <div className="max-w-lg md:ml-auto text-white mt-[90px]">
+          <div className="max-w-lg text-white mt-[90px]">
             <h1 className="kids-hero-text text-4xl md:text-5xl lg:text-[56px] font-bold mb-4 leading-tight drop-shadow-md">
               Customize Kids<br />Wear
             </h1>
             <p className="kids-hero-text text-lg md:text-xl font-medium drop-shadow-md">
-              Click your kids every little special moments
+              Capture every little moment, dressed just right.
             </p>
           </div>
-          
         </div>
       </div>
     </section>

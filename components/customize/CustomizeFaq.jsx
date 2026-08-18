@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -52,9 +53,9 @@ export default function CustomizeFaq() {
             At <strong>SRIJAN Fashion</strong>, we believe your outfit should be as unique as you are. Our designers work with your ideas, measurements and preferences to create a one-of-a-kind designer dress that fits perfectly. From choosing fabrics to adding personal details, we make the journey simple, creative and completely tailored to you.
           </p>
           <div className="faq-left-anim">
-            <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-0.5">
+            <Link href="/customization-policy" className="bg-[#00c3ff] hover:bg-[#00abe0] cursor-pointer text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-0.5">
               Know More
-            </button>
+            </Link>
           </div>
         </div>
 

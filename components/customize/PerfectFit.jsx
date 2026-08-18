@@ -66,30 +66,30 @@ export default function PerfectFit() {
   return (
     <div ref={containerRef}>
       <section className="pf-top-sec py-16 lg:py-24 bg-white">
-  <div className="max-w-[1320px] mx-auto px-6">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
-      
-      <div className="flex flex-col gap-6 lg:gap-10">
-        <div className="pf-left-img relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
-          {leftImage && <Image src="/Create Custom-img/17.webp" alt="Custom Fit Example 1" fill className="object-cover object-top" />}
-        </div>
-        <p className="pf-left-text text-gray-700 text-[15px] sm:text-[17px] leading-[1.7] max-w-[450px]">
-          Forget "small, medium, large" and everything that never quite fits. Every designer dress we make is built around your exact measurements, your comfort and your style. So, it looks natural and feels like you.
-        </p>
-      </div>
+        <div className="max-w-[1320px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
+            
+            <div className="flex flex-col gap-6 lg:gap-10">
+              <div className="pf-left-img relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+                {leftImage && <Image src="/Create Custom-img/17.webp" alt="Custom Fit Example 1" fill className="object-cover object-top" />}
+              </div>
+              <p className="pf-left-text text-gray-700 text-[15px] sm:text-[17px] leading-[1.7] max-w-[450px]">
+                Forget "small, medium, large" and everything that never quite fits. Every designer dress we make is built around your exact measurements, your comfort and your style. So, it looks natural and feels like you.
+              </p>
+            </div>
 
-      <div className="flex flex-col gap-6 lg:gap-10">
-        <h2 className="pf-right-content text-3xl sm:text-4xl lg:text-[42px] font-bold text-black leading-[1.2]">
-          Your Body Isn't the Problem.<br className="hidden lg:block" /> Standard Sizes Are
-        </h2>
-        <div className="pf-right-content relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
-          {rightImage && <Image src="/Create Custom-img/18.webp" alt="Custom Fit Example 2" fill className="object-cover object-top" />}
-        </div>
-      </div>
+            <div className="flex flex-col gap-6 lg:gap-10">
+              <h2 className="pf-right-content text-3xl sm:text-4xl lg:text-[42px] font-bold text-black leading-[1.2]">
+                Your Body Isn't the Problem.<br className="hidden lg:block" /> Standard Sizes Are
+              </h2>
+              <div className="pf-right-content relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+                {rightImage && <Image src="/Create Custom-img/18.webp" alt="Custom Fit Example 2" fill className="object-cover object-top" />}
+              </div>
+            </div>
 
-    </div>
-  </div>
-</section>
+          </div>
+        </div>
+      </section>
 
       <section className="pf-bottom-sec flex flex-col lg:flex-row min-h-[600px] bg-[#f8f9fa]">
         <div className="relative w-full lg:w-1/2 flex items-center p-8 lg:p-20 overflow-hidden">
@@ -104,8 +104,8 @@ export default function PerfectFit() {
         </div>
         
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-16">
-          <div className="pf-form-card w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-            <h3 className="text-xl font-bold text-black mb-6">Fill In the Form To Get Started</h3>
+          <div className="pf-form-card w-full max-w-md bg-white rounded-2xl shadow-xl border border-[#d69f53] p-8">
+            <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
             
             {status.type === 'success' ? (
               <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500">
@@ -118,36 +118,48 @@ export default function PerfectFit() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <input type="hidden" name="sourcePage" value="Perfect Fit" />
+
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Full Name*</label>
-                  <input name="name" required type="text" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                  <label className="block text-sm text-gray-700 mb-1">Full Name*</label>
+                  <input name="name" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Phone Number*</label>
-                  <input name="phone" required type="tel" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Call back Date*</label>
-                    <input name="callDate" required type="date" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Call back Time*</label>
-                    <input name="callTime" required type="time" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                  </div>
+                  <label className="block text-sm text-gray-700 mb-1">Email Address*</label>
+                  <input name="email" required type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Additional Details</label>
-                  <textarea name="details" rows="3" placeholder="Tell us about the outfit you have in mind..." className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
+                  <label className="block text-sm text-gray-700 mb-1">Phone Number*</label>
+                  <input name="phone" required type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Outfit Type*</label>
+                  <input name="outfitType" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Budget Range*</label>
+                  <input name="budget" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Select date for call back*</label>
+                  <input name="callDate" required type="date" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors text-gray-600" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Select time for call back*</label>
+                  <input name="callTime" required type="time" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors text-gray-600" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Message</label>
+                  <textarea name="details" rows="3" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors resize-none"></textarea>
                 </div>
                 
                 {status.type === 'error' && <p className="text-red-500 text-xs">{status.message}</p>}
 
-                <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3.5 rounded-lg transition-colors mt-2 uppercase tracking-wide shadow-md disabled:opacity-70">
+                <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#c98d45] hover:bg-[#b57a35] text-black font-medium py-3 rounded-full transition-colors mt-2 uppercase shadow-md disabled:opacity-70">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {isPending ? "Submitting..." : "Submit Now"}
+                  {isPending ? "SUBMITTING..." : "SUBMIT NOW"}
                 </button>
-                <p className="text-[11px] text-center text-gray-400 mt-3">Never submit passwords or credit card details here.</p>
+                <p className="text-[10px] text-center text-gray-500 mt-2">Your profile name will be shared. Never submit passwords.</p>
               </form>
             )}
           </div>

@@ -1,13 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getAdminProducts } from "@/app/actions/admin";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,33 +14,18 @@ export default function WeddingCollection() {
   const containerRef = useRef(null);
   const marqueeRef = useRef(null);
   const tweenRef = useRef(null);
-  const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getAdminProducts();
-        if (data && data.length > 0) {
-          setProducts(data.slice(0, 8));
-        } else {
-          setProducts([
-            { id: 1, title: "Bridal Lehenga", image_url: "/Custom Wedding Wear/.webp" },
-            { id: 2, title: "Wedding Saree", image_url: "/Custom Wedding Wear/.webp" },
-            { id: 3, title: "Designer Gown", image_url: "/Custom Wedding Wear/.webp" },
-            { id: 4, title: "Silk Saree", image_url: "/Custom Wedding Wear/.webp" },
-          ]);
-        }
-      } catch (error) {
-        setProducts([
-          { id: 1, title: "Bridal Lehenga", image_url: "/images/collection1.png" },
-          { id: 2, title: "Wedding Saree", image_url: "/images/collection2.png" },
-          { id: 3, title: "Designer Gown", image_url: "/images/collection3.png" },
-          { id: 4, title: "Silk Saree", image_url: "/images/collection1.png" },
-        ]);
-      }
-    };
-    fetchProducts();
-  }, []);
+  
+  const products = [
+    { id: 1, title: "Bridal Lehenga", image_url: "/Custom Wedding Wear/Products Image.webp" },
+    { id: 2, title: "Wedding Saree", image_url: "/Custom Wedding Wear/Products Image 1.webp" },
+    { id: 3, title: "Designer Gown", image_url: "/Custom Wedding Wear/Products Image 2.webp" },
+    { id: 4, title: "Silk Saree", image_url: "/Custom Wedding Wear/Products Image 3.webp" },
+    { id: 5, title: "Bridal Lehenga", image_url: "/Custom Wedding Wear/Products Image.webp" },
+    { id: 6, title: "Wedding Saree", image_url: "/Custom Wedding Wear/Products Image 1.webp" },
+    { id: 7, title: "Designer Gown", image_url: "/Custom Wedding Wear/Products Image 2.webp" },
+    { id: 8, title: "Silk Saree", image_url: "/Custom Wedding Wear/Products Image 3.webp" },
+  ];
 
   useGSAP(() => {
     if (products.length === 0) return;
@@ -65,13 +49,21 @@ export default function WeddingCollection() {
       "-=0.6"
     );
 
-    tweenRef.current = gsap.to(marqueeRef.current, {
-      xPercent: -50,
-      ease: "none",
-      duration: 25,
-      repeat: -1,
-    });
-  }, { scope: containerRef, dependencies: [products] });
+    const marqueeTl = gsap.timeline({ repeat: -1 });
+    const totalCards = products.length;
+    const stepPercentage = 50 / totalCards; 
+
+    for (let i = 1; i <= totalCards; i++) {
+      marqueeTl.to(marqueeRef.current, {
+        xPercent: -(stepPercentage * i),
+        duration: 0.8,
+        ease: "power2.inOut"
+      }, "+=2");
+    }
+    
+    tweenRef.current = marqueeTl;
+
+  }, { scope: containerRef });
 
   const handleMouseEnter = () => tweenRef.current?.pause();
   const handleMouseLeave = () => tweenRef.current?.play();
@@ -108,49 +100,47 @@ export default function WeddingCollection() {
               
               <div className="flex gap-6 pr-6">
                 {products.map((product, index) => (
-                  <Link 
-                    href={`/product/${product.id}`} 
+                  <div 
                     key={`first-${product.id || index}`} 
                     className="wed-coll-img relative shrink-0 w-[240px] sm:w-[280px] aspect-[2/3] bg-white rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group"
                   >
                     {product.image_url ? (
                       <Image 
                         src={product.image_url} 
-                        alt={product.title || "Wedding Dress"} 
+                        alt={product.title} 
                         fill 
                         unoptimized
                         className="object-cover object-top group-hover:scale-105 transition-transform duration-700" 
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm">
-                        No Image
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm text-center px-4">
+                        {product.title}
                       </div>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
 
               <div className="flex gap-6 pr-6">
                 {products.map((product, index) => (
-                  <Link 
-                    href={`/product/${product.id}`} 
+                  <div 
                     key={`second-${product.id || index}`} 
                     className="wed-coll-img relative shrink-0 w-[240px] sm:w-[280px] aspect-[2/3] bg-white rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group"
                   >
                     {product.image_url ? (
                       <Image 
                         src={product.image_url} 
-                        alt={product.title || "Wedding Dress"} 
+                        alt={product.title} 
                         fill 
                         unoptimized
                         className="object-cover object-top group-hover:scale-105 transition-transform duration-700" 
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm">
-                        No Image
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold uppercase text-sm text-center px-4">
+                        {product.title}
                       </div>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
 

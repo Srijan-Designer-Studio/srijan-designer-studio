@@ -518,12 +518,17 @@ export async function updateProduct(productId, formData) {
 
     const title = formData.get('title') || ''
     const short_description = formData.get('shortDesc') || null
+    const display_note = formData.get('displayNote') || null
     const full_description = formData.get('fullDesc') || null
-    const brand = formData.get('brand') || 'Srijan'
-    const product_type = formData.get('productType') || null
-    const department = formData.get('department') || null
-    const purchase_type = formData.get('purchaseType') || 'Single Product'
+    const material_care = formData.get('materialCare') || null
+    const shipping_policy = formData.get('shippingPolicy') || null
+    const return_policy = formData.get('returnPolicy') || null
+    const gender = formData.get('gender') || 'Women'
+    const purchase_type = formData.get('purchaseType') || 'Single Set'
     const status = formData.get('status') || 'Draft'
+    
+    const style = formData.get('style') ? JSON.parse(formData.get('style')) : []
+    const faqs = formData.get('faqs') ? JSON.parse(formData.get('faqs')) : []
 
     const seo_title = formData.get('seoTitle') || null
     let seo_slug = formData.get('seoSlug') || null
@@ -533,26 +538,18 @@ export async function updateProduct(productId, formData) {
     seo_slug = await generateUniqueSlug(supabase, seo_slug);
 
     const meta_desc = formData.get('metaDesc') || null
-    const focus_keyword = formData.get('focusKeyword') || null
-    const seo_keywords = formData.get('seoKeywords') || null
+    const canonical_tag = formData.get('canonicalTag') || null
+    const schema_code = formData.get('schemaCode') || null
 
-    let basePrice = 0;
-    const variantsStr = formData.get('variants')
-    if (variantsStr) {
-      const variants = JSON.parse(variantsStr)
-      if (variants.length > 0) {
-        basePrice = parseFloat(variants[0].price || 0)
-      }
-    }
+    const base_price = parseFloat(formData.get('basePrice') || 0)
 
     const { data: productData, error: productError } = await supabase
       .from('products')
       .update({
-        title,
-        slug: seo_slug,
-        base_price: basePrice,
-        short_description, full_description, brand, product_type, department, purchase_type,
-        seo_title, seo_slug, meta_desc, focus_keyword, seo_keywords, status, is_active: status === 'Published'
+        title, slug: seo_slug, base_price, short_description, full_description, 
+        display_note, material_care, shipping_policy, return_policy, gender, style, 
+        faqs, canonical_tag, schema_code, purchase_type, seo_title, meta_desc, 
+        status, is_active: status === 'Published'
       })
       .eq('id', productId)
       .select()
@@ -562,30 +559,30 @@ export async function updateProduct(productId, formData) {
       return { success: false, error: "Product not found" }
     }
 
+    const variantsStr = formData.get('variants')
     if (variantsStr) {
       await supabase.from('product_variants').delete().eq('product_id', productId)
       const variants = JSON.parse(variantsStr)
-      const variantData = variants.map(v => ({
+      const variantData = variants.map((v, i) => ({
         product_id: productId,
-        sku: v.sku || `SKU-${Date.now()}`,
+        sku: v.sku || `SKU-${Date.now()}-${i}`,
         size: v.size || 'Free Size',
-        price: parseFloat(v.price || 0),
+        price: parseFloat(v.price || base_price),
         sale_price: v.salePrice ? parseFloat(v.salePrice) : null,
-        inventory_count: parseInt(v.stock || 0, 10),
-        weight: parseFloat(v.weight || 0)
+        inventory_count: parseInt(v.stock || 10, 10),
       }))
       const { error: variantError } = await supabase.from('product_variants').insert(variantData)
       if (variantError) throw variantError
     }
 
     const componentsStr = formData.get('components')
-    if (componentsStr && purchase_type !== 'Single Product') {
+    if (componentsStr && purchase_type !== 'Single Set') {
       await supabase.from('product_components').delete().eq('product_id', productId)
       const components = JSON.parse(componentsStr)
       const componentData = components.map(c => ({
         product_id: productId,
         name: c.name,
-        is_required: c.required,
+        is_required: true,
         price: parseFloat(c.price || 0)
       }))
       const { error: compError } = await supabase.from('product_components').insert(componentData)
@@ -593,16 +590,19 @@ export async function updateProduct(productId, formData) {
     }
 
     const imageFiles = []
+    if (formData.get('main_image')) {
+      imageFiles.push({ file: formData.get('main_image'), isPrimary: true })
+    }
     for (let [key, value] of formData.entries()) {
-      if (key.startsWith('image_') && value instanceof File && value.size > 0) {
-        imageFiles.push(value)
+      if (key.startsWith('gallery_image_') && value instanceof File && value.size > 0) {
+        imageFiles.push({ file: value, isPrimary: false })
       }
     }
 
     if (imageFiles.length > 0) {
       await supabase.from('product_images').delete().eq('product_id', productId)
       for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i]
+        const { file, isPrimary } = imageFiles[i]
         const fileExt = file.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
         const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file)
@@ -611,7 +611,7 @@ export async function updateProduct(productId, formData) {
           await supabase.from('product_images').insert({
             product_id: productId,
             image_url: urlData.publicUrl,
-            is_primary: i === 0
+            is_primary: isPrimary
           })
         }
       }
@@ -631,12 +631,17 @@ export async function createProduct(formData) {
 
     const title = formData.get('title') || ''
     const short_description = formData.get('shortDesc') || null
+    const display_note = formData.get('displayNote') || null
     const full_description = formData.get('fullDesc') || null
-    const brand = formData.get('brand') || 'Srijan'
-    const product_type = formData.get('productType') || null
-    const department = formData.get('department') || null
-    const purchase_type = formData.get('purchaseType') || 'Single Product'
+    const material_care = formData.get('materialCare') || null
+    const shipping_policy = formData.get('shippingPolicy') || null
+    const return_policy = formData.get('returnPolicy') || null
+    const gender = formData.get('gender') || 'Women'
+    const purchase_type = formData.get('purchaseType') || 'Single Set'
     const status = formData.get('status') || 'Draft'
+    
+    const style = formData.get('style') ? JSON.parse(formData.get('style')) : []
+    const faqs = formData.get('faqs') ? JSON.parse(formData.get('faqs')) : []
 
     const seo_title = formData.get('seoTitle') || null
     let seo_slug = formData.get('seoSlug') || null
@@ -646,26 +651,18 @@ export async function createProduct(formData) {
     seo_slug = await generateUniqueSlug(supabase, seo_slug);
 
     const meta_desc = formData.get('metaDesc') || null
-    const focus_keyword = formData.get('focusKeyword') || null
-    const seo_keywords = formData.get('seoKeywords') || null
+    const canonical_tag = formData.get('canonicalTag') || null
+    const schema_code = formData.get('schemaCode') || null
 
-    let basePrice = 0;
-    const variantsStr = formData.get('variants')
-    if (variantsStr) {
-      const variants = JSON.parse(variantsStr)
-      if (variants.length > 0) {
-        basePrice = parseFloat(variants[0].price || 0)
-      }
-    }
+    const base_price = parseFloat(formData.get('basePrice') || 0)
 
     const { data: newProduct, error: productError } = await supabase
       .from('products')
       .insert({
-        title,
-        slug: seo_slug,
-        base_price: basePrice,
-        short_description, full_description, brand, product_type, department, purchase_type,
-        seo_title, seo_slug, meta_desc, focus_keyword, seo_keywords, status, is_active: status === 'Published'
+        title, slug: seo_slug, base_price, short_description, full_description, 
+        display_note, material_care, shipping_policy, return_policy, gender, style, 
+        faqs, canonical_tag, schema_code, purchase_type, seo_title, meta_desc, 
+        status, is_active: status === 'Published'
       })
       .select()
       .single()
@@ -673,28 +670,28 @@ export async function createProduct(formData) {
     if (productError) throw productError
     const productId = newProduct.id
 
+    const variantsStr = formData.get('variants')
     if (variantsStr) {
       const variants = JSON.parse(variantsStr)
-      const variantData = variants.map(v => ({
+      const variantData = variants.map((v, i) => ({
         product_id: productId,
-        sku: v.sku || `SKU-${Date.now()}`,
+        sku: v.sku || `SKU-${Date.now()}-${i}`,
         size: v.size || 'Free Size',
-        price: parseFloat(v.price || 0),
+        price: parseFloat(v.price || base_price),
         sale_price: v.salePrice ? parseFloat(v.salePrice) : null,
-        inventory_count: parseInt(v.stock || 0, 10),
-        weight: parseFloat(v.weight || 0)
+        inventory_count: parseInt(v.stock || 10, 10),
       }))
       const { error: variantError } = await supabase.from('product_variants').insert(variantData)
       if (variantError) throw variantError
     }
 
     const componentsStr = formData.get('components')
-    if (componentsStr && purchase_type !== 'Single Product') {
+    if (componentsStr && purchase_type !== 'Single Set') {
       const components = JSON.parse(componentsStr)
       const componentData = components.map(c => ({
         product_id: productId,
         name: c.name,
-        is_required: c.required,
+        is_required: true,
         price: parseFloat(c.price || 0)
       }))
       const { error: compError } = await supabase.from('product_components').insert(componentData)
@@ -702,14 +699,17 @@ export async function createProduct(formData) {
     }
 
     const imageFiles = []
+    if (formData.get('main_image')) {
+      imageFiles.push({ file: formData.get('main_image'), isPrimary: true })
+    }
     for (let [key, value] of formData.entries()) {
-      if (key.startsWith('image_') && value instanceof File && value.size > 0) {
-        imageFiles.push(value)
+      if (key.startsWith('gallery_image_') && value instanceof File && value.size > 0) {
+        imageFiles.push({ file: value, isPrimary: false })
       }
     }
 
     for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i]
+      const { file, isPrimary } = imageFiles[i]
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
       const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file)
@@ -718,7 +718,7 @@ export async function createProduct(formData) {
         await supabase.from('product_images').insert({
           product_id: productId,
           image_url: urlData.publicUrl,
-          is_primary: i === 0
+          is_primary: isPrimary
         })
       }
     }
