@@ -55,7 +55,7 @@ export default function Founder() {
           </div>
 
           <div className="lg:col-span-5 flex justify-center lg:justify-start w-full order-2 lg:order-1 mt-6 lg:mt-0">
-            <div className="founder-img relative w-full max-w-[360px] lg:max-w-[500px] aspect-[3/2] rounded-[24px] overflow-hidden shadow-2xl mx-auto lg:mx-0">
+            <div className="founder-img relative w-full max-w-[360px] lg:max-w-[500px] aspect-[3/2] overflow-hidden mx-auto lg:mx-0">
               {imageSrc ? (
                 <Image
                   src={imageSrc}

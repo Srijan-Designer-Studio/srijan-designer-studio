@@ -91,12 +91,25 @@ export default function ProductDetails({ product }) {
     });
   };
 
+  // ডাইনামিক ট্যাব জেনারেট করা হচ্ছে নতুন ডেটাবেস ফিল্ডের ওপর ভিত্তি করে
   const tabs = [
-    { id: 'description', label: 'Description', content: product.full_description || product.description || '<p>No description available for this product.</p>' },
-    { id: 'material', label: 'Material & Care', content: product.material_care || '<p>Material and care instructions are not available.</p>' },
-    { id: 'shipping', label: 'Shipping Policy', content: product.shipping_policy || '<p>Standard shipping policies apply.</p>' },
-    { id: 'return', label: 'Return/Exchange Policy', content: product.return_policy || '<p>Please refer to our standard return and exchange policy.</p>' },
+    { id: 'description', label: 'Description', content: product.full_description || product.description || '<p>No description available for this product.</p>' }
   ];
+
+  if (product.highlights) {
+    tabs.push({ id: 'highlights', label: 'Highlights & Features', content: product.highlights });
+  }
+
+  tabs.push({ id: 'material', label: 'Material & Care', content: product.material_care || '<p>Material and care instructions are not available.</p>' });
+
+  if (product.additional_info) {
+    tabs.push({ id: 'additional_info', label: 'Additional Info', content: product.additional_info });
+  }
+
+  tabs.push(
+    { id: 'shipping', label: 'Shipping Policy', content: product.shipping_policy || '<p>Standard shipping policies apply.</p>' },
+    { id: 'return', label: 'Return/Exchange Policy', content: product.return_policy || '<p>Please refer to our standard return and exchange policy.</p>' }
+  );
 
   return (
     <section className="pt-32 pb-16 bg-white font-sans" ref={containerRef}>

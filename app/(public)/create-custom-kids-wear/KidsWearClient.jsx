@@ -6,7 +6,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronDown, Palette, Scissors, Ruler, UserCheck, Truck } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { submitKidsForm } from "@/app/actions/kids";
 import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup";
 
@@ -40,6 +40,7 @@ export default function KidsWearClient() {
   const [formStatus, setFormStatus] = useState(null);
   const containerRef = useRef(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [timeError, setTimeError] = useState("");
 
   useGSAP(() => {
     gsap.utils.toArray('.reveal-up').forEach(elem => {
@@ -66,12 +67,27 @@ export default function KidsWearClient() {
     });
   };
 
+  const handleTimeChange = (e) => {
+    const selectedTime = e.target.value;
+    if (!selectedTime) return;
+
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+
+    if (hours < 12 || hours > 21 || (hours === 21 && minutes > 0)) {
+      setTimeError("Call back time is only available between 12:00 PM and 9:00 PM.");
+      e.target.value = "";
+      return;
+    }
+
+    setTimeError("");
+  };
+
   return (
     <div ref={containerRef} className="font-sans w-full text-black overflow-hidden">
-      
-      <CustomStylesPopup 
-        isOpen={isPopupOpen} 
-        onClose={() => setIsPopupOpen(false)} 
+
+      <CustomStylesPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
         category="Kids"
       />
 
@@ -113,8 +129,8 @@ export default function KidsWearClient() {
             ))}
           </div>
           <div className="text-center reveal-up">
-            <button 
-              onClick={() => setIsPopupOpen(true)} 
+            <button
+              onClick={() => setIsPopupOpen(true)}
               className="px-8 py-3 bg-[#00c3ff] text-white rounded-full font-bold shadow-md hover:bg-[#00a0d6] transition-colors"
             >
               Choose Your Look
@@ -186,7 +202,7 @@ export default function KidsWearClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white text-black">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <h2 className="reveal-up text-3xl md:text-[38px] font-bold text-center mb-10 text-black">
             Our Click Gallery
@@ -210,12 +226,12 @@ export default function KidsWearClient() {
       </section>
 
       <section className="py-20 bg-[#f4f7fa]">
-        <div className="max-w-[1000px] mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+        <div className="max-w-[1100px] mx-auto px-6 grid lg:grid-cols-2 gap-10 items-center">
           <div className="reveal-up">
             <h2 className="text-4xl font-bold text-black mb-6 leading-tight">Let's click some special moment</h2>
             <img src="/Custom Kids Wear/Untitled design (5).webp" alt="Special Moment" className="w-full object-cover" />
           </div>
-          
+
           <div className="reveal-up bg-white p-8 rounded-2xl shadow-xl border border-[#d69f53]">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
@@ -225,45 +241,64 @@ export default function KidsWearClient() {
               </div>
             )}
 
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
               <input type="hidden" name="sourcePage" value="Custom Kids Wear" />
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Full Name*</label>
+                <input name="name" type="text" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none transition-colors" />
+              </div>
               
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Full Name*</label>
-                <input name="name" type="text" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none" />
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Email Address*</label>
+                <input name="email" type="email" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none transition-colors" />
               </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Email Address*</label>
-                <input name="email" type="email" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none" />
+              
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Phone Number*</label>
+                <input name="phone" type="tel" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none transition-colors" />
               </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Phone Number*</label>
-                <input name="phone" type="tel" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none" />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Outfit Type*</label>
+                  <input name="outfitType" type="text" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none transition-colors" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Budget Range*</label>
+                  <input name="budget" type="text" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none transition-colors" />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Outfit Type*</label>
-                <input name="outfitType" type="text" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Select date for call back*</label>
+                  <input name="date" type="date" required className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none text-gray-700 transition-colors" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Select time for call back*</label>
+                  <input
+                    name="time"
+                    type="time"
+                    required
+                    min="12:00"
+                    max="21:00"
+                    onChange={handleTimeChange}
+                    className="w-full px-4 h-[45px] border border-gray-400 rounded-lg focus:border-black focus:outline-none text-gray-700 transition-colors"
+                  />
+                  {timeError && <p className="text-red-500 text-xs mt-1">{timeError}</p>}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Budget Range*</label>
-                <input name="budget" type="text" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none" />
+              
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Message</label>
+                <textarea name="message" className="w-full p-4 h-[80px] border border-gray-400 rounded-lg focus:border-black focus:outline-none resize-none transition-colors"></textarea>
               </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Select date for call back*</label>
-                <input name="date" type="date" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none text-gray-600" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Select time for call back*</label>
-                <input name="time" type="time" required className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none text-gray-600" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Message</label>
-                <textarea name="message" rows="3" className="w-full px-4 py-2.5 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black focus:outline-none"></textarea>
-              </div>
-              <button type="submit" disabled={isPending} className="w-full py-3 bg-[#c98d45] text-black font-medium rounded-full hover:bg-[#b57a35] transition-colors mt-2 disabled:opacity-70">
+              
+              <button type="submit" disabled={isPending} className="w-full h-[50px] bg-[#c98d45] text-black font-medium rounded-full hover:bg-[#b57a35] transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
                 {isPending ? 'SUBMITTING...' : 'SUBMIT NOW'}
               </button>
-              <p className="text-[10px] text-center text-gray-500 mt-2">
+              <p className="text-[10px] text-center text-gray-500 mt-1">
                 Your profile name will be shared. Never submit passwords.
               </p>
             </form>

@@ -33,6 +33,7 @@ export default function Sidebar() {
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Categories', href: '/admin/categories', icon: Tag },
+    { name: 'Custom Requests', href: '/admin/custom-requests', icon: Star },
     { name: 'Blogs', href: '/admin/blogs', icon: FileText },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Reports', href: '/admin/reports', icon: BarChart },

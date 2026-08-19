@@ -16,6 +16,23 @@ export default function PerfectFit() {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState({ type: '', message: '' });
 
+  const [timeError, setTimeError] = useState("");
+
+  const handleTimeChange = (e) => {
+    const selectedTime = e.target.value;
+    if (!selectedTime) return;
+
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+
+    if (hours < 12 || hours > 21 || (hours === 21 && minutes > 0)) {
+      setTimeError("Call back time is only available between 12:00 PM and 9:00 PM.");
+      e.target.value = "";
+      return;
+    }
+
+    setTimeError("");
+  };
+
   const leftImage = allProducts.filter(p => p.category.includes("Western"))[1]?.image || "";
   const rightImage = allProducts.filter(p => p.category === "Bridal")[0]?.image || "";
 
@@ -68,7 +85,7 @@ export default function PerfectFit() {
       <section className="pf-top-sec py-16 lg:py-24 bg-white">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
-            
+
             <div className="flex flex-col gap-6 lg:gap-10">
               <div className="pf-left-img relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
                 {leftImage && <Image src="/Create Custom-img/17.webp" alt="Custom Fit Example 1" fill className="object-cover object-top" />}
@@ -102,64 +119,82 @@ export default function PerfectFit() {
             </p>
           </div>
         </div>
-        
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-16">
-          <div className="pf-form-card w-full max-w-md bg-white rounded-2xl shadow-xl border border-[#d69f53] p-8">
+
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 text-black lg:p-16">
+          <div className="pf-form-card w-full max-w-lg bg-white rounded-2xl shadow-xl border border-[#d69f53] p-8">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
-            
+
             {status.type === 'success' ? (
               <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500">
-                  <CheckCircle2 size={50} className="text-[#00c3ff] mb-4" />
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Request Received!</h3>
-                  <p className="text-gray-600 text-sm">{status.message}</p>
-                  <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] text-sm font-medium hover:underline">
-                      Submit another request
-                  </button>
+                <CheckCircle2 size={50} className="text-[#00c3ff] mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Request Received!</h3>
+                <p className="text-gray-600 text-sm">{status.message}</p>
+                <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] text-sm font-medium hover:underline">
+                  Submit another request
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input type="hidden" name="sourcePage" value="Perfect Fit" />
 
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Full Name*</label>
-                  <input name="name" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Email Address*</label>
-                  <input name="email" required type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Phone Number*</label>
-                  <input name="phone" required type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Outfit Type*</label>
-                  <input name="outfitType" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Budget Range*</label>
-                  <input name="budget" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Select date for call back*</label>
-                  <input name="callDate" required type="date" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors text-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Select time for call back*</label>
-                  <input name="callTime" required type="time" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors text-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Message</label>
-                  <textarea name="details" rows="3" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-black transition-colors resize-none"></textarea>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Full Name*</label>
+                  <input name="name" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
                 
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Email Address*</label>
+                  <input name="email" required type="email" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Phone Number*</label>
+                  <input name="phone" required type="tel" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Outfit Type*</label>
+                    <input name="outfitType" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Budget Range*</label>
+                    <input name="budget" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Select date for call back*</label>
+                    <input name="callDate" required type="date" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Select time for call back*</label>
+                    <input
+                      name="callTime"
+                      type="time"
+                      required
+                      min="12:00"
+                      max="21:00"
+                      onChange={handleTimeChange}
+                      className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700"
+                    />
+                    {timeError && <p className="text-red-500 text-xs mt-1">{timeError}</p>}
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] text-gray-700">Message</label>
+                  <textarea name="details" className="w-full h-[80px] p-4 border border-gray-400 rounded-lg outline-none focus:border-black transition-colors resize-none"></textarea>
+                </div>
+
                 {status.type === 'error' && <p className="text-red-500 text-xs">{status.message}</p>}
 
-                <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#c98d45] hover:bg-[#b57a35] text-black font-medium py-3 rounded-full transition-colors mt-2 uppercase shadow-md disabled:opacity-70">
+                <button disabled={isPending} type="submit" className="w-full h-[50px] flex justify-center items-center gap-2 bg-[#c98d45] hover:bg-[#b57a35] text-black font-medium rounded-full transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
                   {isPending ? "SUBMITTING..." : "SUBMIT NOW"}
                 </button>
-                <p className="text-[10px] text-center text-gray-500 mt-2">Your profile name will be shared. Never submit passwords.</p>
+                <p className="text-[10px] text-center text-gray-500 mt-1">Your profile name will be shared. Never submit passwords.</p>
               </form>
             )}
           </div>

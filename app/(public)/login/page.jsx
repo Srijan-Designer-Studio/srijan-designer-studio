@@ -126,7 +126,7 @@ export default function AuthPage() {
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Create Account
             </h1>
-            <p className="text-gray-200 text-[13px] drop-shadow-sm">Sign up with your details</p>
+            <p className="text-yellow-400 text-[13px] drop-shadow-sm">Sign up with your details</p>
           </div>
 
           <form action={handleRegister} className="space-y-5">
@@ -173,7 +173,6 @@ export default function AuthPage() {
 
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
-                
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
@@ -203,7 +202,7 @@ export default function AuthPage() {
             <h1 className="text-3xl md:text-[42px] font-bold text-[#0ba6ff] mb-2 tracking-tight drop-shadow-md">
               Welcome Back
             </h1>
-            <p className="text-gray-200 text-[13px] drop-shadow-sm">Login with Email</p>
+            <p className="text-yellow-400 text-[13px] drop-shadow-sm">Login with Email</p>
           </div>
 
           <form action={handleLogin} className="space-y-5">
@@ -252,7 +251,6 @@ export default function AuthPage() {
 
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
-                
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
 
@@ -285,25 +283,25 @@ export default function AuthPage() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-[#0e163d]/40 backdrop-blur-[2px]"></div>
+            <div className="absolute inset-0 bg-[#0e163d]/30"></div>
 
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
-              <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Hello, Friend!</h2>
-              <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
+              <h2 className="text-4xl font-bold mb-4 drop-shadow-lg text-[#0ba6ff]  font-serif">Hello, Friend!</h2>
+              <p className="text-[15px] text-yellow-400 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
               <button
                 onClick={() => setIsLogin(false)}
-                className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
+                className="border-[2.5px] hover:border-white border-[#0ba6ff] rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0ba6ff] hover:text-white transition-all uppercase tracking-wider shadow-lg text-[#0ba6ff] cursor-pointer"
               >
                 Sign Up
               </button>
             </div>
 
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${!isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
-              <h2 className="text-4xl font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
-              <p className="text-[15px] text-gray-200 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
+              <h2 className="text-4xl text-[#0ba6ff] font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
+              <p className="text-[15px] text-yellow-400 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
               <button
                 onClick={() => setIsLogin(true)}
-                className="border-[2.5px] border-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-white hover:text-[#121433] transition-all uppercase tracking-wider shadow-lg cursor-pointer"
+                className="border-[2.5px] hover:border-white border-[#0ba6ff] rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0ba6ff] hover:text-white transition-all uppercase tracking-wider shadow-lg text-[#0ba6ff] cursor-pointer"
               >
                 Sign In
               </button>
@@ -312,9 +310,6 @@ export default function AuthPage() {
         </div>
 
       </div>
-
-      
-
     </main>
   );
 }

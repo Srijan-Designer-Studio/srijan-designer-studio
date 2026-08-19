@@ -5,7 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup"; 
+import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,7 +29,7 @@ const menData = [
 
 export default function OccasionsEdit() {
   const [activeTab, setActiveTab] = useState("WOMEN");
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const containerRef = useRef(null);
 
   const currentData = activeTab === "WOMEN" ? womenData : menData;
@@ -56,6 +56,8 @@ export default function OccasionsEdit() {
   }, { scope: containerRef });
 
   useGSAP(() => {
+    if (!currentData.length) return;
+    
     gsap.fromTo(
       ".occasion-card",
       { y: 30, opacity: 0, scale: 0.98 },
@@ -66,11 +68,10 @@ export default function OccasionsEdit() {
   return (
     <section className="py-20 bg-white" ref={containerRef}>
       
-      {/* Popup Component Call */}
       <CustomStylesPopup 
         isOpen={isPopupOpen} 
         onClose={() => setIsPopupOpen(false)} 
-        category={activeTab === "WOMEN" ? "Women" : "Men"} // Passing category dynamically
+        category={activeTab === "WOMEN" ? "Women" : "Men"}
       />
 
       <div className="max-w-[1320px] mx-auto px-6 flex flex-col items-center">
@@ -108,6 +109,7 @@ export default function OccasionsEdit() {
                     src={item.imageSrc}
                     alt={item.title}
                     fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
                     className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
@@ -119,9 +121,9 @@ export default function OccasionsEdit() {
           ))}
         </div>
         
-        <div className="w-full flex items-center justify-center my-2">
+        <div className="w-full flex items-center justify-center my-2 occasion-btn">
           <button 
-            onClick={() => setIsPopupOpen(true)} // Opens Popup
+            onClick={() => setIsPopupOpen(true)}
             className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md"
           >
             Choose Your Occasion

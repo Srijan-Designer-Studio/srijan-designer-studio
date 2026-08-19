@@ -20,6 +20,9 @@ async function verifyAdmin() {
   return true;
 }
 
+// --------------------------------------------------------
+// Dashboard & Analytics
+// --------------------------------------------------------
 export async function getDashboardStats() {
   const supabase = createAdminClient()
 
@@ -158,7 +161,6 @@ export async function getDashboardStats() {
       keywords
     }
   } catch (error) {
-    console.error("Dashboard Stats Error:", error);
     return {
       totalRevenue: 0, totalOrders: 0, totalCustomers: 0, recentOrders: [],
       topProducts: [], salesData: [], revenueData: [], categoryData: [], keywords: []
@@ -166,6 +168,9 @@ export async function getDashboardStats() {
   }
 }
 
+// --------------------------------------------------------
+// Orders & Shiprocket
+// --------------------------------------------------------
 export async function getAllOrders() {
   const supabase = createAdminClient()
 
@@ -337,394 +342,6 @@ export async function updateOrderStatus(orderId, newStatus) {
     }
 
     return { success: true }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function getAdminProducts() {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-    const { data, error } = await supabase
-      .from('products')
-      .select('*, product_variants(*), product_images(*)')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error("Products Fetch Error:", error.message);
-      throw error;
-    }
-    return data || []
-  } catch (error) {
-    console.error("Critical Products Error:", error.message);
-    return []
-  }
-}
-
-export async function deleteProduct(productId) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', productId)
-
-    if (error) throw error
-    revalidatePath('/admin/products')
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function getAllCustomers() {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
-  }
-}
-
-export async function getCategories() {
-  const supabase = createAdminClient()
-  try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
-  }
-}
-
-export async function createCategory(formData) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-
-    const name = formData.get('name');
-    const slug = formData.get('slug');
-    const image_url = formData.get('image_url');
-
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([{ name, slug, image_url }])
-      .select()
-      .single()
-
-    if (error) throw error
-    return { success: true, data }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function updateCategory(categoryId, formData) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-
-    const name = formData.get('name');
-    const slug = formData.get('slug');
-    const image_url = formData.get('image_url');
-
-    const updates = { name, slug };
-
-    if (image_url) {
-      updates.image_url = image_url;
-    }
-
-    const { data, error } = await supabase
-      .from('categories')
-      .update(updates)
-      .eq('id', categoryId)
-      .select()
-      .single()
-
-    if (error) throw error
-    return { success: true, data }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function deleteCategory(categoryId) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', categoryId)
-
-    if (error) throw error
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function getUserOrders() {
-  const supabase = createAdminClient()
-
-  try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) return []
-
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  } catch (error) {
-    return []
-  }
-}
-
-async function generateUniqueSlug(supabase, baseSlug) {
-  let slug = baseSlug;
-  let counter = 1;
-  while (true) {
-    const { data } = await supabase.from('products').select('id').eq('slug', slug).maybeSingle();
-    if (!data) break;
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
-  return slug;
-}
-
-export async function updateProduct(productId, formData) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-
-    const title = formData.get('title') || ''
-    const short_description = formData.get('shortDesc') || null
-    const display_note = formData.get('displayNote') || null
-    const full_description = formData.get('fullDesc') || null
-    const material_care = formData.get('materialCare') || null
-    const shipping_policy = formData.get('shippingPolicy') || null
-    const return_policy = formData.get('returnPolicy') || null
-    const gender = formData.get('gender') || 'Women'
-    const purchase_type = formData.get('purchaseType') || 'Single Set'
-    const status = formData.get('status') || 'Draft'
-    
-    const style = formData.get('style') ? JSON.parse(formData.get('style')) : []
-    const faqs = formData.get('faqs') ? JSON.parse(formData.get('faqs')) : []
-
-    const seo_title = formData.get('seoTitle') || null
-    let seo_slug = formData.get('seoSlug') || null
-    if (!seo_slug) {
-      seo_slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-    }
-    seo_slug = await generateUniqueSlug(supabase, seo_slug);
-
-    const meta_desc = formData.get('metaDesc') || null
-    const canonical_tag = formData.get('canonicalTag') || null
-    const schema_code = formData.get('schemaCode') || null
-
-    const base_price = parseFloat(formData.get('basePrice') || 0)
-
-    const { data: productData, error: productError } = await supabase
-      .from('products')
-      .update({
-        title, slug: seo_slug, base_price, short_description, full_description, 
-        display_note, material_care, shipping_policy, return_policy, gender, style, 
-        faqs, canonical_tag, schema_code, purchase_type, seo_title, meta_desc, 
-        status, is_active: status === 'Published'
-      })
-      .eq('id', productId)
-      .select()
-
-    if (productError) throw productError
-    if (!productData || productData.length === 0) {
-      return { success: false, error: "Product not found" }
-    }
-
-    const variantsStr = formData.get('variants')
-    if (variantsStr) {
-      await supabase.from('product_variants').delete().eq('product_id', productId)
-      const variants = JSON.parse(variantsStr)
-      const variantData = variants.map((v, i) => ({
-        product_id: productId,
-        sku: v.sku || `SKU-${Date.now()}-${i}`,
-        size: v.size || 'Free Size',
-        price: parseFloat(v.price || base_price),
-        sale_price: v.salePrice ? parseFloat(v.salePrice) : null,
-        inventory_count: parseInt(v.stock || 10, 10),
-      }))
-      const { error: variantError } = await supabase.from('product_variants').insert(variantData)
-      if (variantError) throw variantError
-    }
-
-    const componentsStr = formData.get('components')
-    if (componentsStr && purchase_type !== 'Single Set') {
-      await supabase.from('product_components').delete().eq('product_id', productId)
-      const components = JSON.parse(componentsStr)
-      const componentData = components.map(c => ({
-        product_id: productId,
-        name: c.name,
-        is_required: true,
-        price: parseFloat(c.price || 0)
-      }))
-      const { error: compError } = await supabase.from('product_components').insert(componentData)
-      if (compError) throw compError
-    }
-
-    const imageFiles = []
-    if (formData.get('main_image')) {
-      imageFiles.push({ file: formData.get('main_image'), isPrimary: true })
-    }
-    for (let [key, value] of formData.entries()) {
-      if (key.startsWith('gallery_image_') && value instanceof File && value.size > 0) {
-        imageFiles.push({ file: value, isPrimary: false })
-      }
-    }
-
-    if (imageFiles.length > 0) {
-      await supabase.from('product_images').delete().eq('product_id', productId)
-      for (let i = 0; i < imageFiles.length; i++) {
-        const { file, isPrimary } = imageFiles[i]
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
-        const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file)
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName)
-          await supabase.from('product_images').insert({
-            product_id: productId,
-            image_url: urlData.publicUrl,
-            is_primary: isPrimary
-          })
-        }
-      }
-    }
-
-    revalidatePath('/admin/products')
-    return { success: true, data: productData[0] }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
-}
-
-export async function createProduct(formData) {
-  const supabase = createAdminClient()
-  try {
-    await verifyAdmin()
-
-    const title = formData.get('title') || ''
-    const short_description = formData.get('shortDesc') || null
-    const display_note = formData.get('displayNote') || null
-    const full_description = formData.get('fullDesc') || null
-    const material_care = formData.get('materialCare') || null
-    const shipping_policy = formData.get('shippingPolicy') || null
-    const return_policy = formData.get('returnPolicy') || null
-    const gender = formData.get('gender') || 'Women'
-    const purchase_type = formData.get('purchaseType') || 'Single Set'
-    const status = formData.get('status') || 'Draft'
-    
-    const style = formData.get('style') ? JSON.parse(formData.get('style')) : []
-    const faqs = formData.get('faqs') ? JSON.parse(formData.get('faqs')) : []
-
-    const seo_title = formData.get('seoTitle') || null
-    let seo_slug = formData.get('seoSlug') || null
-    if (!seo_slug) {
-      seo_slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-    }
-    seo_slug = await generateUniqueSlug(supabase, seo_slug);
-
-    const meta_desc = formData.get('metaDesc') || null
-    const canonical_tag = formData.get('canonicalTag') || null
-    const schema_code = formData.get('schemaCode') || null
-
-    const base_price = parseFloat(formData.get('basePrice') || 0)
-
-    const { data: newProduct, error: productError } = await supabase
-      .from('products')
-      .insert({
-        title, slug: seo_slug, base_price, short_description, full_description, 
-        display_note, material_care, shipping_policy, return_policy, gender, style, 
-        faqs, canonical_tag, schema_code, purchase_type, seo_title, meta_desc, 
-        status, is_active: status === 'Published'
-      })
-      .select()
-      .single()
-
-    if (productError) throw productError
-    const productId = newProduct.id
-
-    const variantsStr = formData.get('variants')
-    if (variantsStr) {
-      const variants = JSON.parse(variantsStr)
-      const variantData = variants.map((v, i) => ({
-        product_id: productId,
-        sku: v.sku || `SKU-${Date.now()}-${i}`,
-        size: v.size || 'Free Size',
-        price: parseFloat(v.price || base_price),
-        sale_price: v.salePrice ? parseFloat(v.salePrice) : null,
-        inventory_count: parseInt(v.stock || 10, 10),
-      }))
-      const { error: variantError } = await supabase.from('product_variants').insert(variantData)
-      if (variantError) throw variantError
-    }
-
-    const componentsStr = formData.get('components')
-    if (componentsStr && purchase_type !== 'Single Set') {
-      const components = JSON.parse(componentsStr)
-      const componentData = components.map(c => ({
-        product_id: productId,
-        name: c.name,
-        is_required: true,
-        price: parseFloat(c.price || 0)
-      }))
-      const { error: compError } = await supabase.from('product_components').insert(componentData)
-      if (compError) throw compError
-    }
-
-    const imageFiles = []
-    if (formData.get('main_image')) {
-      imageFiles.push({ file: formData.get('main_image'), isPrimary: true })
-    }
-    for (let [key, value] of formData.entries()) {
-      if (key.startsWith('gallery_image_') && value instanceof File && value.size > 0) {
-        imageFiles.push({ file: value, isPrimary: false })
-      }
-    }
-
-    for (let i = 0; i < imageFiles.length; i++) {
-      const { file, isPrimary } = imageFiles[i]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random()}.${fileExt}`
-      const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file)
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName)
-        await supabase.from('product_images').insert({
-          product_id: productId,
-          image_url: urlData.publicUrl,
-          is_primary: isPrimary
-        })
-      }
-    }
-
-    revalidatePath('/admin/products')
-    return { success: true, data: newProduct }
   } catch (error) {
     return { success: false, error: error.message }
   }
@@ -937,6 +554,518 @@ export async function generateInvoice(shiprocketOrderId) {
   try {
     const response = await getShiprocketInvoice(shiprocketOrderId);
     return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// --------------------------------------------------------
+// Users & Categories
+// --------------------------------------------------------
+export async function getAllCustomers() {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function getUserOrders() {
+  const supabase = createAdminClient()
+
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) return []
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function getCategories() {
+  const supabase = createAdminClient()
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function createCategory(formData) {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+
+    const name = formData.get('name');
+    const slug = formData.get('slug');
+    const image_url = formData.get('image_url');
+
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([{ name, slug, image_url }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateCategory(categoryId, formData) {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+
+    const name = formData.get('name');
+    const slug = formData.get('slug');
+    const image_url = formData.get('image_url');
+
+    const updates = { name, slug };
+
+    if (image_url) {
+      updates.image_url = image_url;
+    }
+
+    const { data, error } = await supabase
+      .from('categories')
+      .update(updates)
+      .eq('id', categoryId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function deleteCategory(categoryId) {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', categoryId)
+
+    if (error) throw error
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+// --------------------------------------------------------
+// PREMIUM PRODUCT MANAGEMENT (Wizard System)
+// --------------------------------------------------------
+
+async function generateUniqueSlug(supabase, baseSlug, excludeId = null) {
+  let slug = baseSlug;
+  let counter = 1;
+  while (true) {
+    let query = supabase.from('products').select('id').eq('slug', slug);
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+    const { data } = await query.maybeSingle();
+    if (!data) break;
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+  return slug;
+}
+
+export async function getAdminProducts() {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, product_variants(*), product_images(*)')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      throw error;
+    }
+    return data || []
+  } catch (error) {
+    return []
+  }
+}
+
+export async function deleteProduct(productId) {
+  const supabase = createAdminClient()
+  try {
+    await verifyAdmin()
+
+    const { data: images } = await supabase
+      .from('product_images')
+      .select('image_url')
+      .eq('product_id', productId)
+
+    if (images && images.length > 0) {
+      const filePaths = images.map(img => {
+        const urlParts = img.image_url.split('/')
+        const fileName = urlParts[urlParts.length - 1]
+        return fileName.includes('products/') ? fileName : `products/${fileName}`
+      })
+      await supabase.storage.from('product-images').remove(filePaths)
+    }
+
+    await supabase.from('product_images').delete().eq('product_id', productId)
+    await supabase.from('product_variants').delete().eq('product_id', productId)
+    await supabase.from('product_components').delete().eq('product_id', productId)
+    
+    await supabase.from('product_category_map').delete().eq('product_id', productId)
+    await supabase.from('product_collection_map').delete().eq('product_id', productId)
+    await supabase.from('product_occasion_map').delete().eq('product_id', productId)
+    await supabase.from('product_tag_map').delete().eq('product_id', productId)
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId)
+
+    if (error) throw error
+
+    revalidatePath('/admin/products')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function createPremiumProduct(formData) {
+  try {
+    const supabase = createAdminClient(); 
+
+    const title = formData.get('title') || 'Untitled';
+    const productType = formData.get('productType');
+    const brand = formData.get('brand');
+    const shortDesc = formData.get('shortDesc');
+    const description = formData.get('description');
+    const materialCare = formData.get('materialCare');
+    const highlights = formData.get('highlights');
+    const additionalInfo = formData.get('additionalInfo');
+    const department = formData.get('department');
+    const weight = formData.get('weight') || 0;
+    const length = formData.get('length') || 0;
+    const width = formData.get('width') || 0;
+    const height = formData.get('height') || 0;
+    const shippingClass = formData.get('shippingClass');
+    const estimatedDelivery = formData.get('estimatedDelivery');
+    const isCodAvailable = formData.get('isCodAvailable') === 'true';
+    const isFreeShipping = formData.get('isFreeShipping') === 'true';
+    const isReturnEligible = formData.get('isReturnEligible') === 'true';
+    const shippingPolicy = formData.get('shippingPolicy');
+    const returnPolicy = formData.get('returnPolicy');
+    const seoTitle = formData.get('seoTitle');
+    const seoSlug = formData.get('seoSlug');
+    const metaDesc = formData.get('metaDesc');
+    const focusKeyword = formData.get('focusKeyword');
+    const seoKeywords = formData.get('seoKeywords');
+    const canonicalUrl = formData.get('canonicalUrl');
+    
+    const variants = JSON.parse(formData.get('variants') || '[]');
+    const components = JSON.parse(formData.get('components') || '[]');
+    const faqs = JSON.parse(formData.get('faqs') || '[]');
+    const purchaseType = formData.get('purchaseType') || 'Single Product';
+    
+    let basePrice = 0;
+    if (variants.length > 0) {
+      basePrice = parseFloat(variants[0].price) || 0;
+    }
+
+    const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const finalSlug = await generateUniqueSlug(supabase, rawSlug);
+
+    const { data: productData, error: productError } = await supabase
+      .from('products')
+      .insert([{
+        title,
+        slug: finalSlug,
+        short_description: shortDesc,
+        full_description: description,
+        material_care: materialCare,
+        highlights,
+        additional_info: additionalInfo,
+        product_type: productType,
+        brand,
+        gender: department,
+        base_price: basePrice,
+        weight,
+        length,
+        width,
+        height,
+        shipping_class: shippingClass,
+        estimated_delivery: estimatedDelivery,
+        is_cod_available: isCodAvailable,
+        is_free_shipping: isFreeShipping,
+        is_return_eligible: isReturnEligible,
+        shipping_policy: shippingPolicy,
+        return_policy: returnPolicy,
+        seo_title: seoTitle,
+        meta_desc: metaDesc,
+        focus_keyword: focusKeyword,
+        seo_keywords: seoKeywords,
+        canonical_url: canonicalUrl,
+        faqs: faqs,
+        purchase_type: purchaseType,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (productError) throw productError;
+    const productId = productData.id;
+
+    const variantInserts = variants.map(v => ({
+      product_id: productId,
+      size: v.size,
+      color: v.color,
+      price: parseFloat(v.price) || 0,
+      sale_price: parseFloat(v.salePrice) || null,
+      sku: v.sku,
+      inventory_count: parseInt(v.stock) || 0,
+      low_stock_threshold: parseInt(v.lowStock) || 5,
+      barcode: v.barcode
+    }));
+
+    if (variantInserts.length > 0) {
+      await supabase.from('product_variants').insert(variantInserts);
+    }
+
+    if (components.length > 0 && purchaseType !== 'Single Product') {
+      const componentInserts = components.map(c => ({
+        product_id: productId,
+        name: c.name,
+        is_required: c.required,
+        price: parseFloat(c.price) || 0
+      }));
+      await supabase.from('product_components').insert(componentInserts);
+    }
+
+    let i = 0;
+    const imageInserts = [];
+    while (formData.has(`image_file_${i}`)) {
+      const file = formData.get(`image_file_${i}`);
+      const altText = formData.get(`image_alt_${i}`);
+      const isPrimary = formData.get(`image_primary_${i}`) === 'true';
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${productId}-${Date.now()}-${i}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageInserts.push({
+          product_id: productId,
+          image_url: publicUrlData.publicUrl,
+          alt_text: altText,
+          is_primary: isPrimary,
+          sort_order: i
+        });
+      }
+      i++;
+    }
+
+    if (imageInserts.length > 0) {
+      await supabase.from('product_images').insert(imageInserts);
+    }
+
+    revalidatePath('/admin/products');
+    return { success: true, productId };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updatePremiumProduct(formData) {
+  try {
+    const supabase = createAdminClient(); 
+
+    const productId = formData.get('productId');
+    const title = formData.get('title') || 'Untitled';
+    const productType = formData.get('productType');
+    const brand = formData.get('brand');
+    const shortDesc = formData.get('shortDesc');
+    const description = formData.get('description');
+    const materialCare = formData.get('materialCare');
+    const highlights = formData.get('highlights');
+    const additionalInfo = formData.get('additionalInfo');
+    const department = formData.get('department');
+    const weight = formData.get('weight') || 0;
+    const length = formData.get('length') || 0;
+    const width = formData.get('width') || 0;
+    const height = formData.get('height') || 0;
+    const shippingClass = formData.get('shippingClass');
+    const estimatedDelivery = formData.get('estimatedDelivery');
+    const isCodAvailable = formData.get('isCodAvailable') === 'true';
+    const isFreeShipping = formData.get('isFreeShipping') === 'true';
+    const isReturnEligible = formData.get('isReturnEligible') === 'true';
+    const shippingPolicy = formData.get('shippingPolicy');
+    const returnPolicy = formData.get('returnPolicy');
+    const seoTitle = formData.get('seoTitle');
+    const seoSlug = formData.get('seoSlug');
+    const metaDesc = formData.get('metaDesc');
+    const focusKeyword = formData.get('focusKeyword');
+    const seoKeywords = formData.get('seoKeywords');
+    const canonicalUrl = formData.get('canonicalUrl');
+    
+    const variants = JSON.parse(formData.get('variants') || '[]');
+    const components = JSON.parse(formData.get('components') || '[]');
+    const faqs = JSON.parse(formData.get('faqs') || '[]');
+    const purchaseType = formData.get('purchaseType') || 'Single Product';
+    
+    let basePrice = 0;
+    if (variants.length > 0) {
+      basePrice = parseFloat(variants[0].price) || 0;
+    }
+
+    const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const finalSlug = await generateUniqueSlug(supabase, rawSlug, productId);
+
+    const { error: productError } = await supabase
+      .from('products')
+      .update({
+        title,
+        slug: finalSlug,
+        short_description: shortDesc,
+        full_description: description,
+        material_care: materialCare,
+        highlights,
+        additional_info: additionalInfo,
+        product_type: productType,
+        brand,
+        gender: department,
+        base_price: basePrice,
+        weight,
+        length,
+        width,
+        height,
+        shipping_class: shippingClass,
+        estimated_delivery: estimatedDelivery,
+        is_cod_available: isCodAvailable,
+        is_free_shipping: isFreeShipping,
+        is_return_eligible: isReturnEligible,
+        shipping_policy: shippingPolicy,
+        return_policy: returnPolicy,
+        seo_title: seoTitle,
+        meta_desc: metaDesc,
+        focus_keyword: focusKeyword,
+        seo_keywords: seoKeywords,
+        canonical_url: canonicalUrl,
+        faqs: faqs,
+        purchase_type: purchaseType
+      })
+      .eq('id', productId);
+
+    if (productError) throw productError;
+
+    await supabase.from('product_variants').delete().eq('product_id', productId);
+    const variantInserts = variants.map(v => ({
+      product_id: productId,
+      size: v.size,
+      color: v.color,
+      price: parseFloat(v.price) || 0,
+      sale_price: parseFloat(v.salePrice) || null,
+      sku: v.sku,
+      inventory_count: parseInt(v.stock) || 0,
+      low_stock_threshold: parseInt(v.lowStock) || 5,
+      barcode: v.barcode
+    }));
+    if (variantInserts.length > 0) {
+      await supabase.from('product_variants').insert(variantInserts);
+    }
+
+    await supabase.from('product_components').delete().eq('product_id', productId);
+    if (components.length > 0 && purchaseType !== 'Single Product') {
+      const componentInserts = components.map(c => ({
+        product_id: productId,
+        name: c.name,
+        is_required: c.required,
+        price: parseFloat(c.price) || 0
+      }));
+      await supabase.from('product_components').insert(componentInserts);
+    }
+
+    const imageInserts = [];
+    let i = 0;
+    while (formData.has(`image_file_${i}`) || formData.has(`existing_image_url_${i}`)) {
+      if (formData.has(`image_file_${i}`)) {
+        const file = formData.get(`image_file_${i}`);
+        const altText = formData.get(`image_alt_${i}`);
+        const isPrimary = formData.get(`image_primary_${i}`) === 'true';
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${productId}-${Date.now()}-${i}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, file);
+
+        if (!uploadError) {
+          const { data: publicUrlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+          imageInserts.push({
+            product_id: productId,
+            image_url: publicUrlData.publicUrl,
+            alt_text: altText,
+            is_primary: isPrimary,
+            sort_order: i
+          });
+        }
+      } else if (formData.has(`existing_image_url_${i}`)) {
+        imageInserts.push({
+          product_id: productId,
+          image_url: formData.get(`existing_image_url_${i}`),
+          alt_text: formData.get(`existing_image_alt_${i}`),
+          is_primary: formData.get(`existing_image_primary_${i}`) === 'true',
+          sort_order: i
+        });
+      }
+      i++;
+    }
+
+    await supabase.from('product_images').delete().eq('product_id', productId);
+    if (imageInserts.length > 0) {
+      await supabase.from('product_images').insert(imageInserts);
+    }
+
+    revalidatePath('/admin/products');
+    return { success: true, productId };
   } catch (error) {
     return { success: false, error: error.message };
   }

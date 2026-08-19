@@ -52,7 +52,7 @@ export default function KidsContact() {
 
         <div className="kids-contact-form bg-white rounded-[32px] p-8 md:p-12 shadow-xl border border-gray-100">
           <h3 className="text-2xl font-bold text-black mb-8">Fill In the Form To Get Started</h3>
-          <form className="space-y-5">
+          <form className="space-y-5 text-black">
             <div>
               <label className="block text-sm text-gray-600 mb-1">Full Name*</label>
               <input type="text" className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#00c3ff] transition-colors" />

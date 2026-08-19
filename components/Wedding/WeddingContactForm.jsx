@@ -60,7 +60,7 @@ export default function WeddingContactForm() {
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
-      <div className="max-w-[1100px] mx-auto px-6">
+      <div className="max-w-[1280px] mx-auto px-6">
         <div className="flex flex-col lg:flex-row shadow-2xl rounded-[24px] overflow-hidden bg-white">
 
           <div className="wed-contact-left relative w-full lg:w-1/2 min-h-[400px] lg:min-h-[550px] bg-black">
@@ -69,6 +69,7 @@ export default function WeddingContactForm() {
                 src={bgImageSrc}
                 alt="Special Moment"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover opacity-80"
               />
             )}
@@ -127,44 +128,46 @@ export default function WeddingContactForm() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Outfit Type*</label>
-                  <input
-                    type="text"
-                    name="outfitType"
-                    required
-                    className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black transition-colors"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Outfit Type*</label>
+                    <input
+                      type="text"
+                      name="outfitType"
+                      required
+                      className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black transition-colors"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Budget Range*</label>
+                    <input
+                      type="text"
+                      name="budget"
+                      required
+                      className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Budget Range*</label>
-                  <input
-                    type="text"
-                    name="budget"
-                    required
-                    className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black transition-colors"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Select date for call back*</label>
-                  <input
-                    type="date"
-                    name="date"
-                    required
-                    className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Select time for call back*</label>
-                  <input
-                    type="time"
-                    name="time"
-                    required
-                    className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Select date for call back*</label>
+                    <input
+                      type="date"
+                      name="date"
+                      required
+                      className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[14px] text-gray-700">Select time for call back*</label>
+                    <input
+                      type="time"
+                      name="time"
+                      required
+                      className="w-full border border-gray-400 rounded-lg h-[45px] px-4 outline-none focus:border-black text-gray-700 transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
