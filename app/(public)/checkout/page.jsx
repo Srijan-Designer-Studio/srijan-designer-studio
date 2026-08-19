@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck, Truck } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck, Truck, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
 import { initiatePaytmTransaction } from "@/app/actions/paytm";
@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(false); // Success popup state
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -39,10 +40,10 @@ export default function CheckoutPage() {
   }, [router]);
 
   useEffect(() => {
-    if (isLoaded && cartItems.length === 0 && !isAuthChecking) {
+    if (isLoaded && cartItems.length === 0 && !isAuthChecking && !isSuccess) {
       router.push("/cart");
     }
-  }, [isLoaded, cartItems, router, isAuthChecking]);
+  }, [isLoaded, cartItems, router, isAuthChecking, isSuccess]);
 
   const loadPaytmScript = (mid) => {
     return new Promise((resolve) => {
@@ -57,7 +58,7 @@ export default function CheckoutPage() {
     });
   };
 
-  if (isAuthChecking || !isLoaded || cartItems.length === 0) {
+  if (isAuthChecking || !isLoaded || (cartItems.length === 0 && !isSuccess)) {
     return (
       <div className="min-h-screen bg-[#f4f5f7] flex items-center justify-center">
         <Loader2 size={36} className="animate-spin text-[#00c3ff]" />
@@ -77,8 +78,8 @@ export default function CheckoutPage() {
       try {
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: "cod", // ডাটাবেসে COD হিসেবে সেভ হবে
-          customer_phone: formData.get('phone'), // ফোন নম্বর ডাটাবেসের জন্য যুক্ত করা হলো
+          paymentMethod: "cod", 
+          customer_phone: formData.get('phone'), 
           address: {
             phone: formData.get('phone'),
             addressLine1: formData.get('address1'),
@@ -105,61 +106,15 @@ export default function CheckoutPage() {
         }
 
         // ==========================================
-        // PAYTM INTEGRATION (TEMPORARILY COMMENTED OUT)
-        // ==========================================
-        /*
-        const orderId = dbResult.data.id;
-        const customerId = userProfile?.id || `CUST_${Date.now()}`;
-
-        const paytmResult = await initiatePaytmTransaction(orderId, frontendTotal, customerId);
-
-        if (!paytmResult.success) {
-          throw new Error(paytmResult.error || "Paytm initialization failed");
-        }
-
-        const txnToken = paytmResult.data.txnToken;
-        const mid = process.env.NEXT_PUBLIC_PAYTM_MID;
-
-        const isScriptLoaded = await loadPaytmScript(mid);
-        
-        if (!isScriptLoaded) {
-          throw new Error("Paytm SDK failed to load. Please check your internet connection.");
-        }
-
-        clearCart();
-
-        const config = {
-          root: "",
-          flow: "DEFAULT",
-          data: {
-            orderId: orderId,
-            token: txnToken,
-            tokenType: "TXN_TOKEN",
-            amount: String(frontendTotal)
-          },
-          handler: {
-            notifyMerchant: function(eventName, data) {
-              console.log("Paytm Event: ", eventName);
-            }
-          }
-        };
-
-        if (window.Paytm && window.Paytm.CheckoutJS) {
-          window.Paytm.CheckoutJS.init(config).then(function onSuccess() {
-            window.Paytm.CheckoutJS.invoke();
-          }).catch(function onError(error) {
-            setErrorMsg("Could not open payment window.");
-          });
-        } else {
-          throw new Error("Paytm checkout unavailable.");
-        }
-        */
-
-        // ==========================================
-        // TEMPORARY COD BYPASS LOGIC
+        // TEMPORARY COD BYPASS & SUCCESS LOGIC
         // ==========================================
         clearCart(); 
-        router.push("/success"); 
+        setIsSuccess(true); // Show success popup
+        
+        // 2.5 seconds wait before redirecting
+        setTimeout(() => {
+          router.push("/success"); 
+        }, 2500);
 
       } catch (error) {
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -168,137 +123,141 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
-      <ScrollToTop />
-      <PaymentNotification />
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-        <div className="mb-8">
-          <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
-            <ChevronLeft size={18} className="mr-1" /> Back to Cart
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 tracking-tight">Checkout</h1>
+    <>
+      {/* Success Popup Overlay */}
+      {isSuccess && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-md w-full animate-in zoom-in-95 duration-300">
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle2 size={50} className="text-green-500" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Order Successful!</h2>
+            <p className="text-gray-600 mb-8 font-medium">Thank you for shopping with us. Your order has been placed successfully.</p>
+            <div className="flex items-center gap-2 text-[#00c3ff] font-bold">
+              <Loader2 size={18} className="animate-spin" />
+              <span>Redirecting...</span>
+            </div>
+          </div>
         </div>
+      )}
 
-        <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
-                {/* Phone Number Field Added Here */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
-                  <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
-                  <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-                <div className="md:col-span-2">
-                  <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
-                  <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
-                  <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
-                  <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Truck className="text-green-600" size={24} />
-                Payment Method
-              </h2>
-
-              <div className="space-y-4">
-                
-                {/* Paytm UI Commented Out
-                <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-[#00c3ff] bg-[#00c3ff]/5">
-                  <div className="flex items-center mb-4">
-                    <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
-                    <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
-                    <span className="font-bold text-gray-900 text-lg">Pay with Paytm</span>
-                  </div>
-                  ...
-                </label>
-                */}
-
-                {/* New COD UI */}
-                <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-green-500 bg-green-50">
-                  <div className="flex items-center mb-2">
-                    <input type="radio" name="payment" value="cod" checked readOnly className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
-                    <Wallet className="ml-4 mr-3 text-green-600" size={24} />
-                    <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
-                  </div>
-                  <p className="ml-11 text-sm text-gray-600 font-medium">
-                    Pay via cash or UPI when the product arrives at your doorstep.
-                  </p>
-                </label>
-
-              </div>
-            </div>
+      <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
+        <ScrollToTop />
+        <PaymentNotification />
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+          <div className="mb-8">
+            <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
+              <ChevronLeft size={18} className="mr-1" /> Back to Cart
+            </Link>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 tracking-tight">Checkout</h1>
           </div>
 
-          <div className="lg:col-span-5 xl:col-span-4">
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
-
-              <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {cartItems.map((item, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                      <img
-                        src={item.image || "/images/placeholder.jpg"}
-                        alt={item.title}
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-center">
-                      <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
-                      <p className="text-xs text-gray-500 mb-1">Qty: {item.quantity} | Size: {item.size}</p>
-                      <p className="text-sm font-extrabold text-black">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
-                    </div>
+          <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                    <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                   </div>
-                ))}
-              </div>
 
-              <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-5 mb-5">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-gray-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
+                    <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
+                    <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
+                    <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
+                    <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span className="font-medium text-gray-900">₹{shipping.toLocaleString('en-IN')}</span>
+              </div>
+
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Truck className="text-green-600" size={24} />
+                  Payment Method
+                </h2>
+
+                <div className="space-y-4">
+                  <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-green-500 bg-green-50">
+                    <div className="flex items-center mb-2">
+                      <input type="radio" name="payment" value="cod" checked readOnly className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
+                      <Wallet className="ml-4 mr-3 text-green-600" size={24} />
+                      <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
+                    </div>
+                    <p className="ml-11 text-sm text-gray-600 font-medium">
+                      Pay via cash or UPI when the product arrives at your doorstep.
+                    </p>
+                  </label>
                 </div>
               </div>
-
-              <div className="flex justify-between items-center border-t border-gray-200 pt-5 mb-8">
-                <span className="text-base font-bold text-gray-900">Total</span>
-                <span className="text-2xl font-black text-[#0ba6ff]">
-                  ₹{frontendTotal.toLocaleString('en-IN')}
-                </span>
-              </div>
-
-              {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
-
-              <button disabled={isPending} type="submit" className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
-                {isPending && <Loader2 size={18} className="animate-spin" />}
-                {isPending ? "Processing..." : "Place Order (COD)"}
-              </button>
             </div>
-          </div>
-        </form>
-      </div>
-    </main>
+
+            <div className="lg:col-span-5 xl:col-span-4">
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
+
+                <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {cartItems.map((item, idx) => (
+                    <div key={idx} className="flex gap-4">
+                      <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                        <img
+                          src={item.image || "/images/placeholder.jpg"}
+                          alt={item.title}
+                          className="w-full h-full object-cover object-top"
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-col justify-center">
+                        <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
+                        <p className="text-xs text-gray-500 mb-1">Qty: {item.quantity} | Size: {item.size}</p>
+                        <p className="text-sm font-extrabold text-black">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-5 mb-5">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-gray-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span className="font-medium text-gray-900">₹{shipping.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-gray-200 pt-5 mb-8">
+                  <span className="text-base font-bold text-gray-900">Total</span>
+                  <span className="text-2xl font-black text-[#0ba6ff]">
+                    ₹{frontendTotal.toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
+
+                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
+                  {isPending && <Loader2 size={18} className="animate-spin" />}
+                  {(isPending || isSuccess) ? "Processing..." : "Place Order (COD)"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+    </>
   );
 }

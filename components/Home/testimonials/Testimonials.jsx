@@ -109,7 +109,7 @@ export default function Testimonials() {
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 px-4">
         <div className="bg-text-wrapper flex flex-col items-start -mt-20 lg:-mt-10">
           <h2 className="text-[clamp(3.5rem,10vw,9rem)] font-normal text-gray-400 tracking-tighter leading-[0.9] opacity-80">
-            What Customar's
+            What Customers
           </h2>
           <h2 className="text-[clamp(3.5rem,10vw,9rem)] font-bold text-black tracking-tighter leading-[0.9] ml-12 md:ml-32">
             are saying

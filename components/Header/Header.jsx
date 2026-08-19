@@ -164,16 +164,20 @@ export default function Header({ initialUser = null }) {
       >
         <div className="max-w-[1320px] h-[80px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
           
-          <Link href="/" className="z-50" onClick={closeAllMenus}>
-            <Image
-              src="/images/logo3.png"
-              alt="Logo"
-              width={250}
-              height={120}
-              priority
-              className="object-cover bg-center h-[90px] w-auto lg:h-[120px] lg:w-[250px]"
-            />
-          </Link>
+          <Link 
+  href="/" 
+  className="z-50 relative h-[45px] w-[130px] lg:h-[60px] lg:w-[180px] shrink-0 flex items-center" 
+  onClick={closeAllMenus}
+>
+  <Image
+    src="/images/logo5.webp"
+    alt="Logo"
+    fill
+    sizes="(max-width: 1024px) 130px, 180px"
+    priority
+    className="object-contain object-left"
+  />
+</Link>
 
           <nav className="hidden lg:flex bg-[#9696a6]/60 backdrop-blur-md border border-white/20 px-8 rounded-full shadow-lg h-[50px] items-center">
             <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide h-full">
