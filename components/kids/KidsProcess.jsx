@@ -41,17 +41,17 @@ export default function KidsProcess() {
           <div className="process-step flex flex-col items-center">
             <Scissors size={48} strokeWidth={1.5} className="mb-4 text-black" />
             <h3 className="font-bold text-black mb-2">Pick your fabric</h3>
-            <p className="text-sm text-gray-600 max-w-[200px]">Choose the fabric and colour for your kid.</p>
+            <p className="text-[19px] text-gray-600 max-w-[200px]">Choose the fabric and colour for your kid.</p>
           </div>
           <div className="process-step flex flex-col items-center">
             <PenTool size={48} strokeWidth={1.5} className="mb-4 text-black" />
             <h3 className="font-bold text-black mb-2">Design a dress</h3>
-            <p className="text-sm text-gray-600 max-w-[200px]">Share your ideas and create your kid perfect look.</p>
+            <p className="text-[19px] text-gray-600 max-w-[200px]">Share your ideas and create your kid perfect look.</p>
           </div>
           <div className="process-step flex flex-col items-center">
             <Ruler size={48} strokeWidth={1.5} className="mb-4 text-black" />
             <h3 className="font-bold text-black mb-2">Get measured</h3>
-            <p className="text-sm text-gray-600 max-w-[200px]">Send your measurements for a perfect fit.</p>
+            <p className="text-[19px] text-gray-600 max-w-[200px]">Send your measurements for a perfect fit.</p>
           </div>
         </div>
 
@@ -59,12 +59,12 @@ export default function KidsProcess() {
           <div className="process-step flex flex-col items-center">
             <UserCheck size={48} strokeWidth={1.5} className="mb-4 text-black" />
             <h3 className="font-bold text-black mb-2">Consult with designer</h3>
-            <p className="text-sm text-gray-600 max-w-[200px]">Discuss your vision with fashion designer.</p>
+            <p className="text-[19px] text-gray-600 max-w-[200px]">Discuss your vision with fashion designer.</p>
           </div>
           <div className="process-step flex flex-col items-center">
             <Truck size={48} strokeWidth={1.5} className="mb-4 text-black" />
             <h3 className="font-bold text-black mb-2">Get delivered</h3>
-            <p className="text-sm text-gray-600 max-w-[200px]">Receive your custom-made dress at your doorstep.</p>
+            <p className="text-[19px] text-gray-600 max-w-[200px]">Receive your custom-made dress at your doorstep.</p>
           </div>
         </div>
       </div>

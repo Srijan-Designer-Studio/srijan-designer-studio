@@ -30,9 +30,8 @@ export default function CartDrawer({ isOpen, onClose }) {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-[101] shadow-2xl transform transition-transform duration-500 ease-in-out flex flex-col ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-[101] shadow-2xl transform transition-transform duration-500 ease-in-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h2 className="text-xl font-bold text-black uppercase tracking-wide flex items-center gap-2">
@@ -54,7 +53,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <ShoppingBag size={48} className="text-gray-300" />
               </div>
               <p className="text-xl font-bold text-gray-900">Your cart is empty</p>
-              <p className="text-[15px] text-gray-500 mb-4">Looks like you haven't added anything yet.</p>
+              <p className="text-[19px] text-gray-500 mb-4">Looks like you haven't added anything yet.</p>
               <Link href="/shop-style" onClick={onClose} className="bg-black hover:bg-gray-800 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-wide text-sm transition-colors shadow-lg cursor-pointer">
                 Continue Shopping
               </Link>
@@ -62,7 +61,7 @@ export default function CartDrawer({ isOpen, onClose }) {
           ) : (
             <div className="space-y-6">
               {cartItems.map((item) => {
-                
+
                 const itemId = item.variantId || item.id;
 
                 return (
@@ -86,8 +85,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                               {item.title}
                             </h3>
                           </Link>
-                          
-                        
+
+
                           <button
                             type="button"
                             onClick={(e) => {
@@ -101,7 +100,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           </button>
                         </div>
                         {(item.size || item.color) && (
-                          <p className="text-[13px] font-medium text-gray-500 mt-1.5">
+                          <p className="text-[19px] font-medium text-gray-500 mt-1.5">
                             {item.size && `Size: ${item.size}`} {item.color && `| Color: ${item.color}`}
                           </p>
                         )}
@@ -112,7 +111,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           ₹{Number(item.price).toLocaleString('en-IN')}
                         </p>
 
-                       
+
                         <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 h-[34px]">
                           <button
                             type="button"
@@ -157,11 +156,11 @@ export default function CartDrawer({ isOpen, onClose }) {
                 ₹{Number(subtotal).toLocaleString('en-IN')}
               </span>
             </div>
-            <p className="text-[13px] text-gray-400 mb-5">
+            <p className="text-[19px] text-gray-400 mb-5">
               Shipping & taxes calculated at checkout.
             </p>
             <Link href="/checkout" onClick={onClose} className="block w-full">
-              <button 
+              <button
                 type="button"
                 className="w-full bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-[15px] uppercase tracking-wider py-4 rounded-xl transition-colors shadow-lg shadow-[#00c3ff]/30 cursor-pointer"
               >

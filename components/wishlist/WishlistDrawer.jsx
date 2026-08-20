@@ -55,7 +55,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Wishlist</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{wishlistItems.length} items</p>
+            <p className="text-[19px] text-gray-500 mt-0.5">{wishlistItems.length} items</p>
           </div>
           <button
             onClick={onClose}
@@ -71,7 +71,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
               <Heart size={48} className="text-gray-200" />
               <div>
                 <h3 className="text-lg font-bold text-gray-900">Your wishlist is empty</h3>
-                <p className="text-sm text-gray-500 mt-1">Save your favorite items here.</p>
+                <p className="text-[19px] text-gray-500 mt-1">Save your favorite items here.</p>
               </div>
               <button
                 onClick={onClose}
@@ -103,7 +103,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                           {isPending && processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                         </button>
                       </div>
-                      <p className="text-sm font-bold text-[#cfa874] mt-1">
+                      <p className="text-[19px] font-bold text-[#cfa874] mt-1">
                         ₹{Number(item.price || item.base_price).toLocaleString('en-IN')}
                       </p>
                     </div>

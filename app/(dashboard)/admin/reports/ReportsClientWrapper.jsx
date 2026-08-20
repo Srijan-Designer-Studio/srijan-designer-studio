@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Download, Calendar, TrendingUp, MapPin, DollarSign } from 'lucide-react';
-import { 
+import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import Card from '@/components/dashboard/shared/Card';
@@ -16,7 +16,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
   const stats = useMemo(() => {
     // Filter to only successful/completed orders
     const validOrders = initialOrders?.filter(o => !['cancelled', 'returned'].includes(o.status)) || [];
-    
+
     const totalNetRevenue = validOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
     const totalOrderCount = validOrders.length;
     const averageOrderValue = totalOrderCount > 0 ? totalNetRevenue / totalOrderCount : 0;
@@ -24,7 +24,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
     // Aggregate monthly revenue for the chart
     const monthMap = {};
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     // Initialize last 6 months
     const today = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -57,26 +57,26 @@ export default function ReportsClientWrapper({ initialOrders }) {
   ];
 
   const regionColumns = [
-    { 
-      header: 'Region / State', 
-      accessor: 'region', 
+    {
+      header: 'Region / State',
+      accessor: 'region',
       render: (row) => (
         <div className="flex items-center gap-2">
           <MapPin size={16} className="text-gray-400" />
           <span className="font-semibold text-gray-900">{row.region}</span>
         </div>
-      ) 
+      )
     },
     { header: 'Total Orders', accessor: 'orders' },
     { header: 'Revenue Generated', accessor: 'revenue', render: (row) => <span className="font-bold text-gray-900">{row.revenue}</span> },
-    { 
-      header: 'Growth (MoM)', 
-      accessor: 'growth', 
+    {
+      header: 'Growth (MoM)',
+      accessor: 'growth',
       render: (row) => (
         <span className={`font-medium ${row.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
           {row.growth}
         </span>
-      ) 
+      )
     },
   ];
 
@@ -89,11 +89,11 @@ export default function ReportsClientWrapper({ initialOrders }) {
 
   return (
     <div className="space-y-6 font-sans">
-      
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Financial Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">Analyze revenue trends, sales performance, and regional data.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Analyze revenue trends, sales performance, and regional data.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 shadow-sm">
@@ -113,7 +113,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
             <DollarSign size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Net Revenue</p>
+            <p className="text-[19px] text-gray-500 uppercase tracking-wider mb-1">Total Net Revenue</p>
             <h3 className="text-2xl font-bold text-gray-900">₹{stats.totalNetRevenue.toLocaleString('en-IN')}</h3>
           </div>
         </Card>
@@ -122,7 +122,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Average Order Value</p>
+            <p className="text-[19px] text-gray-500 uppercase tracking-wider mb-1">Average Order Value</p>
             <h3 className="text-2xl font-bold text-gray-900">₹{stats.averageOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</h3>
           </div>
         </Card>
@@ -131,7 +131,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Valid Orders</p>
+            <p className="text-[19px] text-gray-500 uppercase tracking-wider mb-1">Total Valid Orders</p>
             <h3 className="text-2xl font-bold text-gray-900">{stats.totalOrderCount}</h3>
           </div>
         </Card>
@@ -141,24 +141,24 @@ export default function ReportsClientWrapper({ initialOrders }) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h2 className="text-base font-bold text-gray-900">Revenue Trends</h2>
-            <p className="text-xs text-gray-500">Monthly breakdown of gross revenue vs order volume.</p>
+            <p className="text-[19px] text-gray-500">Monthly breakdown of gross revenue vs order volume.</p>
           </div>
           <Filter options={timeFilters} defaultValue="This Year" onChange={(v) => setTimeFilter(v)} />
         </div>
-        
+
         <div className="w-full h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={stats.revenueTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#1a1a1a" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#1a1a1a" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#1a1a1a" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#1a1a1a" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(val) => `₹${val/1000}k`} />
-              <Tooltip 
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(val) => `₹${val / 1000}k`} />
+              <Tooltip
                 contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 formatter={(value, name) => [name === 'revenue' ? `₹${value.toLocaleString()}` : value, name.charAt(0).toUpperCase() + name.slice(1)]}
               />
@@ -171,7 +171,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
       <Card className="p-0 shadow-sm border-gray-100">
         <div className="p-6 border-b border-gray-100 bg-white rounded-t-xl">
           <h2 className="text-base font-bold text-gray-900">Sales by Region</h2>
-          <p className="text-xs text-gray-500">Top performing states and territories.</p>
+          <p className="text-[19px] text-gray-500">Top performing states and territories.</p>
         </div>
         <Table columns={regionColumns} data={regionalSales} />
       </Card>

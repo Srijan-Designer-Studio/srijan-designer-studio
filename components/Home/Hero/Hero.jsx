@@ -13,7 +13,7 @@ const slides = [
   {
     id: 1,
     video: "/videos/HomePage HERO SectionVideo.mp4",
-    title: "Discover Fashion That Feels Made for You",
+    title: "Discover Fashion  Styles That's Truly Yours",
     description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
     buttonText: "Shop Now",
     href: "/shop-style",

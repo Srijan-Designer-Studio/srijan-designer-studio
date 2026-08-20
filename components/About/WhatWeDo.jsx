@@ -11,20 +11,20 @@ gsap.registerPlugin(ScrollTrigger);
 const servicesData = [
   {
     title: "For The Trendsetters (Ready-to-Wear):",
-    description: "From breezy Western cuts for your brunch dates to elegant Indo-Western fusions for office parties, and timeless Ethnic wear for family gatherings our racks are curated for the modern woman who refuses to be boring."
+    description: "Brunch calls for breezy Western. The office party wants a sharp Indo-Western. Family functions demand timeless Ethnic. We've got all three, curated for women who never do basic."
   },
-  {
-    title: "For The Dreamers (Bridal & Custom):",
-    description: "Your wedding dress shouldn't just fit your body; it should fit your personality. Our specialized Bridal Section works with you thread by thread to craft a trousseau that is uniquely yours. Have a specific design in mind? Our \"Scratch-to-Reality\" Customization Service guarantees that if you can dream it, we can stitch it."
-  },
-  {
-    title: "For The Little Ones (Kids Section):",
-    description: "Why should adults have all the fun? We craft comfortable, stylish, and adorable outfits for kids. Whether it's a birthday princess gown or a festive kurta for your little prince, we make sure they steal the show (comfortably)."
-  },
-  {
-    title: "For The Visionaries (Production Hub):",
-    description: "We are makers at heart. Beyond our own label, Srijan serves as a Production Powerhouse for other brands. We offer end-to-end manufacturing services, handling bulk production with the same precision and quality control we apply to our individual masterpieces. You design the brand; we handle the sewing machines."
-  }
+{
+  title: "For The Dreamers (Bridal & Custom):",
+    description: "Your wedding outfit isn't just fabric, it's the one memory everyone will zoom into forever. Our Bridal team builds trousseaus thread by thread. Got a design only you can see? Our \"Scratch-to-Reality\" service makes it wearable."
+},
+{
+  title: "For The Little Ones (Kids Section):",
+    description: "Grown-ups don't get to have all the fun. Birthday gowns, festive kurtas, whatever it takes for your little one to (comfortably) steal every photo at the party."
+},
+{
+  title: "For The Visionaries (Production Hub):",
+    description: "We're makers, top to bottom. Beyond our own label, we manufacture for other brands too, one piece or a thousand, same obsession with quality. You dream up the brand. We run the machines."
+}
 ];
 
 export default function WhatWeDo() {
@@ -89,7 +89,7 @@ export default function WhatWeDo() {
             <ul className="space-y-6 list-disc pl-5 marker:text-black">
               {servicesData.map((service, index) => (
                 <li key={index} className="wwd-text pl-2">
-                  <p className="text-[15px] lg:text-[17px] leading-[1.65] text-gray-800">
+                  <p className="text-[19px] lg:text-[17px] leading-[1.65] text-gray-800">
                     <strong className="font-bold text-black">
                       {service.title}
                     </strong>{" "}

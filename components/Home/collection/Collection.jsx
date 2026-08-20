@@ -14,9 +14,9 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Collection() {
   const containerRef = useRef(null);
 
-  const ethnicCover = allProducts.find(product => product.category.includes("Ethnic"))?.image || "/Home_img/4.webp";
-  const westernCover = allProducts.find(product => product.category.includes("Western"))?.image || "/Home_img/5.webp";
-  const newArrivalCover = allProducts[allProducts.length - 1]?.image || "/Home_img/6.webp";
+  const ethnicCover = "/Home_img/4.webp";
+  const westernCover = "/Home_img/5.webp";
+  const newArrivalCover = "/Home_img/6.webp";
 
   const collections = [
     { id: 1, buttonText: "Shop Ethnic Wear", placeholderBg: "bg-[#2dd4bf]", imageSrc: ethnicCover, link: "/ethnic-wear" },
@@ -64,7 +64,7 @@ export default function Collection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {collections.map((item) => (
             <Link href={item.link} key={item.id} className="coll-card block">
-              <div className="relative w-full h-[450px] lg:h-[550px] rounded-[24px] overflow-hidden shadow-xl group cursor-pointer">
+              <div className="relative w-full aspect-[2/3] rounded-[24px] overflow-hidden shadow-xl group cursor-pointer">
                 {item.imageSrc ? (
                   <Image
                     src={item.imageSrc}

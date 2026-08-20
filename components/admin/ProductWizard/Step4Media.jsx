@@ -38,7 +38,7 @@ export default function Step4Media() {
   };
 
   const updateAltText = (idToUpdate, newAltText) => {
-    const updatedImages = formData.images.map(img => 
+    const updatedImages = formData.images.map(img =>
       img.id === idToUpdate ? { ...img, altText: newAltText } : img
     );
     updateFormData({ images: updatedImages });
@@ -48,7 +48,7 @@ export default function Step4Media() {
     <div className="animate-in fade-in text-black slide-in-from-bottom-4 duration-500">
       <div className="mb-8 border-b border-gray-100 pb-5">
         <h2 className="text-xl font-bold text-gray-900">Media</h2>
-        <p className="text-[13px] text-gray-500 mt-1">Upload high-quality images. You can select a primary image and add alt texts for SEO.</p>
+        <p className="text-[19px] text-gray-500 mt-1">Upload high-quality images. You can select a primary image and add alt texts for SEO.</p>
       </div>
 
       <div className="space-y-6">
@@ -56,7 +56,7 @@ export default function Step4Media() {
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <UploadCloud size={40} className="text-gray-400 group-hover:text-blue-500 transition-colors mb-3" />
             <p className="mb-2 text-sm text-gray-700 font-semibold"><span className="text-blue-600">Click to upload</span> or drag and drop</p>
-            <p className="text-xs text-gray-500">PNG, JPG, WEBP (Max 5MB per image)</p>
+            <p className="text-[19px] text-gray-500">PNG, JPG, WEBP (Max 5MB per image)</p>
           </div>
           <input type="file" className="hidden" multiple accept="image/png, image/jpeg, image/webp" onChange={handleImageUpload} />
         </label>
@@ -65,18 +65,18 @@ export default function Step4Media() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
             {formData.images.map((img) => (
               <div key={img.id} className={`relative flex flex-col bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${img.isPrimary ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'}`}>
-                
+
                 <div className="absolute top-2 right-2 flex gap-2 z-10">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setPrimaryImage(img.id)}
                     title="Set as Primary"
                     className={`p-1.5 rounded-md shadow-sm transition-colors ${img.isPrimary ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 hover:text-blue-600'}`}
                   >
                     <Star size={16} className={img.isPrimary ? 'fill-white' : ''} />
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => removeImage(img.id)}
                     title="Delete Image"
                     className="p-1.5 rounded-md shadow-sm bg-white text-red-500 hover:bg-red-50 transition-colors"
@@ -97,8 +97,8 @@ export default function Step4Media() {
 
                 <div className="p-3 bg-gray-50 border-t border-gray-100">
                   <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Alt Text (SEO)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={img.altText}
                     onChange={(e) => updateAltText(img.id, e.target.value)}
                     placeholder="Describe this image"
@@ -111,7 +111,7 @@ export default function Step4Media() {
         ) : (
           <div className="flex flex-col items-center justify-center py-10 bg-white border border-gray-200 border-dashed rounded-xl">
             <ImgIcon size={48} strokeWidth={1} className="text-gray-300 mb-3" />
-            <p className="text-[14px] font-medium text-gray-500">No images uploaded yet.</p>
+            <p className="text-[19px] font-medium text-gray-500">No images uploaded yet.</p>
           </div>
         )}
       </div>

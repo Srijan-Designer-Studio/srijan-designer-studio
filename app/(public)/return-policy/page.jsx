@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Return Policy | SRIJAN',
   description: 'Information regarding product returns and exchanges.',
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function ReturnPolicy() {

@@ -19,7 +19,7 @@ export default function AdminDashboardClient({ initialStats }) {
   const StatCard = ({ title, value, trend, isPositive }) => (
     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
       <h3 className="text-sm font-semibold text-gray-900 mb-2">{value}</h3>
-      <p className="text-xs text-gray-500 mb-3">{title}</p>
+      <p className="text-[19px] text-gray-500 mb-3">{title}</p>
       <div className={`flex items-center text-xs font-semibold ${isPositive ? 'text-green-600' : 'text-red-500'}`}>
         {isPositive ? <ArrowUpRight size={14} className="mr-1" /> : <ArrowDownRight size={14} className="mr-1" />}
         {trend}
@@ -86,11 +86,11 @@ export default function AdminDashboardClient({ initialStats }) {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-gray-900 truncate">{product.title}</p>
+                  <p className="text-[19px] font-semibold text-gray-900 truncate">{product.title}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold text-gray-900">₹{product.revenue?.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-gray-500">{product.sales} Orders</p>
+                  <p className="text-[19px] font-bold text-gray-900">₹{product.revenue?.toLocaleString('en-IN')}</p>
+                  <p className="text-[19px] text-gray-500">{product.sales} Orders</p>
                 </div>
               </div>
             ))}
@@ -108,13 +108,13 @@ export default function AdminDashboardClient({ initialStats }) {
             {stats.recentOrders.slice(0, 5).map((order) => (
               <div key={order.id} className="flex items-center justify-between">
                 <div className="min-w-[80px]">
-                  <p className="text-[11px] font-medium text-gray-500">#{order.id.split('-')[0].toUpperCase()}</p>
+                  <p className="text-[19px] font-medium text-gray-500">#{order.id.split('-')[0].toUpperCase()}</p>
                 </div>
                 <div className="flex-1 min-w-0 px-2">
-                  <p className="text-xs font-semibold text-gray-900 truncate">{order.profiles?.first_name} {order.profiles?.last_name}</p>
+                  <p className="text-[19px] font-semibold text-gray-900 truncate">{order.profiles?.first_name} {order.profiles?.last_name}</p>
                 </div>
                 <div className="w-16 text-right">
-                  <p className="text-xs font-bold text-gray-900">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
+                  <p className="text-[19px] font-bold text-gray-900">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
                 </div>
                 <div className="w-24 flex justify-end">
                   <StatusBadge status={order.status.charAt(0).toUpperCase() + order.status.slice(1)} />

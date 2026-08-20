@@ -47,7 +47,7 @@ export default function CategoriesClientWrapper({ initialCategories }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     startTransition(async () => {
       let imageUrl = selectedCategory?.image_url;
 
@@ -85,9 +85,9 @@ export default function CategoriesClientWrapper({ initialCategories }) {
   }));
 
   const categoryColumns = [
-    { 
-      header: 'Category Details', 
-      accessor: 'name', 
+    {
+      header: 'Category Details',
+      accessor: 'name',
       render: (row) => (
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
@@ -101,44 +101,44 @@ export default function CategoriesClientWrapper({ initialCategories }) {
           </div>
           <div>
             <p className="font-bold text-gray-900">{row.name}</p>
-            <p className="text-xs text-gray-500 line-clamp-1 max-w-[200px]">{row.description}</p>
+            <p className="text-[19px] text-gray-500 line-clamp-1 max-w-[200px]">{row.description}</p>
           </div>
         </div>
-      ) 
+      )
     },
-    { 
-      header: 'Total Products', 
-      accessor: 'count', 
+    {
+      header: 'Total Products',
+      accessor: 'count',
       render: (row) => (
         <span className="font-medium text-gray-900 bg-gray-50 px-3 py-1 rounded-md border border-gray-100">
           {row.count} Items
         </span>
-      ) 
+      )
     },
-    { 
-      header: 'Status', 
-      accessor: 'status', 
-      render: (row) => <StatusBadge status={row.status} /> 
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />
     },
-    { 
-      header: 'Actions', 
-      accessor: 'action', 
+    {
+      header: 'Actions',
+      accessor: 'action',
       render: (row) => (
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => handleEditCategory(row)}
             className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
           >
             <Edit2 size={16} />
           </button>
-          <button 
+          <button
             onClick={() => handleDeleteCategory(row.id)}
             className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
           >
             <Trash2 size={16} />
           </button>
         </div>
-      ) 
+      )
     },
   ];
 
@@ -147,9 +147,9 @@ export default function CategoriesClientWrapper({ initialCategories }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-          <p className="text-sm text-gray-500 mt-1">Organize your products into distinct collections.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Organize your products into distinct collections.</p>
         </div>
-        <button 
+        <button
           onClick={handleAddCategory}
           className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 shadow-sm transition-colors flex items-center gap-2"
         >
@@ -164,18 +164,17 @@ export default function CategoriesClientWrapper({ initialCategories }) {
         <Table columns={categoryColumns} data={formattedCategories} />
       </Card>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={modalMode === 'add' ? "Create New Category" : "Edit Category"}
       >
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Category Image</label>
-            <div 
-              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                dragActive ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
-              }`}
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragActive ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
+                }`}
               onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
               onDragLeave={() => setDragActive(false)}
               onDrop={(e) => { e.preventDefault(); setDragActive(false); if (e.dataTransfer.files[0]) setImageFile(e.dataTransfer.files[0]); }}
@@ -184,41 +183,41 @@ export default function CategoriesClientWrapper({ initialCategories }) {
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 mb-2">
                   <UploadCloud size={24} />
                 </div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-[19px] font-medium text-gray-900">
                   <label className="text-blue-600 hover:underline cursor-pointer">
                     Click to upload
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
                   </label> or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">{imageFile ? imageFile.name : 'SVG, PNG, JPG or GIF (max. 2MB)'}</p>
+                <p className="text-[19px] text-gray-500">{imageFile ? imageFile.name : 'SVG, PNG, JPG or GIF (max. 2MB)'}</p>
               </div>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Category Name</label>
-            <input 
+            <input
               name="name"
-              type="text" 
+              type="text"
               defaultValue={selectedCategory?.name || ''}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
+              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Slug (URL)</label>
-            <input 
+            <input
               name="slug"
-              type="text" 
+              type="text"
               defaultValue={selectedCategory?.slug || ''}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors" 
+              className="w-full px-4 py-2.5 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-gray-50 focus:bg-white transition-colors"
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <button 
+            <button
               type="button"
               onClick={() => setIsModalOpen(false)}
               disabled={isPending}
@@ -226,7 +225,7 @@ export default function CategoriesClientWrapper({ initialCategories }) {
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               disabled={isPending}
               className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-70 flex items-center gap-2"

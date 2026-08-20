@@ -22,16 +22,46 @@ const looksData = [
 ];
 
 const faqs = [
-  { q: "Can I customize a dress or outfit for my child?", a: "Yes, absolutely! We specialize in custom tailoring for kids to ensure the perfect fit and design." },
-  { q: "Can I match my child's outfit with my own outfit?", a: "Yes, we offer matching 'Mom & Me' or 'Dad & Me' outfits for special occasions." },
-  { q: "What age groups do you make custom kids wear for?", a: "We design custom outfits for newborns up to 14-year-old kids." },
-  { q: "How long does it take to complete a custom kids wear order?", a: "Usually, it takes 7-14 working days depending on the design complexity." },
-  { q: "Can I choose the fabric for my child's outfit?", a: "Yes, you can select from our premium range of child-safe fabrics." },
-  { q: "Can I make changes to the design before stitching starts?", a: "Yes, minor adjustments can be made during the consultation phase." },
-  { q: "How do I provide my child's measurements?", a: "You can follow our measurement guide or schedule a video call for assistance." },
-  { q: "Are custom kids outfits comfortable for everyday wear?", a: "We use soft, breathable linings to ensure maximum comfort for everyday wear." },
-  { q: "Do you make outfits for birthdays and special occasions?", a: "Yes! Birthdays, weddings, and theme parties are our specialty." },
-  { q: "How do I place an order for custom kids wear?", a: "Simply fill out the form below or contact us via WhatsApp to get started." },
+  { 
+    q: "Can I customize a dress or outfit for my child?", 
+    a: "Yes. We can make the outfit according to the design, color and fabric choice that you like." 
+  },
+  { 
+    q: "What age groups do you make custom kids wear for?", 
+    a: "We provide the service of custom-made outfits for babies, toddlers and children from different age groups. Mention the age or measurements of your child and we can get started." 
+  },
+  { 
+    q: "Can I choose the fabric for my child's outfit?", 
+    a: "Yes, we have several fabrics that are appropriate to wear by the children for different seasons and occasions." 
+  },
+  { 
+    q: "How do I provide my child's measurements?", 
+    a: "The child's measurement can be shared directly with us or we can send you the guide for measurement." 
+  },
+  { 
+    q: "Do you make outfits for birthdays and special occasions?", 
+    a: "Yes, we create custom outfits for the birthday, wedding, festival, school function, photoshoot and much more special events." 
+  },
+  { 
+    q: "Can I match my child's outfit with my own outfit?", 
+    a: "Certainly. We can also coordinate the outfits for parents along with the kids so that everyone can match." 
+  },
+  { 
+    q: "How long does it take to complete a custom kids wear order?", 
+    a: "It depends upon the design and customization requirements of the outfit, after understanding the need, we'll let you know about the delivery date." 
+  },
+  { 
+    q: "Can I make changes to the design before stitching starts?", 
+    a: "Yes, we discuss all the designing aspects with the customers before creating the outfit. This will help you request any changes during the designing phase." 
+  },
+  { 
+    q: "Are custom kids outfits comfortable for everyday wear?", 
+    a: "Yes, absolutely. The comfort is one of the priorities. We will ensure the perfect fitting, softness and ease in wearing of our items." 
+  },
+  { 
+    q: "How do I place an order for custom kids wear?", 
+    a: "You just need to share us the requirements or designs and we'll assist you from fabric choice, measurement and design discussion to order placing." 
+  }
 ];
 
 export default function KidsWearClient() {
@@ -151,7 +181,7 @@ export default function KidsWearClient() {
                 <img src="/Create Custom-img/Icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Pick your fabric</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Choose the fabric and colour you love.
               </p>
             </div>
@@ -161,7 +191,7 @@ export default function KidsWearClient() {
                 <img src="/Create Custom-img/Icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Design a dress</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Share your ideas and create your perfect look.
               </p>
             </div>
@@ -171,7 +201,7 @@ export default function KidsWearClient() {
                 <img src="/Create Custom-img/Icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get measured</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Send your measurements for a perfect fit.
               </p>
             </div>
@@ -183,7 +213,7 @@ export default function KidsWearClient() {
                 <img src="/Create Custom-img/Icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Consult with designer</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Discuss your vision with fashion designer.
               </p>
             </div>
@@ -193,7 +223,7 @@ export default function KidsWearClient() {
                 <img src="/Create Custom-img/Icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get delivered</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Receive your custom-made dress at your doorstep.
               </p>
             </div>
@@ -232,7 +262,7 @@ export default function KidsWearClient() {
             <img src="/Custom Kids Wear/Untitled design (5).webp" alt="Special Moment" className="w-full object-cover" />
           </div>
 
-          <div className="reveal-up bg-white p-8 rounded-2xl shadow-xl border border-[#d69f53]">
+          <div className="reveal-up bg-white p-4 rounded-2xl shadow-xl">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
             {formStatus && (
@@ -295,10 +325,10 @@ export default function KidsWearClient() {
                 <textarea name="message" className="w-full p-4 h-[80px] border border-gray-400 rounded-lg focus:border-black focus:outline-none resize-none transition-colors"></textarea>
               </div>
               
-              <button type="submit" disabled={isPending} className="w-full h-[50px] bg-[#c98d45] text-black font-medium rounded-full hover:bg-[#b57a35] transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
+              <button type="submit" disabled={isPending} className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full">
                 {isPending ? 'SUBMITTING...' : 'SUBMIT NOW'}
               </button>
-              <p className="text-[10px] text-center text-gray-500 mt-1">
+              <p className="text-[19px] text-center text-gray-500 mt-1">
                 Your profile name will be shared. Never submit passwords.
               </p>
             </form>

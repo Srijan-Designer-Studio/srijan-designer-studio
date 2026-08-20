@@ -76,7 +76,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
           >
             <Eye size={16} /> View
           </button>
-          
+
           {row.status === 'Delivered' && (
             <>
               <DownloadInvoice order={row.rawOrder} />
@@ -115,7 +115,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
-          <p className="text-sm text-gray-500 mt-1">Track, return, or download invoices for your past purchases.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Track, return, or download invoices for your past purchases.</p>
         </div>
       </div>
 
@@ -142,13 +142,13 @@ export default function OrdersClientWrapper({ initialOrders }) {
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
               <div>
-                <p className="text-xs text-gray-500">Order Placed</p>
+                <p className="text-[19px] text-gray-500">Order Placed</p>
                 <p className="font-bold text-gray-900">
                   {new Intl.DateTimeFormat('en-IN').format(new Date(selectedOrder.created_at))}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-500">Total Amount</p>
+                <p className="text-[19px] text-gray-500">Total Amount</p>
                 <p className="font-bold text-[#cfa874] text-lg">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
               </div>
             </div>
@@ -172,19 +172,19 @@ export default function OrdersClientWrapper({ initialOrders }) {
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
-                      <p className="text-xs text-gray-500 mb-2">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
-                      
+                      <p className="text-[19px] font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
+                      <p className="text-[19px] text-gray-500 mb-2">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+
                       {selectedOrder.status.toLowerCase() === 'delivered' && (
-                        <Link 
-                          href={`/shop-style`} 
+                        <Link
+                          href={`/shop-style`}
                           className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded transition-colors"
                         >
                           <Star size={10} className="fill-white" /> Write Review
                         </Link>
                       )}
                     </div>
-                    <p className="text-sm font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                    <p className="text-[19px] font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                   </div>
                 );
               })}

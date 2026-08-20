@@ -80,7 +80,7 @@ export default function Footer() {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 200); 
+      }, 200);
     });
 
     resizeObserver.observe(document.body);
@@ -90,7 +90,7 @@ export default function Footer() {
     });
 
     const loadTimeout = setTimeout(() => {
-        ScrollTrigger.refresh();
+      ScrollTrigger.refresh();
     }, 1000);
 
     return () => {
@@ -254,7 +254,7 @@ export default function Footer() {
 
                 <div className="flex items-start gap-3 text-white mb-6">
                   <MapPin size={24} className="shrink-0 mt-1" />
-                  <p className="text-[15px] leading-relaxed">
+                  <p className="text-[19px] leading-relaxed">
                     Chhobi Apartment, Sani Mandir, Panchasayar Main Road,
                     Panchasayar, Kolkata-700094, West Bengal
                   </p>

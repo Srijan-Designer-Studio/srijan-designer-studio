@@ -16,18 +16,18 @@ import PaymentNotification from "@/components/ui/PaymentNotification";
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("cod"); 
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(false); // Success popup state
+  const [isSuccess, setIsSuccess] = useState(false); 
 
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         router.push("/login");
       } else {
@@ -35,7 +35,7 @@ export default function CheckoutPage() {
         setIsAuthChecking(false);
       }
     };
-    
+
     checkAuth();
   }, [router]);
 
@@ -78,8 +78,8 @@ export default function CheckoutPage() {
       try {
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: "cod", 
-          customer_phone: formData.get('phone'), 
+          paymentMethod: "cod",
+          customer_phone: formData.get('phone'),
           address: {
             phone: formData.get('phone'),
             addressLine1: formData.get('address1'),
@@ -95,25 +95,21 @@ export default function CheckoutPage() {
           }))
         };
 
-        const dbResult = await createOrder({ 
-          ...orderPayload, 
+        const dbResult = await createOrder({
+          ...orderPayload,
           paymentStatus: 'Pending',
-          status: 'pending' 
+          status: 'pending'
         });
 
         if (!dbResult.success) {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
-        // ==========================================
-        // TEMPORARY COD BYPASS & SUCCESS LOGIC
-        // ==========================================
-        clearCart(); 
-        setIsSuccess(true); // Show success popup
-        
-        // 2.5 seconds wait before redirecting
+        clearCart();
+        setIsSuccess(true); 
+
         setTimeout(() => {
-          router.push("/success"); 
+          router.push("/success");
         }, 2500);
 
       } catch (error) {
@@ -124,7 +120,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      {/* Success Popup Overlay */}
       {isSuccess && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-md w-full animate-in zoom-in-95 duration-300">
@@ -157,7 +152,7 @@ export default function CheckoutPage() {
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
                     <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
@@ -222,8 +217,8 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-1 flex flex-col justify-center">
                         <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
-                        <p className="text-xs text-gray-500 mb-1">Qty: {item.quantity} | Size: {item.size}</p>
-                        <p className="text-sm font-extrabold text-black">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                        <p className="text-[13px] text-gray-500 mb-1">Qty: {item.quantity} | Size: {item.size}</p>
+                        <p className="text-[15px] font-extrabold text-black">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                       </div>
                     </div>
                   ))}

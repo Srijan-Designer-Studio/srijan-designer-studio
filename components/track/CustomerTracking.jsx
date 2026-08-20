@@ -15,14 +15,14 @@ export default function CustomerTracking({ order }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
       <h3 className="text-lg font-bold text-gray-900 mb-4">Live Tracking (AWB: {order.tracking_number})</h3>
-      
+
       <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:to-gray-200">
         {activities.map((activity, index) => (
           <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-blue-500 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
-            
+
             <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
               <div className="flex justify-between items-start mb-1">
                 <h4 className="font-semibold text-gray-900 text-sm">{activity.activity}</h4>
@@ -30,7 +30,7 @@ export default function CustomerTracking({ order }) {
                   {new Date(activity.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">{activity.location}</p>
+              <p className="text-[19px] text-gray-600">{activity.location}</p>
             </div>
           </div>
         ))}

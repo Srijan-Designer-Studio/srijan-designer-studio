@@ -10,11 +10,26 @@ import Link from "next/link";
 gsap.registerPlugin(ScrollTrigger);
 
 const faqs = [
-  { q: "Why choose a custom dress instead of a ready-made one?", a: "Custom dresses guarantee a perfect fit tailored exactly to your body measurements and style preferences." },
-  { q: "How does the design process work?", a: "We start with a consultation to understand your vision, followed by fabric selection, measurements, and fittings." },
-  { q: "Can I use my own design or reference image?", a: "Absolutely! We encourage you to share your ideas, sketches, or reference photos." },
-  { q: "What can I customize in my dress?", a: "You can customize the fabric, color, neckline, sleeves, and fine detailing." },
-  { q: "How do you ensure the dress fits perfectly?", a: "We take detailed measurements and offer necessary fittings to ensure flawless results." }
+  {
+    q: "Why choose custom dresses instead of ready-made ones?",
+    a: "Custom dresses are made according to your specifications for better fitting and uniqueness."
+  },
+  {
+    q: "How does the design process work?",
+    a: "First, choose your basic style, let us know what you would like and select your fabrics and our designers will make you a dress."
+  },
+  {
+    q: "Can I use my own design or reference image?",
+    a: "Yes. It is possible for you to submit drawings or photos and we will convert them into your personalized outfit."
+  },
+  {
+    q: "What can I customize in my dress?",
+    a: "Your personalized dress may have different styles, necklines, sleeves, fabrics, colors, lengths and more."
+  },
+  {
+    q: "How do you ensure the dress fits perfectly?",
+    a: "Every designer dress is made according to your measurements and designs after review of your specifications."
+  }
 ];
 
 export default function CustomizeFaq() {
@@ -44,13 +59,20 @@ export default function CustomizeFaq() {
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
-      <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-16">
+      <div className="max-w-[1400px] mx-auto px-6 grid lg:grid-cols-2 gap-16">
         <div>
           <h2 className="faq-left-anim text-3xl md:text-[40px] font-extrabold text-black mb-6 leading-tight">
-            About SRIJAN Fashion<br />Custom Dresses
+            Why Choose SRIJAN Fashion<br />
+            for Custom Dresses
           </h2>
           <p className="faq-left-anim text-gray-700 leading-relaxed mb-8">
-            At <strong>SRIJAN Fashion</strong>, we believe your outfit should be as unique as you are. Our designers work with your ideas, measurements and preferences to create a one-of-a-kind designer dress that fits perfectly. From choosing fabrics to adding personal details, we make the journey simple, creative and completely tailored to you.
+            Your outfit should be as one-of-a-kind
+            as you are. Our designers work with
+            your ideas, your measurements and
+            your preferences to create a designer
+            dress that actually fits. From fabric to
+            final detail, we keep it simple, creative
+            and completely yours.
           </p>
           <div className="faq-left-anim">
             <Link href="/customization-policy" className="bg-[#00c3ff] hover:bg-[#00abe0] cursor-pointer text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-0.5">

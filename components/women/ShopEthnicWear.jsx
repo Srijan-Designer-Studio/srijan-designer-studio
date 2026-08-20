@@ -63,7 +63,7 @@ export default function ShopEthnicWear() {
               key={product.id}
               className="shop-eth-card group flex flex-col items-center cursor-pointer"
             >
-              <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
+              <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
                 {(product.imageSrc || product.image) && (
                   <Image
                     src={product.imageSrc || product.image}
@@ -73,10 +73,10 @@ export default function ShopEthnicWear() {
                   />
                 )}
               </div>
-              <h3 className="text-[12px] sm:text-[13px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
+              <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                 {product.title}
               </h3>
-              <p className="text-[13px] sm:text-[14px] font-bold text-black text-center">
+              <p className="text-[19px] sm:text-[18px] font-bold text-black text-center">
                 {product.price?.toString().includes('₹') ? product.price : `₹${product.price}`}
               </p>
             </Link>

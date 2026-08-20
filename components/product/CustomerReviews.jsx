@@ -61,11 +61,11 @@ export default function CustomerReviews({ productId }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
-    
+
     startTransition(async () => {
       try {
         const response = await addReview(productId, rating, comment);
-        
+
         if (response?.success) {
           setMessage(response.message);
           setIsWriting(false);
@@ -206,7 +206,7 @@ export default function CustomerReviews({ productId }) {
                     </span>
                   </div>
                 </div>
-                <p className="text-[13px] text-gray-600 line-clamp-3">{review.comment}</p>
+                <p className="text-[19px] text-gray-600 line-clamp-3">{review.comment}</p>
                 <p className="text-[10px] text-gray-400 mt-4">
                   {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(review.created_at))}
                 </p>

@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Shipping Policy | SRIJAN',
   description: 'Information regarding the shipping and delivery of your orders.',
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function ShippingPolicy() {

@@ -69,7 +69,7 @@ export default function ShowBlogs() {
       <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">All Blogs</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-[19px] text-gray-500 mt-1">
             {blogs.length} blog{blogs.length !== 1 ? "s" : ""} total
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function ShowBlogs() {
             <svg className="w-12 h-12 mb-3 text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-sm font-medium">No blogs found</p>
+            <p className="text-[19px] font-medium">No blogs found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -221,7 +221,7 @@ export default function ShowBlogs() {
               </svg>
             </div>
             <h2 className="text-lg font-bold text-gray-900 text-center mb-1">Delete Blog?</h2>
-            <p className="text-sm text-gray-500 text-center mb-6 leading-relaxed">
+            <p className="text-[19px] text-gray-500 text-center mb-6 leading-relaxed">
               <span className="font-medium text-gray-700">"{confirmDelete.title}"</span> will be permanently deleted. This cannot be undone.
             </p>
             <div className="flex gap-3">

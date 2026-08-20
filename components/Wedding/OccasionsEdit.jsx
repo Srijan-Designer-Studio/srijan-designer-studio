@@ -57,7 +57,7 @@ export default function OccasionsEdit() {
 
   useGSAP(() => {
     if (!currentData.length) return;
-    
+
     gsap.fromTo(
       ".occasion-card",
       { y: 30, opacity: 0, scale: 0.98 },
@@ -67,10 +67,10 @@ export default function OccasionsEdit() {
 
   return (
     <section className="py-20 bg-white" ref={containerRef}>
-      
-      <CustomStylesPopup 
-        isOpen={isPopupOpen} 
-        onClose={() => setIsPopupOpen(false)} 
+
+      <CustomStylesPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
         category={activeTab === "WOMEN" ? "Women" : "Men"}
       />
 
@@ -103,7 +103,7 @@ export default function OccasionsEdit() {
               key={item.id}
               className="occasion-card flex flex-col items-center cursor-pointer group"
             >
-              <div className="relative w-full aspect-[3/4] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
+              <div className="relative w-full aspect-[2/3] rounded-[16px] bg-[#293645] overflow-hidden mb-4 transition-shadow hover:shadow-xl">
                 {item.imageSrc && (
                   <Image
                     src={item.imageSrc}
@@ -120,9 +120,9 @@ export default function OccasionsEdit() {
             </div>
           ))}
         </div>
-        
+
         <div className="w-full flex items-center justify-center my-2 occasion-btn">
-          <button 
+          <button
             onClick={() => setIsPopupOpen(true)}
             className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md"
           >

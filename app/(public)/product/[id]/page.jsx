@@ -15,14 +15,20 @@ export async function generateMetadata({ params }) {
 
   const imageUrl = product.product_images?.[0]?.image_url || '/images/logo1.png';
   const description = product.description?.substring(0, 160) || `Buy ${product.title} online at best prices on SRIJAN Fashion.`;
+  const productUrl = `https://www.srijandesignerstudio.com/product/${resolvedParams.id}`;
 
   return {
     title: `${product.title} | SRIJAN Fashion`,
     description: description,
+    alternates: {
+      canonical: productUrl,
+    },
     openGraph: {
       title: product.title,
       description: description,
-      images: [{ url: imageUrl }],
+      url: productUrl,
+      siteName: 'Srijan Fashion',
+      images: [{ url: imageUrl, width: 1200, height: 630 }],
       type: 'website',
     },
     twitter: {
@@ -44,8 +50,37 @@ export default async function SingleProductPage({ params }) {
     return notFound();
   }
 
+  const imageUrl = product.product_images?.[0]?.image_url || 'https://www.srijandesignerstudio.com/images/logo3.jpg';
+  const productUrl = `https://www.srijandesignerstudio.com/product/${id}`;
+
+  // Product Schema Data
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.title,
+    "image": [imageUrl],
+    "description": product.description || `Buy ${product.title} online at best prices on SRIJAN Fashion.`,
+    "sku": product.id,
+    "brand": {
+      "@type": "Brand",
+      "name": "SRIJAN Fashion"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": productUrl,
+      "priceCurrency": "INR",
+      "price": product.base_price || 0,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": product.is_active !== false ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    }
+  };
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
       <ScrollToTop />
       <ProductDetails product={product} />
       <CustomerReviews productId={product.id} />

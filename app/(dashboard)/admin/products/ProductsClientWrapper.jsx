@@ -15,7 +15,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       setDeletingId(productId);
       startTransition(async () => {
         const res = await deleteProduct(productId);
-        
+
         if (res?.error) {
           alert("Failed to delete product: " + res.error);
           setDeletingId(null);
@@ -57,12 +57,12 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Products</h1>
-            <p className="text-[13px] text-gray-500 mt-0.5">Manage your store's inventory and product catalog</p>
+            <p className="text-[19px] text-gray-500 mt-0.5">Manage your store's inventory and product catalog</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link 
-            href="/admin/products/add" 
+          <Link
+            href="/admin/products/add"
             className="px-4 py-2 bg-[#5a4bda] text-white rounded-lg text-[13px] font-bold hover:bg-[#4b3ec2] shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Plus size={16} /> Add New Product
@@ -100,7 +100,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <p className="text-[13px] font-bold text-gray-900 mb-0.5">₹{product.price.toLocaleString('en-IN')}</p>
+                    <p className="text-[19px] font-bold text-gray-900 mb-0.5">₹{product.price.toLocaleString('en-IN')}</p>
                   </td>
                   <td className="px-4 py-4">
                     <p className={`text-[11px] font-bold ${product.stockStatus === 'In Stock' ? 'text-green-600' : 'text-red-500'}`}>
@@ -114,16 +114,16 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-4">
-                      <Link 
-                        href={`/admin/products/edit/${product.slug}`} 
+                      <Link
+                        href={`/admin/products/edit/${product.slug}`}
                         className="text-gray-400 hover:text-[#5a4bda] transition-colors cursor-pointer"
                         title="Edit Product"
                       >
                         <Edit2 size={16} strokeWidth={2.5} />
                       </Link>
-                      <button 
+                      <button
                         disabled={deletingId === product.id}
-                        onClick={() => handleDeleteProduct(product.id)} 
+                        onClick={() => handleDeleteProduct(product.id)}
                         className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer disabled:opacity-50"
                         title="Delete Product"
                       >

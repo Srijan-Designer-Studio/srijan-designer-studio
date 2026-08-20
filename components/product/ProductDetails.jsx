@@ -16,7 +16,7 @@ export default function ProductDetails({ product }) {
   const containerRef = useRef(null);
 
   const variants = product?.product_variants || [];
-  
+
   const images = product?.product_images?.length > 0
     ? product.product_images.map(img => img.image_url)
     : ["/images/placeholder.jpg"];
@@ -85,7 +85,7 @@ export default function ProductDetails({ product }) {
 
       try {
         await addToCartServer(variantId, quantity);
-      } catch (error) {}
+      } catch (error) { }
     });
   };
 
@@ -94,7 +94,7 @@ export default function ProductDetails({ product }) {
       toggleWishlist(product);
       try {
         await toggleWishlistServer(product.id);
-      } catch (error) {}
+      } catch (error) { }
     });
   };
 
@@ -120,13 +120,13 @@ export default function ProductDetails({ product }) {
   return (
     <section className="pt-32 pb-16 bg-white font-sans" ref={containerRef}>
       <div className="max-w-[1200px] w-full mx-auto px-6">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-20">
-          
+
           <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0 relative">
             <div className="relative w-full aspect-[2/3] rounded-2xl border border-gray-200 overflow-hidden bg-gray-50">
               <img src={images[mainImageIndex]} alt={product.title} className="w-full h-full object-cover object-top" />
-              
+
               {images.length > 1 && (
                 <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2">
                   {images.map((_, idx) => (
@@ -160,7 +160,7 @@ export default function ProductDetails({ product }) {
             </div>
 
             <div className="prod-info mb-8">
-              <p className="text-[15px] text-gray-700 leading-relaxed">
+              <p className="text-[19px] text-gray-700 leading-relaxed">
                 {product.short_description || "Experience the perfect blend of style and comfort. Carefully crafted for a premium feel."}
               </p>
             </div>
@@ -228,11 +228,10 @@ export default function ProductDetails({ product }) {
               <h2
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`text-[16px] md:text-[18px] font-bold pb-3 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === tab.id 
-                    ? 'border-b-[3px] border-black text-black' 
+                className={`text-[16px] md:text-[18px] font-bold pb-3 whitespace-nowrap transition-all cursor-pointer ${activeTab === tab.id
+                    ? 'border-b-[3px] border-black text-black'
                     : 'text-gray-500 hover:text-black border-b-[3px] border-transparent'
-                }`}
+                  }`}
               >
                 {tab.label}
               </h2>

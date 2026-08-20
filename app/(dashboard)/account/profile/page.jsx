@@ -23,7 +23,7 @@ export default function ProfilePage() {
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (user) {
           setProfile({
             first_name: user.user_metadata?.first_name || '',
@@ -84,7 +84,7 @@ export default function ProfilePage() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     const formData = new FormData(e.target);
     const firstName = formData.get('firstName');
     const lastName = formData.get('lastName');
@@ -127,11 +127,10 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl pt-[100px] lg:pt-[120px] text-black space-y-6 font-sans relative">
-      
+
       {popup.show && (
-        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 ${
-          popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'
-        }`}>
+        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-xl shadow-2xl backdrop-blur-md font-bold text-[14px] flex items-center gap-3 transition-all duration-300 ${popup.type === 'success' ? 'bg-[#00c3ff]/90 text-white border border-[#00c3ff]' : 'bg-red-500/90 text-white border border-red-400'
+          }`}>
           {popup.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
           {popup.message}
         </div>
@@ -139,23 +138,23 @@ export default function ProfilePage() {
 
       <div>
         <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-sm text-gray-500 mt-1">Update your personal information and profile picture.</p>
+        <p className="text-[19px] text-gray-500 mt-1">Update your personal information and profile picture.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         <div className="md:col-span-1">
           <Card className="flex flex-col items-center text-center p-6 shadow-sm border border-gray-100">
-            <div 
+            <div
               onClick={() => !isUploading && fileInputRef.current.click()}
               className="relative w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-gray-50 shadow-sm bg-gray-100 flex items-center justify-center group cursor-pointer"
             >
-              <img 
-                src={profile.avatar_url || "/images/user.png"} 
-                alt="Profile" 
-                className="object-cover w-full h-full" 
+              <img
+                src={profile.avatar_url || "/images/user.png"}
+                alt="Profile"
+                className="object-cover w-full h-full"
               />
-              
+
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera className="text-white" size={24} />
               </div>
@@ -166,18 +165,18 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-            
+
             <h3 className="font-bold text-gray-900 uppercase">{profile.first_name} {profile.last_name}</h3>
-            
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              ref={fileInputRef} 
-              onChange={handleImageUpload} 
+
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
             />
-            
-            <button 
+
+            <button
               onClick={() => fileInputRef.current.click()}
               disabled={isUploading}
               className="mt-6 w-full py-2 px-4 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
@@ -190,26 +189,26 @@ export default function ProfilePage() {
         <div className="md:col-span-2">
           <Card title="Personal Information" className="shadow-sm border border-gray-100">
             <form onSubmit={handleUpdate} className="space-y-5">
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input 
+                  <input
                     name="firstName"
-                    type="text" 
+                    type="text"
                     defaultValue={profile.first_name}
                     required
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm" 
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input 
+                  <input
                     name="lastName"
-                    type="text" 
+                    type="text"
                     defaultValue={profile.last_name}
                     required
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm" 
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm"
                   />
                 </div>
               </div>
@@ -217,20 +216,20 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input 
+                  <input
                     name="phone"
-                    type="tel" 
+                    type="tel"
                     defaultValue={profile.phone}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm" 
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0ba6ff]/30 transition-all text-sm"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     defaultValue={profile.email}
                     disabled
-                    className="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-400 cursor-not-allowed" 
+                    className="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-400 cursor-not-allowed"
                   />
                 </div>
               </div>

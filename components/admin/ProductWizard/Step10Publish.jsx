@@ -39,16 +39,16 @@ export default function Step10Publish() {
     <div className="animate-in fade-in text-black slide-in-from-bottom-4 duration-500">
       <div className="mb-8 border-b border-gray-100 pb-5">
         <h2 className="text-xl font-bold text-gray-900">Review & Publish</h2>
-        <p className="text-[13px] text-gray-500 mt-1">Review your product details before making it live on the store.</p>
+        <p className="text-[19px] text-gray-500 mt-1">Review your product details before making it live on the store.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           <h3 className="text-[13px] font-extrabold text-gray-800 uppercase tracking-wider mb-2">Pre-Publish Checklist</h3>
-          
+
           {checks.map((check) => (
-            <div 
-              key={check.id} 
+            <div
+              key={check.id}
               onClick={() => !check.isValid ? goToStep(check.id) : null}
               className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${check.isValid ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100 cursor-pointer hover:bg-red-50'}`}
             >
@@ -57,7 +57,7 @@ export default function Step10Publish() {
               ) : (
                 <XCircle size={20} className="text-red-500 shrink-0 mt-0.5" />
               )}
-              
+
               <div>
                 <h4 className={`text-[14px] font-bold ${check.isValid ? 'text-green-800' : 'text-red-800'}`}>
                   {check.title}
@@ -73,17 +73,17 @@ export default function Step10Publish() {
         <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 flex flex-col justify-between">
           <div>
             <h3 className="text-[13px] font-extrabold text-gray-800 uppercase tracking-wider mb-6">Actions</h3>
-            
+
             <button disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-[14px] font-bold hover:border-gray-300 hover:bg-gray-50 transition-all mb-4 disabled:opacity-50">
               <Save size={18} /> Save as Draft
             </button>
-            
+
             <button disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-[14px] font-bold hover:border-gray-300 hover:bg-gray-50 transition-all mb-8 disabled:opacity-50">
               <Clock size={18} /> Schedule Publish
             </button>
           </div>
 
-          <button 
+          <button
             disabled={!isFormValid || isSubmitting}
             onClick={publishProduct}
             className={`w-full flex items-center justify-center gap-2 px-5 py-4 rounded-xl text-[15px] font-bold transition-all shadow-lg ${isFormValid && !isSubmitting ? 'bg-[#00c3ff] text-white hover:bg-[#00abe0] hover:shadow-[#00c3ff]/30' : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}`}

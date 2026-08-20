@@ -76,7 +76,7 @@ export default function ShopWesternWear() {
               <h3 className="text-[12px] sm:text-[13px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                 {product.title}
               </h3>
-              <p className="text-[13px] sm:text-[14px] font-bold text-black text-center">
+              <p className="text-[19px] sm:text-[14px] font-bold text-black text-center">
                 {product.price?.toString().includes('₹') ? product.price : `₹${product.price}`}
               </p>
             </Link>

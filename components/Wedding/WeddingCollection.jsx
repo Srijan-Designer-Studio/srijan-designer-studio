@@ -73,11 +73,11 @@ export default function WeddingCollection() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
-          <div className="w-full lg:w-1/3">
-            <h2 className="wed-coll-text text-3xl sm:text-4xl font-bold text-black mb-6 leading-tight">
-              Crafted for Your <br className="hidden lg:block" /> Special Day
+          <div className="w-full lg:w-1/3 ">
+            <h2 className="wed-coll-text text-3xl  sm:text-4xl font-bold text-black mb-6 leading-tight">
+              Crafted for Your <br className="hidden lg:block" />   Special Day
             </h2>
-            <p className="wed-coll-text text-[#333] text-[16px] leading-relaxed mb-8">
+            <p className="wed-coll-text text-[#333] text-[19px] leading-relaxed mb-8">
               Every wedding dress is crafted with care, comfort and timeless style.
             </p>
             <div className="wed-coll-text">

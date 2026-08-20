@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Privacy Policy | SRIJAN',
   description: 'How SRIJAN collects, uses, and protects your personal data.',
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function PrivacyPolicy() {

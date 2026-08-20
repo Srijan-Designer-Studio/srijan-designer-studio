@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Refund and Cancellation Policy | SRIJAN',
   description: 'Rules and conditions for order cancellations and refunds.',
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function RefundCancellationPolicy() {

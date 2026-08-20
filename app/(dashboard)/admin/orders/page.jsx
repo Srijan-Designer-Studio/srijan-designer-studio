@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
             render: (row) => (
                 <div>
                     <p className="font-medium text-gray-900">{row.customer}</p>
-                    <p className="text-xs text-gray-500">{row.email}</p>
+                    <p className="text-[19px] text-gray-500">{row.email}</p>
                 </div>
             )
         },
@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-                    <p className="text-sm text-gray-500 mt-1">Track, manage, and fulfill customer orders seamlessly.</p>
+                    <p className="text-[19px] text-gray-500 mt-1">Track, manage, and fulfill customer orders seamlessly.</p>
                 </div>
             </div>
 
@@ -219,7 +219,7 @@ export default function AdminOrdersPage() {
                                     <p className="flex justify-between"><span className="text-gray-500">Customer ID:</span> <span className="font-mono text-xs bg-gray-200 px-2 py-0.5 rounded text-gray-700">{selectedOrder.user_id.split('-')[0]}</span></p>
                                     <p className="flex justify-between"><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-900">{new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(selectedOrder.created_at))}</span></p>
                                     {selectedOrder.customer_phone && (
-                                         <p className="flex justify-between"><span className="text-gray-500">Phone:</span> <span className="font-medium text-gray-900">{selectedOrder.customer_phone}</span></p>
+                                        <p className="flex justify-between"><span className="text-gray-500">Phone:</span> <span className="font-medium text-gray-900">{selectedOrder.customer_phone}</span></p>
                                     )}
                                 </div>
                             </div>
@@ -278,14 +278,14 @@ export default function AdminOrdersPage() {
 
                                             <div className="flex-1">
                                                 <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.product_variants?.products?.title || "Unknown Product"}</h4>
-                                                <p className="text-xs text-gray-500 mt-1">SKU: {item.product_variants?.sku || "N/A"}</p>
-                                                <p className="text-xs font-semibold text-gray-700 mt-1">
+                                                <p className="text-[19px] text-gray-500 mt-1">SKU: {item.product_variants?.sku || "N/A"}</p>
+                                                <p className="text-[19px] font-semibold text-gray-700 mt-1">
                                                     Size/Color: <span className="uppercase">{item.product_variants?.size || "-"} | {item.product_variants?.color || "-"}</span>
                                                 </p>
                                             </div>
                                             <div className="text-right shrink-0">
-                                                <p className="text-xs text-gray-500 mb-1">Qty: <span className="font-bold text-black">{item.quantity}</span></p>
-                                                <p className="text-sm font-black text-[#0ba6ff]">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                                <p className="text-[19px] text-gray-500 mb-1">Qty: <span className="font-bold text-black">{item.quantity}</span></p>
+                                                <p className="text-[19px] font-black text-[#0ba6ff]">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                             </div>
                                         </div>
                                     )

@@ -82,7 +82,7 @@ export default async function ProductAnalytics() {
                   <Icon size={26} className={stat.color} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-[13px] font-bold text-gray-500 mb-1 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-[19px] font-bold text-gray-500 mb-1 uppercase tracking-wider">{stat.label}</p>
                   <h3 className="text-2xl font-black text-gray-900">{stat.value}</h3>
                 </div>
               </div>

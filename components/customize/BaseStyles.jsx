@@ -6,7 +6,6 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { allProducts } from "@/data/products";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,20 +14,15 @@ export default function BaseStyles() {
   const marqueeRef = useRef(null);
   const tweenRef = useRef(null);
 
-  const customProduct = allProducts.find(p => p.category.includes("Ethnic"));
-  const gownProduct = allProducts.find(p => p.slug?.includes("gown")) || allProducts[0];
-  const plusSizeProduct = allProducts.find(p => p.category.includes("Western"));
-  const petiteProduct = allProducts.find(p => p.category === "Bridal");
-
   const styles = [
-    { id: 1, title: "Custom Styles", image: "/Create Custom-img/Card 1.webp", link: customProduct ? `/product/${customProduct.id}` : "/product" },
-    { id: 2, title: "Gown & Evening Styles", image: "/Create Custom-img/Card 2.webp", link: gownProduct ? `/product/${gownProduct.id}` : "/product" },
-    { id: 3, title: "Plus Size Styles", image: "/Create Custom-img/Card 3.webp", link: plusSizeProduct ? `/product/${plusSizeProduct.id}` : "/product" },
-    { id: 4, title: "Petite Styles", image: "/Create Custom-img/Card 4.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
-    { id: 5, title: "Kids Wear", image: "/Create Custom-img/Card 5.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
-    { id: 6, title: "Wedding Styles", image: "/Create Custom-img/Card 6.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
-    { id: 7, title: "Indian Wear", image: "/Create Custom-img/Card 7.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" },
-    { id: 8, title: "Men's Wear", image: "/Create Custom-img/Card 8.webp", link: petiteProduct ? `/product/${petiteProduct.id}` : "/product" }
+    { id: 1, title: "Custom Styles", image: "/Create Custom-img/Card 1.webp" },
+    { id: 2, title: "Gown & Evening Styles", image: "/Create Custom-img/Card 2.webp" },
+    { id: 3, title: "Plus Size Styles", image: "/Create Custom-img/Card 3.webp" },
+    { id: 4, title: "Petite Styles", image: "/Create Custom-img/Card 4.webp" },
+    { id: 5, title: "Kids Wear", image: "/Create Custom-img/Card 5.webp" },
+    { id: 6, title: "Wedding Styles", image: "/Create Custom-img/Card 6.webp" },
+    { id: 7, title: "Indian Wear", image: "/Create Custom-img/Card 7.webp" },
+    { id: 8, title: "Men's Wear", image: "/Create Custom-img/Card 8.webp" }
   ];
 
   useGSAP(() => {
@@ -91,10 +85,9 @@ export default function BaseStyles() {
           
           <div className="flex gap-6 pr-6 pl-4 sm:pl-6">
             {styles.map((style, index) => (
-              <Link
-                href={style.link}
+              <div
                 key={`first-${style.id}-${index}`}
-                className="base-card w-[220px] sm:w-[260px] md:w-[280px] shrink-0 flex flex-col items-center group cursor-pointer"
+                className="base-card w-[220px] sm:w-[260px] md:w-[280px] shrink-0 flex flex-col items-center group"
               >
                 <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200 transition-shadow group-hover:shadow-lg">
                   {style.image && (
@@ -109,16 +102,15 @@ export default function BaseStyles() {
                 <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#00c3ff] transition-colors">
                   {style.title}
                 </h3>
-              </Link>
+              </div>
             ))}
           </div>
 
           <div className="flex gap-6 pr-6">
             {styles.map((style, index) => (
-              <Link
-                href={style.link}
+              <div
                 key={`second-${style.id}-${index}`}
-                className="base-card w-[220px] sm:w-[260px] md:w-[280px] shrink-0 flex flex-col items-center group cursor-pointer"
+                className="base-card w-[220px] sm:w-[260px] md:w-[280px] shrink-0 flex flex-col items-center group"
               >
                 <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200 transition-shadow group-hover:shadow-lg">
                   {style.image && (
@@ -133,7 +125,7 @@ export default function BaseStyles() {
                 <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#00c3ff] transition-colors">
                   {style.title}
                 </h3>
-              </Link>
+              </div>
             ))}
           </div>
 

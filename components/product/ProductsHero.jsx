@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 
 export default function ProductsHero() {
   const containerRef = useRef(null);
-  const bgImageSrc = "/others-img/Shop All HERO Section.webp"; 
+  const bgImageSrc = "/others-img/Shop All HERO Section.webp";
 
   useGSAP(() => {
     gsap.fromTo(
@@ -24,7 +24,7 @@ export default function ProductsHero() {
 
   return (
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
-      
+
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
         <Image
           src={bgImageSrc}
@@ -45,12 +45,14 @@ export default function ProductsHero() {
             Collection
           </h1>
           <p className="hero-text text-lg sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[550px]">
-            Explore ethnic wear, western wear, bridal collections and more to 
-            find the perfect look that matches your style.
+            Explore ethnic wear, western wear,
+            bridal collections and more to
+            find the perfect look that matches
+            your style.
           </p>
         </div>
       </div>
-      
+
     </section>
   );
 }

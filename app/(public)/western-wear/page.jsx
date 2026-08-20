@@ -6,7 +6,26 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata = {
   title: "Western Wear | SRIJAN Fashion",
-  description: "Shop the latest trends in western wear.",
+  description: "Shop the latest trends in western wear at SRIJAN Fashion. Explore our trendy and stylish collection.",
+  alternates: {
+    canonical: 'https://www.srijandesignerstudio.com/western-wear',
+  },
+  openGraph: {
+    title: 'Western Wear | SRIJAN Fashion',
+    description: 'Shop the latest trends in western wear at SRIJAN Fashion. Explore our trendy and stylish collection.',
+    url: 'https://www.srijandesignerstudio.com/western-wear',
+    siteName: 'Srijan Fashion',
+    images: [
+      {
+        url: '/images/logo3.jpg', 
+        width: 1200,
+        height: 630,
+        alt: 'Srijan Fashion Western Wear Collection',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
 };
 
 export default async function WesternWearPage() {
@@ -29,6 +48,28 @@ export default async function WesternWearPage() {
 
   return (
     <main className="py-20 bg-white min-h-screen">
+      {/* JSON-LD Breadcrumb Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/", 
+            "@type": "BreadcrumbList", 
+            "itemListElement": [{
+              "@type": "ListItem", 
+              "position": 1, 
+              "name": "Home",
+              "item": "https://srijandesignerstudio.com"  
+            },{
+              "@type": "ListItem", 
+              "position": 2, 
+              "name": "Western Wear",
+              "item": "https://www.srijandesignerstudio.com/western-wear"  
+            }]
+          })
+        }}
+      />
+      
       <div className="max-w-[1320px] mx-auto px-6">
 
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">
@@ -63,7 +104,7 @@ export default async function WesternWearPage() {
                     {product.title}
                   </h3>
 
-                  <p className="text-[14px] font-bold text-black text-center">
+                  <p className="text-[19px] font-bold text-black text-center">
                     ₹{product.base_price?.toLocaleString('en-IN')}
                   </p>
                 </Link>

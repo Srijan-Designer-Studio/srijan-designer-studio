@@ -38,27 +38,29 @@ export default function AboutSrijan() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
-          <div className="max-w-[600px] order-1">
+          <div className="max-w-[640px] order-1">
             <h2 className="about-srijan-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-8">
-              “SRIJAN” means Creation.
+              SRIJAN" Means Creation. It's Not
+              Just Our Name, It's Our Craft
             </h2>
-            <p className="about-srijan-text text-[16px] lg:text-[17px] leading-[1.7] text-gray-800 mb-6">
-              And that is exactly what we do. We don’t just sell clothes; we create
-              statements, memories and moments.
+            <p className="about-srijan-text text-[16px] lg:text-[19px] leading-[1.7] text-gray-800 mb-6">
+              We don't sell clothes. We sell the version of you that
+              you haven't worn yet.
             </p>
-            <p className="about-srijan-text text-[16px] lg:text-[17px] leading-[1.7] text-gray-800 mb-6">
-              At <strong className="font-bold text-black">SRIJAN Fashion</strong>, we believe
-              that fashion shouldn’t be limited by what’s on a rack. Whether it’s a
-              screenshot from Instagram, a sketch on a napkin or a dream you’ve had
-              since you were five we exist to bring it to life.
+            <p className="about-srijan-text text-[16px] lg:text-[19px] leading-[1.7] text-gray-800 mb-6">
+              That screenshot you saved at 1 a.m. The napkin sketch
+              you never showed anyone. The outfit you've been
+              imagining since you were five and playing dress-up in
+              your mother's dupatta. We don't just copy it. We build
+              it, thread by thread, until it's real.
             </p>
-            <p className="about-srijan-text text-[16px] lg:text-[17px] leading-[1.7] text-gray-800">
-              We are a new-age fashion house in Kolkata that bridges the gap between
-              exclusive designer luxury and accessible, custom fashion.
+            <p className="about-srijan-text text-[16px] lg:text-[19px] leading-[1.7] text-gray-800">
+              SRIJAN is Kolkata's answer to a simple question: why
+              should designer luxury feel out of reach?
             </p>
           </div>
 
-          <div className="flex justify-center lg:justify-end w-full order-2 mt-6 lg:mt-0">
+          <div className="flex justify-center lg:justify-end w-full order-2 mt-10 lg:mt-0">
             <div className="about-srijan-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[4/5] mx-auto lg:mx-0">
               {imageSrc ? (
                 <div className="absolute inset-x-0 bottom-0 h-[115%] lg:h-[120%] z-10 pointer-events-none">

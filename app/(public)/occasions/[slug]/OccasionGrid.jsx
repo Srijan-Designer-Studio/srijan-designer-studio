@@ -70,7 +70,7 @@ export default function OccasionGrid({ products, title }) {
                   {product.title}
                 </h3>
 
-                <p className="text-[14px] font-bold text-black text-center">
+                <p className="text-[19px] font-bold text-black text-center">
                   ₹{product.base_price?.toLocaleString('en-IN')}
                 </p>
               </Link>

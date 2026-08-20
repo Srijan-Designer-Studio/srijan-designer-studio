@@ -47,10 +47,14 @@ export default function Founder() {
               Mithu Roy — Founder, <br className="hidden sm:block" />
               SRIJAN Fashion
             </h3>
-            <p className="founder-text text-[15px] lg:text-[18px] text-gray-100 leading-[1.7]">
-              At SRIJAN Fashion, we believe every outfit should reflect your personality.
-              Our goal is to create designs that make you feel confident, comfortable,
-              and special on every occasion. Thank you for being a part of our journey.
+            <p className="founder-text text-[19px] lg:text-[18px] text-gray-100 leading-[1.7]">
+              We didn't start <span className="font-bold ">SRIJAN</span> to make clothes.
+              We started it so you'd feel like the best
+              version of yourself every time you got
+              dressed. Confident. Comfortable.
+              Completely you. That's still the only goal
+              that matters to us. Thanks for being part
+              of the story.
             </p>
           </div>
 

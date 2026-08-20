@@ -133,7 +133,7 @@ const ShopEssentials = ({ products = [] }) => {
                 <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col cursor-pointer">
 
                   {/* Image Container */}
-                  <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-5 bg-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl">
+                  <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden mb-5 bg-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl">
                     
                     {/* NEW Badge */}
                     <div className="absolute top-4 left-4 z-10 bg-black/90 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">

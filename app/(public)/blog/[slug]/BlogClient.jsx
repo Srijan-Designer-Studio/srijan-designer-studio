@@ -77,7 +77,7 @@ export default function BlogClient({ blog }) {
       <div className="flex flex-col lg:flex-row gap-10 items-start">
         {headings.length > 0 && (
           <aside className="hidden lg:block w-60 shrink-0 sticky top-24 self-start bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <p className="text-xs font-bold uppercase tracking-widest text-black mb-4">
+            <p className="text-[19px] font-bold uppercase tracking-widest text-black mb-4">
               On this page
             </p>
             <nav className="flex flex-col gap-2">

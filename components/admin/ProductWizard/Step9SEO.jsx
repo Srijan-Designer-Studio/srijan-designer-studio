@@ -11,7 +11,7 @@ export default function Step9SEO() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
-      
+
     updateFormData({
       seoTitle: `${formData.title} | Srijan Fashion`,
       seoSlug: generatedSlug,
@@ -26,9 +26,9 @@ export default function Step9SEO() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-gray-100 pb-5 gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Search Engine Optimization</h2>
-          <p className="text-[13px] text-gray-500 mt-1">Optimize how this product appears on Google and other search engines.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Optimize how this product appears on Google and other search engines.</p>
         </div>
-        <button 
+        <button
           onClick={generateSEO}
           className="px-4 py-2 bg-[#00c3ff]/10 text-[#00c3ff] border border-[#00c3ff]/20 rounded-lg text-[13px] font-bold hover:bg-[#00c3ff]/20 transition-colors flex items-center gap-2 shrink-0"
         >
@@ -50,7 +50,7 @@ export default function Step9SEO() {
             <h4 className="text-[18px] text-[#1a0dab] hover:underline cursor-pointer truncate">
               {formData.seoTitle || formData.title || "Product SEO Title"}
             </h4>
-            <p className="text-[13px] text-[#4d5156] mt-1 line-clamp-2">
+            <p className="text-[19px] text-[#4d5156] mt-1 line-clamp-2">
               {formData.metaDesc || formData.shortDesc || "Provide a meta description to see how it will appear in search results."}
             </p>
           </div>
@@ -64,11 +64,11 @@ export default function Step9SEO() {
                 {formData.seoTitle.length} / 60
               </span>
             </div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={formData.seoTitle}
               onChange={(e) => updateFormData({ seoTitle: e.target.value })}
-              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white" 
+              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white"
             />
           </div>
 
@@ -79,7 +79,7 @@ export default function Step9SEO() {
                 {formData.metaDesc.length} / 160
               </span>
             </div>
-            <textarea 
+            <textarea
               rows="3"
               value={formData.metaDesc}
               onChange={(e) => updateFormData({ metaDesc: e.target.value })}
@@ -89,43 +89,43 @@ export default function Step9SEO() {
 
           <div>
             <label className="block text-[13px] font-bold text-gray-800 mb-2">URL Slug</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={formData.seoSlug}
               onChange={(e) => updateFormData({ seoSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white" 
+              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[13px] font-bold text-gray-800 mb-2">Focus Keyword</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.focusKeyword}
                 onChange={(e) => updateFormData({ focusKeyword: e.target.value })}
-                className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white" 
+                className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white"
               />
             </div>
             <div>
               <label className="block text-[13px] font-bold text-gray-800 mb-2">SEO Keywords (Comma separated)</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.seoKeywords}
                 onChange={(e) => updateFormData({ seoKeywords: e.target.value })}
-                className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white" 
+                className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white"
               />
             </div>
           </div>
-          
+
           <div>
             <label className="block text-[13px] font-bold text-gray-800 mb-2">Canonical URL (Optional)</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="https://"
               value={formData.canonicalUrl}
               onChange={(e) => updateFormData({ canonicalUrl: e.target.value })}
-              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white" 
+              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 bg-white"
             />
           </div>
         </div>

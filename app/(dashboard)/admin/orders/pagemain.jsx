@@ -94,48 +94,48 @@ export default function AdminOrdersPage() {
   }));
 
   const orderColumns = [
-    { 
-      header: 'Order ID', 
-      accessor: 'id', 
-      render: (row) => <span className="font-medium text-gray-900">#{row.id}</span> 
+    {
+      header: 'Order ID',
+      accessor: 'id',
+      render: (row) => <span className="font-medium text-gray-900">#{row.id}</span>
     },
     { header: 'Date', accessor: 'date' },
-    { 
-      header: 'Customer', 
+    {
+      header: 'Customer',
       accessor: 'customer',
       render: (row) => (
         <div>
           <p className="font-medium text-gray-900">{row.customer}</p>
-          <p className="text-xs text-gray-500">{row.email}</p>
+          <p className="text-[19px] text-gray-500">{row.email}</p>
         </div>
       )
     },
-    { 
-      header: 'Items', 
+    {
+      header: 'Items',
       accessor: 'items',
       render: (row) => <span className="text-gray-600">{row.items} items</span>
     },
-    { 
-      header: 'Total Amount', 
+    {
+      header: 'Total Amount',
       accessor: 'amount',
       render: (row) => <span className="font-medium text-gray-900">{row.amount}</span>
     },
-    { 
-      header: 'Status', 
-      accessor: 'status', 
-      render: (row) => <StatusBadge status={row.status} /> 
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />
     },
-    { 
-      header: 'Actions', 
-      accessor: 'action', 
+    {
+      header: 'Actions',
+      accessor: 'action',
       render: (row) => (
-        <button 
+        <button
           onClick={() => handleViewOrder(row.rawOrder)}
           className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors cursor-pointer"
         >
           Manage
         </button>
-      ) 
+      )
     },
   ];
 
@@ -168,7 +168,7 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-          <p className="text-sm text-gray-500 mt-1">Track, manage, and fulfill customer orders.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Track, manage, and fulfill customer orders.</p>
         </div>
         <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-2 transition-colors cursor-pointer">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,14 +180,14 @@ export default function AdminOrdersPage() {
 
       <Card className="p-0">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white text-black">
-          
+
           <div className="relative w-full sm:w-[400px]">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input 
-              type="text" 
-              placeholder="Search by Order ID, Customer, or Email..." 
+            <input
+              type="text"
+              placeholder="Search by Order ID, Customer, or Email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-black bg-gray-50/50 transition-all"
@@ -195,7 +195,7 @@ export default function AdminOrdersPage() {
           </div>
 
           <div className="w-full sm:w-auto">
-            <select 
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-black bg-white cursor-pointer transition-all"
@@ -211,8 +211,8 @@ export default function AdminOrdersPage() {
         <Pagination />
       </Card>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedOrder ? `Manage Order: #${selectedOrder.id.split('-')[0].toUpperCase()}` : "Order Details"}
       >
@@ -221,8 +221,8 @@ export default function AdminOrdersPage() {
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-semibold text-gray-900">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</h4>
-                <p className="text-sm text-gray-500">{selectedOrder.profiles?.email}</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-[19px] text-gray-500">{selectedOrder.profiles?.email}</p>
+                <p className="text-[19px] text-gray-500 mt-1">
                   Placed on: {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(selectedOrder.created_at))}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function AdminOrdersPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Change Order Status</label>
-              <select 
+              <select
                 name="status"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white text-sm cursor-pointer"
                 defaultValue={selectedOrder.status.toLowerCase()}
@@ -255,7 +255,7 @@ export default function AdminOrdersPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Subtotal</span>
@@ -278,10 +278,10 @@ export default function AdminOrdersPage() {
                   <span className="w-full text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">
                     Shiprocket Actions (AWB: {selectedOrder.tracking_number || 'Pending'})
                   </span>
-                  
+
                   {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
                     <>
-                      <button 
+                      <button
                         type="button"
                         onClick={async () => {
                           const res = await requestPickup(selectedOrder.shiprocket_shipment_id);
@@ -292,7 +292,7 @@ export default function AdminOrdersPage() {
                         Schedule Pickup
                       </button>
 
-                      <button 
+                      <button
                         type="button"
                         onClick={async () => {
                           const res = await generateLabel(selectedOrder.shiprocket_shipment_id);
@@ -309,7 +309,7 @@ export default function AdminOrdersPage() {
                     </>
                   )}
 
-                  <button 
+                  <button
                     type="button"
                     onClick={async () => {
                       const res = await generateInvoice(selectedOrder.shiprocket_order_id);
@@ -325,7 +325,7 @@ export default function AdminOrdersPage() {
                   </button>
 
                   {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
-                    <button 
+                    <button
                       type="button"
                       onClick={async () => {
                         const confirmCancel = window.confirm("Are you sure you want to cancel this shipment in Shiprocket?");
@@ -348,7 +348,7 @@ export default function AdminOrdersPage() {
                   )}
 
                   {selectedOrder.status === 'delivered' && (
-                    <button 
+                    <button
                       type="button"
                       onClick={async () => {
                         const confirmReturn = window.confirm("Create a return pickup for this order?");
@@ -371,7 +371,7 @@ export default function AdminOrdersPage() {
                   )}
                 </div>
               ) : (
-                <button 
+                <button
                   type="button"
                   onClick={handleShiprocketSync}
                   disabled={isPushing || selectedOrder.status === 'cancelled' || selectedOrder.status === 'returned'}
@@ -382,7 +382,7 @@ export default function AdminOrdersPage() {
               )}
 
               <div className="flex justify-end gap-3 mt-2">
-                <button 
+                <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isPending}
@@ -390,7 +390,7 @@ export default function AdminOrdersPage() {
                 >
                   Close
                 </button>
-                <button 
+                <button
                   type="submit"
                   disabled={isPending}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70 cursor-pointer"

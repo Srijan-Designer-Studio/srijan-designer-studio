@@ -19,11 +19,11 @@ export default function SearchDrawer({ isOpen, onClose }) {
         setIsSearching(true);
         try {
 
-          const results = await searchProducts({ 
-            searchTerm: searchQuery.trim(), 
-            limit: 5 
+          const results = await searchProducts({
+            searchTerm: searchQuery.trim(),
+            limit: 5
           });
-          
+
           setSuggestions(results.products || []);
         } catch (error) {
           console.error("Error fetching suggestions:", error);
@@ -60,12 +60,12 @@ export default function SearchDrawer({ isOpen, onClose }) {
 
   return (
     <>
-      <div 
+      <div
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] transition-opacity duration-300 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
         onClick={handleClose}
       ></div>
 
-      <div 
+      <div
         className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white z-[101] transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
@@ -77,9 +77,9 @@ export default function SearchDrawer({ isOpen, onClose }) {
 
         <div className="p-6 flex-1 overflow-y-auto custom-scrollbar">
           <form onSubmit={handleSearch} className="relative">
-            <input 
-              type="text" 
-              placeholder="Search for fashion, dresses..." 
+            <input
+              type="text"
+              placeholder="Search for fashion, dresses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus={isOpen}
@@ -91,7 +91,7 @@ export default function SearchDrawer({ isOpen, onClose }) {
 
           <div className="mt-6">
             {searchQuery.trim().length < 2 ? (
-              <p className="text-sm text-gray-400 text-center mt-10">
+              <p className="text-[19px] text-gray-400 text-center mt-10">
                 Type at least 2 characters to see suggestions...
               </p>
             ) : isSearching ? (
@@ -117,8 +117,8 @@ export default function SearchDrawer({ isOpen, onClose }) {
                     <ArrowRight size={18} className="text-gray-400 group-hover:text-[#00c3ff] transform group-hover:translate-x-1 transition-transform shrink-0" />
                   </Link>
                 ))}
-                
-                <button 
+
+                <button
                   onClick={handleSearch}
                   className="mt-2 w-full py-3.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-sm transition-colors"
                 >

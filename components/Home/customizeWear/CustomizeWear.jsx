@@ -40,7 +40,7 @@ export default function CustomizeWear() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-          <div className="cw-img relative w-full aspect-square sm:aspect-[4/3] lg:aspect-[4/4.2] rounded-[32px] overflow-hidden shadow-lg bg-[#e2e8f0] flex items-center justify-center">
+          <div className="cw-img relative w-full max-w-[524px] aspect-square rounded-[32px] overflow-hidden shadow-lg bg-[#e2e8f0] flex items-center justify-center">
             {imageSrc ? (
               <Image
                 src={imageSrc}
@@ -56,17 +56,21 @@ export default function CustomizeWear() {
           </div>
 
           <div className="flex flex-col items-start max-w-[550px]">
-            <h2 className="cw-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
+            <h2 className="cw-text text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
               CUSTOMIZE WEAR
             </h2>
             <h3 className="cw-text text-2xl sm:text-4xl lg:text-[40px] font-bold text-[#111] leading-[1.3] mb-6">
-              Create Your Own <br className="hidden lg:block" />
-              Custom Dress
+              Got a Design in Your <br className="hidden lg:block" />
+              Head? Let's Make It Real
             </h3>
             <p className="cw-text text-gray-600 text-base sm:text-[17px] leading-[1.7] mb-10">
-              Have a design in mind? We'll turn your ideas into a custom outfit made to fit
-              your style, your size and your occasion. From fabric to the final stitch, every
-              detail is made just for you.
+              Sketch it. Screenshot it. Describe it in
+              three words. However your idea shows
+              up, <strong className="text-black font-bold">SRIJAN Fashion</strong> turn it into a custom
+              outfit. Your fabric, your fit and your
+              occasion.
+
+
             </p>
             <div className="cw-text">
               <Link

@@ -87,8 +87,15 @@ export default function PerfectFit() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
 
             <div className="flex flex-col gap-6 lg:gap-10">
-              <div className="pf-left-img relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
-                {leftImage && <Image src="/Create Custom-img/17.webp" alt="Custom Fit Example 1" fill className="object-cover object-top" />}
+              <div className="pf-left-img relative w-full aspect-[1/1] rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+                {leftImage && (
+                  <Image
+                    src="/Create Custom-img/17.webp"
+                    alt="Custom Fit Example 1"
+                    fill
+                    className="object-cover object-top"
+                  />
+                )}
               </div>
               <p className="pf-left-text text-gray-700 text-[15px] sm:text-[17px] leading-[1.7] max-w-[450px]">
                 Forget "small, medium, large" and everything that never quite fits. Every designer dress we make is built around your exact measurements, your comfort and your style. So, it looks natural and feels like you.
@@ -99,8 +106,15 @@ export default function PerfectFit() {
               <h2 className="pf-right-content text-3xl sm:text-4xl lg:text-[42px] font-bold text-black leading-[1.2]">
                 Your Body Isn't the Problem.<br className="hidden lg:block" /> Standard Sizes Are
               </h2>
-              <div className="pf-right-content relative w-full aspect-square rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
-                {rightImage && <Image src="/Create Custom-img/18.webp" alt="Custom Fit Example 2" fill className="object-cover object-top" />}
+              <div className="pf-right-content relative w-full aspect-[1/1] rounded-[24px] overflow-hidden bg-[#ebe8e3] shadow-sm">
+                {rightImage && (
+                  <Image
+                    src="/Create Custom-img/18.webp"
+                    alt="Custom Fit Example 2"
+                    fill
+                    className="object-cover object-top"
+                  />
+                )}
               </div>
             </div>
 
@@ -110,7 +124,13 @@ export default function PerfectFit() {
 
       <section className="pf-bottom-sec flex flex-col lg:flex-row min-h-[600px] bg-[#f8f9fa]">
         <div className="relative w-full lg:w-1/2 flex items-center p-8 lg:p-20 overflow-hidden">
-          <Image src="/Create Custom-img/Untitled design (4).webp" alt="Tailoring" fill className="object-cover absolute inset-0 z-0" />
+         
+  <Image 
+    src="/Create Custom-img/Untitled design (4).webp" 
+    alt="Tailoring" 
+    fill 
+    className="object-cover absolute inset-0 z-0" 
+  />
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <div className="relative z-20 text-white max-w-lg">
             <h2 className="pf-banner-text text-4xl md:text-5xl font-bold mb-6 leading-tight">Perfect Fit<br />Guaranteed</h2>
@@ -121,7 +141,7 @@ export default function PerfectFit() {
         </div>
 
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 text-black lg:p-16">
-          <div className="pf-form-card w-full max-w-lg bg-white rounded-2xl shadow-xl border border-[#d69f53] p-8">
+          <div className="pf-form-card w-full max-w-lg bg-white rounded-2xl shadow-xl p-8">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
             {status.type === 'success' ? (
@@ -141,17 +161,17 @@ export default function PerfectFit() {
                   <label className="text-[14px] text-gray-700">Full Name*</label>
                   <input name="name" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] text-gray-700">Email Address*</label>
                   <input name="email" required type="email" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] text-gray-700">Phone Number*</label>
                   <input name="phone" required type="tel" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-[14px] text-gray-700">Outfit Type*</label>
@@ -182,7 +202,7 @@ export default function PerfectFit() {
                     {timeError && <p className="text-red-500 text-xs mt-1">{timeError}</p>}
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] text-gray-700">Message</label>
                   <textarea name="details" className="w-full h-[80px] p-4 border border-gray-400 rounded-lg outline-none focus:border-black transition-colors resize-none"></textarea>
@@ -190,7 +210,7 @@ export default function PerfectFit() {
 
                 {status.type === 'error' && <p className="text-red-500 text-xs">{status.message}</p>}
 
-                <button disabled={isPending} type="submit" className="w-full h-[50px] flex justify-center items-center gap-2 bg-[#c98d45] hover:bg-[#b57a35] text-black font-medium rounded-full transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
+                <button disabled={isPending} type="submit" className="w-full h-[50px] flex justify-center items-center gap-2 bg-[#6C83F6] hover:bg-[#3C83F6] text-white font-medium rounded-full transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
                   {isPending ? "SUBMITTING..." : "SUBMIT NOW"}
                 </button>

@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,19 +9,20 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const womenData = [
-  { id: 1, title: "Sarees", imageSrc: "/Custom Wedding Wear/Sarees.webp", link: "/buy-designer-outfits-for-women-online" },
-  { id: 2, title: "Gowns", imageSrc: "/Custom Wedding Wear/Gowns.webp", link: "/buy-designer-outfits-for-women-online" },
-  { id: 3, title: "Drapes", imageSrc: "/Custom Wedding Wear/Drapes.webp", link: "/buy-designer-outfits-for-women-online" },
-  { id: 4, title: "Capes", imageSrc: "/Custom Wedding Wear/Capes.webp", link: "/buy-designer-outfits-for-women-online" },
-  { id: 5, title: "Bridal Suits", imageSrc: "/Custom Wedding Wear/Bridal Suits.webp", link: "/wedding" },
+  { id: 1, title: "Sarees", imageSrc: "/Custom Wedding Wear/Sarees.webp" },
+  { id: 2, title: "Gowns", imageSrc: "/Custom Wedding Wear/Gowns.webp" },
+  { id: 3, title: "Drapes", imageSrc: "/Custom Wedding Wear/Drapes.webp" },
+  { id: 4, title: "Capes", imageSrc: "/Custom Wedding Wear/Capes.webp" },
+  { id: 5, title: "Bridal Suits", imageSrc: "/Custom Wedding Wear/Bridal Suits.webp" },
+  { id: 6, title: "Lehengas", imageSrc: "/Custom Wedding Wear/Lahengas.webp" },
 ];
 
 const menData = [
-  { id: 11, title: "Indo western", imageSrc: "/Custom Wedding Wear/Indowestern.webp", link: "/ethnic-wear" },
-  { id: 12, title: "Kurta Sets", imageSrc: "/Custom Wedding Wear/Kurta.webp", link: "/ethnic-wear" },
-  { id: 13, title: "Sherwani", imageSrc: "/Custom Wedding Wear/Sherwani.webp", link: "/ethnic-wear" },
-  { id: 14, title: "Tuxedo", imageSrc: "/Custom Wedding Wear/Tuxedo.webp", link: "/ethnic-wear" },
-  { id: 15, title: "Shirt", imageSrc: "/Custom Wedding Wear/Shirt.webp", link: "/ethnic-wear" },
+  { id: 11, title: "Indo western", imageSrc: "/Custom Wedding Wear/Indowestern.webp" },
+  { id: 12, title: "Kurta Sets", imageSrc: "/Custom Wedding Wear/Kurta.webp" },
+  { id: 13, title: "Sherwani", imageSrc: "/Custom Wedding Wear/Sherwani.webp" },
+  { id: 14, title: "Tuxedo", imageSrc: "/Custom Wedding Wear/Tuxedo.webp" },
+  { id: 15, title: "Shirt", imageSrc: "/Custom Wedding Wear/Shirt.webp" },
 ];
 
 export default function EditByCategory() {
@@ -103,7 +103,7 @@ export default function EditByCategory() {
           >
             <div className="flex gap-6 sm:gap-10 pr-6 sm:pr-10">
               {extendedData.map((category, index) => (
-                <Link key={`set1-${category.id}-${index}`} href={category.link} className="edit-category-item flex flex-col items-center cursor-pointer group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
+                <div key={`set1-${category.id}-${index}`} className="edit-category-item flex flex-col items-center group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
                   <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all shadow-lg">
                     {category.imageSrc && (
                       <Image
@@ -117,13 +117,13 @@ export default function EditByCategory() {
                   <h3 className="text-white text-[14px] font-medium tracking-wide">
                     {category.title}
                   </h3>
-                </Link>
+                </div>
               ))}
             </div>
 
             <div className="flex gap-6 sm:gap-10 pr-6 sm:pr-10">
               {extendedData.map((category, index) => (
-                <Link key={`set2-${category.id}-${index}`} href={category.link} className="edit-category-item flex flex-col items-center cursor-pointer group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
+                <div key={`set2-${category.id}-${index}`} className="edit-category-item flex flex-col items-center group w-[130px] sm:w-[150px] md:w-[170px] shrink-0">
                   <div className="relative w-full aspect-square rounded-full bg-[#1a1c33] overflow-hidden mb-4 border-[3px] border-transparent group-hover:border-white transition-all shadow-lg">
                     {category.imageSrc && (
                       <Image
@@ -137,7 +137,7 @@ export default function EditByCategory() {
                   <h3 className="text-white text-[14px] font-medium tracking-wide">
                     {category.title}
                   </h3>
-                </Link>
+                </div>
               ))}
             </div>
             

@@ -3,7 +3,7 @@ export default function Pagination() {
     <div className="flex items-center justify-between border-t border-gray-100 bg-white px-6 py-4">
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-600">
+          <p className="text-[19px] text-gray-600">
             Showing <span className="font-medium text-gray-900">1</span> to <span className="font-medium text-gray-900">5</span> of <span className="font-medium text-gray-900">42</span> results
           </p>
         </div>

@@ -47,10 +47,10 @@ export default function ProductActions({ product }) {
       try {
         // 1. Persist to Supabase Database via Server Action
         await addToCartServer(variantId, 1);
-        
+
         // 2. Update local Context for immediate UI response
         addToCartLocal(product, 1);
-        
+
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000);
       } catch (error) {
@@ -79,11 +79,10 @@ export default function ProductActions({ product }) {
         <button
           onClick={handleAddToCart}
           disabled={isAdded || isPending}
-          className={`action-btn-anim flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-[15px] transition-all uppercase tracking-wide border-2 ${
-            isAdded 
-              ? 'bg-green-50 border-green-500 text-green-600' 
+          className={`action-btn-anim flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-[15px] transition-all uppercase tracking-wide border-2 ${isAdded
+              ? 'bg-green-50 border-green-500 text-green-600'
               : 'bg-white border-black text-black hover:bg-black hover:text-white'
-          } disabled:opacity-70`}
+            } disabled:opacity-70`}
         >
           {isPending ? (
             <Loader2 size={20} className="animate-spin" />
@@ -108,10 +107,10 @@ export default function ProductActions({ product }) {
           Buy It Now
         </button>
       </div>
-      
+
       {/* Error Message Display */}
       {errorMsg && (
-        <p className="text-sm text-red-500 mt-3 font-medium text-center">
+        <p className="text-[19px] text-red-500 mt-3 font-medium text-center">
           {errorMsg}
         </p>
       )}

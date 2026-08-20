@@ -7,7 +7,26 @@ import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export const metadata = {
   title: "Ethnic Wear | SRIJAN Fashion",
-  description: "Explore our beautiful collection of ethnic wear.",
+  description: "Explore our beautiful collection of ethnic wear perfect for every traditional occasion.",
+  alternates: {
+    canonical: 'https://www.srijandesignerstudio.com/ethnic-wear',
+  },
+  openGraph: {
+    title: 'Ethnic Wear | SRIJAN Fashion',
+    description: 'Explore our beautiful collection of ethnic wear perfect for every traditional occasion.',
+    url: 'https://www.srijandesignerstudio.com/ethnic-wear',
+    siteName: 'Srijan Fashion',
+    images: [
+      {
+        url: '/images/logo3.jpg', 
+        width: 1200,
+        height: 630,
+        alt: 'Srijan Fashion Ethnic Wear Collection',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
 };
 
 export default async function EthnicWearPage() {
@@ -30,6 +49,26 @@ export default async function EthnicWearPage() {
 
   return (
     <main className="py-20 bg-white min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/", 
+            "@type": "BreadcrumbList", 
+            "itemListElement": [{
+              "@type": "ListItem", 
+              "position": 1, 
+              "name": "Home",
+              "item": "https://srijandesignerstudio.com"  
+            },{
+              "@type": "ListItem", 
+              "position": 2, 
+              "name": "Ethnic Wear",
+              "item": "https://www.srijandesignerstudio.com/ethnic-wear"  
+            }]
+          })
+        }}
+      />
       <ScrollToTop />
       <div className="max-w-[1320px] mx-auto px-6">
 
@@ -65,7 +104,7 @@ export default async function EthnicWearPage() {
                     {product.title}
                   </h3>
 
-                  <p className="text-[14px] font-bold text-black text-center">
+                  <p className="text-[19px] font-bold text-black text-center">
                     ₹{product.base_price?.toLocaleString('en-IN')}
                   </p>
                 </Link>

@@ -61,7 +61,7 @@ export default function HowItWorks() {
             <span className="text-[55px] font-black text-black leading-[0.8] ">1</span>
             <div>
               <h4 className="text-[16px] font-bold text-black mb-1">Share Your Style</h4>
-              <p className="text-[15px] text-[#444]">Tell us about your vision or show us your inspiration.</p>
+              <p className="text-[19px] text-[#444]">Tell us about your vision or show us your inspiration.</p>
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export default function HowItWorks() {
             <span className="text-[55px] font-black text-black  leading-[0.8] ">2</span>
             <div>
               <h4 className="text-[16px] font-bold text-black mb-1">Review the Design</h4>
-              <p className="text-[15px] text-[#444]">We'll create a design and fine-tune it with your feedback.</p>
+              <p className="text-[19px] text-[#444]">We'll create a design and fine-tune it with your feedback.</p>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ export default function HowItWorks() {
             <span className="text-[55px] font-black text-black leading-[0.8] ">3</span>
             <div>
               <h4 className="text-[16px] font-bold text-black mb-1">Finalize the Details</h4>
-              <p className="text-[15px] text-[#444]">Choose the fabric, colours, embroidery and finishing touches.</p>
+              <p className="text-[19px] text-[#444]">Choose the fabric, colours, embroidery and finishing touches.</p>
             </div>
           </div>
 
@@ -85,7 +85,7 @@ export default function HowItWorks() {
             <span className="text-[55px] font-black text-black leading-[0.8] ">4</span>
             <div>
               <h4 className="text-[16px] font-bold text-black mb-1">Receive Your Outfit</h4>
-              <p className="text-[15px] text-[#444]">Your custom wedding dress is carefully crafted and prepared for your celebration.</p>
+              <p className="text-[19px] text-[#444]">Your custom wedding dress is carefully crafted and prepared for your celebration.</p>
             </div>
           </div>
 

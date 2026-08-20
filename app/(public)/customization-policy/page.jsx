@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Customization Policy | SRIJAN',
   description: 'Policies for customized outfits and ready-to-wear collections.',
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function CustomizationPolicy() {

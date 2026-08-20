@@ -95,7 +95,7 @@ export default function DesignProcess() {
                 <img src="/Create Custom-img/Icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Pick your fabric</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Choose the fabric and colour you love.
               </p>
             </div>
@@ -105,7 +105,7 @@ export default function DesignProcess() {
                 <img src="/Create Custom-img/Icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Design a dress</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Share your ideas and create your perfect look.
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function DesignProcess() {
                 <img src="/Create Custom-img/Icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get measured</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Send your measurements for a perfect fit.
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function DesignProcess() {
                 <img src="/Create Custom-img/Icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Consult with designer</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Discuss your vision with fashion designer.
               </p>
             </div>
@@ -139,7 +139,7 @@ export default function DesignProcess() {
                 <img src="/Create Custom-img/Icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get delivered</h3>
-              <p className="text-[15px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
+              <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Receive your custom-made dress at your doorstep.
               </p>
             </div>
@@ -159,9 +159,9 @@ export default function DesignProcess() {
                 <Image src="/Create Custom-img/Mithu Roy.webp" alt="Mithu Roy" fill className="object-cover" />
               </div>
               <div>
-                <p className="text-sm mb-2 text-gray-300">Crafting unique, client-inspired designs with creativity and precision.</p>
+                <p className="text-[19px] mb-2 text-gray-300">Crafting unique, client-inspired designs with creativity and precision.</p>
                 <h4 className="font-bold text-lg text-white">Mithu Roy,</h4>
-                <p className="text-sm font-medium text-gray-300">Founder & Fashion Designer</p>
+                <p className="text-[19px] font-medium text-gray-300">Founder & Fashion Designer</p>
               </div>
             </div>
             <div className="designer-card flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -169,9 +169,9 @@ export default function DesignProcess() {
                 <Image src="/Create Custom-img/Joydeep Chakraborty.webp" alt="Joydeep Chakraborty" fill className="object-cover" />
               </div>
               <div>
-                <p className="text-sm mb-2 text-gray-300">Bringing every custom design idea to life with care.</p>
+                <p className="text-[19px] mb-2 text-gray-300">Bringing every custom design idea to life with care.</p>
                 <h4 className="font-bold text-lg text-white">Joydeep Chakraborty,</h4>
-                <p className="text-sm font-medium text-gray-300">Co. Fashion Designer</p>
+                <p className="text-[19px] font-medium text-gray-300">Co. Fashion Designer</p>
               </div>
             </div>
           </div>

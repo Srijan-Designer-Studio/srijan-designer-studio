@@ -31,5 +31,5 @@ export const NAV_DATA = [
     ],
   },
   { id: 5, label: "Blog", href: "/blog" },
-  { id: 6, label: "Contact Us", href: "/contact" },
+  { id: 6, label: "Contact Us", href: "/contact-us" },
 ];

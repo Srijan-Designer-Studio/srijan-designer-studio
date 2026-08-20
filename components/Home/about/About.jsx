@@ -62,7 +62,7 @@ export default function About() {
         "-=0.4"
       );
 
-   
+
     gsap.to(".about-img-overlay", {
       y: -30,
       ease: "none",
@@ -81,47 +81,50 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10 items-center">
 
           <div className="relative w-full flex justify-center lg:justify-end lg:pr-16">
-           
-           <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg">
+
+            <div className="about-img-main relative w-[320px] sm:w-[400px] h-[450px] sm:h-[550px] rounded-3xl overflow-hidden shadow-lg">
               <Image
                 src="/Home_img/2.webp"
                 alt="Main About Image"
                 fill
-               
+
                 className="object-cover object-top"
               />
             </div>
 
             <div className="absolute top-1/2 -translate-y-1/2 -left-2 sm:left-4 lg:-left-4 z-10 about-img-overlay">
-              
+
               <div className="w-[240px] sm:w-[300px] h-[260px] sm:h-[320px] rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center relative bg-white">
                 <Image
                   src="/Home_img/1.webp"
                   alt="Overlay About Image"
-                  fill  
-                  className="object-cover object-center" 
+                  fill
+                  className="object-cover object-center"
                 />
               </div>
             </div>
           </div>
 
           <div className="max-w-[550px] mt-10 lg:mt-0">
-            <h2 className="about-text-sub text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+            <h2 className="about-text-sub text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
               ABOUT US
             </h2>
 
             <div className="overflow-hidden pb-2">
               <h3 className="about-text-head text-3xl sm:text-5xl lg:text-[46px] font-bold text-[#111] leading-[1.2] mb-6">
-                Fashion Made for Every Style
+                Your Style. Your Story. Your Outfit
               </h3>
             </div>
 
             <p className="about-text-desc text-lg sm:text-[19px] text-[#444] leading-relaxed">
-              At <strong className="text-black font-bold">SRIJAN Fashion</strong>, we believe every
-              outfit should reflect your personality. From everyday wear to special
-              occasions, our online shopping experience makes it easy to discover
-              beautiful designs. Explore the latest fashion styles or create a custom
-              outfit made just for you.
+              At <strong className="text-black font-bold">SRIJAN Fashion</strong>, we don't believe
+              in "one size fits all." Whether you're
+              here for easy online shopping or a
+              custom piece built from scratch,
+              every outfit is designed around you.
+              Explore fresh fashion styles or let's
+              create something only you will ever
+              wear.
             </p>
           </div>
 

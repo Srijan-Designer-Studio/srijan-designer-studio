@@ -41,13 +41,13 @@ export default function CustomerDashboard() {
           .order('created_at', { ascending: false });
 
         const fetchedOrders = orders || [];
-        
+
         const totalOrders = fetchedOrders.length;
         const pendingOrders = fetchedOrders.filter(o => o.status === 'pending').length;
         const deliveredOrders = fetchedOrders.filter(o => o.status === 'delivered').length;
         const returnRequests = fetchedOrders.filter(o => o.status === 'returned').length;
-        
-        const activeTrackingOrder = fetchedOrders.find(o => 
+
+        const activeTrackingOrder = fetchedOrders.find(o =>
           ['pending', 'processing', 'shipped'].includes(o.status)
         );
 
@@ -99,12 +99,12 @@ export default function CustomerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 font-sans pt-[100px] lg:pt-[120px] px-4 lg:px-8 pb-10">
-      
+
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           Welcome back, {stats.firstName} 👋
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Here's what's happening with your account today.</p>
+        <p className="text-[19px] text-gray-500 mt-1">Here's what's happening with your account today.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -136,7 +136,7 @@ export default function CustomerDashboard() {
 
           <div className="space-y-6">
             {stats.recentOrders.length === 0 ? (
-              <p className="text-sm text-gray-500">You have no recent orders.</p>
+              <p className="text-[19px] text-gray-500">You have no recent orders.</p>
             ) : (
               stats.recentOrders.map((order, idx) => {
                 const product = order.order_items?.[0]?.product_variants?.products;
@@ -163,13 +163,13 @@ export default function CustomerDashboard() {
                         />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-0.5">#{order.id.split('-')[0].toUpperCase()}</p>
-                        <p className="text-sm font-semibold text-gray-900 line-clamp-1">{product?.title || 'Order Item'}</p>
-                        <p className="text-xs font-bold text-gray-900 mt-1">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
+                        <p className="text-[19px] text-gray-500 mb-0.5">#{order.id.split('-')[0].toUpperCase()}</p>
+                        <p className="text-[19px] font-semibold text-gray-900 line-clamp-1">{product?.title || 'Order Item'}</p>
+                        <p className="text-[19px] font-bold text-gray-900 mt-1">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end gap-2">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-[19px] text-gray-500">
                         {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at))}
                       </p>
                       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${statusColors[order.status] || 'text-gray-600 bg-gray-50'}`}>
@@ -191,11 +191,11 @@ export default function CustomerDashboard() {
               <>
                 <div className="flex justify-between items-end mb-8">
                   <div>
-                    <p className="text-sm font-bold text-gray-900">#{stats.activeTrackingOrder.id.split('-')[0].toUpperCase()}</p>
+                    <p className="text-[19px] font-bold text-gray-900">#{stats.activeTrackingOrder.id.split('-')[0].toUpperCase()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">Status</p>
-                    <p className="text-sm font-bold text-gray-900 capitalize">{stats.activeTrackingOrder.status}</p>
+                    <p className="text-[19px] text-gray-500">Status</p>
+                    <p className="text-[19px] font-bold text-gray-900 capitalize">{stats.activeTrackingOrder.status}</p>
                   </div>
                 </div>
 
@@ -222,7 +222,7 @@ export default function CustomerDashboard() {
               </>
             ) : (
               <div className="text-center py-6">
-                <p className="text-sm text-gray-500">No active orders to track.</p>
+                <p className="text-[19px] text-gray-500">No active orders to track.</p>
                 <Link href="/shop-style" className="text-sm font-bold text-[#0ba6ff] hover:underline mt-2 inline-block">Shop Now</Link>
               </div>
             )}
@@ -231,7 +231,7 @@ export default function CustomerDashboard() {
           <div className="bg-[#fcf8f2] rounded-2xl border border-[#f0e6d2] p-6 flex justify-between items-center relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Save more with Srijan</h3>
-              <p className="text-xs text-gray-600 mb-4">Exclusive offers for our members</p>
+              <p className="text-[19px] text-gray-600 mb-4">Exclusive offers for our members</p>
               <Link href="/shop-style">
                 <button className="bg-black text-white text-xs font-bold px-5 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   Shop Now

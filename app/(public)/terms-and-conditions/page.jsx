@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Terms and Conditions | SRIJAN',
   description: 'Terms and conditions for using SRIJAN website and services.',
+   robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function TermsAndConditions() {

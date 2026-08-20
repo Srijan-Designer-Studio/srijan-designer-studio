@@ -83,8 +83,8 @@ export default function WeddingContactForm() {
             </div>
           </div>
 
-          <div className="wed-contact-right w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center relative bg-white z-10 lg:-ml-[1px]">
-            <div className="border border-[#d69f53] p-8 rounded-2xl">
+          <div className="wed-contact-right w-full lg:w-1/2 p-2 flex flex-col justify-center relative bg-white z-10 lg:-ml-[1px]">
+            <div className=" p-8 rounded-2xl">
               <h3 className="text-2xl font-normal text-black mb-6 text-center">
                 Fill In the Form To Get Started
               </h3>
@@ -181,7 +181,7 @@ export default function WeddingContactForm() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#c98d45] text-black font-medium h-[50px] rounded-full mt-2 hover:bg-[#b57a35] transition-colors shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full"
                 >
                   {isSubmitting ? 'SUBMITTING...' : 'SUBMIT NOW'}
                 </button>

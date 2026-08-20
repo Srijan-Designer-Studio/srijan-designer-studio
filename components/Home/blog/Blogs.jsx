@@ -20,9 +20,9 @@ export default function Blogs() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const data = await getAllBlogs(); 
+        const data = await getAllBlogs();
         if (data && data.length > 0) {
-          setBlogPosts(data.slice(0, 6)); 
+          setBlogPosts(data.slice(0, 6));
         }
       } catch (error) {
         console.error(error);
@@ -38,19 +38,21 @@ export default function Blogs() {
     gsap.fromTo(
       ".blog-text",
       { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 80%",
-        toggleActions: "play none none reverse",
-      }}
+      {
+        y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        }
+      }
     );
 
     // Step Scroll Animation (2s pause, 1s slide) for ALL screens
     const marqueeTl = gsap.timeline({ repeat: -1 });
     const totalCards = blogPosts.length;
-    
+
     // Calculates exact width percentage to shift per card (50% is the halfway mark due to duplicated array)
-    const stepPercentage = 50 / totalCards; 
+    const stepPercentage = 50 / totalCards;
 
     for (let i = 1; i <= totalCards; i++) {
       marqueeTl.to(marqueeRef.current, {
@@ -59,10 +61,10 @@ export default function Blogs() {
         ease: "power2.inOut"
       }, "+=2"); // Wait 2 seconds before every slide
     }
-    
+
     tweenRef.current = marqueeTl;
 
-  }, { scope: containerRef, dependencies: [blogPosts] }); 
+  }, { scope: containerRef, dependencies: [blogPosts] });
 
   const handleMouseEnter = () => tweenRef.current?.pause();
   const handleMouseLeave = () => tweenRef.current?.play();
@@ -74,12 +76,14 @@ export default function Blogs() {
 
           {/* Left Text Content */}
           <div className="lg:col-span-4 flex flex-col items-start max-w-[400px] z-10">
-            <h2 className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-sm mb-4 block">
+            <h2 className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
               BLOGS
             </h2>
 
             <h3 className="blog-text text-2xl sm:text-4xl lg:text-[40px] font-bold text-white leading-[1.3] mb-8">
-              Dive Into SRIJAN Styles & Tips
+              Dive Into SRIJAN
+              Fashion Styles &
+              Tips
             </h3>
 
             <div className="blog-text inline-block">
@@ -94,18 +98,18 @@ export default function Blogs() {
           </div>
 
           {/* Marquee Section (Masking edges adjusted slightly to fit 2 cards perfectly) */}
-          <div 
+          <div
             className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] py-8"
-            onMouseEnter={handleMouseEnter} 
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             <div ref={marqueeRef} className="flex w-max">
-              
+
               {/* First Set of Cards */}
               <div className="flex gap-6 pr-6">
                 {blogPosts.map((post) => (
                   <Link
-                    href={`/blog/${post.slug || post.id}`} 
+                    href={`/blog/${post.slug || post.id}`}
                     key={`first-${post.id}`}
                     // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
                     className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
@@ -134,7 +138,7 @@ export default function Blogs() {
                           {post.categories.name}
                         </span>
                       )}
-                      
+
                       <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
                         {post.title}
                       </h3>
@@ -153,7 +157,7 @@ export default function Blogs() {
               <div className="flex gap-6 pr-6">
                 {blogPosts.map((post) => (
                   <Link
-                    href={`/blog/${post.slug || post.id}`} 
+                    href={`/blog/${post.slug || post.id}`}
                     key={`second-${post.id}`}
                     // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
                     className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
@@ -182,7 +186,7 @@ export default function Blogs() {
                           {post.categories.name}
                         </span>
                       )}
-                      
+
                       <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
                         {post.title}
                       </h3>

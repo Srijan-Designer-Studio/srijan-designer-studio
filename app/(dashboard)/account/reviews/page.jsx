@@ -71,10 +71,10 @@ export default function CustomerReviewsPage() {
       const supabase = createClient();
       const { error } = await supabase
         .from('reviews')
-        .update({ 
-          rating: editRating, 
+        .update({
+          rating: editRating,
           comment: editComment,
-          is_approved: false 
+          is_approved: false
         })
         .eq('id', selectedReview.id);
 
@@ -105,10 +105,10 @@ export default function CustomerReviewsPage() {
   const renderStars = (rating) => (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
-        <Star 
-          key={star} 
-          size={16} 
-          className={star <= rating ? 'fill-[#cfa874] text-[#cfa874]' : 'fill-gray-100 text-gray-200'} 
+        <Star
+          key={star}
+          size={16}
+          className={star <= rating ? 'fill-[#cfa874] text-[#cfa874]' : 'fill-gray-100 text-gray-200'}
         />
       ))}
     </div>
@@ -124,11 +124,11 @@ export default function CustomerReviewsPage() {
 
   return (
     <div className="max-w-4xl pt-[100px] lg:pt-[120px] space-y-6 font-sans">
-      
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Reviews</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage the feedback you've left on your purchased items.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Manage the feedback you've left on your purchased items.</p>
         </div>
       </div>
 
@@ -148,14 +148,14 @@ export default function CustomerReviewsPage() {
 
           return (
             <Card key={review.id} className="p-6 shadow-sm border-gray-100 flex flex-col md:flex-row gap-6">
-              
+
               <div className="flex items-start gap-4 md:w-1/3">
                 <div className="w-20 h-24 rounded-lg bg-gray-100 overflow-hidden relative flex-shrink-0 border border-gray-200">
                   <img src={imageUrl} alt={product?.title} className="object-cover w-full h-full" onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'} />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-sm text-gray-900 line-clamp-2">{product?.title}</h3>
-                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <p className="text-[19px] text-gray-500 mt-2 flex items-center gap-1">
                     <StatusBadge status={reviewStatus === 'Published' ? 'Completed' : 'Pending'} />
                   </p>
                 </div>
@@ -166,22 +166,22 @@ export default function CustomerReviewsPage() {
                   {renderStars(review.rating)}
                   <span className="text-xs text-gray-500">{date}</span>
                 </div>
-                
+
                 <div className="flex-1">
-                  <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 relative">
+                  <p className="text-[19px] text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 relative">
                     <MessageSquare size={16} className="absolute top-4 left-4 text-gray-300" />
                     <span className="ml-6 block">{review.comment}</span>
                   </p>
                 </div>
 
                 <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100 justify-end">
-                  <button 
+                  <button
                     onClick={() => handleEditClick(review)}
                     className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Edit2 size={14} /> Edit Review
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDeleteReview(review.id)}
                     className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors cursor-pointer"
                   >
@@ -203,20 +203,20 @@ export default function CustomerReviewsPage() {
         )}
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Edit Your Review"
         footer={
           <>
-            <button 
+            <button
               disabled={isUpdating}
               onClick={() => setIsModalOpen(false)}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
             >
               Cancel
             </button>
-            <button 
+            <button
               disabled={isUpdating}
               onClick={handleUpdateReview}
               className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-50 cursor-pointer"
@@ -231,16 +231,16 @@ export default function CustomerReviewsPage() {
           <form className="space-y-6">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-md overflow-hidden relative border border-gray-200">
-                <img 
+                <img
                   src={(() => {
                     const images = selectedReview.products?.product_images;
                     if (Array.isArray(images) && images.length > 0) {
                       return typeof images[0] === 'string' ? images[0] : (images[0]?.image_url || '/images/placeholder.jpg');
                     }
                     return '/images/placeholder.jpg';
-                  })()} 
-                  alt={selectedReview.products?.title}  
-                  className="object-cover w-full h-full" 
+                  })()}
+                  alt={selectedReview.products?.title}
+                  className="object-cover w-full h-full"
                   onError={(e) => e.currentTarget.src = '/images/placeholder.jpg'}
                 />
               </div>
@@ -251,15 +251,15 @@ export default function CustomerReviewsPage() {
               <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Your Rating</label>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <button 
+                  <button
                     key={star}
                     type="button"
                     onClick={() => setEditRating(star)}
                     className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
                   >
-                    <Star 
-                      size={28} 
-                      className={star <= editRating ? 'fill-[#cfa874] text-[#cfa874]' : 'fill-gray-100 text-gray-300'} 
+                    <Star
+                      size={28}
+                      className={star <= editRating ? 'fill-[#cfa874] text-[#cfa874]' : 'fill-gray-100 text-gray-300'}
                     />
                   </button>
                 ))}
@@ -268,11 +268,11 @@ export default function CustomerReviewsPage() {
 
             <div>
               <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Your Feedback</label>
-              <textarea 
+              <textarea
                 rows="4"
                 value={editComment}
                 onChange={(e) => setEditComment(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-white resize-none" 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-sm bg-white resize-none"
               ></textarea>
             </div>
           </form>

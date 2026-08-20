@@ -16,7 +16,7 @@ const kidsCards = [
     step: "Step 1",
     title: "Occasion & Theme",
     desc: "Tell us about the occasion and your preferred theme. We'll design an outfit that brings your vision to life.",
-    img: "/Home_img/Card 1.webp", 
+    img: "/Home_img/Card 1.webp",
     bgColor: "bg-white",
     titleColor: "text-black",
     descColor: "text-gray-600"
@@ -26,7 +26,7 @@ const kidsCards = [
     step: "Step 2",
     title: "Design & Fabric",
     desc: "We select premium, child-friendly fabrics and tailor the design for maximum comfort and elegance.",
-    img: "/Home_img/Card 2.webp", 
+    img: "/Home_img/Card 2.webp",
     bgColor: "bg-[#fbcfe8]",
     titleColor: "text-[#831843]",
     descColor: "text-[#9d174d]"
@@ -36,7 +36,7 @@ const kidsCards = [
     step: "Step 3",
     title: "The Perfect Fit",
     desc: "Your bespoke kids wear is ready! Watch them light up the room with a custom dress made just for them.",
-    img: "/Home_img/Card 3.webp", 
+    img: "/Home_img/Card 3.webp",
     bgColor: "bg-[#f472b6]",
     titleColor: "text-white",
     descColor: "text-pink-100"
@@ -61,9 +61,9 @@ export default function CustomizeKidsWear() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top top", 
-          end: "+=2000", 
-          scrub: 1, 
+          start: "top top",
+          end: "+=2000",
+          scrub: 1,
           pin: true,
           anticipatePin: 1
         }
@@ -72,12 +72,12 @@ export default function CustomizeKidsWear() {
       tl.to(".desk-card-0", { yPercent: -120, opacity: 0.5, rotate: -5, duration: 1, ease: "power2.inOut" }, "step1")
         .to(".desk-card-1", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step1")
         .to(".desk-card-2", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step1")
-        .set(".desk-card-0", { zIndex: 10 }) 
+        .set(".desk-card-0", { zIndex: 10 })
         .to(".desk-card-0", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" })
         .to(".desk-card-1", { yPercent: -120, opacity: 0.5, rotate: 5, duration: 1, ease: "power2.inOut" }, "step2")
         .to(".desk-card-2", { y: 0, x: 0, scale: 1, duration: 1, ease: "power2.inOut" }, "step2")
         .to(".desk-card-0", { y: 15, x: 15, scale: 0.95, duration: 1, ease: "power2.inOut" }, "step2")
-        .set(".desk-card-1", { zIndex: 10 }) 
+        .set(".desk-card-1", { zIndex: 10 })
         .to(".desk-card-1", { yPercent: 0, y: 30, x: 30, scale: 0.9, opacity: 1, rotate: 0, duration: 0.5, ease: "power2.inOut" });
     });
 
@@ -93,20 +93,23 @@ export default function CustomizeKidsWear() {
 
   return (
     <section className="relative bg-gradient-to-br from-[#41425e] via-[#757791] to-[#babbd1] pt-16 lg:pt-28 overflow-hidden flex flex-col lg:min-h-screen" ref={containerRef}>
-      
+
       <div className="max-w-[1320px] mx-auto px-6 w-full pb-10 lg:pb-28 flex-1 flex flex-col justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-8 items-center">
-          
-          <div className="max-w-[500px]">
-            <h2 className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-4 block">
+
+          <div className="max-w-[530px]">
+            <h2 className="text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
               CUSTOMIZE KIDS WEAR
             </h2>
             <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-white leading-[1.3] mb-6">
-              Make Every Celebration Extra Special
+              Fashion for the Little
+              Ones Who Steal the Show
             </h3>
-            <p className="text-gray-100 text-base sm:text-[17px] leading-[1.6] mb-8">
-              Create adorable custom outfits for birthdays, family events and special 
-              occasions, designed to match your theme and your little one's personality.
+            <p className="text-gray-100 text-base sm:text-[20px] leading-[1.6] mb-8">
+              Birthdays, festivals, family days, every
+              celebration deserves an outfit as special
+              as your little one. Custom, comfy, made
+              for them.
             </p>
             <div>
               <Link
@@ -122,8 +125,8 @@ export default function CustomizeKidsWear() {
           {/* Desktop Cards (Original GSAP Animation) */}
           <div className="hidden lg:block relative w-full max-w-[420px] mx-auto lg:ml-auto aspect-[4/5]">
             {kidsCards.map((card) => (
-              <div 
-                key={card.id} 
+              <div
+                key={card.id}
                 className={`desk-card desk-card-${card.id} absolute top-0 left-0 w-full h-full rounded-[24px] overflow-hidden shadow-2xl flex flex-col ${card.bgColor}`}
               >
                 <div className="relative w-full h-[70%] bg-gray-200 shrink-0">
@@ -154,8 +157,8 @@ export default function CustomizeKidsWear() {
           <div className="block lg:hidden w-screen relative -ml-6 overflow-hidden mt-6">
             <div className="animate-card-step py-2">
               {[...kidsCards, ...kidsCards].map((card, idx) => (
-                <div 
-                  key={`mob-${idx}`} 
+                <div
+                  key={`mob-${idx}`}
                   className={`w-[280px] h-[380px] shrink-0 rounded-[20px] overflow-hidden shadow-xl flex flex-col mx-3 ${card.bgColor}`}
                 >
                   <div className="relative w-full h-[65%] bg-gray-200 shrink-0">

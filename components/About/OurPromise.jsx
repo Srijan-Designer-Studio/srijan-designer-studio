@@ -11,15 +11,15 @@ gsap.registerPlugin(ScrollTrigger);
 const promisesData = [
   {
     title: "No Compromises:",
-    description: "We use premium fabrics and expert tailoring."
+    description: "Premium fabric. Expert tailoring. Every single time."
   },
   {
     title: "No Limits:",
-    description: "Any size, any style, any design."
+    description: "Any size. Any style. Any design you can dream up."
   },
   {
     title: "No Delays:",
-    description: "Whether it’s a single bridal lehenga or a bulk order of 500 units, we respect the deadline."
+    description: "One lehenga or five hundred pieces, your deadline is our deadline."
   }
 ];
 
@@ -57,14 +57,16 @@ export default function OurPromise() {
             <h2 className="promise-text text-3xl md:text-4xl lg:text-[42px] font-bold text-[#111] leading-tight mb-6">
               Our Promise
             </h2>
-            <p className="promise-text text-[16px] lg:text-[17px] text-gray-800 leading-relaxed mb-6">
-              In a world of fast fashion and copy-paste trends,
-              SRIJAN stands for individuality.
+            <p className="promise-text text-[16px] lg:text-[19px] text-gray-800 leading-relaxed mb-6">
+              Fast fashion moves fast. We move on purpose. <br />
+
+              While everyone else is copying trends, we're busy copying
+              nothing. Every <span className="font-bold">SRIJAN</span> piece is built around one person, you.
             </p>
             <ul className="space-y-4 list-disc pl-5 marker:text-black mb-8">
               {promisesData.map((item, index) => (
                 <li key={index} className="promise-text pl-2">
-                  <p className="text-[15px] lg:text-[17px] leading-[1.65] text-gray-800">
+                  <p className="text-[19px] lg:text-[17px] leading-[1.65] text-gray-800">
                     <span className="text-black font-bold">
                       {item.title}
                     </span>{" "}
@@ -73,8 +75,8 @@ export default function OurPromise() {
                 </li>
               ))}
             </ul>
-            <p className="promise-text text-[16px] lg:text-[17px] text-gray-800 leading-relaxed font-semibold italic">
-              Welcome to SRIJAN. Come for the fashion. Stay for the fit.
+            <p className="promise-text text-[16px] lg:text-[19px] text-gray-800 leading-relaxed font-semibold italic">
+              This is SRIJAN. Come for the fashion. Stay because it finally fits.
             </p>
           </div>
 
