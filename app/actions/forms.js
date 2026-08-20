@@ -1,11 +1,68 @@
 'use server'
 
-import { createAdminClient } from '@/lib/supabase/admin' //[cite: 14]
-import nodemailer from 'nodemailer' //[cite: 14]
+import { createAdminClient } from '@/lib/supabase/admin'
+import nodemailer from 'nodemailer'
 
-//  Perfect Fit 
+export async function submitContactMessage(formData) {
+  const supabase = createAdminClient()
+
+  const name = formData.get('name')
+  const phone = formData.get('phone')
+  const email = formData.get('email')
+  const message = formData.get('message')
+
+  const { error } = await supabase.from('contact_messages').insert({
+    name,
+    email,
+    phone,
+    message
+  })
+
+  if (error) throw new Error(error.message)
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+
+    const mailOptions = {
+      from: `"${name}" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER, 
+      replyTo: email,
+      subject: `New Contact Form Submission from ${name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <h2 style="color: #00c3ff; border-bottom: 2px solid #00c3ff; padding-bottom: 10px;">New Message Received</h2>
+          <p style="color: #4a5568; font-size: 16px;">You have received a new message from the Srijan Fashion website contact form.</p>
+          <div style="background-color: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 5px 0;"><strong>Name:</strong> ${name}</p>
+            <p style="margin: 5px 0;"><strong>Phone:</strong> ${phone}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+          </div>
+          <h3 style="color: #2d3748; margin-top: 20px;">Message:</h3>
+          <div style="background-color: #f7fafc; padding: 15px; border-radius: 8px; font-style: italic; color: #4a5568;">
+            <p style="margin: 0;">${message}</p>
+          </div>
+        </div>
+      `,
+    }
+
+    await transporter.sendMail(mailOptions)
+  } catch (err) {
+    console.error(err)
+  }
+
+  return { success: true }
+}
+
 export async function submitCustomRequest(formData) {
-  const supabase = createAdminClient() //[cite: 14]
+  const supabase = createAdminClient()
 
   const name = formData.get('name')
   const email = formData.get('email')
@@ -15,30 +72,27 @@ export async function submitCustomRequest(formData) {
   const callDate = formData.get('callDate')
   const callTime = formData.get('callTime')
   const details = formData.get('details')
-  const sourcePage = formData.get('sourcePage') || 'create-designer-dress'
+  const sourcePage = formData.get('sourcePage') || 'Perfect Fit'
 
-  // Supabase Database
   const { error } = await supabase.from('custom_requests').insert({
     name: name,
     email: email,
     phone: phone,
     outfit_type: outfitType,
     budget: budget,
-    callback_date: callDate, //[cite: 14]
-    callback_time: callTime, //[cite: 14]
-    details: details, //[cite: 14]
+    callback_date: callDate,
+    callback_time: callTime,
+    details: details,
     source_page: sourcePage
   })
 
-  if (error) throw new Error(error.message) //[cite: 14]
+  if (error) throw new Error(error.message)
 
-  // Nodemailer 
   await sendNotificationEmail({ name, email, phone, outfitType, budget, callDate, callTime, details, sourcePage })
 
-  return { success: true } //[cite: 14]
+  return { success: true }
 }
 
-//  Kids Wear
 export async function submitKidsForm(formData) {
   const supabase = createAdminClient()
 
@@ -64,7 +118,6 @@ export async function submitKidsForm(formData) {
   return { success: true }
 }
 
-//  Wedding Wear
 export async function sendWeddingInquiry(formData) {
   const supabase = createAdminClient()
 
@@ -90,24 +143,23 @@ export async function sendWeddingInquiry(formData) {
   return { success: true, message: "Your inquiry has been sent successfully!" }
 }
 
-
 async function sendNotificationEmail(data) {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST, //[cite: 14]
-      port: process.env.SMTP_PORT, //[cite: 14]
-      secure: process.env.SMTP_SECURE === 'true', //[cite: 14]
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER, //[cite: 14]
-        pass: process.env.SMTP_PASS, //[cite: 14]
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     })
 
     const mailOptions = {
-      from: `"${data.name}" <${process.env.SMTP_USER}>`, //[cite: 14]
-      to: process.env.SMTP_USER, //[cite: 14]
-      replyTo: data.email, //[cite: 14]
-      subject: `New Request: ${data.sourcePage} from ${data.name}`, //[cite: 14]
+      from: `"${data.name}" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER,
+      replyTo: data.email,
+      subject: `New Request: ${data.sourcePage} from ${data.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
           <h2 style="color: #00c3ff; border-bottom: 2px solid #00c3ff; padding-bottom: 10px;">New Request: ${data.sourcePage}</h2>
@@ -128,8 +180,8 @@ async function sendNotificationEmail(data) {
       `,
     }
 
-    await transporter.sendMail(mailOptions) //[cite: 14]
+    await transporter.sendMail(mailOptions)
   } catch (err) {
-    console.error("Email sending failed:", err) //[cite: 14]
+    console.error("Email sending failed:", err)
   }
 }
