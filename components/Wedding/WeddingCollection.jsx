@@ -82,7 +82,7 @@ export default function WeddingCollection() {
             </p>
             <div className="wed-coll-text">
               <Link
-                href="/wedding"
+                href="/shop-style?category=wedding"
                 className="inline-flex items-center gap-3 text-[#1070c0] font-bold text-[14px] uppercase tracking-wide transition-opacity hover:opacity-80"
               >
                 SHOP OUR COLLECTION

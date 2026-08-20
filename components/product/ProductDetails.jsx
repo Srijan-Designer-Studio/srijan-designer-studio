@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Minus, Plus, Loader2 } from "lucide-react";
 import gsap from "gsap";
@@ -36,6 +36,14 @@ export default function ProductDetails({ product }) {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState("description");
 
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setMainImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   useGSAP(() => {
     if (!product) return;
     const tl = gsap.timeline();
@@ -55,15 +63,14 @@ export default function ProductDetails({ product }) {
 
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
 
-  const selectedVariant = variants.find(v => (!size || (v.size && v.size.includes(size)))) || variants[0];
-  const variantId = selectedVariant?.id || product.id;
+  const selectedVariant = variants.find(v => v.size && v.size.includes(size)) || variants[0] || {};
+  const variantId = selectedVariant.id || product.id;
 
-  const basePrice = product.base_price || 0;
-  const variantPrice = selectedVariant?.price || basePrice;
-  const variantSalePrice = selectedVariant?.sale_price || (basePrice + (selectedVariant?.price_adjustment || 0));
+  const originalPrice = Number(selectedVariant.price) || Number(product.base_price) || 0;
+  const salePrice = Number(selectedVariant.sale_price) || Number(selectedVariant.salePrice) || 0;
 
-  const hasDiscount = variantPrice > variantSalePrice;
-  const currentPrice = hasDiscount ? variantSalePrice : variantPrice;
+  const hasDiscount = salePrice > 0 && salePrice < originalPrice;
+  const currentPrice = hasDiscount ? salePrice : originalPrice;
 
   const handleAddToCart = () => {
     startTransition(async () => {
@@ -91,7 +98,6 @@ export default function ProductDetails({ product }) {
     });
   };
 
-  // ডাইনামিক ট্যাব জেনারেট করা হচ্ছে নতুন ডেটাবেস ফিল্ডের ওপর ভিত্তি করে
   const tabs = [
     { id: 'description', label: 'Description', content: product.full_description || product.description || '<p>No description available for this product.</p>' }
   ];
@@ -142,10 +148,15 @@ export default function ProductDetails({ product }) {
               </h1>
             </div>
 
-            <div className="prod-info mb-6">
-              <p className="text-[24px] font-bold text-black">
+            <div className="prod-info mb-6 flex items-end gap-3">
+              <p className="text-[24px] font-bold text-black leading-none">
                 ₹{currentPrice.toLocaleString('en-IN')}
               </p>
+              {hasDiscount && (
+                <p className="text-[16px] font-medium text-gray-400 line-through leading-none mb-0.5">
+                  ₹{originalPrice.toLocaleString('en-IN')}
+                </p>
+              )}
             </div>
 
             <div className="prod-info mb-8">

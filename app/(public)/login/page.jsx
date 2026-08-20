@@ -150,7 +150,7 @@ export default function AuthPage() {
               <span className="absolute -top-3 left-4 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-[#0ba6ff] border border-white/10 shadow-sm z-10">Email Id</span>
               <div className="flex items-center border border-white/30 hover:border-[#0ba6ff]/70 focus-within:border-[#0ba6ff] rounded-xl px-4 py-3 bg-white/10 backdrop-blur-md transition-all">
                 <Mail className="text-white/80 mr-3 shrink-0" size={18} />
-                <input name="email" type="email" placeholder="thisisux@mail.com" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
+                <input name="email" type="email" placeholder="your@mail.com" required className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" />
               </div>
             </div>
 
@@ -213,7 +213,7 @@ export default function AuthPage() {
                 <input
                   name="email"
                   type="email"
-                  placeholder="admin@srijan.com"
+                  placeholder="EMAIL_ADDRESS"
                   className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40"
                   required
                 />
