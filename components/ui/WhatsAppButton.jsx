@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 export default function WhatsAppButton() {
   const pathname = usePathname();
-  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210"; 
-  const defaultMessage = "Hello SRIJAN Fashion! I need some help.";
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210";
+  const defaultMessage = "Hi SRIJAN Fashion, I’m interested in your collection and would like to know more about your outfits and customization options.";
 
   if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") {
     return null;
