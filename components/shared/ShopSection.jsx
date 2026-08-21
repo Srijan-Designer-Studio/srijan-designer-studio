@@ -9,33 +9,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ShopSection({ title, category, type, viewAllLink, products = [] }) {
+// CRITICAL FIX: Removed category & type props as the Parent Page will now handle the strict filtering
+export default function ShopSection({ title, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
 
-
-  const productsData = products.filter((product) => {
-    const dbCategory = String(product.categories?.name || "").toLowerCase();
-    const dbType = String(product.product_type || "").toLowerCase();
-    const dbTitle = String(product.title || "").toLowerCase();
-
-    const searchCategory = String(category || "").toLowerCase();
-    const searchType = String(type || "").toLowerCase();
-
-    let isMatch = false;
-
-
-    if (searchCategory && (dbCategory.includes(searchCategory) || dbTitle.includes(searchCategory) || dbType.includes(searchCategory))) {
-      isMatch = true;
-    }
-
-    if (searchType && (dbType.includes(searchType) || dbCategory.includes(searchType) || dbTitle.includes(searchType))) {
-      isMatch = true;
-    }
-
-    return isMatch;
-  }).slice(0, 4);
+  // Just take the first 4 products passed perfectly from the parent page
+  const productsData = products.slice(0, 4);
 
   useGSAP(() => {
+    if (productsData.length === 0) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -54,8 +37,7 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
       { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
       "-=0.3"
     );
-  }, { scope: containerRef });
-
+  }, { scope: containerRef, dependencies: [productsData] });
 
   if (productsData.length === 0) {
     return (
@@ -112,7 +94,7 @@ export default function ShopSection({ title, category, type, viewAllLink, produc
                 <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                   {product.title}
                 </h3>
-                <p className="text-[19px] sm:text-[18px] font-bold text-black text-center">
+                <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
                   ₹{product.base_price?.toLocaleString('en-IN')}
                 </p>
               </Link>

@@ -2,20 +2,23 @@
 
 import { useState, useRef, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Minus, Plus, Loader2 } from "lucide-react";
+import { Minus, Plus, Loader2, ShoppingBag } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/context/CartContext";
-import { addToCart as addToCartServer, toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
+import { addToCart as addToCartServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(useGSAP);
 
 export default function ProductDetails({ product }) {
   const router = useRouter();
-  const { addToCart, toggleWishlist, wishlistItems } = useCart();
+  const { addToCart } = useCart();
   const containerRef = useRef(null);
 
   const variants = product?.product_variants || [];
+
+
+  const components = product?.components || product?.product_components || [];
 
   const images = product?.product_images?.length > 0
     ? product.product_images.map(img => img.image_url)
@@ -61,8 +64,6 @@ export default function ProductDetails({ product }) {
 
   if (!product) return null;
 
-  const isWishlisted = wishlistItems.some((item) => item.id === product.id);
-
   const selectedVariant = variants.find(v => v.size && v.size.includes(size)) || variants[0] || {};
   const variantId = selectedVariant.id || product.id;
 
@@ -71,6 +72,7 @@ export default function ProductDetails({ product }) {
 
   const hasDiscount = salePrice > 0 && salePrice < originalPrice;
   const currentPrice = hasDiscount ? salePrice : originalPrice;
+
 
   const handleAddToCart = () => {
     startTransition(async () => {
@@ -85,16 +87,30 @@ export default function ProductDetails({ product }) {
 
       try {
         await addToCartServer(variantId, quantity);
-      } catch (error) { }
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
-  const handleWishlist = () => {
+  // Buy Now Logic
+  const handleBuyNow = () => {
     startTransition(async () => {
-      toggleWishlist(product);
+      addToCart({
+        id: product.id,
+        variantId,
+        title: product.title,
+        price: currentPrice,
+        image: images[mainImageIndex],
+        size,
+      }, quantity);
+
       try {
-        await toggleWishlistServer(product.id);
-      } catch (error) { }
+        await addToCartServer(variantId, quantity);
+        router.push('/checkout');
+      } catch (error) {
+        router.push('/checkout');
+      }
     });
   };
 
@@ -107,10 +123,6 @@ export default function ProductDetails({ product }) {
   }
 
   tabs.push({ id: 'material', label: 'Material & Care', content: product.material_care || '<p>Material and care instructions are not available.</p>' });
-
-  if (product.additional_info) {
-    tabs.push({ id: 'additional_info', label: 'Additional Info', content: product.additional_info });
-  }
 
   tabs.push(
     { id: 'shipping', label: 'Shipping Policy', content: product.shipping_policy || '<p>Standard shipping policies apply.</p>' },
@@ -165,6 +177,38 @@ export default function ProductDetails({ product }) {
               </p>
             </div>
 
+           
+            {components.length > 0 && (
+              <div className="prod-info mb-8 bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                <h3 className="text-[13px] font-extrabold text-gray-900 mb-4 uppercase tracking-wide border-b border-gray-200 pb-2">This Set Includes:</h3>
+                <div className="flex flex-col gap-3">
+                  {components.map((comp, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-[15px] text-gray-700 flex items-center gap-3 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-[#00c3ff]"></span>
+                        {comp.name} {!comp.required && <span className="text-gray-400 text-[12px]">(Optional)</span>}
+                      </span>
+                      {comp.price > 0 && (
+                        <span className="text-[14px] font-bold text-gray-600 bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">
+                          +₹{comp.price}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+           
+            {product.additional_info && (
+              <div className="prod-info mb-4">
+                <div className="inline-block bg-[#fffbeb] border border-[#fde047] text-[#854d0e] text-[12px] px-3.5 py-2.5 rounded-lg font-semibold shadow-sm [&>p]:mb-0">
+                  <div dangerouslySetInnerHTML={{ __html: product.additional_info }} />
+                </div>
+              </div>
+            )}
+
+            {/* Size Section */}
             {availableSizes.length > 0 && (
               <div className="prod-info mb-8">
                 <h3 className="text-[16px] font-bold text-black mb-3">Size</h3>
@@ -182,41 +226,43 @@ export default function ProductDetails({ product }) {
               </div>
             )}
 
-            <div className="prod-info flex flex-col sm:flex-row items-center gap-4 mb-4">
-              <div className="flex items-center justify-between border border-black rounded-lg w-[130px] h-[52px] px-4 shrink-0 bg-white">
+            
+            <div className="prod-info flex flex-row items-center gap-3 sm:gap-4 mb-4">
+              <div className="flex items-center justify-between border border-black rounded-lg w-[110px] sm:w-[130px] h-[56px] px-3 sm:px-4 shrink-0 bg-white">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="text-black hover:opacity-70 cursor-pointer"
                 >
-                  <Minus size={20} strokeWidth={2} />
+                  <Minus size={18} strokeWidth={2} />
                 </button>
-                <span className="text-[18px] font-bold text-black">{quantity}</span>
+                <span className="text-[16px] sm:text-[18px] font-bold text-black">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="text-black hover:opacity-70 cursor-pointer"
                 >
-                  <Plus size={20} strokeWidth={2} />
+                  <Plus size={18} strokeWidth={2} />
                 </button>
               </div>
 
               <button
-                onClick={handleWishlist}
+                onClick={handleAddToCart}
                 disabled={isPending}
-                className={`flex-1 h-[52px] w-full sm:w-auto rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wider transition-colors hover:bg-[#00abe0] shadow-md shadow-[#00c3ff]/20 cursor-pointer disabled:opacity-70 ${isWishlisted ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-[#00c3ff] text-white'}`}
+                className="flex-1 h-[56px] rounded-full flex items-center justify-center gap-1.5 sm:gap-2 font-bold text-[13px] sm:text-[14px] uppercase tracking-wider transition-colors border-[2px] border-[#00c3ff] text-[#00c3ff] hover:bg-[#00c3ff] hover:text-white bg-white cursor-pointer disabled:opacity-70 px-2"
               >
-                <Heart className={isWishlisted ? 'fill-white' : ''} size={18} strokeWidth={2.5} />
-                WISHLIST
+                {isPending ? <Loader2 className="animate-spin" size={18} /> : <ShoppingBag size={18} strokeWidth={2.5} />}
+                <span className="whitespace-nowrap">Add to Cart</span>
               </button>
             </div>
 
+            {/* Buy Now Row (Heightened to 56px) */}
             <div className="prod-info">
               <button
-                onClick={handleAddToCart}
+                onClick={handleBuyNow}
                 disabled={isPending}
-                className="w-full h-[52px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wider transition-colors hover:bg-[#00abe0] shadow-md shadow-[#00c3ff]/20 cursor-pointer disabled:opacity-70"
+                className="w-full h-[56px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wider transition-colors hover:bg-[#00abe0] shadow-md shadow-[#00c3ff]/20 cursor-pointer disabled:opacity-70"
               >
                 {isPending ? <Loader2 className="animate-spin" size={18} /> : null}
-                ADD TO CART
+                BUY NOW
               </button>
             </div>
           </div>

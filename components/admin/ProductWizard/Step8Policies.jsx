@@ -6,19 +6,22 @@ import { Plus, Trash2 } from "lucide-react";
 
 export default function Step8Policies() {
   const { formData, updateFormData } = useWizard();
+  
+  // Safe array fallback to prevent map/length errors
+  const currentFaqs = Array.isArray(formData.faqs) ? formData.faqs : [];
 
   const addFaq = () => {
     const newFaq = { id: Date.now(), question: "", answer: "" };
-    updateFormData({ faqs: [...formData.faqs, newFaq] });
+    updateFormData({ faqs: [...currentFaqs, newFaq] });
   };
 
   const removeFaq = (id) => {
-    updateFormData({ faqs: formData.faqs.filter(f => f.id !== id) });
+    updateFormData({ faqs: currentFaqs.filter(f => f.id !== id) });
   };
 
   const updateFaq = (id, field, value) => {
     updateFormData({
-      faqs: formData.faqs.map(f => f.id === id ? { ...f, [field]: value } : f)
+      faqs: currentFaqs.map(f => f.id === id ? { ...f, [field]: value } : f)
     });
   };
 
@@ -36,14 +39,14 @@ export default function Step8Policies() {
           <RichTextEditor
             label="Shipping Policy"
             placeholder="Enter shipping timelines, rules, and restrictions..."
-            value={formData.shippingPolicy}
+            value={formData.shippingPolicy || ""}
             onChange={(val) => updateFormData({ shippingPolicy: val })}
           />
 
           <RichTextEditor
             label="Return & Exchange Policy"
             placeholder="Enter return window, conditions, and process..."
-            value={formData.returnPolicy}
+            value={formData.returnPolicy || ""}
             onChange={(val) => updateFormData({ returnPolicy: val })}
           />
         </div>
@@ -59,10 +62,10 @@ export default function Step8Policies() {
             </button>
           </div>
 
-          {formData.faqs.length > 0 ? (
+          {currentFaqs.length > 0 ? (
             <div className="space-y-4">
-              {formData.faqs.map((faq, idx) => (
-                <div key={faq.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
+              {currentFaqs.map((faq, idx) => (
+                <div key={faq.id || idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
                   <button
                     onClick={() => removeFaq(faq.id)}
                     className="absolute top-4 right-4 p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-red-500 hover:border-red-200 transition-colors"
@@ -76,14 +79,14 @@ export default function Step8Policies() {
                     <input
                       type="text"
                       placeholder="e.g. Does this saree come with a stitched blouse?"
-                      value={faq.question}
+                      value={faq.question || ""}
                       onChange={(e) => updateFaq(faq.id, 'question', e.target.value)}
                       className="w-full text-[13px] font-bold border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 bg-white pr-10"
                     />
                     <textarea
                       rows="2"
                       placeholder="Provide a clear and helpful answer..."
-                      value={faq.answer}
+                      value={faq.answer || ""}
                       onChange={(e) => updateFaq(faq.id, 'answer', e.target.value)}
                       className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 bg-white resize-none"
                     ></textarea>

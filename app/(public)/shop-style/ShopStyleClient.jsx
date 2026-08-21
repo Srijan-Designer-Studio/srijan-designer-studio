@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, Heart } from 'lucide-react';
 import ProductsHero from "@/components/product/ProductsHero";
 import { getProducts } from "@/app/actions/products";
 import { searchProducts } from "@/app/actions/search";
+import { useCart } from "@/context/CartContext";
+import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 export default function ShopStyleClient() {
+  const { wishlistItems, toggleWishlist } = useCart();
   const [allProducts, setAllProducts] = useState([]);
   const [backendSearchResults, setBackendSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,6 +119,19 @@ export default function ShopStyleClient() {
     window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
+  // Handle Wishlist Click (Prevents Link navigation and updates DB)
+  const handleWishlistToggle = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleWishlist(product); // Optimistic UI Update in Context
+    try {
+      await toggleWishlistServer(product.id); // Backend DB Update
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-white font-sans">
       <ProductsHero />
@@ -177,16 +193,31 @@ export default function ShopStyleClient() {
               {currentProducts.map((product) => {
                 const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
                 const price = product.base_price || 0;
+                
+                // Check if product is in wishlist
+                const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
                 return (
-                  <Link key={product.id} href={`/product/${product.slug}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer">
+                  <Link key={product.id} href={`/product/${product.slug}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer relative">
                     <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
                       <img
                         src={imageUrl}
                         alt={product.title}
                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
+                      
+                      {/* Floating Wishlist Button */}
+                      <button
+                        onClick={(e) => handleWishlistToggle(e, product)}
+                        className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                      >
+                        <Heart 
+                          size={30} 
+                          className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                        />
+                      </button>
                     </div>
+                    
                     <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
                       {product.title}
                     </h3>

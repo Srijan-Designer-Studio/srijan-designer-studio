@@ -41,7 +41,7 @@ export default function BlogHero() {
         className="hero-img object-cover object-top object-center"
         onLoad={() => ScrollTrigger.refresh()}
       />
-      <div className="absolute inset-0 bg-black/40"></div>
+      {/* <div className="absolute inset-0 bg-black/40"></div> */}
       <div className="absolute inset-0 flex items-center z-10">
         <div className="max-w-[1320px] w-full mx-auto px-6">
           <div className="max-w-xl text-white mt-10">

@@ -8,7 +8,7 @@ export default function Step5Variants() {
 
   const addVariant = () => {
     const newVariant = {
-      id: Date.now(), size: "", color: "", price: "", salePrice: "", sku: "", stock: "0", lowStock: "5", barcode: ""
+      id: Date.now(), size: "", color: "", sku: "", stock: "0", lowStock: "5", barcode: ""
     };
     updateFormData({ variants: [...formData.variants, newVariant] });
   };
@@ -41,7 +41,7 @@ export default function Step5Variants() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-gray-100 pb-5 gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Variants & Inventory</h2>
-          <p className="text-[19px] text-gray-500 mt-1">Manage sizes, colors, pricing, and stock for this product.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Manage sizes, colors, and stock for this product.</p>
         </div>
         <button
           onClick={addVariant}
@@ -76,7 +76,7 @@ export default function Step5Variants() {
               Variant {index + 1}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div>
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Size <span className="text-red-500">*</span></label>
                 <input
@@ -100,28 +100,6 @@ export default function Step5Variants() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Price (₹) <span className="text-red-500">*</span></label>
-                <input
-                  type="number"
-                  placeholder="0.00"
-                  value={variant.price}
-                  onChange={(e) => updateVariant(variant.id, 'price', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Sale Price (₹)</label>
-                <input
-                  type="number"
-                  placeholder="0.00"
-                  value={variant.salePrice}
-                  onChange={(e) => updateVariant(variant.id, 'salePrice', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">SKU</label>
                 <input
                   type="text"
@@ -133,7 +111,7 @@ export default function Step5Variants() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Quantity <span className="text-red-500">*</span></label>
+                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Quantity</label>
                 <input
                   type="number"
                   placeholder="0"

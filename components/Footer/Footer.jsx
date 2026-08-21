@@ -262,14 +262,16 @@ export default function Footer() {
 
                 <div className="w-full h-[350px] lg:h-[420px] rounded-xl overflow-hidden bg-white shadow-inner relative mt-auto">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1887709.7714258232!2d86.09533549375!3d22.4691464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0273d54c6ea3a7%3A0x8a5bebfa270fffe9!2sSrijan%20Fashion!5e0!3m2!1sen!2sin!4v1786361637593!5m2!1sen!2sin"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen=""
                     loading="lazy"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  ></iframe>
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Srijan Fashion Location"
+                  >
+                  </iframe>
                 </div>
               </div>
             </div>

@@ -239,18 +239,41 @@ export default function KidsWearClient() {
           </h2>
 
           <div className="reveal-up grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-            <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            {/* Image 1: Mobile Row 1 Col 1 | Desktop Default */}
+            <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="order-1 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 2 (Large): Mobile Row 2 & 3 | Desktop Center Left */}
+            <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="order-5 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+            
+            {/* Image 3 (Large): Mobile Row 4 & 5 | Desktop Center Right */}
+            <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="order-7 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+            
+            {/* Image 4: Mobile Row 1 Col 2 */}
+            <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="order-2 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 5: Mobile Row 1 Col 3 */}
+            <img src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" className="order-3 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 6: Mobile Row 2 Col 1 */}
+            <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="order-4 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 7: Mobile Row 3 Col 1 */}
+            <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="order-6 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 8: Mobile Row 4 Col 3 */}
+            <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="order-8 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 9: Mobile Row 5 Col 3 */}
+            <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="order-9 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 10: Mobile Row 6 Col 1 */}
+            <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="order-10 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 11: Mobile Row 6 Col 2 */}
+            <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="order-11 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            
+            {/* Image 12: Mobile Row 6 Col 3 */}
+            <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="order-12 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
           </div>
         </div>
       </section>

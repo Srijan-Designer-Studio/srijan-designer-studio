@@ -1,21 +1,24 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ChevronRight, Heart } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { allProducts } from "@/data/products";
+import { useCart } from "@/context/CartContext";
+import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ShopStyles() {
+export default function ShopSection({ title, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
-
-  const displayProducts = allProducts.slice(0, 12);
+  const { wishlistItems, toggleWishlist } = useCart();
+  const productsData = products.slice(0, 4);
 
   useGSAP(() => {
+    if (productsData.length === 0) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -25,69 +28,103 @@ export default function ShopStyles() {
     });
 
     tl.fromTo(
-      ".style-head",
+      ".shop-head",
       { y: 20, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }
     ).fromTo(
-      ".style-card",
+      ".shop-card",
       { y: 50, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: "power4.out" },
       "-=0.3"
     );
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [productsData] });
+
+  const handleWishlistToggle = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleWishlist(product);
+    try {
+      await toggleWishlistServer(product.id);
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+    }
+  };
+
+  if (productsData.length === 0) {
+    return (
+      <section className="py-16 bg-white border-b border-gray-200" ref={containerRef}>
+        <div className="max-w-[1320px] mx-auto px-6">
+          <div className="shop-head flex items-center justify-between mb-8">
+            <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-[#111]">{title}</h2>
+          </div>
+          <div className="flex justify-center items-center h-32 bg-gray-50 rounded-xl border border-gray-100">
+            <p className="text-gray-500 font-medium">No products available in this section yet.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="py-16 bg-white" ref={containerRef}>
+    <section className="py-16 bg-white border-b border-gray-200" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
 
-        {/* Section Heading */}
-        <h2 className="style-head text-2xl sm:text-3xl font-bold text-center text-[#111] mb-10">
-          Shop Styles
-        </h2>
+        <div className="shop-head flex items-center justify-between mb-8">
+          <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-[#111]">
+            {title}
+          </h2>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10">
-          {displayProducts.map((product) => (
-            <Link
-              href={`/product/${product.id}`}
-              key={product.id}
-              className="style-card group flex flex-col items-center cursor-pointer"
-            >
-
-              {/* Product Image Container */}
-              <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-300 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
-                {product.image && (
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
-              </div>
-
-              {/* Product Title */}
-              <h3 className="text-[12px] sm:text-[13px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2">
-                {product.title}
-              </h3>
-
-              {/* Product Price */}
-              <p className="text-[19px] sm:text-[14px] font-bold text-black text-center">
-                {product.price?.toString().includes('₹') ? product.price : `₹${product.price}`}
-              </p>
-
-            </Link>
-          ))}
+          <Link
+            href={viewAllLink}
+            className="flex items-center text-sm font-medium text-gray-600 hover:text-black transition-colors"
+          >
+            View All
+            <ChevronRight size={16} className="ml-1" />
+          </Link>
         </div>
 
-        {/* Bottom Pagination / Slider Indicators */}
-        <div className="style-head flex items-center justify-center gap-2 mt-12">
-          <span className="w-8 h-[3px] bg-[#00c3ff] rounded-full cursor-pointer"></span>
-          <span className="w-8 h-[3px] bg-[#00c3ff] rounded-full cursor-pointer opacity-40 hover:opacity-100 transition-opacity"></span>
-          <span className="w-8 h-[3px] bg-[#00c3ff] rounded-full cursor-pointer opacity-40 hover:opacity-100 transition-opacity"></span>
-          <span className="w-8 h-[3px] bg-[#00c3ff] rounded-full cursor-pointer opacity-40 hover:opacity-100 transition-opacity"></span>
-        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {productsData.map((product) => {
+            const mainImage = product.product_images?.[0]?.image_url;
+            const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
+            return (
+              <Link href={`/product/${product.slug}`} key={product.id}
+                className="shop-card group flex flex-col items-center cursor-pointer relative"
+              >
+                <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt={product.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>
+                  )}
+
+                  {/* Floating Wishlist Button */}
+                  <button
+                    onClick={(e) => handleWishlistToggle(e, product)}
+                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                  >
+                    <Heart 
+                      size={18} 
+                      className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                    />
+                  </button>
+                </div>
+                <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
+                  {product.title}
+                </h3>
+                <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
+                  ₹{product.base_price?.toLocaleString('en-IN')}
+                </p>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </section>
   );

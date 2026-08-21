@@ -31,7 +31,7 @@ export default function KidsHero() {
         priority
         className="kids-hero-img object-cover object-right md:object-center"
       />
-      <div className="absolute inset-0 bg-black/10"></div>
+      {/* <div className="absolute inset-0 bg-black/10"></div> */}
       <div className="absolute inset-0 flex items-center z-10">
         <div className="max-w-[1320px] w-full mx-auto px-6">
           <div className="max-w-lg text-white mt-[90px]">

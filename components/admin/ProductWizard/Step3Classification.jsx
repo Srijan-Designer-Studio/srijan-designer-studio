@@ -13,7 +13,7 @@ export default function Step3Classification() {
   const [tagInput, setTagInput] = useState("");
 
   const toggleArrayItem = (field, item) => {
-    const currentArray = formData[field];
+    const currentArray = formData[field] || [];
     if (currentArray.includes(item)) {
       updateFormData({ [field]: currentArray.filter(i => i !== item) });
     } else {
@@ -25,15 +25,17 @@ export default function Step3Classification() {
     if (e.key === 'Enter' || e.type === 'click') {
       e.preventDefault();
       const newTag = tagInput.trim();
-      if (newTag && !formData.tags.includes(newTag)) {
-        updateFormData({ tags: [...formData.tags, newTag] });
+      const currentTags = formData.tags || [];
+      if (newTag && !currentTags.includes(newTag)) {
+        updateFormData({ tags: [...currentTags, newTag] });
       }
       setTagInput("");
     }
   };
 
   const removeTag = (tagToRemove) => {
-    updateFormData({ tags: formData.tags.filter(tag => tag !== tagToRemove) });
+    const currentTags = formData.tags || [];
+    updateFormData({ tags: currentTags.filter(tag => tag !== tagToRemove) });
   };
 
   return (
@@ -72,7 +74,7 @@ export default function Step3Classification() {
                   key={cat}
                   type="button"
                   onClick={() => toggleArrayItem('categories', cat)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.categories.includes(cat) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
+                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.categories?.includes(cat) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
                 >
                   {cat}
                 </button>
@@ -88,7 +90,7 @@ export default function Step3Classification() {
                   key={col}
                   type="button"
                   onClick={() => toggleArrayItem('collections', col)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.collections.includes(col) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
+                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.collections?.includes(col) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
                 >
                   {col}
                 </button>
@@ -104,7 +106,7 @@ export default function Step3Classification() {
                   key={occ}
                   type="button"
                   onClick={() => toggleArrayItem('occasions', occ)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.occasions.includes(occ) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
+                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.occasions?.includes(occ) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
                 >
                   {occ}
                 </button>
@@ -131,7 +133,7 @@ export default function Step3Classification() {
                 <Plus size={18} />
               </button>
             </div>
-            {formData.tags.length > 0 ? (
+            {formData.tags?.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {formData.tags.map(tag => (
                   <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium bg-gray-200 text-gray-800 border border-gray-300">

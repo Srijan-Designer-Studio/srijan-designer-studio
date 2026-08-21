@@ -27,9 +27,15 @@ export default function Step10Publish() {
     },
     {
       id: 5,
-      title: "Variants & Pricing",
-      isValid: formData.variants.length > 0 && formData.variants.every(v => v.size && v.price && v.stock),
-      errorMsg: "All variants must have a Size, Price, and Stock quantity."
+      title: "Variants & Inventory",
+      isValid: formData.variants.length > 0 && formData.variants.every(v => v.size && v.stock !== ""),
+      errorMsg: "All variants must have a Size and Stock quantity."
+    },
+    {
+      id: 6,
+      title: "Pricing & Bundle",
+      isValid: !!formData.basePrice && Number(formData.basePrice) > 0,
+      errorMsg: "A valid Base Price is required."
     }
   ];
 

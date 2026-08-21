@@ -30,7 +30,21 @@ export const metadata = {
 };
 
 export default async function MenPage() {
-  const allProducts = await getProducts();
+  const allProducts = await getProducts() || [];
+
+  // 1. Filter ONLY Men's Ethnic Wear using the new Database structure
+  const menEthnicProducts = allProducts.filter((product) => 
+    (product.gender === 'Men' || product.gender === 'Unisex') &&
+    Array.isArray(product.categories) && 
+    product.categories.includes('Ethnic Wear')
+  );
+
+  // 2. Filter ONLY Men's Western Wear using the new Database structure
+  const menWesternProducts = allProducts.filter((product) => 
+    (product.gender === 'Men' || product.gender === 'Unisex') &&
+    Array.isArray(product.categories) && 
+    product.categories.includes('Western Wear')
+  );
 
   return (
     <main>
@@ -58,18 +72,14 @@ export default async function MenPage() {
       
       <ShopSection 
         title="Shop Ethnic Wear" 
-        category="Men"
-        type="Ethnic Wear"
         viewAllLink="/ethnic-wear"
-        products={allProducts}
+        products={menEthnicProducts} // Sending strictly filtered data
       />
       
       <ShopSection 
         title="Shop Western Wear" 
-        category="Men"
-        type="Western Wear"
         viewAllLink="/western-wear"
-        products={allProducts}
+        products={menWesternProducts} // Sending strictly filtered data
       />
       
       <MenDescription />

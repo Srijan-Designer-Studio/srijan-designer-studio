@@ -35,7 +35,7 @@ export default function ProductsHero() {
         />
       </div>
 
-      <div className="absolute inset-0 bg-black/20 z-10"></div>
+      {/* <div className="absolute inset-0 bg-black/20 z-10"></div> */}
 
       <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6 w-full z-20">
         <div className="max-w-[700px] mt-[90px]">

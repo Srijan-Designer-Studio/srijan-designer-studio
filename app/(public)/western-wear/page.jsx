@@ -31,6 +31,7 @@ export const metadata = {
 export default async function WesternWearPage() {
   const supabase = createAdminClient();
 
+  // Updated query for Array/JSONB categories support
   const { data: westernProducts } = await supabase
     .from('products')
     .select(`
@@ -40,7 +41,7 @@ export default async function WesternWearPage() {
       base_price,
       product_images(image_url)
     `)
-    .eq('product_type', 'Western Wear')
+    .contains('categories', ['Western Wear'])
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 

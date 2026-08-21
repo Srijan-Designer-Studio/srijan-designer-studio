@@ -20,9 +20,6 @@ async function verifyAdmin() {
   return true;
 }
 
-// --------------------------------------------------------
-// Dashboard & Analytics
-// --------------------------------------------------------
 export async function getDashboardStats() {
   const supabase = createAdminClient()
 
@@ -38,7 +35,7 @@ export async function getDashboardStats() {
     let totalOrders = 0;
     let totalRevenue = 0;
 
-   if (orders) {
+    if (orders) {
       totalOrders = orders.length;
       orders.forEach(o => {        
         if (o.status === 'delivered') {
@@ -168,9 +165,6 @@ export async function getDashboardStats() {
   }
 }
 
-// --------------------------------------------------------
-// Orders & Shiprocket
-// --------------------------------------------------------
 export async function getAllOrders() {
   const supabase = createAdminClient()
 
@@ -559,9 +553,6 @@ export async function generateInvoice(shiprocketOrderId) {
   }
 }
 
-// --------------------------------------------------------
-// Users & Categories
-// --------------------------------------------------------
 export async function getAllCustomers() {
   const supabase = createAdminClient()
   try {
@@ -682,10 +673,6 @@ export async function deleteCategory(categoryId) {
   }
 }
 
-// --------------------------------------------------------
-// PREMIUM PRODUCT MANAGEMENT (Wizard System)
-// --------------------------------------------------------
-
 async function generateUniqueSlug(supabase, baseSlug, excludeId = null) {
   let slug = baseSlug;
   let counter = 1;
@@ -793,15 +780,18 @@ export async function createPremiumProduct(formData) {
     const seoKeywords = formData.get('seoKeywords');
     const canonicalUrl = formData.get('canonicalUrl');
     
+    const categories = JSON.parse(formData.get('categories') || '[]');
+    const collections = JSON.parse(formData.get('collections') || '[]');
+    const occasions = JSON.parse(formData.get('occasions') || '[]');
+    const tags = JSON.parse(formData.get('tags') || '[]');
+    
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]');
     const purchaseType = formData.get('purchaseType') || 'Single Product';
-    
-    let basePrice = 0;
-    if (variants.length > 0) {
-      basePrice = parseFloat(variants[0].price) || 0;
-    }
+
+    const basePrice = parseFloat(formData.get('basePrice')) || 0;
+    const salePrice = parseFloat(formData.get('salePrice')) || null;
 
     const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const finalSlug = await generateUniqueSlug(supabase, rawSlug);
@@ -820,6 +810,7 @@ export async function createPremiumProduct(formData) {
         brand,
         gender: department,
         base_price: basePrice,
+        sale_price: salePrice,
         weight,
         length,
         width,
@@ -837,6 +828,10 @@ export async function createPremiumProduct(formData) {
         seo_keywords: seoKeywords,
         canonical_url: canonicalUrl,
         faqs: faqs,
+        categories: categories,
+        collections: collections,
+        occasions: occasions,
+        tags: tags,
         purchase_type: purchaseType,
         is_active: true
       }])
@@ -850,8 +845,8 @@ export async function createPremiumProduct(formData) {
       product_id: productId,
       size: v.size,
       color: v.color,
-      price: parseFloat(v.price) || 0,
-      sale_price: parseFloat(v.salePrice) || null,
+      price: 0,
+      sale_price: null,
       sku: v.sku,
       inventory_count: parseInt(v.stock) || 0,
       low_stock_threshold: parseInt(v.lowStock) || 5,
@@ -907,7 +902,7 @@ export async function createPremiumProduct(formData) {
       await supabase.from('product_images').insert(imageInserts);
     }
 
-    revalidatePath('/admin/products');
+    revalidatePath('/admin/products', 'layout');
     return { success: true, productId };
   } catch (error) {
     return { success: false, error: error.message };
@@ -946,15 +941,18 @@ export async function updatePremiumProduct(formData) {
     const seoKeywords = formData.get('seoKeywords');
     const canonicalUrl = formData.get('canonicalUrl');
     
+    const categories = JSON.parse(formData.get('categories') || '[]');
+    const collections = JSON.parse(formData.get('collections') || '[]');
+    const occasions = JSON.parse(formData.get('occasions') || '[]');
+    const tags = JSON.parse(formData.get('tags') || '[]');
+
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]');
     const purchaseType = formData.get('purchaseType') || 'Single Product';
-    
-    let basePrice = 0;
-    if (variants.length > 0) {
-      basePrice = parseFloat(variants[0].price) || 0;
-    }
+
+    const basePrice = parseFloat(formData.get('basePrice')) || 0;
+    const salePrice = parseFloat(formData.get('salePrice')) || null;
 
     const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const finalSlug = await generateUniqueSlug(supabase, rawSlug, productId);
@@ -973,6 +971,7 @@ export async function updatePremiumProduct(formData) {
         brand,
         gender: department,
         base_price: basePrice,
+        sale_price: salePrice,
         weight,
         length,
         width,
@@ -990,6 +989,10 @@ export async function updatePremiumProduct(formData) {
         seo_keywords: seoKeywords,
         canonical_url: canonicalUrl,
         faqs: faqs,
+        categories: categories,
+        collections: collections,
+        occasions: occasions,
+        tags: tags,
         purchase_type: purchaseType
       })
       .eq('id', productId);
@@ -1001,8 +1004,8 @@ export async function updatePremiumProduct(formData) {
       product_id: productId,
       size: v.size,
       color: v.color,
-      price: parseFloat(v.price) || 0,
-      sale_price: parseFloat(v.salePrice) || null,
+      price: 0,
+      sale_price: null,
       sku: v.sku,
       inventory_count: parseInt(v.stock) || 0,
       low_stock_threshold: parseInt(v.lowStock) || 5,
@@ -1064,7 +1067,7 @@ export async function updatePremiumProduct(formData) {
       await supabase.from('product_images').insert(imageInserts);
     }
 
-    revalidatePath('/admin/products');
+    revalidatePath('/admin/products', 'layout');
     return { success: true, productId };
   } catch (error) {
     return { success: false, error: error.message };

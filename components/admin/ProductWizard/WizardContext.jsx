@@ -1,10 +1,40 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createPremiumProduct, updatePremiumProduct } from "@/app/actions/admin";
 
 const WizardContext = createContext();
+
+const parseArrayData = (value) => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+
+  if (typeof value === 'string') {
+    let str = value.trim();
+    
+    while (str.startsWith('"') && str.endsWith('"')) {
+      try { str = JSON.parse(str); } catch (e) { break; }
+    }
+
+    if (str.startsWith('[') && str.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(str);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+    }
+
+    if (str.startsWith('{') && str.endsWith('}')) {
+      str = str.slice(1, -1);
+    }
+
+    return str.split(',')
+      .map(s => s.replace(/^[\\"']+|[\\"']+$/g, '').trim())
+      .filter(Boolean);
+  }
+  
+  return [];
+};
 
 export function WizardProvider({ children, initialData }) {
   const router = useRouter();
@@ -12,17 +42,37 @@ export function WizardProvider({ children, initialData }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = 10;
 
-  const [formData, setFormData] = useState(initialData || {
+  const defaultData = {
     title: "", productType: "Saree", brand: "Srijan Fashion", shortDesc: "",
     description: "", materialCare: "", highlights: "", additionalInfo: "",
     department: "Women", categories: [], collections: [], occasions: [], tags: [],
     images: [],
-    variants: [{ id: Date.now(), size: "Free Size", color: "", price: "", salePrice: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
+    variants: [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
+    basePrice: "", salePrice: "",
     purchaseType: "Single Product", components: [],
     weight: "", length: "", width: "", height: "", shippingClass: "Standard", estimatedDelivery: "3-5 Days", isCodAvailable: true, isFreeShipping: false, isReturnEligible: true,
     shippingPolicy: "", returnPolicy: "", faqs: [],
     seoTitle: "", seoSlug: "", metaDesc: "", focusKeyword: "", seoKeywords: "", ogTitle: "", ogDesc: "", canonicalUrl: ""
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultData);
+
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        ...initialData,
+        categories: parseArrayData(initialData.categories),
+        collections: parseArrayData(initialData.collections),
+        occasions: parseArrayData(initialData.occasions),
+        tags: parseArrayData(initialData.tags),
+        faqs: parseArrayData(initialData.faqs),
+        variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
+        components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
+        images: Array.isArray(initialData.images) ? initialData.images : []
+      }));
+    }
+  }, [initialData]);
 
   const updateFormData = (fields) => {
     setFormData((prev) => ({ ...prev, ...fields }));
@@ -39,7 +89,7 @@ export function WizardProvider({ children, initialData }) {
 
       const textFields = [
         "title", "productType", "brand", "shortDesc", "description", "materialCare", 
-        "highlights", "additionalInfo", "department", "purchaseType", "weight", 
+        "highlights", "additionalInfo", "department", "basePrice", "salePrice", "purchaseType", "weight", 
         "length", "width", "height", "shippingClass", "estimatedDelivery", 
         "shippingPolicy", "returnPolicy", "seoTitle", "seoSlug", "metaDesc", 
         "focusKeyword", "seoKeywords", "ogTitle", "ogDesc", "canonicalUrl"
@@ -52,7 +102,7 @@ export function WizardProvider({ children, initialData }) {
       submitData.append("isReturnEligible", formData.isReturnEligible);
 
       const jsonFields = ["categories", "collections", "occasions", "tags", "variants", "components", "faqs"];
-      jsonFields.forEach(field => submitData.append(field, JSON.stringify(formData[field])));
+      jsonFields.forEach(field => submitData.append(field, JSON.stringify(formData[field] || [])));
 
       formData.images.forEach((img, idx) => {
         if (img.file) {

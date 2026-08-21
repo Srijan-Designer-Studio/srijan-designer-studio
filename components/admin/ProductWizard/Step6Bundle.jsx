@@ -24,12 +24,39 @@ export default function Step6Bundle() {
   return (
     <div className="animate-in text-black fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-8 border-b border-gray-100 pb-5">
-        <h2 className="text-xl font-bold text-gray-900">Bundle / Product Set</h2>
-        <p className="text-[19px] text-gray-500 mt-1">Configure components if this product is sold as a set or bundle.</p>
+        <h2 className="text-xl font-bold text-gray-900">Pricing & Bundle Setup</h2>
+        <p className="text-[19px] text-gray-500 mt-1">Set the global price for this product and configure bundle options.</p>
+      </div>
+
+      {/* Pricing Section added here */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-8">
+        <h3 className="text-[13px] font-bold text-gray-800 mb-4 uppercase tracking-wide">Base Pricing</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Base Price (₹) <span className="text-red-500">*</span></label>
+            <input
+              type="number"
+              placeholder="0.00"
+              value={formData.basePrice || ""}
+              onChange={(e) => updateFormData({ basePrice: e.target.value })}
+              className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Sale Price (₹)</label>
+            <input
+              type="number"
+              placeholder="0.00"
+              value={formData.salePrice || ""}
+              onChange={(e) => updateFormData({ salePrice: e.target.value })}
+              className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-gray-50"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mb-8">
-        <label className="block text-[13px] font-bold text-gray-800 mb-4">Purchase Type</label>
+        <label className="block text-[13px] font-bold text-gray-800 mb-4 uppercase tracking-wide">Purchase Type</label>
         <div className="flex flex-col sm:flex-row gap-4">
           {["Single Product", "Product Set", "Bundle"].map((type) => (
             <label

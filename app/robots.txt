@@ -1,0 +1,49 @@
+User-agent: *
+Allow: /
+
+Disallow: /login
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment
+Disallow: /admin
+
+#Search Engine Crawlers
+
+User-agent: Googlebot
+Allow: /
+User-agent: Googlebot-Image
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Slurp
+Allow: /
+User-agent: DuckDuckBot
+Allow: /
+User-agent: Applebot
+Allow: /
+
+#AI Bot / AI Search / Answer Engine Crawlers
+
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: GPTBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://srijandesignerstudio.com/sitemap.xml

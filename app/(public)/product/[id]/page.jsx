@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import ProductDetails from "@/components/product/ProductDetails";
 import CustomerReviews from "@/components/product/CustomerReviews";
 import SimilarProducts from "@/components/product/SimilarProducts";
-import { getProductBySlug } from "@/app/actions/products";
+import ProductFAQ from "@/components/product/ProductFAQ";
+import { getProductBySlug, getProducts } from "@/app/actions/products"; 
 import ScrollToTop from "@/components/providers/ScrollToTop";
 
 export const revalidate = 60; 
@@ -44,16 +45,21 @@ export default async function SingleProductPage({ params }) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
   
+ 
   const product = await getProductBySlug(id);
 
   if (!product) {
     return notFound();
   }
 
+  const allProducts = await getProducts() || [];
+  const similarProducts = allProducts
+    .filter(p => p.gender === product.gender && p.id !== product.id)
+    .slice(0, 4);
+
   const imageUrl = product.product_images?.[0]?.image_url || 'https://www.srijandesignerstudio.com/images/logo3.jpg';
   const productUrl = `https://www.srijandesignerstudio.com/product/${id}`;
 
-  // Product Schema Data
   const productSchema = {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -82,12 +88,21 @@ export default async function SingleProductPage({ params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
       <ScrollToTop />
+      
+     
       <ProductDetails product={product} />
+      
+    
       <CustomerReviews productId={product.id} />
-      <SimilarProducts 
-        categoryId={product.category_id} 
-        currentProductId={product.id} 
-      />
+      
+      
+      <SimilarProducts similarProducts={similarProducts} />
+
+  
+      <div className="max-w-[1320px] mx-auto px-6">
+        <ProductFAQ faqs={product.faqs} />
+      </div>
+      
     </main>
   );
 }

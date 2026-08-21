@@ -32,6 +32,7 @@ export const metadata = {
 export default async function EthnicWearPage() {
   const supabase = createAdminClient();
 
+  // Updated query for Array/JSONB categories support
   const { data: ethnicProducts } = await supabase
     .from('products')
     .select(`
@@ -41,7 +42,7 @@ export default async function EthnicWearPage() {
       base_price,
       product_images(image_url)
     `)
-    .eq('product_type', 'Ethnic Wear')
+    .contains('categories', ['Ethnic Wear'])
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
@@ -121,3 +122,4 @@ export default async function EthnicWearPage() {
     </main>
   );
 }
+```[cite: 21]

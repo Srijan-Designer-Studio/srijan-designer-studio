@@ -31,7 +31,7 @@ export default function CustomizeHero() {
         priority
         className="cust-hero-img object-cover"
       />
-      <div className="absolute inset-0 bg-black/40"></div>
+      {/* <div className="absolute inset-0 bg-black/40"></div> */}
       <div className="absolute inset-0 flex items-center z-10">
         <div className="max-w-[1320px] w-full mx-auto px-6">
           <div className="max-w-xl text-white">
