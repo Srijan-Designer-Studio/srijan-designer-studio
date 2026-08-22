@@ -157,7 +157,10 @@ export default function OrdersClientWrapper({ initialOrders }) {
               <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
 
               {selectedOrder.order_items?.map((item, index) => {
-                const imgUrl = item.product_variants?.products?.product_images?.[0]?.image_url || item.image_url || item.image || null;
+                const product = item.product_variants?.products;
+                const imgUrl = product?.product_images?.[0]?.image_url || item.image_url || item.image || null;
+                // Get the product slug for the review link
+                const productSlug = product?.slug || product?.id;
 
                 return (
                   <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
@@ -172,12 +175,13 @@ export default function OrdersClientWrapper({ initialOrders }) {
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-[19px] font-bold text-gray-900">{item.product_variants?.products?.title || 'Unknown Product'}</p>
+                      <p className="text-[19px] font-bold text-gray-900">{product?.title || 'Unknown Product'}</p>
                       <p className="text-[19px] text-gray-500 mb-2">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
 
-                      {selectedOrder.status.toLowerCase() === 'delivered' && (
+                      {/* CRITICAL FIX: Redirects directly to the specific product page for review */}
+                      {selectedOrder.status.toLowerCase() === 'delivered' && productSlug && (
                         <Link
-                          href={`/shop-style`}
+                          href={`/product/${productSlug}`}
                           className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded transition-colors"
                         >
                           <Star size={10} className="fill-white" /> Write Review

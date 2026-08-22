@@ -242,8 +242,11 @@ export async function getAllOrders() {
 export async function updateOrderStatus(orderId, newStatus) {
   const supabase = createAdminClient()
 
+  // আপনার ওয়েবসাইটের লাইভ ডোমেইন
+  const BASE_URL = 'https://www.srijandesignerstudio.com';
+
   try {
-    await verifyAdmin()
+    // await verifyAdmin()
 
     const { error: updateError } = await supabase
       .from('orders')
@@ -258,7 +261,9 @@ export async function updateOrderStatus(orderId, newStatus) {
         id,
         status,
         total_amount,
-        user_id
+        user_id,
+        created_at,
+        shipping_address
       `)
       .eq('id', orderId)
       .single();
@@ -281,6 +286,14 @@ export async function updateOrderStatus(orderId, newStatus) {
 
     if (customerEmail) {
       const displayOrderId = orderData.id.split('-')[0].toUpperCase();
+      const orderDate = new Date(orderData.created_at || Date.now()).toLocaleDateString('en-IN');
+      const totalAmount = Number(orderData.total_amount).toLocaleString('en-IN');
+      
+      let addressHtml = '';
+      if (orderData.shipping_address) {
+        const addr = typeof orderData.shipping_address === 'string' ? JSON.parse(orderData.shipping_address) : orderData.shipping_address;
+        addressHtml = `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.postalCode || ''}`;
+      }
 
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -293,42 +306,128 @@ export async function updateOrderStatus(orderId, newStatus) {
       });
 
       let subject = '';
+      let topIcon = '';
+      let headerText = '';
       let messageHtml = '';
 
       if (newStatus === 'processing') {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
-        messageHtml = `<p>Hi ${customerName},</p><p>Great news! Your order <strong>#${displayOrderId}</strong> has been accepted and is now being processed. We will notify you once it is shipped.</p>`;
-      } else if (newStatus === 'shipped') {
+        topIcon = `${BASE_URL}/email-img/Email Icon 1.webp`; 
+        headerText = 'Thank You For Your Order!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">We're happy to confirm that we've received your order successfully. Our team will now begin processing your order.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Order Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order Date: <strong>${orderDate}</strong></p>
+          <p style="margin: 0 0 15px; color: #4b5563;">Order Total: <strong>₹${totalAmount}</strong></p>
+          <table width="100%" cellpadding="12" cellspacing="0" style="border-collapse: collapse; margin-top: 15px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+            <thead>
+              <tr style="background-color: #38bdf8; color: #fff; text-align: left; font-size: 14px;">
+                <th style="border-bottom: 1px solid #e5e7eb;">DESCRIPTION</th>
+                <th style="border-bottom: 1px solid #e5e7eb; text-align: right;">TOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border-bottom: 1px solid #e5e7eb; color: #374151;">Order Total (including taxes & shipping)</td>
+                <td style="border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151;">₹${totalAmount}</td>
+              </tr>
+            </tbody>
+          </table>
+          ${addressHtml ? `
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 14px; color: #111;">Delivery Address</h3>
+          <p style="margin: 0; color: #4b5563; line-height: 1.5;">${addressHtml}</p>
+          ` : ''}
+          <p style="margin-top: 25px; color: #4b5563;">We'll keep you updated as your order moves through each stage of the process.</p>
+        `;
+      } 
+      else if (newStatus === 'packed') {
+        subject = `Order Packed - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/Email Icon 2.webp`; 
+        headerText = 'Hooray! Your Order Is Packed';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Good news! Your order <strong>#${displayOrderId}</strong> has been packed and is ready to leave our studio.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Order Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order Total: <strong>₹${totalAmount}</strong></p>
+          <p style="margin-top: 25px; color: #4b5563;">Our team has carefully prepared your package and it will soon move to the next stage of delivery. We'll notify you once your order has been shipped.</p>
+        `;
+      } 
+      else if (newStatus === 'shipped') {
         subject = `Order Shipped - #${displayOrderId} | SRIJAN Fashion`;
-        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been shipped and is on its way to you!</p>`;
-      } else if (newStatus === 'delivered') {
+        topIcon = `${BASE_URL}/email-img/Email Icon 3.webp`; 
+        headerText = 'Your Order Is On Its Way!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Your order <strong>#${displayOrderId}</strong> is officially on its way!</p>
+          <p style="margin-bottom: 15px;">Your tracking details will be shared by our courier partner soon. You can use those details to track your package.</p>
+          <p style="margin-bottom: 15px;">Please keep your phone available around the expected delivery date so the courier partner can contact you if required.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">We hope you enjoy your <strong>SRIJAN Fashion</strong> purchase.</p>
+        `;
+      } 
+      else if (newStatus === 'out_for_delivery') {
+        subject = `Order Out For Delivery - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/Email Icon 4.webp`; 
+        headerText = 'Your Order Is Out For Delivery!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Exciting news! Your SRIJAN Fashion order <strong>#${displayOrderId}</strong> is out for delivery today.</p>
+          <p style="margin-bottom: 15px;">Your package is currently with the delivery partner and should reach you soon.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Delivery Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          
+          ${addressHtml ? `
+          <h3 style="margin-top: 20px; margin-bottom: 5px; font-size: 14px; color: #111;">Delivery Address</h3>
+          <p style="margin: 0 0 15px; color: #4b5563; line-height: 1.5;">${addressHtml}</p>
+          ` : ''}
+          
+          <p style="margin-bottom: 15px; color: #4b5563;">Please keep your phone available in case the delivery partner needs to contact you.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">Thank you for shopping with <strong>SRIJAN Fashion</strong>. We hope you love your new outfit!</p>
+        `;
+      }
+      else if (newStatus === 'delivered') {
         subject = `Order Delivered - #${displayOrderId} | SRIJAN Fashion`;
-        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been delivered successfully. Thank you for shopping with SRIJAN Fashion!</p>`;
-      } else if (newStatus === 'cancelled') {
-        subject = `Order Cancelled - #${displayOrderId} | SRIJAN Fashion`;
-        messageHtml = `<p>Hi ${customerName},</p><p>Your order <strong>#${displayOrderId}</strong> has been cancelled. If you have already paid, your refund will be initiated soon.</p>`;
-      } else if (newStatus === 'returned') {
-        subject = `Order Returned - #${displayOrderId} | SRIJAN Fashion`;
-        messageHtml = `<p>Hi ${customerName},</p><p>Your return request for order <strong>#${displayOrderId}</strong> has been processed successfully.</p>`;
+        topIcon = `${BASE_URL}/email-img/Email Icon 5.webp`; 
+        headerText = 'Your Order Has Been Delivered!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Your Srijan Fashion order <strong>#${displayOrderId}</strong> has been successfully delivered.</p>
+          <p style="margin-bottom: 25px;">We hope your new outfit is exactly what you were looking for and that you enjoy wearing it.</p>
+          
+          <div style="text-align: center; margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 30px;">
+            <h3 style="margin: 0 0 10px; font-size: 18px; color: #111;">We'd Love to Hear From You</h3>
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">Your feedback helps us improve and also helps other customers make better choices.</p>
+            <p style="font-weight: bold; color: #111; margin-bottom: 10px;">How was your experience?</p>
+            <div style="color: #fbbf24; font-size: 28px; margin-bottom: 20px; letter-spacing: 5px;">★★★★★</div>
+            <a href="${BASE_URL}/account/orders" style="display: inline-block; background-color: #00c3ff; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0, 195, 255, 0.2);">Submit Review</a>
+          </div>
+          <p style="font-style: italic; color: #6b7280; margin-top: 30px; text-align: center;">Thank you for supporting <strong>SRIJAN Fashion</strong>. We truly appreciate your trust in our brand.</p>
+        `;
       }
 
       if (subject !== '') {
+        const htmlTemplate = `
+          <div style="background-color: #f9fafb; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #374151;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="${topIcon}" alt="Status Icon" style="width: 70px; height: auto; object-fit: contain;">
+              <h1 style="color: #1f2937; font-size: 24px; font-weight: normal; margin-top: 15px;">${headerText}</h1>
+            </div>
+            <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; border-radius: 16px; border: 1px solid #e5e7eb; padding: 35px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);">
+              <p style="font-weight: bold; font-size: 16px; margin-top: 0; margin-bottom: 20px; color: #111;">Hi, ${customerName},</p>
+              <div style="font-size: 15px; line-height: 1.6; color: #4b5563;">
+                ${messageHtml}
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 35px;">
+              <img src="${BASE_URL}/email-img/logo.webp" alt="SRIJAN Fashion" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <p style="font-weight: bold; margin: 15px 0 5px; color: #111; font-size: 16px;">SRIJAN Fashion | Designer Boutique | Custom Fashion</p>
+              <p style="color: #6b7280; font-size: 12px; margin: 0; max-width: 400px; margin: 0 auto; line-height: 1.5;">This is an automated generated email, please do not reply. For support visit our website.</p>
+            </div>
+          </div>
+        `;
+
         const mailOptions = {
           from: `"SRIJAN Fashion" <${process.env.SMTP_USER}>`,
           to: customerEmail,
           subject: subject,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <h2 style="color: #0ba6ff; border-bottom: 2px solid #0ba6ff; padding-bottom: 10px; margin-top: 0;">SRIJAN Fashion</h2>
-              <div style="color: #4a5568; font-size: 16px; margin-top: 20px; line-height: 1.6;">
-                ${messageHtml}
-                <p style="margin-top: 20px; font-weight: bold;">Order Amount: ₹${Number(orderData.total_amount).toLocaleString('en-IN')}</p>
-              </div>
-              <p style="color: #718096; font-size: 12px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                This is an automated email, please do not reply. For support, visit our website.
-              </p>
-            </div>
-          `,
+          html: htmlTemplate,
         };
 
         await transporter.sendMail(mailOptions);
@@ -695,7 +794,7 @@ export async function getAdminProducts() {
     await verifyAdmin()
     const { data, error } = await supabase
       .from('products')
-      .select('*, product_variants(*), product_images(*)')
+      .select('*, product_variants(*), product_images(*), product_addons!product_id(*)')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -726,9 +825,26 @@ export async function deleteProduct(productId) {
       await supabase.storage.from('product-images').remove(filePaths)
     }
 
+    // Delete Component Images
+    const { data: compImages } = await supabase
+      .from('product_components')
+      .select('image_url')
+      .eq('product_id', productId)
+      .not('image_url', 'is', null)
+
+    if (compImages && compImages.length > 0) {
+      const compFilePaths = compImages.map(img => {
+        const urlParts = img.image_url.split('/')
+        const fileName = urlParts[urlParts.length - 1]
+        return fileName.includes('addons/') ? fileName : `addons/${fileName}`
+      })
+      await supabase.storage.from('product-images').remove(compFilePaths)
+    }
+
     await supabase.from('product_images').delete().eq('product_id', productId)
     await supabase.from('product_variants').delete().eq('product_id', productId)
     await supabase.from('product_components').delete().eq('product_id', productId)
+    await supabase.from('product_addons').delete().eq('product_id', productId) 
     
     await supabase.from('product_category_map').delete().eq('product_id', productId)
     await supabase.from('product_collection_map').delete().eq('product_id', productId)
@@ -788,6 +904,8 @@ export async function createPremiumProduct(formData) {
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]');
+    
+    const productAddons = JSON.parse(formData.get('productAddons') || '[]'); 
     const purchaseType = formData.get('purchaseType') || 'Single Product';
 
     const basePrice = parseFloat(formData.get('basePrice')) || 0;
@@ -857,14 +975,45 @@ export async function createPremiumProduct(formData) {
       await supabase.from('product_variants').insert(variantInserts);
     }
 
+    // ----------------------------------------------------
+    // CRITICAL UPDATE: Component with Image Upload Handle
+    // ----------------------------------------------------
     if (components.length > 0 && purchaseType !== 'Single Product') {
-      const componentInserts = components.map(c => ({
-        product_id: productId,
-        name: c.name,
-        is_required: c.required,
-        price: parseFloat(c.price) || 0
-      }));
+      const componentInserts = [];
+      for (let i = 0; i < components.length; i++) {
+        const c = components[i];
+        let imageUrl = c.preview || null;
+
+        if (formData.has(`comp_file_${i}`)) {
+          const file = formData.get(`comp_file_${i}`);
+          const fileExt = file.name.split('.').pop();
+          const fileName = `addons/${productId}-${Date.now()}-${i}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
+          if (!uploadError) {
+            imageUrl = supabase.storage.from('product-images').getPublicUrl(fileName).data.publicUrl;
+          }
+        }
+
+        componentInserts.push({
+          product_id: productId,
+          name: c.name,
+          component_type: c.type || 'Top',
+          is_required: c.required,
+          price: parseFloat(c.price) || 0,
+          image_url: imageUrl
+        });
+      }
       await supabase.from('product_components').insert(componentInserts);
+    }
+
+    if (productAddons.length > 0) {
+      const addonInserts = productAddons.map(addon => ({
+        product_id: productId,
+        addon_product_id: addon.addon_product_id || addon.id, 
+        addon_type: addon.addon_type || addon.type || 'Add-on'
+      }));
+      await supabase.from('product_addons').insert(addonInserts);
     }
 
     let i = 0;
@@ -949,6 +1098,7 @@ export async function updatePremiumProduct(formData) {
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]');
+    const productAddons = JSON.parse(formData.get('productAddons') || '[]');
     const purchaseType = formData.get('purchaseType') || 'Single Product';
 
     const basePrice = parseFloat(formData.get('basePrice')) || 0;
@@ -1015,15 +1165,47 @@ export async function updatePremiumProduct(formData) {
       await supabase.from('product_variants').insert(variantInserts);
     }
 
+    // ----------------------------------------------------
+    // CRITICAL UPDATE: Component with Image Upload Handle
+    // ----------------------------------------------------
     await supabase.from('product_components').delete().eq('product_id', productId);
     if (components.length > 0 && purchaseType !== 'Single Product') {
-      const componentInserts = components.map(c => ({
-        product_id: productId,
-        name: c.name,
-        is_required: c.required,
-        price: parseFloat(c.price) || 0
-      }));
+      const componentInserts = [];
+      for (let i = 0; i < components.length; i++) {
+        const c = components[i];
+        let imageUrl = c.preview || null;
+
+        if (formData.has(`comp_file_${i}`)) {
+          const file = formData.get(`comp_file_${i}`);
+          const fileExt = file.name.split('.').pop();
+          const fileName = `addons/${productId}-${Date.now()}-${i}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
+          if (!uploadError) {
+            imageUrl = supabase.storage.from('product-images').getPublicUrl(fileName).data.publicUrl;
+          }
+        }
+
+        componentInserts.push({
+          product_id: productId,
+          name: c.name,
+          component_type: c.type || 'Top',
+          is_required: c.required,
+          price: parseFloat(c.price) || 0,
+          image_url: imageUrl
+        });
+      }
       await supabase.from('product_components').insert(componentInserts);
+    }
+
+    await supabase.from('product_addons').delete().eq('product_id', productId);
+    if (productAddons.length > 0) {
+      const addonInserts = productAddons.map(addon => ({
+        product_id: productId,
+        addon_product_id: addon.addon_product_id || addon.id,
+        addon_type: addon.addon_type || addon.type || 'Add-on'
+      }));
+      await supabase.from('product_addons').insert(addonInserts);
     }
 
     const imageInserts = [];

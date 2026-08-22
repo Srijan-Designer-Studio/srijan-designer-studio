@@ -1,14 +1,21 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2 } from "lucide-react";
 import { deleteProduct, getAdminProducts } from '@/app/actions/admin';
+import { useRouter } from 'next/navigation';
 
 export default function ProductsClientWrapper({ initialProducts, categories }) {
+  const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
+
+  // CRITICAL FIX: Update the state automatically when new data is uploaded/fetched
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   const handleDeleteProduct = (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
@@ -25,6 +32,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
         const updatedData = await getAdminProducts();
         setProducts(updatedData || []);
         setDeletingId(null);
+        router.refresh(); // Force Next.js to clear router cache
       });
     }
   };
@@ -40,7 +48,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       slug: product.slug || product.id,
       name: product.title,
       sku: mainVariant?.sku || 'N/A',
-      category: product.categories?.name || 'Uncategorized',
       price: basePrice,
       stock: totalStock,
       stockStatus: totalStock > 20 ? 'In Stock' : totalStock > 0 ? `Low Stock (${totalStock})` : 'Out of Stock',

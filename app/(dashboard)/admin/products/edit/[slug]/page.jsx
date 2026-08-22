@@ -12,7 +12,7 @@ export default async function EditProductPage({ params }) {
 
   const { data: product, error } = await supabase
     .from('products')
-    .select('*, product_variants(*), product_images(*), product_components(*)')
+    .select('*, product_variants(*), product_images(*), product_components(*), product_addons!product_id(*)') 
     .eq('slug', slug)
     .single();
 
@@ -54,12 +54,18 @@ export default async function EditProductPage({ params }) {
       barcode: v.barcode || ""
     })) : [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
     purchaseType: product.purchase_type || "Single Product",
+    
+    // CRITICAL FIX: Properly map the Addon / Component Data for the Admin Edit form
     components: product.product_components?.map(c => ({
       id: c.id,
       name: c.name || "",
-      required: c.is_required ?? true,
-      price: c.price || ""
+      type: c.component_type || "Top",
+      required: c.is_required ?? false,
+      price: c.price || "",
+      preview: c.image_url || null,
+      file: null
     })) || [],
+
     weight: product.weight || "",
     length: product.length || "",
     width: product.width || "",

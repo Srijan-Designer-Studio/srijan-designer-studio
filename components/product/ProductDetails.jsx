@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/context/CartContext";
 import { addToCart as addToCartServer } from "@/app/actions/shopping";
+import CompleteTheLook from "./CompleteTheLook";
 
 gsap.registerPlugin(useGSAP);
 
@@ -16,9 +17,7 @@ export default function ProductDetails({ product }) {
   const containerRef = useRef(null);
 
   const variants = product?.product_variants || [];
-
-
-  const components = product?.components || product?.product_components || [];
+  const components = product?.components || product?.product_components || []; 
 
   const images = product?.product_images?.length > 0
     ? product.product_images.map(img => img.image_url)
@@ -67,12 +66,12 @@ export default function ProductDetails({ product }) {
   const selectedVariant = variants.find(v => v.size && v.size.includes(size)) || variants[0] || {};
   const variantId = selectedVariant.id || product.id;
 
-  const originalPrice = Number(selectedVariant.price) || Number(product.base_price) || 0;
-  const salePrice = Number(selectedVariant.sale_price) || Number(selectedVariant.salePrice) || 0;
+  const basePrice = Number(product.base_price) || 0;
+  const salePrice = Number(product.sale_price) || 0;
 
-  const hasDiscount = salePrice > 0 && salePrice < originalPrice;
-  const currentPrice = hasDiscount ? salePrice : originalPrice;
-
+  const hasDiscount = salePrice > 0 && salePrice < basePrice;
+  const displayPrice = hasDiscount ? salePrice : basePrice;
+  const crossedOutPrice = hasDiscount ? basePrice : null;
 
   const handleAddToCart = () => {
     startTransition(async () => {
@@ -80,7 +79,7 @@ export default function ProductDetails({ product }) {
         id: product.id,
         variantId,
         title: product.title,
-        price: currentPrice,
+        price: displayPrice,
         image: images[mainImageIndex],
         size,
       }, quantity);
@@ -93,14 +92,13 @@ export default function ProductDetails({ product }) {
     });
   };
 
-  // Buy Now Logic
   const handleBuyNow = () => {
     startTransition(async () => {
       addToCart({
         id: product.id,
         variantId,
         title: product.title,
-        price: currentPrice,
+        price: displayPrice,
         image: images[mainImageIndex],
         size,
       }, quantity);
@@ -162,11 +160,11 @@ export default function ProductDetails({ product }) {
 
             <div className="prod-info mb-6 flex items-end gap-3">
               <p className="text-[24px] font-bold text-black leading-none">
-                ₹{currentPrice.toLocaleString('en-IN')}
+                ₹{displayPrice.toLocaleString('en-IN')}
               </p>
-              {hasDiscount && (
+              {crossedOutPrice && (
                 <p className="text-[16px] font-medium text-gray-400 line-through leading-none mb-0.5">
-                  ₹{originalPrice.toLocaleString('en-IN')}
+                  ₹{crossedOutPrice.toLocaleString('en-IN')}
                 </p>
               )}
             </div>
@@ -177,29 +175,6 @@ export default function ProductDetails({ product }) {
               </p>
             </div>
 
-           
-            {components.length > 0 && (
-              <div className="prod-info mb-8 bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 className="text-[13px] font-extrabold text-gray-900 mb-4 uppercase tracking-wide border-b border-gray-200 pb-2">This Set Includes:</h3>
-                <div className="flex flex-col gap-3">
-                  {components.map((comp, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <span className="text-[15px] text-gray-700 flex items-center gap-3 font-medium">
-                        <span className="w-2 h-2 rounded-full bg-[#00c3ff]"></span>
-                        {comp.name} {!comp.required && <span className="text-gray-400 text-[12px]">(Optional)</span>}
-                      </span>
-                      {comp.price > 0 && (
-                        <span className="text-[14px] font-bold text-gray-600 bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">
-                          +₹{comp.price}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-           
             {product.additional_info && (
               <div className="prod-info mb-4">
                 <div className="inline-block bg-[#fffbeb] border border-[#fde047] text-[#854d0e] text-[12px] px-3.5 py-2.5 rounded-lg font-semibold shadow-sm [&>p]:mb-0">
@@ -208,7 +183,6 @@ export default function ProductDetails({ product }) {
               </div>
             )}
 
-            {/* Size Section */}
             {availableSizes.length > 0 && (
               <div className="prod-info mb-8">
                 <h3 className="text-[16px] font-bold text-black mb-3">Size</h3>
@@ -226,7 +200,6 @@ export default function ProductDetails({ product }) {
               </div>
             )}
 
-            
             <div className="prod-info flex flex-row items-center gap-3 sm:gap-4 mb-4">
               <div className="flex items-center justify-between border border-black rounded-lg w-[110px] sm:w-[130px] h-[56px] px-3 sm:px-4 shrink-0 bg-white">
                 <button
@@ -254,8 +227,7 @@ export default function ProductDetails({ product }) {
               </button>
             </div>
 
-            {/* Buy Now Row (Heightened to 56px) */}
-            <div className="prod-info">
+            <div className="prod-info mb-2">
               <button
                 onClick={handleBuyNow}
                 disabled={isPending}
@@ -265,10 +237,23 @@ export default function ProductDetails({ product }) {
                 BUY NOW
               </button>
             </div>
+
+            {/* --- Complete The Look Section (Moved inside the right column) --- */}
+            <div className="prod-info mt-2">
+              <CompleteTheLook 
+                addons={components} 
+                mainProduct={product} 
+                mainProductVariantId={variantId}
+                mainProductSize={size}
+                mainImage={images[mainImageIndex]}
+                mainQuantity={quantity}
+              />
+            </div>
+
           </div>
         </div>
 
-        <div className="mt-16 border-t-[3px] border-gray-100 pt-8">
+        <div className="mt-8 border-t-[3px] border-gray-100 pt-8">
           <div className="flex gap-8 mb-8 overflow-x-auto no-scrollbar pb-1 border-b border-gray-300">
             {tabs.map(tab => (
               <h2

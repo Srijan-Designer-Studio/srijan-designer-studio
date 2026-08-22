@@ -6,7 +6,7 @@ import ProductFAQ from "@/components/product/ProductFAQ";
 import { getProductBySlug, getProducts } from "@/app/actions/products"; 
 import ScrollToTop from "@/components/providers/ScrollToTop";
 
-export const revalidate = 60; 
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

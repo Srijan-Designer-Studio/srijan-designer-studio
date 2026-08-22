@@ -25,8 +25,22 @@ export async function getProductBySlug(slug) {
 
   const { data, error } = await supabase
     .from('products')
-    // CRITICAL FIX: Removed categories!category_id(*) so it doesn't overwrite our new JSONB array
-    .select('*, product_variants(*), product_images(*)')
+    // CRITICAL FIX: Explicitly specifying the foreign key using !product_id and !addon_product_id
+    .select(`
+      *,
+      product_images(*),
+      product_variants(*),
+      product_components(*),
+      product_addons!product_id(
+        id,
+        addon_type,
+        addon_product:products!addon_product_id(
+          id, title, slug, base_price, sale_price,
+          product_images(image_url),
+          product_variants(id, size, price, sale_price)
+        )
+      )
+    `)
     .eq('slug', slug)
     .eq('is_active', true)
     .maybeSingle()
@@ -52,7 +66,6 @@ export async function getProductsByCategory(categoryName) {
 
     const { data, error } = await supabase
       .from('products')
-      // CRITICAL FIX: Removed categories!category_id(*)
       .select('*, product_variants(*), product_images(*)')
       .eq('category_id', category.id)
       .eq('is_active', true)

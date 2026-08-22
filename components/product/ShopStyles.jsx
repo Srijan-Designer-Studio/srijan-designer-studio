@@ -89,6 +89,11 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
             const mainImage = product.product_images?.[0]?.image_url;
             const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
+            const basePrice = Number(product.base_price) || 0;
+            const salePrice = Number(product.sale_price) || 0;
+            const hasDiscount = salePrice > 0 && salePrice < basePrice;
+            const displayPrice = hasDiscount ? salePrice : basePrice;
+
             return (
               <Link href={`/product/${product.slug}`} key={product.id}
                 className="shop-card group flex flex-col items-center cursor-pointer relative"
@@ -104,7 +109,6 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                     <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>
                   )}
 
-                  {/* Floating Wishlist Button */}
                   <button
                     onClick={(e) => handleWishlistToggle(e, product)}
                     className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
@@ -118,9 +122,17 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                 <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                   {product.title}
                 </h3>
-                <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
-                  ₹{product.base_price?.toLocaleString('en-IN')}
-                </p>
+                
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
+                    ₹{displayPrice.toLocaleString('en-IN')}
+                  </p>
+                  {hasDiscount && (
+                    <p className="text-[12px] sm:text-[13px] font-medium text-gray-400 line-through text-center">
+                      ₹{basePrice.toLocaleString('en-IN')}
+                    </p>
+                  )}
+                </div>
               </Link>
             )
           })}

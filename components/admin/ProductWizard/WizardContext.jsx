@@ -49,7 +49,9 @@ export function WizardProvider({ children, initialData }) {
     images: [],
     variants: [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
     basePrice: "", salePrice: "",
-    purchaseType: "Single Product", components: [],
+    purchaseType: "Single Product", 
+    components: [], // CRITICAL FIX: Added components back here
+    productAddons: [],
     weight: "", length: "", width: "", height: "", shippingClass: "Standard", estimatedDelivery: "3-5 Days", isCodAvailable: true, isFreeShipping: false, isReturnEligible: true,
     shippingPolicy: "", returnPolicy: "", faqs: [],
     seoTitle: "", seoSlug: "", metaDesc: "", focusKeyword: "", seoKeywords: "", ogTitle: "", ogDesc: "", canonicalUrl: ""
@@ -69,6 +71,7 @@ export function WizardProvider({ children, initialData }) {
         faqs: parseArrayData(initialData.faqs),
         variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
         components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
+        productAddons: initialData.productAddons ? (typeof initialData.productAddons === 'string' ? JSON.parse(initialData.productAddons) : initialData.productAddons) : prev.productAddons,
         images: Array.isArray(initialData.images) ? initialData.images : []
       }));
     }
@@ -101,8 +104,18 @@ export function WizardProvider({ children, initialData }) {
       submitData.append("isFreeShipping", formData.isFreeShipping);
       submitData.append("isReturnEligible", formData.isReturnEligible);
 
-      const jsonFields = ["categories", "collections", "occasions", "tags", "variants", "components", "faqs"];
+      const jsonFields = ["categories", "collections", "occasions", "tags", "variants", "faqs"];
       jsonFields.forEach(field => submitData.append(field, JSON.stringify(formData[field] || [])));
+
+      // Component data and files integration
+      const cleanComponents = formData.components.map((c, i) => {
+        if (c.file) submitData.append(`comp_file_${i}`, c.file);
+        return { id: c.id, name: c.name, type: c.type, required: c.required, price: c.price, preview: c.preview };
+      });
+      submitData.append("components", JSON.stringify(cleanComponents));
+      
+      // Keeping productAddons just in case you use the search feature later
+      submitData.append("productAddons", JSON.stringify(formData.productAddons || []));
 
       formData.images.forEach((img, idx) => {
         if (img.file) {

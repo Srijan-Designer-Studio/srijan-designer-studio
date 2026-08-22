@@ -119,14 +119,13 @@ export default function ShopStyleClient() {
     window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
-  // Handle Wishlist Click (Prevents Link navigation and updates DB)
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
     
-    toggleWishlist(product); // Optimistic UI Update in Context
+    toggleWishlist(product);
     try {
-      await toggleWishlistServer(product.id); // Backend DB Update
+      await toggleWishlistServer(product.id);
     } catch (error) {
       console.error("Failed to update wishlist:", error);
     }
@@ -192,9 +191,12 @@ export default function ShopStyleClient() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 relative z-10">
               {currentProducts.map((product) => {
                 const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
-                const price = product.base_price || 0;
                 
-                // Check if product is in wishlist
+                const basePrice = Number(product.base_price) || 0;
+                const salePrice = Number(product.sale_price) || 0;
+                const hasDiscount = salePrice > 0 && salePrice < basePrice;
+                const displayPrice = hasDiscount ? salePrice : basePrice;
+                
                 const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
                 return (
@@ -206,7 +208,6 @@ export default function ShopStyleClient() {
                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
                       
-                      {/* Floating Wishlist Button */}
                       <button
                         onClick={(e) => handleWishlistToggle(e, product)}
                         className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
@@ -221,9 +222,17 @@ export default function ShopStyleClient() {
                     <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
                       {product.title}
                     </h3>
-                    <p className="text-[18px] font-extrabold text-black">
-                      ₹{price.toLocaleString('en-IN')}
-                    </p>
+                    
+                    <div className="flex items-center justify-center gap-2">
+                      <p className="text-[18px] font-extrabold text-black">
+                        ₹{displayPrice.toLocaleString('en-IN')}
+                      </p>
+                      {hasDiscount && (
+                        <p className="text-[14px] font-medium text-gray-400 line-through">
+                          ₹{basePrice.toLocaleString('en-IN')}
+                        </p>
+                      )}
+                    </div>
                   </Link>
                 );
               })}
