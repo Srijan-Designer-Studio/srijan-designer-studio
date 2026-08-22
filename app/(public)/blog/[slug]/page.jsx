@@ -36,6 +36,8 @@ export async function generateMetadata({ params }) {
       ],
       locale: 'en_IN',
       type: 'article',
+      publishedTime: blog.published_at || blog.created_at,
+      authors: [blog.author || 'Admin'],
     }
   };
 }
@@ -44,7 +46,7 @@ export default async function BlogDetails({ params }) {
   const { slug } = await params;
   const blog = await getBlogBySlug(slug);
 
-  if (!blog) return <div className="text-center py-20">Blog not found.</div>;
+  if (!blog) return <div className="text-center py-20 font-bold text-gray-500 mt-20">Blog not found.</div>;
 
   const currentUrl = `https://www.srijandesignerstudio.com/blog/${slug}`;
 
@@ -89,8 +91,8 @@ export default async function BlogDetails({ params }) {
             "description": blog.meta_description || "",
             "image": blog.image_url || "https://srijandesignerstudio.com/images/logo3.jpg",  
             "author": {
-              "@type": "Organization",
-              "name": "Srijan Fashion"
+              "@type": "Person",
+              "name": blog.author || "Admin"
             },  
             "publisher": {
               "@type": "Organization",
@@ -100,7 +102,7 @@ export default async function BlogDetails({ params }) {
                 "url": "https://srijandesignerstudio.com/images/logo5.webp"
               }
             },
-            "datePublished": blog.created_at || new Date().toISOString()
+            "datePublished": blog.published_at || blog.created_at || new Date().toISOString()
           })
         }}
       />

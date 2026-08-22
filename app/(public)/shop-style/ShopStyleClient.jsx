@@ -224,11 +224,11 @@ export default function ShopStyleClient() {
                     </h3>
                     
                     <div className="flex items-center justify-center gap-2">
-                      <p className="text-[18px] font-extrabold text-black">
+                      <p className="text-[18px] font-extrabold text-red-600">
                         ₹{displayPrice.toLocaleString('en-IN')}
                       </p>
                       {hasDiscount && (
-                        <p className="text-[14px] font-medium text-gray-400 line-through">
+                        <p className="text-[14px] font-medium text-black line-through">
                           ₹{basePrice.toLocaleString('en-IN')}
                         </p>
                       )}

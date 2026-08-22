@@ -242,11 +242,10 @@ export async function getAllOrders() {
 export async function updateOrderStatus(orderId, newStatus) {
   const supabase = createAdminClient()
 
-  // আপনার ওয়েবসাইটের লাইভ ডোমেইন
-  const BASE_URL = 'https://www.srijandesignerstudio.com';
+ 
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.srijandesignerstudio.com';
 
   try {
-    // await verifyAdmin()
 
     const { error: updateError } = await supabase
       .from('orders')
@@ -312,7 +311,8 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       if (newStatus === 'processing') {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email Icon 1.webp`; 
+       
+        topIcon = `${BASE_URL}/email-img/Email%20Icon%201.webp`; 
         headerText = 'Thank You For Your Order!';
         messageHtml = `
           <p style="margin-bottom: 15px;">We're happy to confirm that we've received your order successfully. Our team will now begin processing your order.</p>
@@ -343,7 +343,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'packed') {
         subject = `Order Packed - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email Icon 2.webp`; 
+        topIcon = `${BASE_URL}/email-img/Email%20Icon%202.webp`; 
         headerText = 'Hooray! Your Order Is Packed';
         messageHtml = `
           <p style="margin-bottom: 15px;">Good news! Your order <strong>#${displayOrderId}</strong> has been packed and is ready to leave our studio.</p>
@@ -355,7 +355,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'shipped') {
         subject = `Order Shipped - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email Icon 3.webp`; 
+        topIcon = `${BASE_URL}/email-img/Email%20Icon%203.webp`; 
         headerText = 'Your Order Is On Its Way!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Your order <strong>#${displayOrderId}</strong> is officially on its way!</p>
@@ -366,7 +366,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'out_for_delivery') {
         subject = `Order Out For Delivery - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email Icon 4.webp`; 
+        topIcon = `${BASE_URL}/email-img/Email%20Icon%204.webp`; 
         headerText = 'Your Order Is Out For Delivery!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Exciting news! Your SRIJAN Fashion order <strong>#${displayOrderId}</strong> is out for delivery today.</p>
@@ -385,7 +385,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       }
       else if (newStatus === 'delivered') {
         subject = `Order Delivered - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email Icon 5.webp`; 
+        topIcon = `${BASE_URL}/email-img/Email%20Icon%205.webp`; 
         headerText = 'Your Order Has Been Delivered!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Your Srijan Fashion order <strong>#${displayOrderId}</strong> has been successfully delivered.</p>
@@ -406,7 +406,7 @@ export async function updateOrderStatus(orderId, newStatus) {
         const htmlTemplate = `
           <div style="background-color: #f9fafb; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #374151;">
             <div style="text-align: center; margin-bottom: 20px;">
-              <img src="${topIcon}" alt="Status Icon" style="width: 70px; height: auto; object-fit: contain;">
+              <img src="${topIcon}" alt="Status Icon" style="width: 70px; background-color: white; height: auto; object-fit: contain;">
               <h1 style="color: #1f2937; font-size: 24px; font-weight: normal; margin-top: 15px;">${headerText}</h1>
             </div>
             <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; border-radius: 16px; border: 1px solid #e5e7eb; padding: 35px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);">

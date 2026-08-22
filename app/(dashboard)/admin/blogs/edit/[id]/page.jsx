@@ -11,7 +11,6 @@ const CKEditor = dynamic(
   { ssr: false }
 );
 
-
 function CustomUploadAdapterPlugin(editor) {
   editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
     return {
@@ -21,7 +20,6 @@ function CustomUploadAdapterPlugin(editor) {
             const formData = new FormData();
             formData.append("image", file);
             
-           
             const res = await uploadImageForEditor(formData);
             
             if (res.url) {
@@ -55,6 +53,8 @@ export default function EditBlog({ params }) {
     permalink: "",
     category: "",
     existing_image: "",
+    author: "Admin", // Default
+    published_at: "", // Custom Date
   });
 
   const [image, setImage] = useState(null);
@@ -82,6 +82,9 @@ export default function EditBlog({ params }) {
           permalink: blog.slug || "",
           category: blog.category_id || "",
           existing_image: blog.image_url || "",
+          // CRITICAL FIX: Load Author and format Published Date for the input
+          author: blog.author || "Admin",
+          published_at: blog.published_at ? new Date(blog.published_at).toISOString().slice(0, 16) : "",
         });
       }
       setFetching(false);
@@ -99,7 +102,9 @@ export default function EditBlog({ params }) {
     
     Object.keys(form).forEach((key) => {
       if (key !== "existing_image") {
-        formData.append(key, form[key]);
+        if (form[key]) {
+          formData.append(key, form[key]);
+        }
       }
     });
 
@@ -132,6 +137,29 @@ export default function EditBlog({ params }) {
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
 
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Author Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Admin or Radley"
+                value={form.author}
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) => setForm({ ...form, author: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Publish Date & Time</label>
+              <input
+                type="datetime-local"
+                value={form.published_at}
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                onChange={(e) => setForm({ ...form, published_at: e.target.value })}
+              />
+              <p className="text-[11px] text-gray-400 mt-1">Leave blank to use current time</p>
+            </div>
+          </div>
+
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -163,9 +191,19 @@ export default function EditBlog({ params }) {
               <CKEditor
                 editor={ClassicEditor}
                 data={form.content}
-               
                 config={{
                   extraPlugins: [CustomUploadAdapterPlugin],
+                  heading: {
+                    options: [
+                      { model: "paragraph", title: "Paragraph", class: "ck-heading_paragraph" },
+                      { model: "heading1", view: "h1", title: "Heading 1", class: "ck-heading_heading1" },
+                      { model: "heading2", view: "h2", title: "Heading 2", class: "ck-heading_heading2" },
+                      { model: "heading3", view: "h3", title: "Heading 3", class: "ck-heading_heading3" },
+                      { model: "heading4", view: "h4", title: "Heading 4", class: "ck-heading_heading4" },
+                      { model: "heading5", view: "h5", title: "Heading 5", class: "ck-heading_heading5" },
+                      { model: "heading6", view: "h6", title: "Heading 6", class: "ck-heading_heading6" },
+                    ],
+                  },
                 }}
                 onChange={(event, editor) => {
                   setForm({ ...form, content: editor.getData() });
@@ -210,7 +248,7 @@ export default function EditBlog({ params }) {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center
+            className={`w-full text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center cursor-pointer
             ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
           >
             {loading ? "Updating..." : "Update Blog"}

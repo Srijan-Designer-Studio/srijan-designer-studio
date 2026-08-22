@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Eye, XCircle, Star } from 'lucide-react';
+import { Package, Eye, XCircle, Star, RotateCcw } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -20,6 +20,14 @@ export default function OrdersClientWrapper({ initialOrders }) {
   const handleCancelOrder = (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
       alert('Cancel request initiated for order: ' + orderId);
+      // Backend integration for cancel will go here
+    }
+  };
+
+  const handleReturnOrder = (orderId) => {
+    if (window.confirm('Are you sure you want to return this order? Our team will review your request.')) {
+      alert('Return request initiated for order: ' + orderId);
+      // Backend integration for return will go here
     }
   };
 
@@ -80,11 +88,19 @@ export default function OrdersClientWrapper({ initialOrders }) {
           {row.status === 'Delivered' && (
             <>
               <DownloadInvoice order={row.rawOrder} />
+              
               <button
                 onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
-                className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer"
+                className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Star size={16} className="fill-yellow-600" /> Review
+              </button>
+
+              <button
+                onClick={() => handleReturnOrder(row.rawOrder.id)}
+                className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <RotateCcw size={16} /> Return
               </button>
             </>
           )}
@@ -111,20 +127,22 @@ export default function OrdersClientWrapper({ initialOrders }) {
   ];
 
   return (
-    <div className="max-w-6xl space-y-6 font-sans pt-28 lg:pt-32">
+    <div className="max-w-7xl mx-auto space-y-6 font-sans pt-28 lg:pt-32 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
-          <p className="text-[19px] text-gray-500 mt-1">Track, return, or download invoices for your past purchases.</p>
+          <p className="text-[16px] text-gray-500 mt-1">Track, return, or download invoices for your past purchases.</p>
         </div>
       </div>
 
-      <Card className="p-0 shadow-sm border-gray-100">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white rounded-t-xl">
+      <Card className="p-0 shadow-sm border-gray-100 overflow-x-auto">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white rounded-t-xl min-w-[800px]">
           <Search placeholder="Search by Order ID..." />
           <Filter options={statusOptions} defaultValue="All Orders" />
         </div>
-        <Table columns={orderColumns} data={formattedOrders} />
+        <div className="min-w-[800px]">
+          <Table columns={orderColumns} data={formattedOrders} />
+        </div>
         <Pagination />
       </Card>
 
@@ -142,13 +160,13 @@ export default function OrdersClientWrapper({ initialOrders }) {
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
               <div>
-                <p className="text-[19px] text-gray-500">Order Placed</p>
+                <p className="text-[14px] text-gray-500">Order Placed</p>
                 <p className="font-bold text-gray-900">
                   {new Intl.DateTimeFormat('en-IN').format(new Date(selectedOrder.created_at))}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[19px] text-gray-500">Total Amount</p>
+                <p className="text-[14px] text-gray-500">Total Amount</p>
                 <p className="font-bold text-[#cfa874] text-lg">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
               </div>
             </div>
@@ -157,14 +175,15 @@ export default function OrdersClientWrapper({ initialOrders }) {
               <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
 
               {selectedOrder.order_items?.map((item, index) => {
-                const product = item.product_variants?.products;
+                const product = item.product_variants?.products || item.products || item;
                 const imgUrl = product?.product_images?.[0]?.image_url || item.image_url || item.image || null;
-                // Get the product slug for the review link
-                const productSlug = product?.slug || product?.id;
+                
+                // 🔥 ডেটাবেস থেকে আসা একদম নিখুঁত Slug
+                const productSlug = product?.slug;
 
                 return (
-                  <div key={index} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                    <div className="w-16 h-16 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0 relative">
+                  <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                    <div className="w-20 h-24 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0 relative">
                       {imgUrl ? (
                         <Image
                           fill
@@ -174,21 +193,32 @@ export default function OrdersClientWrapper({ initialOrders }) {
                         <Package size={24} />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-[19px] font-bold text-gray-900">{product?.title || 'Unknown Product'}</p>
-                      <p className="text-[19px] text-gray-500 mb-2">Qty: {item.quantity} | Size: {item.product_variants?.size || 'N/A'}</p>
+                    <div className="flex-1 w-full">
+                      <div className="flex justify-between items-start mb-1">
+                        <p className="text-[15px] font-bold text-gray-900 leading-tight pr-2">{product?.title || item.title || 'Unknown Product'}</p>
+                        <p className="text-[16px] font-bold text-gray-900 whitespace-nowrap">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                      </div>
+                      <p className="text-[13px] text-gray-500 mb-3">Qty: {item.quantity} | Size: {item.product_variants?.size || item.size || 'N/A'}</p>
 
-                      {/* CRITICAL FIX: Redirects directly to the specific product page for review */}
-                      {selectedOrder.status.toLowerCase() === 'delivered' && productSlug && (
-                        <Link
-                          href={`/product/${productSlug}`}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded transition-colors"
-                        >
-                          <Star size={10} className="fill-white" /> Write Review
-                        </Link>
+                      {/* শুধুমাত্র সঠিক Slug থাকলেই বাটনগুলো দেখাবে */}
+                      {(selectedOrder.status || '').toLowerCase() === 'delivered' && productSlug && (
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          <Link
+                            href={`/product/${productSlug}`}
+                            className="inline-flex items-center gap-1.5 text-[12px] font-bold text-white bg-yellow-500 hover:bg-yellow-600 px-4 py-1.5 rounded-md transition-colors shadow-sm"
+                          >
+                            <Star size={12} className="fill-white" /> Write Review
+                          </Link>
+                          
+                          <button
+                            onClick={() => handleReturnOrder(selectedOrder.id)}
+                            className="inline-flex items-center gap-1.5 text-[12px] font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-4 py-1.5 rounded-md transition-colors cursor-pointer border border-orange-200 shadow-sm"
+                          >
+                            <RotateCcw size={12} /> Return Item
+                          </button>
+                        </div>
                       )}
                     </div>
-                    <p className="text-[19px] font-bold text-gray-900">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                   </div>
                 );
               })}

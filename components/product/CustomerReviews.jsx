@@ -71,9 +71,16 @@ export default function CustomerReviews({ productId }) {
           setIsWriting(false);
           setComment("");
           setRating(5);
+          
+          // নতুন রিভিউ অ্যাড হওয়ার পর অটোমেটিক লিস্ট আপডেট করার জন্য
+          const newData = await getProductReviews(productId);
+          setReviews(newData || []);
+        } else {
+          // 🔴 এই এলস (else) ব্লকটি মিসিং ছিল, যার কারণে এরর মেসেজ দেখাচ্ছিল না
+          setMessage(response?.message || "Failed to submit review.");
         }
       } catch (error) {
-        setMessage(error.message);
+        setMessage(error.message || "An unexpected error occurred.");
       }
     });
   };
@@ -127,6 +134,7 @@ export default function CustomerReviews({ productId }) {
                 Write A Review
               </button>
             )}
+            {/* মেসেজ দেখানোর অংশ */}
             {message && <p className={`text-sm mt-3 font-medium ${message.includes('submitted') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
           </div>
         </div>
@@ -163,6 +171,9 @@ export default function CustomerReviews({ productId }) {
                 {isPending && <Loader2 size={16} className="animate-spin" />}
                 Submit Review
               </button>
+              
+              {/* ফর্মের ভেতরেও মেসেজটি দেখানোর ব্যবস্থা করা হলো যাতে কাস্টমার সহজে বুঝতে পারে */}
+              {message && <p className={`text-sm mt-2 font-medium ${message.includes('submitted') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
             </form>
           </div>
         )}

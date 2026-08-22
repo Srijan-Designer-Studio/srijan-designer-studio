@@ -9,7 +9,6 @@ export default function BlogClient({ blog }) {
   const contentRef = useRef(null);
   const headingRefsMap = useRef([]);
 
-  // 🚀 FIX: পেজ ওপেন করলেই যেন স্ক্রল একদম উপরে থাকে, সেটি নিশ্চিত করা হলো
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
@@ -46,12 +45,19 @@ export default function BlogClient({ blog }) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  // CRITICAL FIX: Date Formatting
+  const publishDate = new Date(blog.published_at || blog.created_at).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 mt-20 text-black">
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link>
+      <nav className="flex items-center gap-2 text-[13px] text-gray-500 mb-6 font-medium">
+        <Link href="/" className="hover:text-[#00c3ff] transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/blog" className="hover:text-indigo-600 transition-colors">Blog</Link>
+        <Link href="/blogs" className="hover:text-[#00c3ff] transition-colors">Blog</Link>
         {blog.categories?.name && (
           <>
             <span>/</span>
@@ -59,13 +65,24 @@ export default function BlogClient({ blog }) {
           </>
         )}
         <span>/</span>
-        <span className="text-gray-900 font-medium truncate max-w-[300px]">{blog.title}</span>
+        <span className="text-gray-900 truncate max-w-[200px] sm:max-w-[300px]">{blog.title}</span>
       </nav>
 
-      <h1 className="text-4xl font-bold mt-2 mb-6 text-center">{blog.title}</h1>
+      <h1 className="text-3xl md:text-5xl font-extrabold mt-2 mb-5 text-center text-gray-900 leading-tight">
+        {blog.title}
+      </h1>
+
+     
+      <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-500 mb-10">
+        <span className="font-bold text-gray-800 tracking-wide uppercase text-[12px]">
+          By {blog.author || "Admin"}
+        </span>
+        <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+        <span className="font-medium">{publishDate}</span>
+      </div>
 
       {blog.image_url && (
-        <div className="relative w-full h-[400px] mb-10 rounded-xl overflow-hidden shadow-md">
+        <div className="relative w-full h-[300px] md:h-[450px] lg:h-[550px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
           <img
             src={blog.image_url}
             alt={blog.title}
@@ -74,23 +91,23 @@ export default function BlogClient({ blog }) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-10 items-start">
+      <div className="flex flex-col lg:flex-row gap-12 items-start">
         {headings.length > 0 && (
-          <aside className="hidden lg:block w-60 shrink-0 sticky top-24 self-start bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <p className="text-[19px] font-bold uppercase tracking-widest text-black mb-4">
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start bg-[#f9fbfc] p-6 rounded-2xl border border-blue-50/50 shadow-sm">
+            <p className="text-[13px] font-extrabold uppercase tracking-widest text-black mb-5">
               On this page
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2.5">
               {headings.map((text, index) => (
                 <button
                   key={index}
                   onClick={() => scrollToHeading(index)}
                   className={`
-                    text-left text-sm px-3 py-2 rounded-md transition-all duration-150
-                    border-l-2 cursor-pointer outline-none
+                    text-left text-[14px] px-3.5 py-2.5 rounded-xl transition-all duration-200
+                    border-l-[3px] cursor-pointer outline-none leading-snug font-medium
                     ${activeIndex === index
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-medium"
-                      : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      ? "border-[#00c3ff] bg-white text-[#00c3ff] shadow-sm"
+                      : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-white"
                     }
                   `}
                 >
@@ -103,7 +120,7 @@ export default function BlogClient({ blog }) {
 
         <div
           ref={contentRef}
-          className="prose max-w-none prose-headings:font-bold prose-table:border-collapse prose-th:border prose-td:border prose-th:border-gray-300 prose-td:border-gray-300"
+          className="prose prose-lg max-w-none w-full prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-[#00c3ff] hover:prose-a:text-[#009bcc] prose-img:rounded-2xl prose-img:shadow-md prose-table:border-collapse prose-th:border prose-td:border prose-th:border-gray-200 prose-td:border-gray-200 prose-th:bg-gray-50"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
       </div>

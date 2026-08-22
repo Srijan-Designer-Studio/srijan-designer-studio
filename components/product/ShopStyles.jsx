@@ -124,11 +124,11 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                 </h3>
                 
                 <div className="flex items-center justify-center gap-2">
-                  <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
+                  <p className="text-[14px] sm:text-[15px] font-bold text-red-600 text-center">
                     ₹{displayPrice.toLocaleString('en-IN')}
                   </p>
                   {hasDiscount && (
-                    <p className="text-[12px] sm:text-[13px] font-medium text-gray-400 line-through text-center">
+                    <p className="text-[12px] sm:text-[13px] font-medium text-black line-through text-center">
                       ₹{basePrice.toLocaleString('en-IN')}
                     </p>
                   )}

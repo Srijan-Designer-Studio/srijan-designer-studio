@@ -77,6 +77,7 @@ export default function SimilarProducts({ similarProducts = [] }) {
                         src={imageUrl}
                         alt={product.title || "Product"}
                         fill
+                        unoptimized
                         className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

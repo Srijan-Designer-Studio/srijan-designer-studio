@@ -129,7 +129,8 @@ export default function ShowBlogs() {
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden md:table-cell">Category</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden md:table-cell">Excerpt</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Slug</th>
-                  <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Created</th>
+                  {/* CRITICAL FIX: Changed column name */}
+                  <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Published & Author</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs text-right">Actions</th>
                 </tr>
               </thead>
@@ -172,8 +173,13 @@ export default function ShowBlogs() {
                         /{blog.slug || "—"}
                       </span>
                     </td>
-                    <td className="px-5 py-4 hidden lg:table-cell text-gray-400 text-xs whitespace-nowrap">
-                      {formatDate(blog.created_at)}
+                    {/* CRITICAL FIX: Shows Published Date & Author */}
+                    <td className="px-5 py-4 hidden lg:table-cell text-gray-600 text-xs whitespace-nowrap">
+                      {formatDate(blog.published_at || blog.created_at)}
+                      <br />
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        By {blog.author || "Admin"}
+                      </span>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

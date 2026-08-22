@@ -158,12 +158,12 @@ export async function getUserOrders() {
 
     const { data: products } = await adminDb
       .from('products')
-      .select('id, title, product_images(image_url)')
+      .select('id, title, slug, product_images(image_url)')
       .in('id', itemIds)
 
     const { data: variants } = await adminDb
       .from('product_variants')
-      .select('id, size, products(title, product_images(image_url))')
+      .select('id, size, products(title, slug, product_images(image_url))')
       .in('id', itemIds)
 
     const formattedOrders = orders.map(order => ({
@@ -183,6 +183,7 @@ export async function getUserOrders() {
             size: variantMatch ? variantMatch.size : 'Standard',
             products: {
               title: variantMatch?.products?.title || productMatch?.title || 'Premium Product',
+              slug: variantMatch?.products?.slug || productMatch?.slug || null,
               product_images: imageUrl ? [{ image_url: imageUrl }] : []
             }
           }

@@ -9,7 +9,8 @@ export async function getAllBlogs() {
   const { data, error } = await supabase
     .from('blogs')
     .select('*, categories(name)')
-    .order('created_at', { ascending: false })
+    // CRITICAL FIX: Order by custom published_at instead of created_at
+    .order('published_at', { ascending: false })
 
   if (error) return []
   return data
@@ -33,6 +34,10 @@ export async function createBlog(formData) {
   const permalink = formData.get("permalink");
   const category_id = formData.get("category");
   const image = formData.get("image");
+  
+  // CRITICAL FIX: Receive Author & Published Date
+  const author = formData.get("author") || "Admin";
+  const published_at = formData.get("published_at") || new Date().toISOString();
 
   let image_url = null;
 
@@ -63,7 +68,9 @@ export async function createBlog(formData) {
     meta_description: metaDescription,
     keywords,
     category_id: category_id || null,
-    image_url
+    image_url,
+    author, // Saved to DB
+    published_at // Saved to DB
   });
 
   if (error) throw new Error(error.message);
@@ -126,6 +133,10 @@ export async function updateBlog(id, formData) {
   const image = formData.get("image");
   const existing_image = formData.get("existing_image");
 
+  // CRITICAL FIX: Receive Author & Published Date
+  const author = formData.get("author") || "Admin";
+  const published_at = formData.get("published_at") || new Date().toISOString();
+
   let image_url = existing_image;
 
   if (image && image.size > 0) {
@@ -155,7 +166,9 @@ export async function updateBlog(id, formData) {
     meta_description: metaDescription,
     keywords,
     category_id: category_id || null,
-    image_url
+    image_url,
+    author, // Saved to DB
+    published_at // Saved to DB
   }).eq('id', id);
 
   if (error) throw new Error(error.message);

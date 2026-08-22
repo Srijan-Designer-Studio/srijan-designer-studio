@@ -49,6 +49,8 @@ export default function AddBlog() {
     keywords: "",
     permalink: "",
     category: "",
+    author: "Admin", // CRITICAL FIX: Default Author
+    published_at: "", // CRITICAL FIX: Custom Publish Date
   });
 
   const [image, setImage] = useState(null);
@@ -75,7 +77,10 @@ export default function AddBlog() {
     if (image) formData.append("image", image);
     
     Object.keys(form).forEach((key) => {
-      formData.append(key, form[key]);
+      // Append only if the field has a value to allow backend defaults (like current date)
+      if (form[key]) {
+        formData.append(key, form[key]);
+      }
     });
 
     try {
@@ -103,6 +108,29 @@ export default function AddBlog() {
             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Author Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Admin or Radley"
+                value={form.author}
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) => setForm({ ...form, author: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Publish Date & Time</label>
+              <input
+                type="datetime-local"
+                value={form.published_at}
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                onChange={(e) => setForm({ ...form, published_at: e.target.value })}
+              />
+              <p className="text-[11px] text-gray-400 mt-1">Leave blank to publish immediately</p>
+            </div>
+          </div>
 
           <select
             value={form.category}
@@ -180,7 +208,7 @@ export default function AddBlog() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center
+            className={`w-full text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center cursor-pointer
             ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
           >
             {loading ? "Publishing..." : "Publish Blog"}
