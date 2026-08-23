@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllBlogs, deleteBlogById } from "@/app/actions/blogs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ShowBlogs() {
   const [blogs, setBlogs] = useState([]);
@@ -10,13 +11,18 @@ export default function ShowBlogs() {
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
-    
     router.refresh(); 
     fetchBlogs();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   const fetchBlogs = async () => {
     setLoading(true);
@@ -24,7 +30,6 @@ export default function ShowBlogs() {
       const data = await getAllBlogs();
       setBlogs(data || []);
     } catch (err) {
-      console.error("Error fetching blogs:", err);
       setBlogs([]);
     } finally {
       setLoading(false);
@@ -37,7 +42,6 @@ export default function ShowBlogs() {
       await deleteBlogById(id);
       setBlogs((prev) => prev.filter((b) => b.id !== id));
     } catch (err) {
-      console.error("DELETE ERROR:", err);
       alert("Failed to delete blog. Please try again.");
     } finally {
       setDeletingId(null);
@@ -50,6 +54,11 @@ export default function ShowBlogs() {
       blog.title?.toLowerCase().includes(search.toLowerCase()) ||
       blog.slug?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalItems = filteredBlogs.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentBlogs = filteredBlogs.slice(startIndex, startIndex + itemsPerPage);
 
   const stripHtml = (html) => {
     if (!html) return "";
@@ -79,7 +88,7 @@ export default function ShowBlogs() {
         </div>
         <button
           onClick={() => router.push("/admin/blogs/create")}
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -138,9 +147,9 @@ export default function ShowBlogs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredBlogs.map((blog, idx) => (
+                {currentBlogs.map((blog, idx) => (
                   <tr key={blog.id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-5 py-4 text-gray-400 font-mono text-xs">{idx + 1}</td>
+                    <td className="px-5 py-4 text-gray-400 font-mono text-xs">{startIndex + idx + 1}</td>
                     <td className="px-5 py-4">
                       {blog.image_url ? (
                         <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-100 shadow-sm">
@@ -187,7 +196,7 @@ export default function ShowBlogs() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => router.push(`/blog/${blog.slug}`)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                          className="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
                         >
                           <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -196,7 +205,7 @@ export default function ShowBlogs() {
                         </button>
                         <button
                           onClick={() => router.push(`/admin/blogs/edit/${blog.id}`)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                          className="p-2 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
                         >
                           <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -204,7 +213,7 @@ export default function ShowBlogs() {
                         </button>
                         <button
                           onClick={() => setConfirmDelete(blog)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         >
                           <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -216,6 +225,42 @@ export default function ShowBlogs() {
                 ))}
               </tbody>
             </table>
+            
+            {totalPages > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-end px-6 py-4 bg-white border-t border-gray-100">
+                <div className="inline-flex -space-x-px rounded-md shadow-sm">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white border-blue-600 z-10 relative shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -236,14 +281,14 @@ export default function ShowBlogs() {
               <button
                 onClick={() => setConfirmDelete(null)}
                 disabled={!!deletingId}
-                className="flex-1 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                className="flex-1 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(confirmDelete.id)}
                 disabled={deletingId === confirmDelete.id}
-                className="flex-1 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {deletingId === confirmDelete.id ? "Deleting…" : "Delete"}
               </button>
