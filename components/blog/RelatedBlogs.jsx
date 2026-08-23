@@ -72,11 +72,11 @@ export default function RelatedBlogs({ relatedBlogs = [] }) {
               <div className="flex items-center gap-4 text-[13px] text-gray-500 mb-6 mt-auto">
                 <div className="flex items-center gap-1.5">
                   <User size={14} className="text-[#00c3ff]" />
-                  <span>{blog.author}</span>
+                  <span>{blog.author || 'Admin'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar size={14} className="text-[#00c3ff]" />
-                  <span>{formatDate(blog.created_at)}</span>
+                  <span>{formatDate(blog.published_at || blog.created_at)}</span>
                 </div>
               </div>
               <Link href={`/blog/${blog.slug}`} className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max">

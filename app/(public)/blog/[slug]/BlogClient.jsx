@@ -15,7 +15,6 @@ export default function BlogClient({ blog }) {
 
   useEffect(() => {
     if (!blog?.content || !contentRef.current) return;
-
     const h2Elements = Array.from(contentRef.current.querySelectorAll("h2"));
     headingRefsMap.current = h2Elements;
     setHeadings(h2Elements.map((el) => el.textContent.trim()));
@@ -23,7 +22,6 @@ export default function BlogClient({ blog }) {
 
   useEffect(() => {
     if (!headingRefsMap.current.length) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -35,7 +33,6 @@ export default function BlogClient({ blog }) {
       },
       { rootMargin: "0px 0px -70% 0px", threshold: 0 }
     );
-
     headingRefsMap.current.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [headings]);
@@ -45,7 +42,6 @@ export default function BlogClient({ blog }) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // CRITICAL FIX: Date Formatting
   const publishDate = new Date(blog.published_at || blog.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
@@ -57,7 +53,7 @@ export default function BlogClient({ blog }) {
       <nav className="flex items-center gap-2 text-[13px] text-gray-500 mb-6 font-medium">
         <Link href="/" className="hover:text-[#00c3ff] transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/blogs" className="hover:text-[#00c3ff] transition-colors">Blog</Link>
+        <Link href="/blog" className="hover:text-[#00c3ff] transition-colors">Blog</Link>
         {blog.categories?.name && (
           <>
             <span>/</span>
@@ -72,7 +68,6 @@ export default function BlogClient({ blog }) {
         {blog.title}
       </h1>
 
-     
       <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-500 mb-10">
         <span className="font-bold text-gray-800 tracking-wide uppercase text-[12px]">
           By {blog.author || "Admin"}

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Eye, XCircle, Star, RotateCcw } from 'lucide-react';
+import { Package, Eye, XCircle, Star, RotateCcw, Loader2, CheckCircle } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -12,23 +12,54 @@ import Filter from '@/components/dashboard/shared/Filter';
 import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 import DownloadInvoice from '@/components/ui/DownloadInvoice';
+import { updateOrderUserAction } from '@/app/actions/orders';
 
 export default function OrdersClientWrapper({ initialOrders }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
+ 
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: '', orderId: null, title: '', message: '' });
+  const [feedbackDialog, setFeedbackDialog] = useState({ isOpen: false, type: 'success', message: '' });
+
+  
   const handleCancelOrder = (orderId) => {
-    if (window.confirm('Are you sure you want to cancel this order?')) {
-      alert('Cancel request initiated for order: ' + orderId);
-      // Backend integration for cancel will go here
-    }
+    setConfirmDialog({
+      isOpen: true,
+      type: 'cancel',
+      orderId: orderId,
+      title: 'Cancel Order',
+      message: 'Are you sure you want to cancel this order? This action cannot be undone.'
+    });
   };
 
+
   const handleReturnOrder = (orderId) => {
-    if (window.confirm('Are you sure you want to return this order? Our team will review your request.')) {
-      alert('Return request initiated for order: ' + orderId);
-      // Backend integration for return will go here
+    setConfirmDialog({
+      isOpen: true,
+      type: 'return',
+      orderId: orderId,
+      title: 'Return Order',
+      message: 'Are you sure you want to return this order? Our team will review your request.'
+    });
+  };
+
+ 
+  const handleConfirmAction = async () => {
+    setIsUpdating(true);
+    const res = await updateOrderUserAction(confirmDialog.orderId, confirmDialog.type);
+
+    setConfirmDialog({ isOpen: false, type: '', orderId: null, title: '', message: '' });
+
+    if (res.success) {
+      setFeedbackDialog({ isOpen: true, type: 'success', message: res.message || 'Action completed successfully!' });
+      setIsModalOpen(false); 
+    } else {
+      setFeedbackDialog({ isOpen: true, type: 'error', message: res.message || 'Failed to complete action.' });
     }
+    
+    setIsUpdating(false);
   };
 
   const formattedOrders = initialOrders?.map((order) => {
@@ -98,7 +129,8 @@ export default function OrdersClientWrapper({ initialOrders }) {
 
               <button
                 onClick={() => handleReturnOrder(row.rawOrder.id)}
-                className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors cursor-pointer whitespace-nowrap"
+                disabled={isUpdating}
+                className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 <RotateCcw size={16} /> Return
               </button>
@@ -108,7 +140,8 @@ export default function OrdersClientWrapper({ initialOrders }) {
           {(row.status === 'Pending' || row.status === 'Processing') && (
             <button
               onClick={() => handleCancelOrder(row.rawOrder.id)}
-              className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+              disabled={isUpdating}
+              className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <XCircle size={16} /> Cancel
             </button>
@@ -127,7 +160,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 font-sans pt-28 lg:pt-32 px-4">
+    <div className="max-w-7xl mx-auto space-y-6 font-sans pt-28 lg:pt-32 px-4 relative">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
@@ -146,6 +179,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
         <Pagination />
       </Card>
 
+      {/* Main Order Details Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -177,8 +211,6 @@ export default function OrdersClientWrapper({ initialOrders }) {
               {selectedOrder.order_items?.map((item, index) => {
                 const product = item.product_variants?.products || item.products || item;
                 const imgUrl = product?.product_images?.[0]?.image_url || item.image_url || item.image || null;
-                
-                // 🔥 ডেটাবেস থেকে আসা একদম নিখুঁত Slug
                 const productSlug = product?.slug;
 
                 return (
@@ -200,7 +232,6 @@ export default function OrdersClientWrapper({ initialOrders }) {
                       </div>
                       <p className="text-[13px] text-gray-500 mb-3">Qty: {item.quantity} | Size: {item.product_variants?.size || item.size || 'N/A'}</p>
 
-                      {/* শুধুমাত্র সঠিক Slug থাকলেই বাটনগুলো দেখাবে */}
                       {(selectedOrder.status || '').toLowerCase() === 'delivered' && productSlug && (
                         <div className="flex flex-wrap items-center gap-3 mt-2">
                           <Link
@@ -212,7 +243,8 @@ export default function OrdersClientWrapper({ initialOrders }) {
                           
                           <button
                             onClick={() => handleReturnOrder(selectedOrder.id)}
-                            className="inline-flex items-center gap-1.5 text-[12px] font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-4 py-1.5 rounded-md transition-colors cursor-pointer border border-orange-200 shadow-sm"
+                            disabled={isUpdating}
+                            className="inline-flex items-center gap-1.5 text-[12px] font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-4 py-1.5 rounded-md transition-colors border border-orange-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           >
                             <RotateCcw size={12} /> Return Item
                           </button>
@@ -226,6 +258,56 @@ export default function OrdersClientWrapper({ initialOrders }) {
           </div>
         )}
       </Modal>
+
+      {/* Custom Confirmation Popup */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{confirmDialog.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{confirmDialog.message}</p>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-gray-50 border-t border-gray-100 justify-end">
+              <button
+                onClick={() => setConfirmDialog({ isOpen: false, type: '', orderId: null, title: '', message: '' })}
+                disabled={isUpdating}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+              >
+                No, Keep it
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isUpdating}
+                className={`px-4 py-2 text-sm font-bold text-white rounded-lg flex items-center gap-2 cursor-pointer disabled:opacity-50 ${confirmDialog.type === 'cancel' ? 'bg-red-500 hover:bg-red-600' : 'bg-orange-500 hover:bg-orange-600'}`}
+              >
+                {isUpdating && <Loader2 size={14} className="animate-spin" />}
+                Yes, {confirmDialog.type === 'cancel' ? 'Cancel' : 'Return'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Success/Error Feedback Popup */}
+      {feedbackDialog.isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200 p-6 text-center">
+            <div className={`w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-4 ${feedbackDialog.type === 'success' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
+              {feedbackDialog.type === 'success' ? <CheckCircle size={28} /> : <XCircle size={28} />}
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              {feedbackDialog.type === 'success' ? 'Success!' : 'Oops!'}
+            </h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">{feedbackDialog.message}</p>
+            <button
+              onClick={() => setFeedbackDialog({ isOpen: false, type: 'success', message: '' })}
+              className="w-full py-2.5 text-sm font-bold text-white bg-black rounded-lg hover:bg-gray-800 cursor-pointer transition-colors"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

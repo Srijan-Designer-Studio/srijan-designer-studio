@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { User, Calendar, ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
@@ -10,7 +9,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Date Formatter Function
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -20,17 +18,15 @@ const formatDate = (dateString) => {
 export default function LatestBlogs({ blogs = [] }) {
   const containerRef = useRef(null);
 
-  // Slider States
   const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(9); // Default to 9 for Desktop (3x3 grid)
+  const [itemsPerView, setItemsPerView] = useState(9); 
   const [isPaused, setIsPaused] = useState(false);
-
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) setItemsPerView(3); // Mobile: 3 items (1 col)
-      else if (window.innerWidth < 1024) setItemsPerView(6); // Tablet: 6 items (2 cols)
-      else setItemsPerView(9); // Desktop: 9 items (3 cols x 3 rows)
+      if (window.innerWidth < 768) setItemsPerView(3); 
+      else if (window.innerWidth < 1024) setItemsPerView(6); 
+      else setItemsPerView(9); 
     };
 
     handleResize();
@@ -49,14 +45,12 @@ export default function LatestBlogs({ blogs = [] }) {
     return () => clearInterval(interval);
   }, [totalPages, isPaused]);
 
-
   useEffect(() => {
     if (currentPage >= totalPages && totalPages > 0) {
       setCurrentPage(totalPages - 1);
     }
   }, [totalPages, currentPage]);
 
-  // GSAP Animations
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -97,7 +91,6 @@ export default function LatestBlogs({ blogs = [] }) {
   return (
     <section className="py-20 bg-white min-h-[50vh] flex flex-col overflow-hidden" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 w-full flex-1 flex flex-col">
-
         <div className="mb-12">
           <h2 className="latest-head text-3xl md:text-4xl font-bold text-center text-black">
             Latest Blogs
@@ -106,7 +99,6 @@ export default function LatestBlogs({ blogs = [] }) {
 
         {blogs && blogs.length > 0 ? (
           <>
-            {/* Slider Container */}
             <div
               className="relative overflow-hidden mb-10 -mx-3 lg:-mx-4 px-3 lg:px-4 py-4 -my-4"
               onMouseEnter={() => setIsPaused(true)}
@@ -116,10 +108,8 @@ export default function LatestBlogs({ blogs = [] }) {
                 className="flex transition-transform duration-700 ease-in-out"
                 style={{ transform: `translateX(-${currentPage * 100}%)` }}
               >
-                {/* Dynamically create "pages" based on itemsPerView */}
                 {Array.from({ length: totalPages }).map((_, pageIndex) => (
                   <div key={pageIndex} className="w-full shrink-0 px-3 lg:px-4">
-                    {/* Grid wrapper for the 9 cards (3 columns) per page */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {blogs.slice(pageIndex * itemsPerView, (pageIndex + 1) * itemsPerView).map((blog) => (
                         <div key={blog.id} className="latest-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
@@ -145,7 +135,7 @@ export default function LatestBlogs({ blogs = [] }) {
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Calendar size={14} className="text-[#00c3ff]" />
-                              <span>{formatDate(blog.created_at)}</span>
+                              <span>{formatDate(blog.published_at || blog.created_at)}</span>
                             </div>
                           </div>
 
@@ -163,7 +153,6 @@ export default function LatestBlogs({ blogs = [] }) {
               </div>
             </div>
 
-            {/* Dynamic Pagination Buttons */}
             {totalPages > 1 && (
               <div className="latest-pagination flex justify-center items-center gap-3">
                 {Array.from({ length: totalPages }).map((_, idx) => (

@@ -236,3 +236,53 @@ export async function trackOrder(orderId) {
     throw new Error(error.message)
   }
 }
+
+export async function updateOrderUserAction(orderId, actionType) {
+  try {
+    const supabase = await createClient();
+    const adminDb = createAdminClient();
+
+   
+    const { data: { session } } = await supabase.auth.getSession();
+    let user = session?.user;
+    if (!user) {
+      const { data } = await supabase.auth.getUser();
+      user = data?.user;
+    }
+    if (!user) throw new Error('Unauthorized');
+
+    
+    const { data: order, error: fetchError } = await adminDb
+      .from('orders')
+      .select('id, status')
+      .eq('id', orderId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (fetchError || !order) throw new Error('Order not found.');
+
+    let newStatus = '';
+    
+    
+    if (actionType === 'cancel' && ['pending', 'processing'].includes(order.status.toLowerCase())) {
+       newStatus = 'cancelled';
+    } else if (actionType === 'return' && order.status.toLowerCase() === 'delivered') {
+       newStatus = 'returned';
+    } else {
+       throw new Error(`Cannot ${actionType} this order in its current status.`);
+    }
+
+   
+    const { error: updateError } = await adminDb
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId);
+
+    if (updateError) throw updateError;
+
+    revalidatePath('/account/orders'); 
+    return { success: true, message: `Order has been ${newStatus} successfully.` };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+}

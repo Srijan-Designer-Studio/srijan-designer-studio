@@ -2,21 +2,18 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { unstable_noStore as noStore } from 'next/cache'
 
 export async function getAllBlogs() {
+  noStore()
   const supabase = createAdminClient()
-  
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('*, categories(name)')
-    // CRITICAL FIX: Order by custom published_at instead of created_at
-    .order('published_at', { ascending: false })
-
+  const { data, error } = await supabase.from('blogs').select('*, categories(name)').order('published_at', { ascending: false })
   if (error) return []
   return data
 }
 
 export async function getBlogCategories() {
+  noStore()
   const supabase = createAdminClient()
   const { data, error } = await supabase.from('categories').select('*')
   if (error) return []
@@ -25,7 +22,6 @@ export async function getBlogCategories() {
 
 export async function createBlog(formData) {
   const supabase = createAdminClient()
-
   const title = formData.get("title");
   const content = formData.get("content");
   const metaTitle = formData.get("metaTitle");
@@ -34,95 +30,59 @@ export async function createBlog(formData) {
   const permalink = formData.get("permalink");
   const category_id = formData.get("category");
   const image = formData.get("image");
-  
-  // CRITICAL FIX: Receive Author & Published Date
   const author = formData.get("author") || "Admin";
-  const published_at = formData.get("published_at") || new Date().toISOString();
+  
+  let published_at = formData.get("published_at");
+  published_at = published_at ? new Date(published_at).toISOString() : new Date().toISOString();
 
   let image_url = null;
-
   if (image && image.size > 0) {
     const fileExt = image.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('blog-images')
-      .upload(fileName, image);
-
-    if (uploadError) {
-      throw new Error("Image upload failed: " + uploadError.message);
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('blog-images')
-      .getPublicUrl(fileName);
-      
+    const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, image);
+    if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+    const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
     image_url = publicUrlData.publicUrl;
   }
 
   const { error } = await supabase.from('blogs').insert({
-    title,
-    content,
-    slug: permalink,
-    meta_title: metaTitle,
-    meta_description: metaDescription,
-    keywords,
-    category_id: category_id || null,
-    image_url,
-    author, // Saved to DB
-    published_at // Saved to DB
+    title, content, slug: permalink, meta_title: metaTitle, meta_description: metaDescription,
+    keywords, category_id: category_id || null, image_url, author, published_at 
   });
 
   if (error) throw new Error(error.message);
-
   revalidatePath('/admin/blogs')
   revalidatePath('/blogs')
-  
   return { success: true };
 }
 
 export async function getBlogBySlug(slug) {
+  noStore()
   const supabase = createAdminClient()
-  
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('*, categories(name)')
-    .eq('slug', slug)
-    .single()
-
+  const { data, error } = await supabase.from('blogs').select('*, categories(name)').eq('slug', slug).single()
   if (error) return null
   return data
 }
 
 export async function deleteBlogById(id) {
   const supabase = createAdminClient()
-  
   const { error } = await supabase.from('blogs').delete().eq('id', id)
-  
   if (error) throw new Error(error.message)
-  
   revalidatePath('/admin/blogs')
   revalidatePath('/blogs')
-  
   return { success: true }
 }
 
 export async function getBlogById(id) {
+  noStore()
   const supabase = createAdminClient()
-  
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('id', id)
-    .single()
-
+  const { data, error } = await supabase.from('blogs').select('*').eq('id', id).single()
   if (error) return null
   return data
 }
 
 export async function updateBlog(id, formData) {
   const supabase = createAdminClient()
-
   const title = formData.get("title");
   const content = formData.get("content");
   const metaTitle = formData.get("metaTitle");
@@ -132,76 +92,46 @@ export async function updateBlog(id, formData) {
   const category_id = formData.get("category");
   const image = formData.get("image");
   const existing_image = formData.get("existing_image");
-
-  // CRITICAL FIX: Receive Author & Published Date
   const author = formData.get("author") || "Admin";
-  const published_at = formData.get("published_at") || new Date().toISOString();
+
+  const updateData = {
+    title, content, slug: permalink, meta_title: metaTitle,
+    meta_description: metaDescription, keywords, category_id: category_id || null, author 
+  };
+
+  let published_at = formData.get("published_at");
+  if (published_at) {
+    updateData.published_at = new Date(published_at).toISOString();
+  }
 
   let image_url = existing_image;
-
   if (image && image.size > 0) {
     const fileExt = image.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('blog-images')
-      .upload(fileName, image);
-
-    if (uploadError) {
-      throw new Error("Image upload failed: " + uploadError.message);
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('blog-images')
-      .getPublicUrl(fileName);
-      
+    const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, image);
+    if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+    const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
     image_url = publicUrlData.publicUrl;
+    updateData.image_url = image_url;
   }
 
-  const { error } = await supabase.from('blogs').update({
-    title,
-    content,
-    slug: permalink,
-    meta_title: metaTitle,
-    meta_description: metaDescription,
-    keywords,
-    category_id: category_id || null,
-    image_url,
-    author, // Saved to DB
-    published_at // Saved to DB
-  }).eq('id', id);
-
+  const { error } = await supabase.from('blogs').update(updateData).eq('id', id);
   if (error) throw new Error(error.message);
 
   revalidatePath('/admin/blogs')
   revalidatePath('/blogs')
   revalidatePath(`/blog/${permalink}`)
-  
   return { success: true };
 }
 
 export async function uploadImageForEditor(formData) {
   const supabase = createAdminClient()
   const image = formData.get("image");
-
-  if (!image || image.size === 0) {
-    throw new Error("No image found");
-  }
-
+  if (!image || image.size === 0) throw new Error("No image found");
   const fileExt = image.name.split('.').pop();
   const fileName = `editor_${Date.now()}.${fileExt}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('blog-images')
-    .upload(fileName, image);
-
-  if (uploadError) {
-    throw new Error("Image upload failed: " + uploadError.message);
-  }
-
-  const { data: publicUrlData } = supabase.storage
-    .from('blog-images')
-    .getPublicUrl(fileName);
-
+  const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, image);
+  if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+  const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
   return { url: publicUrlData.publicUrl };
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { getAllBlogs, deleteBlogById } from "@/app/actions/blogs";
 
 export default function ShowBlogs() {
@@ -14,6 +13,8 @@ export default function ShowBlogs() {
   const router = useRouter();
 
   useEffect(() => {
+    
+    router.refresh(); 
     fetchBlogs();
   }, []);
 
@@ -55,12 +56,15 @@ export default function ShowBlogs() {
     return html.replace(/<[^>]*>/g, "").trim();
   };
 
-  const formatDate = (dateStr) => {
+  const formatDateTime = (dateStr) => {
     if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString("en-IN", {
+    return new Date(dateStr).toLocaleString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
     });
   };
 
@@ -129,7 +133,6 @@ export default function ShowBlogs() {
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden md:table-cell">Category</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden md:table-cell">Excerpt</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Slug</th>
-                  {/* CRITICAL FIX: Changed column name */}
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Published & Author</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs text-right">Actions</th>
                 </tr>
@@ -173,9 +176,8 @@ export default function ShowBlogs() {
                         /{blog.slug || "—"}
                       </span>
                     </td>
-                    {/* CRITICAL FIX: Shows Published Date & Author */}
                     <td className="px-5 py-4 hidden lg:table-cell text-gray-600 text-xs whitespace-nowrap">
-                      {formatDate(blog.published_at || blog.created_at)}
+                      {formatDateTime(blog.published_at || blog.created_at)}
                       <br />
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                         By {blog.author || "Admin"}
