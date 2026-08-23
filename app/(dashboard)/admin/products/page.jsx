@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { getAdminProducts, getCategories } from '@/app/actions/admin';
 import ProductsClientWrapper from './ProductsClientWrapper';

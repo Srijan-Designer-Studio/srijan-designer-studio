@@ -15,6 +15,7 @@ import {
   generateAWB,
   trackShiprocketOrder
 } from '@/lib/utils/shiprocket'
+import { unstable_noStore as noStore } from 'next/cache';
 
 async function verifyAdmin() {
   return true;
@@ -789,6 +790,7 @@ async function generateUniqueSlug(supabase, baseSlug, excludeId = null) {
 }
 
 export async function getAdminProducts() {
+  noStore();
   const supabase = createAdminClient()
   try {
     await verifyAdmin()
