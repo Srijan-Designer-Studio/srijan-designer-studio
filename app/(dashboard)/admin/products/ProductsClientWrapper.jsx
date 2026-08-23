@@ -12,10 +12,10 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
 
-  // CRITICAL FIX: Update the state automatically when new data is uploaded/fetched
   useEffect(() => {
+    router.refresh();
     setProducts(initialProducts);
-  }, [initialProducts]);
+  }, [initialProducts, router]);
 
   const handleDeleteProduct = (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
@@ -32,7 +32,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
         const updatedData = await getAdminProducts();
         setProducts(updatedData || []);
         setDeletingId(null);
-        router.refresh(); // Force Next.js to clear router cache
+        router.refresh(); 
       });
     }
   };

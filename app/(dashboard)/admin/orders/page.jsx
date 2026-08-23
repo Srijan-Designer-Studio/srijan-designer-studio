@@ -4,10 +4,9 @@ import { useState, useEffect, useTransition } from 'react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
-import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 import { getAllOrders, updateOrderStatus, pushOrderToShiprocket, requestPickup, generateLabel, generateInvoice, cancelShipment, initiateReturn } from '@/app/actions/admin';
-import { MapPin, User, Package, Calendar, CreditCard, X } from 'lucide-react';
+import { MapPin, User, Package, Calendar, CreditCard, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -19,6 +18,8 @@ export default function AdminOrdersPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All Statuses");
     const [enlargedImage, setEnlargedImage] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -33,6 +34,10 @@ export default function AdminOrdersPage() {
         };
         fetchOrders();
     }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter]);
 
     const handleStatusUpdate = (e) => {
         e.preventDefault();
@@ -52,15 +57,10 @@ export default function AdminOrdersPage() {
         try {
             const result = await pushOrderToShiprocket(selectedOrder.id);
             if (result.success) {
-                alert("Order successfully pushed to Shiprocket!");
                 const updatedData = await getAllOrders();
                 setOrders(updatedData);
                 setSelectedOrder(updatedData.find(o => o.id === selectedOrder.id) || selectedOrder);
-            } else {
-                alert("Error: " + result.error);
             }
-        } catch (error) {
-            alert("Something went wrong.");
         } finally {
             setIsPushing(false);
         }
@@ -97,7 +97,12 @@ export default function AdminOrdersPage() {
         return matchesSearch && matchesStatus;
     });
 
-    const formattedOrders = filteredOrders.map(order => ({
+    const totalItems = filteredOrders.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentFilteredOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+
+    const currentOrders = currentFilteredOrders.map(order => ({
         rawOrder: order,
         id: order.id.split('-')[0].toUpperCase(),
         customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`.trim(),
@@ -117,7 +122,7 @@ export default function AdminOrdersPage() {
             render: (row) => (
                 <div>
                     <p className="font-medium text-gray-900">{row.customer}</p>
-                    <p className="text-[19px] text-gray-500">{row.email}</p>
+                    <p className="text-[13px] text-gray-500">{row.email}</p>
                 </div>
             )
         },
@@ -130,7 +135,7 @@ export default function AdminOrdersPage() {
             render: (row) => (
                 <button
                     onClick={() => handleViewOrder(row.rawOrder)}
-                    className="text-blue-600 hover:text-blue-800 font-bold text-sm transition-colors cursor-pointer"
+                    className="text-blue-600 hover:text-blue-800 font-bold text-sm transition-colors cursor-pointer bg-blue-50 px-3 py-1.5 rounded-md"
                 >
                     Manage Details
                 </button>
@@ -155,7 +160,6 @@ export default function AdminOrdersPage() {
                     <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
                     <div className="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin"></div>
                 </div>
-                <p className="text-gray-500 font-semibold tracking-[0.2em] uppercase text-sm animate-pulse">Loading Orders...</p>
             </div>
         );
     }
@@ -165,12 +169,12 @@ export default function AdminOrdersPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-                    <p className="text-[19px] text-gray-500 mt-1">Track, manage, and fulfill customer orders seamlessly.</p>
+                    <p className="text-[16px] text-gray-500 mt-1">Track, manage, and fulfill customer orders seamlessly.</p>
                 </div>
             </div>
 
-            <Card className="p-0">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white text-black">
+            <Card className="p-0 shadow-sm border border-gray-200 overflow-hidden">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-b border-gray-100 bg-white text-black">
                     <div className="relative w-full sm:w-[400px]">
                         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -180,7 +184,7 @@ export default function AdminOrdersPage() {
                             placeholder="Search by Order ID, Customer, or Email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-black bg-gray-50/50 transition-all"
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm text-black bg-gray-50 transition-all"
                         />
                     </div>
 
@@ -188,7 +192,7 @@ export default function AdminOrdersPage() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-black bg-white cursor-pointer transition-all"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm text-black bg-gray-50 cursor-pointer transition-all"
                         >
                             {statusOptions.map((opt, idx) => (
                                 <option key={idx} value={opt.value}>{opt.label}</option>
@@ -196,8 +200,46 @@ export default function AdminOrdersPage() {
                         </select>
                     </div>
                 </div>
-                <Table columns={orderColumns} data={formattedOrders} />
-                <Pagination />
+                
+                <div className="overflow-x-auto min-w-[800px]">
+                   <Table columns={orderColumns} data={currentOrders} />
+                </div>
+
+                {totalPages > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-end px-6 py-4 bg-white border-t border-gray-100">
+                        <div className="inline-flex -space-x-px rounded-md shadow-sm">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+                            
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
+                                        currentPage === page
+                                            ? 'bg-blue-600 text-white border-blue-600 z-10 relative shadow-sm'
+                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                            
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                            >
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Card>
 
             <Modal
@@ -257,7 +299,7 @@ export default function AdminOrdersPage() {
                                     }
 
                                     return (
-                                        <div key={idx} className="flex items-center gap-4 p-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg border border-gray-200">
+                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg border border-gray-200">
 
                                             <div
                                                 className={`relative w-16 h-20 bg-gray-100 rounded-md overflow-hidden border border-gray-200 shrink-0 shadow-sm flex items-center justify-center ${imageUrl ? 'cursor-pointer group' : ''}`}
@@ -278,14 +320,14 @@ export default function AdminOrdersPage() {
 
                                             <div className="flex-1">
                                                 <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.product_variants?.products?.title || "Unknown Product"}</h4>
-                                                <p className="text-[19px] text-gray-500 mt-1">SKU: {item.product_variants?.sku || "N/A"}</p>
-                                                <p className="text-[19px] font-semibold text-gray-700 mt-1">
+                                                <p className="text-[13px] text-gray-500 mt-1">SKU: {item.product_variants?.sku || "N/A"}</p>
+                                                <p className="text-[13px] font-semibold text-gray-700 mt-1">
                                                     Size/Color: <span className="uppercase">{item.product_variants?.size || "-"} | {item.product_variants?.color || "-"}</span>
                                                 </p>
                                             </div>
-                                            <div className="text-right shrink-0">
-                                                <p className="text-[19px] text-gray-500 mb-1">Qty: <span className="font-bold text-black">{item.quantity}</span></p>
-                                                <p className="text-[19px] font-black text-[#0ba6ff]">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                            <div className="text-left sm:text-right shrink-0">
+                                                <p className="text-[13px] text-gray-500 mb-1">Qty: <span className="font-bold text-black">{item.quantity}</span></p>
+                                                <p className="text-[15px] font-black text-[#0ba6ff]">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                             </div>
                                         </div>
                                     )
@@ -308,7 +350,7 @@ export default function AdminOrdersPage() {
                                     <label className="block text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-2">Change Order Status</label>
                                     <select
                                         name="status"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-sm cursor-pointer shadow-sm"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black font-semibold text-sm cursor-pointer shadow-sm"
                                         defaultValue={selectedOrder.status.toLowerCase()}
                                     >
                                         <option value="pending">Pending</option>
@@ -334,19 +376,19 @@ export default function AdminOrdersPage() {
 
                                         {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
                                             <>
-                                                <button type="button" onClick={async () => { const res = await requestPickup(selectedOrder.shiprocket_shipment_id); if (res.success) alert("Pickup scheduled successfully!"); }} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer">Schedule Pickup</button>
-                                                <button type="button" onClick={async () => { const res = await generateLabel(selectedOrder.shiprocket_shipment_id); if (res.success && res.data.label_created) { window.open(res.data.label_url, '_blank'); } else { alert("Could not generate label."); } }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Label</button>
+                                                <button type="button" onClick={async () => { await requestPickup(selectedOrder.shiprocket_shipment_id); }} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer">Schedule Pickup</button>
+                                                <button type="button" onClick={async () => { const res = await generateLabel(selectedOrder.shiprocket_shipment_id); if (res.success && res.data.label_created) window.open(res.data.label_url, '_blank'); }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Label</button>
                                             </>
                                         )}
 
-                                        <button type="button" onClick={async () => { const res = await generateInvoice(selectedOrder.shiprocket_order_id); if (res.success && res.data.is_invoice_created) { window.open(res.data.invoice_url, '_blank'); } else { alert("Could not generate invoice."); } }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Invoice</button>
+                                        <button type="button" onClick={async () => { const res = await generateInvoice(selectedOrder.shiprocket_order_id); if (res.success && res.data.is_invoice_created) window.open(res.data.invoice_url, '_blank'); }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Invoice</button>
 
                                         {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
-                                            <button type="button" onClick={async () => { const confirmCancel = window.confirm("Are you sure you want to cancel this shipment in Shiprocket?"); if (confirmCancel) { const res = await cancelShipment(selectedOrder.id, selectedOrder.tracking_number); if (res.success) { alert("Shipment cancelled."); const updatedData = await getAllOrders(); setOrders(updatedData); setIsModalOpen(false); } else { alert("Failed to cancel."); } } }} className="px-4 py-2 text-xs font-bold text-red-700 bg-red-50 rounded-lg shadow-sm border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">Cancel Shipment</button>
+                                            <button type="button" onClick={async () => { await cancelShipment(selectedOrder.id, selectedOrder.tracking_number); }} className="px-4 py-2 text-xs font-bold text-red-700 bg-red-50 rounded-lg shadow-sm border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">Cancel Shipment</button>
                                         )}
 
                                         {selectedOrder.status === 'delivered' && (
-                                            <button type="button" onClick={async () => { const confirmReturn = window.confirm("Create a return pickup for this order?"); if (confirmReturn) { const res = await initiateReturn(selectedOrder.id); if (res.success) { alert("Return pickup scheduled successfully!"); const updatedData = await getAllOrders(); setOrders(updatedData); setIsModalOpen(false); } else { alert("Failed to create return."); } } }} className="px-4 py-2 text-xs font-bold text-orange-700 bg-orange-50 rounded-lg shadow-sm border border-orange-200 hover:bg-orange-100 transition-colors cursor-pointer">Initiate Return</button>
+                                            <button type="button" onClick={async () => { await initiateReturn(selectedOrder.id); }} className="px-4 py-2 text-xs font-bold text-orange-700 bg-orange-50 rounded-lg shadow-sm border border-orange-200 hover:bg-orange-100 transition-colors cursor-pointer">Initiate Return</button>
                                         )}
                                     </div>
                                 ) : (
