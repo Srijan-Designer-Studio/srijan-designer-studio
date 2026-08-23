@@ -8,25 +8,30 @@ export default function Step6Bundle() {
 
   const addComponent = () => {
     const newComp = { id: Date.now(), name: "", type: "Top", required: false, price: "", file: null, preview: null };
-    updateFormData({ components: [...formData.components, newComp] });
+    updateFormData({ components: [...(formData.components || []), newComp] });
   };
 
   const removeComponent = (id) => {
-    updateFormData({ components: formData.components.filter(c => c.id !== id) });
+    updateFormData({ components: (formData.components || []).filter(c => c.id !== id) });
   };
 
   const updateComponent = (id, field, value) => {
     updateFormData({
-      components: formData.components.map(c => c.id === id ? { ...c, [field]: value } : c)
+      components: (formData.components || []).map(c => c.id === id ? { ...c, [field]: value } : c)
     });
   };
 
   const handleImageChange = (id, e) => {
     const file = e.target.files[0];
     if (file) {
-      const preview = URL.createObjectURL(file);
-      updateComponent(id, 'file', file);
-      updateComponent(id, 'preview', preview);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const updatedComponents = (formData.components || []).map(c => 
+          c.id === id ? { ...c, file: file, preview: reader.result } : c
+        );
+        updateFormData({ components: updatedComponents });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -37,7 +42,6 @@ export default function Step6Bundle() {
         <p className="text-[19px] text-gray-500 mt-1">Set the global price and upload custom add-ons (Mix & Match) for this product.</p>
       </div>
 
-      {/* Base Pricing Section */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-8">
         <h3 className="text-[13px] font-bold text-gray-800 mb-4 uppercase tracking-wide">Base Pricing</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -104,12 +108,11 @@ export default function Step6Bundle() {
           </div>
 
           <div className="p-5">
-            {formData.components.length > 0 ? (
+            {(formData.components || []).length > 0 ? (
               <div className="space-y-4">
-                {formData.components.map((comp, idx) => (
+                {formData.components.map((comp) => (
                   <div key={comp.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-lg border border-gray-200">
                     
-                    {/* Image Upload for Component */}
                     <label className="w-16 h-16 sm:w-14 sm:h-14 flex-shrink-0 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer overflow-hidden bg-gray-50 relative group">
                       <input type="file" accept="image/*" onChange={(e) => handleImageChange(comp.id, e)} className="hidden" />
                       {comp.preview ? (
