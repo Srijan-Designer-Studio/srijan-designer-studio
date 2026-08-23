@@ -8,33 +8,51 @@ export default function Step5Variants() {
 
   const addVariant = () => {
     const newVariant = {
-      id: Date.now(), size: "", color: "", sku: "", stock: "0", lowStock: "5", barcode: ""
+      id: Date.now() + Math.random(), 
+      size: "", 
+      color: "", 
+      sku: "", 
+      stock: 0, 
+      lowStock: 5, 
+      barcode: ""
     };
-    updateFormData({ variants: [...formData.variants, newVariant] });
+    const currentVariants = formData?.variants || [];
+    updateFormData({ variants: [...currentVariants, newVariant] });
   };
 
   const duplicateVariant = (variant) => {
     const newVariant = {
       ...variant,
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       sku: variant.sku ? `${variant.sku}-COPY` : ""
     };
-    updateFormData({ variants: [...formData.variants, newVariant] });
+    const currentVariants = formData?.variants || [];
+    updateFormData({ variants: [...currentVariants, newVariant] });
   };
 
   const removeVariant = (id) => {
-    if (formData.variants.length > 1) {
-      updateFormData({ variants: formData.variants.filter(v => v.id !== id) });
+    const currentVariants = formData?.variants || [];
+    if (currentVariants.length > 1) {
+      updateFormData({ variants: currentVariants.filter(v => v.id !== id) });
     } else {
       alert("You must have at least one variant.");
     }
   };
 
   const updateVariant = (id, field, value) => {
+    const currentVariants = formData?.variants || [];
+    
+    let finalValue = value;
+    if (field === 'stock' || field === 'lowStock') {
+        finalValue = value === "" ? "" : Number(value);
+    }
+
     updateFormData({
-      variants: formData.variants.map(v => v.id === id ? { ...v, [field]: value } : v)
+      variants: currentVariants.map(v => v.id === id ? { ...v, [field]: finalValue } : v)
     });
   };
+
+  const variants = formData?.variants || [];
 
   return (
     <div className="animate-in fade-in text-black slide-in-from-bottom-4 duration-500">
@@ -52,9 +70,8 @@ export default function Step5Variants() {
       </div>
 
       <div className="space-y-6">
-        {formData.variants.map((variant, index) => (
+        {variants.map((variant, index) => (
           <div key={variant.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 relative group transition-all hover:border-blue-300 hover:shadow-sm">
-
             <div className="absolute top-4 right-4 flex gap-2">
               <button
                 onClick={() => duplicateVariant(variant)}
@@ -82,7 +99,7 @@ export default function Step5Variants() {
                 <input
                   type="text"
                   placeholder="e.g. Free Size, XL"
-                  value={variant.size}
+                  value={variant.size || ""}
                   onChange={(e) => updateVariant(variant.id, 'size', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
@@ -93,7 +110,7 @@ export default function Step5Variants() {
                 <input
                   type="text"
                   placeholder="e.g. Crimson Red"
-                  value={variant.color}
+                  value={variant.color || ""}
                   onChange={(e) => updateVariant(variant.id, 'color', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
@@ -104,7 +121,7 @@ export default function Step5Variants() {
                 <input
                   type="text"
                   placeholder="e.g. SRI-CRIM-S"
-                  value={variant.sku}
+                  value={variant.sku || ""}
                   onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
@@ -115,7 +132,7 @@ export default function Step5Variants() {
                 <input
                   type="number"
                   placeholder="0"
-                  value={variant.stock}
+                  value={variant.stock ?? ""}
                   onChange={(e) => updateVariant(variant.id, 'stock', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
@@ -126,7 +143,7 @@ export default function Step5Variants() {
                 <input
                   type="number"
                   placeholder="5"
-                  value={variant.lowStock}
+                  value={variant.lowStock ?? ""}
                   onChange={(e) => updateVariant(variant.id, 'lowStock', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
@@ -137,7 +154,7 @@ export default function Step5Variants() {
                 <input
                   type="text"
                   placeholder="ISBN, UPC, GTIN"
-                  value={variant.barcode}
+                  value={variant.barcode || ""}
                   onChange={(e) => updateVariant(variant.id, 'barcode', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
