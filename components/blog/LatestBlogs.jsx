@@ -19,14 +19,14 @@ export default function LatestBlogs({ blogs = [] }) {
   const containerRef = useRef(null);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(9); 
+  const [itemsPerView, setItemsPerView] = useState(9);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) setItemsPerView(3); 
-      else if (window.innerWidth < 1024) setItemsPerView(6); 
-      else setItemsPerView(9); 
+      if (window.innerWidth < 768) setItemsPerView(3);
+      else if (window.innerWidth < 1024) setItemsPerView(6);
+      else setItemsPerView(9);
     };
 
     handleResize();
@@ -141,9 +141,14 @@ export default function LatestBlogs({ blogs = [] }) {
 
                           <Link
                             href={`/blog/${blog.slug}`}
-                            className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max"
+                            className="group inline-flex items-center justify-center gap-2.5 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-base md:text-lg px-5 py-2.5 md:px-7 md:py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#00c3ff]/40 hover:-translate-y-1 w-fit"
                           >
-                            Read More <ArrowUpRight size={16} strokeWidth={2.5} />
+                            Read More
+                            <ArrowUpRight
+                              size={20}
+                              strokeWidth={2.5}
+                              className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+                            />
                           </Link>
                         </div>
                       ))}

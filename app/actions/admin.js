@@ -313,7 +313,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       if (newStatus === 'processing') {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
        
-        topIcon = `${BASE_URL}/email-img/Email%20Icon%201.webp`; 
+        topIcon = `${BASE_URL}/email-img/1.webp`; 
         headerText = 'Thank You For Your Order!';
         messageHtml = `
           <p style="margin-bottom: 15px;">We're happy to confirm that we've received your order successfully. Our team will now begin processing your order.</p>
@@ -344,7 +344,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'packed') {
         subject = `Order Packed - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email%20Icon%202.webp`; 
+        topIcon = `${BASE_URL}/email-img/2.webp`; 
         headerText = 'Hooray! Your Order Is Packed';
         messageHtml = `
           <p style="margin-bottom: 15px;">Good news! Your order <strong>#${displayOrderId}</strong> has been packed and is ready to leave our studio.</p>
@@ -356,7 +356,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'shipped') {
         subject = `Order Shipped - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email%20Icon%203.webp`; 
+        topIcon = `${BASE_URL}/email-img/3.webp`; 
         headerText = 'Your Order Is On Its Way!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Your order <strong>#${displayOrderId}</strong> is officially on its way!</p>
@@ -367,7 +367,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       } 
       else if (newStatus === 'out_for_delivery') {
         subject = `Order Out For Delivery - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email%20Icon%204.webp`; 
+        topIcon = `${BASE_URL}/email-img/4.webp`; 
         headerText = 'Your Order Is Out For Delivery!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Exciting news! Your SRIJAN Fashion order <strong>#${displayOrderId}</strong> is out for delivery today.</p>
@@ -386,7 +386,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       }
       else if (newStatus === 'delivered') {
         subject = `Order Delivered - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/Email%20Icon%205.webp`; 
+        topIcon = `${BASE_URL}/email-img/5.webp`; 
         headerText = 'Your Order Has Been Delivered!';
         messageHtml = `
           <p style="margin-bottom: 15px;">Your Srijan Fashion order <strong>#${displayOrderId}</strong> has been successfully delivered.</p>
