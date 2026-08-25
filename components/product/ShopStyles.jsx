@@ -47,7 +47,7 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
     try {
       await toggleWishlistServer(product.id);
     } catch (error) {
-      console.error("Failed to update wishlist:", error);
+      console.error(error);
     }
   };
 
@@ -99,15 +99,10 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                 className="shop-card group flex flex-col items-center cursor-pointer relative"
               >
                 <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
-                  {mainImage ? (
-                    <img
-                      src={mainImage}
-                      alt={product.title}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>
-                  )}
+                  
+                  <div className="absolute top-3 left-3 bg-[#00c3ff] text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-sm z-10 tracking-wider shadow-sm">
+                    NEW
+                  </div>
 
                   <button
                     onClick={(e) => handleWishlistToggle(e, product)}
@@ -118,6 +113,17 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                       className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
                     />
                   </button>
+
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt={product.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>
+                  )}
+
                 </div>
                 <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                   {product.title}

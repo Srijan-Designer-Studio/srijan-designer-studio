@@ -45,16 +45,16 @@ export function WizardProvider({ children, initialData }) {
   const defaultData = {
     title: "", productType: "Saree", brand: "Srijan Fashion", shortDesc: "",
     description: "", materialCare: "", highlights: "", additionalInfo: "",
-    department: "Women", categories: [], collections: [], occasions: [], tags: [],
+    department: "Women", collections: [],
     images: [],
     variants: [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
     basePrice: "", salePrice: "",
     purchaseType: "Single Product", 
-    components: [], // CRITICAL FIX: Added components back here
+    components: [],
     productAddons: [],
     weight: "", length: "", width: "", height: "", shippingClass: "Standard", estimatedDelivery: "3-5 Days", isCodAvailable: true, isFreeShipping: false, isReturnEligible: true,
     shippingPolicy: "", returnPolicy: "", faqs: [],
-    seoTitle: "", seoSlug: "", metaDesc: "", focusKeyword: "", seoKeywords: "", ogTitle: "", ogDesc: "", canonicalUrl: ""
+    seoTitle: "", seoSlug: "", metaDesc: "", focusKeyword: "", seoKeywords: "", ogTitle: "", ogDesc: "", canonicalUrl: "", schemaMarkup: ""
   };
 
   const [formData, setFormData] = useState(defaultData);
@@ -64,10 +64,7 @@ export function WizardProvider({ children, initialData }) {
       setFormData((prev) => ({
         ...prev,
         ...initialData,
-        categories: parseArrayData(initialData.categories),
         collections: parseArrayData(initialData.collections),
-        occasions: parseArrayData(initialData.occasions),
-        tags: parseArrayData(initialData.tags),
         faqs: parseArrayData(initialData.faqs),
         variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
         components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
@@ -95,7 +92,7 @@ export function WizardProvider({ children, initialData }) {
         "highlights", "additionalInfo", "department", "basePrice", "salePrice", "purchaseType", "weight", 
         "length", "width", "height", "shippingClass", "estimatedDelivery", 
         "shippingPolicy", "returnPolicy", "seoTitle", "seoSlug", "metaDesc", 
-        "focusKeyword", "seoKeywords", "ogTitle", "ogDesc", "canonicalUrl"
+        "focusKeyword", "seoKeywords", "ogTitle", "ogDesc", "canonicalUrl", "schemaMarkup"
       ];
       
       textFields.forEach(field => submitData.append(field, formData[field] || ""));
@@ -104,17 +101,15 @@ export function WizardProvider({ children, initialData }) {
       submitData.append("isFreeShipping", formData.isFreeShipping);
       submitData.append("isReturnEligible", formData.isReturnEligible);
 
-      const jsonFields = ["categories", "collections", "occasions", "tags", "variants", "faqs"];
+      const jsonFields = ["collections", "variants", "faqs"];
       jsonFields.forEach(field => submitData.append(field, JSON.stringify(formData[field] || [])));
 
-      // Component data and files integration
       const cleanComponents = formData.components.map((c, i) => {
         if (c.file) submitData.append(`comp_file_${i}`, c.file);
         return { id: c.id, name: c.name, type: c.type, required: c.required, price: c.price, preview: c.preview };
       });
       submitData.append("components", JSON.stringify(cleanComponents));
       
-      // Keeping productAddons just in case you use the search feature later
       submitData.append("productAddons", JSON.stringify(formData.productAddons || []));
 
       formData.images.forEach((img, idx) => {

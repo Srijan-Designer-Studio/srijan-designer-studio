@@ -105,7 +105,7 @@ export default function CustomizeKidsWear() {
               Fashion for the Little
               Ones Who Steal the Show
             </h3>
-            <p className="text-gray-100 text-base sm:text-[20px] leading-[1.6] mb-8">
+            <p className="text-gray-100 text-lg sm:text-[19px] leading-[1.6] mb-8">
               Birthdays, festivals, family days, every
               celebration deserves an outfit as special
               as your little one. Custom, comfy, made
@@ -137,11 +137,11 @@ export default function CustomizeKidsWear() {
                     src={card.img}
                     alt={card.title}
                     fill
-                    className="object-cover"
+                    className="object-cover object-center"
                     onLoad={() => ScrollTrigger.refresh()}
                   />
                 </div>
-                <div className="p-8 flex-1 flex flex-col justify-center">
+                <div className="p-6 flex-1 flex flex-col justify-center">
                   <h3 className={`text-xl font-bold mb-3 ${card.titleColor}`}>
                     {card.title}
                   </h3>

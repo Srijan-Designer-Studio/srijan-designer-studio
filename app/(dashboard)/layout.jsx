@@ -6,7 +6,7 @@ import { CartProvider } from "@/context/CartContext";
 export default function DashboardLayout({ children }) {
   return (
     <CartProvider>
-      <div className="flex flex-col h-screen overflow-hidden bg-gray-50">     
+      <div className="flex flex-col h-screen overflow-hidden bg-gray-50 text-black">     
         <div className="flex flex-1 overflow-hidden relative">
           <Sidebar />
           

@@ -1,7 +1,7 @@
 "use client";
 
 import { useWizard } from "./WizardContext";
-import { ChevronLeft, ArrowRight, Check } from "lucide-react";
+import { ChevronLeft, ArrowRight, Check, PackagePlus, Edit, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const stepsList = [
@@ -18,20 +18,26 @@ const stepsList = [
 ];
 
 export default function WizardLayout({ children }) {
-  const { currentStep, totalSteps, nextStep, prevStep, goToStep } = useWizard();
+  const { currentStep, totalSteps, nextStep, prevStep, goToStep, formData, publishProduct, isSubmitting } = useWizard();
+  const isEditMode = !!formData?.id;
 
   return (
     <div className="min-h-screen bg-[#f4f5f7] font-sans pb-24">
-      {/* Top Navbar */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin/products" className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors cursor-pointer">
+            <Link href="/admin/products" className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-black transition-colors cursor-pointer">
               <ChevronLeft size={20} />
             </Link>
+            
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Add New Product</h1>
-              <p className="text-[12px] text-gray-500">Create a new product for your store. Fill all details carefully.</p>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                {isEditMode ? <Edit size={20} className="text-blue-600" /> : <PackagePlus size={20} className="text-blue-600" />}
+                {isEditMode ? "Edit Product" : "Add New Product"}
+              </h1>
+              <p className="text-[12px] text-gray-500 mt-0.5">
+                {isEditMode ? "Update product details and publish changes." : "Create a new product for your store. Fill all details carefully."}
+              </p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -41,13 +47,20 @@ export default function WizardLayout({ children }) {
             <button className="px-5 py-2 text-[13px] font-bold text-gray-700 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors">
               Preview
             </button>
-            <button onClick={nextStep} className="px-5 py-2 text-[13px] font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-              {currentStep === totalSteps ? "Publish" : "Next"} <ArrowRight size={16} />
+            <button 
+              onClick={currentStep === totalSteps ? publishProduct : nextStep}
+              disabled={isSubmitting}
+              className="px-5 py-2 text-[13px] font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <><Loader2 size={16} className="animate-spin" /> Publishing...</>
+              ) : (
+                <>{currentStep === totalSteps ? "Publish" : "Next"} <ArrowRight size={16} /></>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Top Stepper Line */}
         <div className="max-w-[1400px] mx-auto px-6 py-4 hidden md:flex items-center justify-between relative">
           <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-[2px] bg-gray-200 -z-10"></div>
           {stepsList.map((step) => (
@@ -67,7 +80,6 @@ export default function WizardLayout({ children }) {
       </div>
 
       <div className="max-w-[1600px] mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8">
-        {/* Left Sidebar Steps */}
         <div className="hidden lg:block w-[280px] shrink-0">
           <h3 className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-6 ml-2">Steps</h3>
           <div className="space-y-1 relative before:absolute before:left-5 before:top-4 before:bottom-4 before:w-[2px] before:bg-gray-200">
@@ -92,20 +104,26 @@ export default function WizardLayout({ children }) {
           </div>
         </div>
 
-        {/* Main Form Content */}
         <div className="flex-1 max-w-[1000px]">
            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 min-h-[600px]">
               {children}
            </div>
 
-           {/* Bottom Fixed Nav */}
            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 lg:hidden">
               <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-                <button onClick={prevStep} disabled={currentStep === 1} className="px-5 py-2.5 text-[13px] font-bold text-gray-700 bg-gray-100 rounded-lg disabled:opacity-50">
+                <button onClick={prevStep} disabled={currentStep === 1 || isSubmitting} className="px-5 py-2.5 text-[13px] font-bold text-gray-700 bg-gray-100 rounded-lg disabled:opacity-50">
                   Previous
                 </button>
-                <button onClick={nextStep} className="px-6 py-2.5 text-[13px] font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2">
-                  {currentStep === totalSteps ? "Publish" : "Next"} <ArrowRight size={16} />
+                <button 
+                  onClick={currentStep === totalSteps ? publishProduct : nextStep} 
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 text-[13px] font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <><Loader2 size={16} className="animate-spin" /> Publishing...</>
+                  ) : (
+                    <>{currentStep === totalSteps ? "Publish" : "Next"} <ArrowRight size={16} /></>
+                  )}
                 </button>
               </div>
            </div>

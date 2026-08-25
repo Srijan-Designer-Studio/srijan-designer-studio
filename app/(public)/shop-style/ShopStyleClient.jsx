@@ -95,13 +95,26 @@ export default function ShopStyleClient() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  // --- SMART HYBRID SEARCH LOGIC ---
   let displayedProducts = allProducts;
-  if (searchQuery.trim().length >= 2) {
-    displayedProducts = backendSearchResults;
-  } else if (searchQuery.trim().length === 1) {
-    displayedProducts = allProducts.filter(p =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const query = searchQuery.trim().toLowerCase();
+
+  if (query.length > 0) {
+    // ১. প্রথমে লোকাল স্টেট থেকে খুঁজবে (যাতে সাথে সাথে রেজাল্ট দেখায়)
+    const localResults = allProducts.filter(p =>
+      p.title?.toLowerCase().includes(query)
     );
+
+    // ২. এরপর ব্যাকএন্ডের রেজাল্ট এবং লোকাল রেজাল্ট একসাথে করবে (যাতে কোনোটা বাদ না যায়)
+    const combinedMap = new Map();
+
+    localResults.forEach(p => combinedMap.set(p.id, p));
+    
+    if (query.length >= 2) {
+      backendSearchResults.forEach(p => combinedMap.set(p.id, p));
+    }
+
+    displayedProducts = Array.from(combinedMap.values());
   }
 
   const totalPages = Math.ceil(displayedProducts.length / itemsPerPage);
@@ -253,6 +266,10 @@ export default function ShopStyleClient() {
               </div>
             )}
           </>
+        ) : isSearching ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="w-10 h-10 border-4 border-gray-200 border-t-[#00c3ff] rounded-full animate-spin"></div>
+          </div>
         ) : (
           <div className="text-center py-20 text-gray-500 font-medium relative z-10">
             No products found matching "{searchQuery}".

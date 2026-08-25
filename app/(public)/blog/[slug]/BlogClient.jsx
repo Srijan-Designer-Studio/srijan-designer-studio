@@ -80,7 +80,7 @@ export default function BlogClient({ blog }) {
         <div className="relative w-full h-[300px] md:h-[450px] lg:h-[550px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
           <img
             src={blog.image_url}
-            alt={blog.title}
+            alt={blog.cover_img_alt || blog.title}
             className="object-cover w-full h-full"
           />
         </div>

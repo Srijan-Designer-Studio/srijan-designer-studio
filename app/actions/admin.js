@@ -140,12 +140,13 @@ export async function getDashboardStats() {
       });
     }
 
-    const keywords = [
-      { word: 'srijan fashion', clicks: 245, impressions: '1.2k', ctr: '20.4%', position: 1.2 },
-      { word: 'buy lehenga online', clicks: 182, impressions: '3.4k', ctr: '5.3%', position: 4.5 },
-      { word: 'men ethnic wear', clicks: 145, impressions: '2.8k', ctr: '5.1%', position: 3.8 },
-      { word: 'cotton kurti', clicks: 98, impressions: '4.1k', ctr: '2.3%', position: 8.4 },
-    ];
+    const { data: searchKeywords } = await supabase
+      .from('search_keywords')
+      .select('*')
+      .order('searches', { ascending: false })
+      .limit(5);
+
+    const keywords = searchKeywords || [];
 
     return {
       totalRevenue,
@@ -243,11 +244,9 @@ export async function getAllOrders() {
 export async function updateOrderStatus(orderId, newStatus) {
   const supabase = createAdminClient()
 
- 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.srijandesignerstudio.com';
 
   try {
-
     const { error: updateError } = await supabase
       .from('orders')
       .update({ status: newStatus })
@@ -312,7 +311,6 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       if (newStatus === 'processing') {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
-       
         topIcon = `${BASE_URL}/email-img/1.webp`; 
         headerText = 'Thank You For Your Order!';
         messageHtml = `
@@ -400,6 +398,76 @@ export async function updateOrderStatus(orderId, newStatus) {
             <a href="${BASE_URL}/account/orders" style="display: inline-block; background-color: #00c3ff; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0, 195, 255, 0.2);">Submit Review</a>
           </div>
           <p style="font-style: italic; color: #6b7280; margin-top: 30px; text-align: center;">Thank you for supporting <strong>SRIJAN Fashion</strong>. We truly appreciate your trust in our brand.</p>
+        `;
+      }
+      else if (newStatus === 'cancelled') {
+        subject = `Order Cancelled - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/6.webp`; 
+        headerText = 'Your Order Has Been Cancelled!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Your order <strong>#${displayOrderId}</strong> has been successfully cancelled as requested.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Order Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order Date: <strong>${orderDate}</strong></p>
+          <p style="margin: 0 0 5px; color: #4b5563;">Cancelled On: <strong>${new Date().toLocaleDateString('en-IN')}</strong></p>
+          <p style="margin: 0 0 15px; color: #4b5563;">Order Total: <strong>₹${totalAmount}</strong></p>
+          <p style="margin-bottom: 15px; color: #4b5563;">A refund will be processed to your original payment method within 2-5 business days. If you need further assistance, please contact our support team.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">Thank you for choosing <strong>SRIJAN Fashion</strong>.</p>
+        `;
+      }
+      else if (newStatus === 'return_requested') {
+        subject = `Return Request Received - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/7.webp`; 
+        headerText = 'Return Request Received';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">We’ve received your return request for order <strong>#${displayOrderId}</strong>.</p>
+          <p style="margin-bottom: 15px;">Our team will review your request and verify that the item meets our return conditions. We’ll notify you once your return request has been reviewed and the next steps are available.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Return Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          <p style="margin: 0 0 15px; color: #4b5563;">Requested On: <strong>${new Date().toLocaleDateString('en-IN')}</strong></p>
+          <p style="margin-bottom: 15px; color: #4b5563;">Please keep the item unused, unwashed, with all original tags attached and in its original packaging until the return process is completed.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">If you have any questions, please contact our support team.</p>
+        `;
+      }
+      else if (newStatus === 'return_approved' || newStatus === 'returned') {
+        subject = `Return Approved - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/8.webp`; 
+        headerText = 'Return Approved!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Your return request for order <strong>#${displayOrderId}</strong> has been approved.</p>
+          <p style="margin-bottom: 15px;">A return pickup has been scheduled with our courier partner.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Next Steps</h3>
+          <p style="margin-bottom: 15px; color: #4b5563;">Please ensure that the item is securely packed and meets our return conditions before handing it over to the courier partner.</p>
+          <p style="margin-bottom: 15px; color: #4b5563;">Once the returned item reaches us and passes our quality inspection, we’ll proceed with the applicable refund or exchange.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">Thank you for your cooperation.</p>
+        `;
+      }
+      else if (newStatus === 'return_rejected') {
+        subject = `Return Rejected - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/9.webp`; 
+        headerText = 'Return Rejected!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">We’re sorry to inform you that your return request for order <strong>#${displayOrderId}</strong> could not be approved.</p>
+          <p style="margin-bottom: 15px;">After reviewing the returned item(s) or your request details, we found that it did not meet one or more of our return conditions.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Return Details</h3>
+          <p style="margin: 0 0 15px; color: #4b5563;">Reason: <strong>The items did not pass our quality inspection or the return window has expired.</strong></p>
+          <p style="margin-bottom: 15px; color: #4b5563;">If you believe this decision was made in error or would like further clarification, please contact our support team.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">We’re here to help.</p>
+        `;
+      }
+      else if (newStatus === 'refund_initiated') {
+        subject = `Refund Initiated - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/10.webp`; 
+        headerText = 'Refund Initiated!';
+        messageHtml = `
+          <p style="margin-bottom: 15px;">Your refund for order <strong>#${displayOrderId}</strong> has been initiated successfully.</p>
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Refund Details</h3>
+          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
+          <p style="margin: 0 0 5px; color: #4b5563;">Refund Amount: <strong>₹${totalAmount}</strong></p>
+          <p style="margin: 0 0 15px; color: #4b5563;">Refund Initiated On: <strong>${new Date().toLocaleDateString('en-IN')}</strong></p>
+          <p style="margin-bottom: 15px; color: #4b5563;">The refunded amount should reflect in your original payment method within 2-5 business days, depending on your bank or payment provider.</p>
+          <p style="margin-bottom: 15px; color: #4b5563;">If you don’t receive the refund within the stated timeframe, please contact our support team.</p>
+          <p style="font-style: italic; color: #6b7280; margin-top: 20px;">Thank you for your patience and for choosing <strong>SRIJAN Fashion</strong>.</p>
         `;
       }
 
@@ -827,7 +895,6 @@ export async function deleteProduct(productId) {
       await supabase.storage.from('product-images').remove(filePaths)
     }
 
-    // Delete Component Images
     const { data: compImages } = await supabase
       .from('product_components')
       .select('image_url')
@@ -897,11 +964,22 @@ export async function createPremiumProduct(formData) {
     const focusKeyword = formData.get('focusKeyword');
     const seoKeywords = formData.get('seoKeywords');
     const canonicalUrl = formData.get('canonicalUrl');
+    const schemaMarkup = formData.get('schemaMarkup');
     
-    const categories = JSON.parse(formData.get('categories') || '[]');
-    const collections = JSON.parse(formData.get('collections') || '[]');
-    const occasions = JSON.parse(formData.get('occasions') || '[]');
-    const tags = JSON.parse(formData.get('tags') || '[]');
+    const flattenToStringArray = (arr) => {
+      if (!Array.isArray(arr)) return [];
+      return arr.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item.name || item.value || item.label || item.text || item.id || '';
+        }
+        return String(item).trim();
+      }).filter(Boolean);
+    };
+
+    const categories = flattenToStringArray(JSON.parse(formData.get('categories') || '[]'));
+    const collections = flattenToStringArray(JSON.parse(formData.get('collections') || '[]'));
+    const occasions = flattenToStringArray(JSON.parse(formData.get('occasions') || '[]'));
+    const tags = flattenToStringArray(JSON.parse(formData.get('tags') || '[]'));
     
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
@@ -915,6 +993,16 @@ export async function createPremiumProduct(formData) {
 
     const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const finalSlug = await generateUniqueSlug(supabase, rawSlug);
+
+    let category_id = null;
+    if (categories.length > 0) {
+        if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(categories[0])) {
+            category_id = categories[0];
+        } else {
+            const { data: catData } = await supabase.from('categories').select('id').ilike('name', categories[0]).maybeSingle();
+            if (catData) category_id = catData.id;
+        }
+    }
 
     const { data: productData, error: productError } = await supabase
       .from('products')
@@ -947,7 +1035,9 @@ export async function createPremiumProduct(formData) {
         focus_keyword: focusKeyword,
         seo_keywords: seoKeywords,
         canonical_url: canonicalUrl,
+        schema_markup: schemaMarkup,
         faqs: faqs,
+        category_id: category_id,
         categories: categories,
         collections: collections,
         occasions: occasions,
@@ -977,9 +1067,6 @@ export async function createPremiumProduct(formData) {
       await supabase.from('product_variants').insert(variantInserts);
     }
 
-    // ----------------------------------------------------
-    // CRITICAL UPDATE: Component with Image Upload Handle
-    // ----------------------------------------------------
     if (components.length > 0 && purchaseType !== 'Single Product') {
       const componentInserts = [];
       for (let i = 0; i < components.length; i++) {
@@ -1091,11 +1178,22 @@ export async function updatePremiumProduct(formData) {
     const focusKeyword = formData.get('focusKeyword');
     const seoKeywords = formData.get('seoKeywords');
     const canonicalUrl = formData.get('canonicalUrl');
+    const schemaMarkup = formData.get('schemaMarkup');
     
-    const categories = JSON.parse(formData.get('categories') || '[]');
-    const collections = JSON.parse(formData.get('collections') || '[]');
-    const occasions = JSON.parse(formData.get('occasions') || '[]');
-    const tags = JSON.parse(formData.get('tags') || '[]');
+    const flattenToStringArray = (arr) => {
+      if (!Array.isArray(arr)) return [];
+      return arr.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item.name || item.value || item.label || item.text || item.id || '';
+        }
+        return String(item).trim();
+      }).filter(Boolean);
+    };
+
+    const categories = flattenToStringArray(JSON.parse(formData.get('categories') || '[]'));
+    const collections = flattenToStringArray(JSON.parse(formData.get('collections') || '[]'));
+    const occasions = flattenToStringArray(JSON.parse(formData.get('occasions') || '[]'));
+    const tags = flattenToStringArray(JSON.parse(formData.get('tags') || '[]'));
 
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
@@ -1108,6 +1206,16 @@ export async function updatePremiumProduct(formData) {
 
     const rawSlug = seoSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const finalSlug = await generateUniqueSlug(supabase, rawSlug, productId);
+
+    let category_id = null;
+    if (categories.length > 0) {
+        if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(categories[0])) {
+            category_id = categories[0];
+        } else {
+            const { data: catData } = await supabase.from('categories').select('id').ilike('name', categories[0]).maybeSingle();
+            if (catData) category_id = catData.id;
+        }
+    }
 
     const { error: productError } = await supabase
       .from('products')
@@ -1140,7 +1248,9 @@ export async function updatePremiumProduct(formData) {
         focus_keyword: focusKeyword,
         seo_keywords: seoKeywords,
         canonical_url: canonicalUrl,
+        schema_markup: schemaMarkup,
         faqs: faqs,
+        category_id: category_id,
         categories: categories,
         collections: collections,
         occasions: occasions,
@@ -1167,9 +1277,6 @@ export async function updatePremiumProduct(formData) {
       await supabase.from('product_variants').insert(variantInserts);
     }
 
-    // ----------------------------------------------------
-    // CRITICAL UPDATE: Component with Image Upload Handle
-    // ----------------------------------------------------
     await supabase.from('product_components').delete().eq('product_id', productId);
     if (components.length > 0 && purchaseType !== 'Single Product') {
       const componentInserts = [];
@@ -1255,5 +1362,113 @@ export async function updatePremiumProduct(formData) {
     return { success: true, productId };
   } catch (error) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function searchProducts({
+  searchTerm = '',
+  categorySlug = null,
+  minPrice = 0,
+  maxPrice = 100000,
+  sizes = [],
+  colors = [],
+  sortBy = 'newest',
+  page = 1,
+  limit = 12
+}) {
+  const supabase = createAdminClient()
+
+  const from = (page - 1) * limit
+  const to = from + limit - 1
+
+  if (searchTerm && searchTerm.trim().length > 0) {
+    const cleanTerm = searchTerm.trim().toLowerCase();
+    const { data: existingKeyword } = await supabase
+      .from('search_keywords')
+      .select('id, searches')
+      .eq('keyword', cleanTerm)
+      .single();
+
+    if (existingKeyword) {
+      await supabase
+        .from('search_keywords')
+        .update({ searches: (existingKeyword.searches || 0) + 1 })
+        .eq('id', existingKeyword.id);
+    } else {
+      await supabase
+        .from('search_keywords')
+        .insert({ keyword: cleanTerm, searches: 1, is_active: true, conversion_rate: 0 });
+    }
+  }
+
+  let matchingCategoryIds = []
+  if (searchTerm) {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('id')
+      .ilike('name', `%${searchTerm}%`)
+
+    if (categories && categories.length > 0) {
+      matchingCategoryIds = categories.map(c => c.id)
+    }
+  }
+
+  let query = supabase
+    .from('products')
+    .select(`
+      *,
+      categories!inner(slug),
+      product_images (image_url, display_order),
+      product_variants!inner(size, color)
+    `, { count: 'exact' })
+    .eq('is_active', true)
+
+  if (searchTerm) {
+    let orQuery = `title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,tags.ilike.%${searchTerm}%,keywords.ilike.%${searchTerm}%`
+
+    if (matchingCategoryIds.length > 0) {
+      orQuery += `,category_id.in.(${matchingCategoryIds.join(',')})`
+    }
+
+    query = query.or(orQuery)
+  }
+
+  if (categorySlug) {
+    query = query.eq('categories.slug', categorySlug)
+  }
+
+  query = query.gte('base_price', minPrice).lte('base_price', maxPrice)
+
+  if (sizes.length > 0) {
+    query = query.in('product_variants.size', sizes)
+  }
+
+  if (colors.length > 0) {
+    query = query.in('product_variants.color', colors)
+  }
+
+  if (sortBy === 'price_asc') {
+    query = query.order('base_price', { ascending: true })
+  } else if (sortBy === 'price_desc') {
+    query = query.order('base_price', { ascending: false })
+  } else {
+    query = query.order('created_at', { ascending: false })
+  }
+
+  query = query.range(from, to)
+
+  const { data, count, error } = await query
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  const uniqueProducts = Array.from(new Map(data.map(p => [p.id, p])).values())
+
+  return {
+    products: uniqueProducts,
+    totalCount: count,
+    totalPages: Math.ceil((count || 0) / limit),
+    currentPage: page
   }
 }

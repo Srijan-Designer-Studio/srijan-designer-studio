@@ -47,11 +47,11 @@ export default function Blogs() {
       }
     );
 
-    // Step Scroll Animation (2s pause, 1s slide) for ALL screens
+    
     const marqueeTl = gsap.timeline({ repeat: -1 });
     const totalCards = blogPosts.length;
 
-    // Calculates exact width percentage to shift per card (50% is the halfway mark due to duplicated array)
+   
     const stepPercentage = 50 / totalCards;
 
     for (let i = 1; i <= totalCards; i++) {
@@ -59,7 +59,7 @@ export default function Blogs() {
         xPercent: -(stepPercentage * i),
         duration: 0.8, // Slide speed
         ease: "power2.inOut"
-      }, "+=2"); // Wait 2 seconds before every slide
+      }, "+=2");
     }
 
     tweenRef.current = marqueeTl;
@@ -74,7 +74,7 @@ export default function Blogs() {
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-          {/* Left Text Content */}
+        
           <div className="lg:col-span-4 flex flex-col items-start max-w-[400px] z-10">
             <h2 className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
               BLOGS
@@ -97,7 +97,7 @@ export default function Blogs() {
             </div>
           </div>
 
-          {/* Marquee Section (Masking edges adjusted slightly to fit 2 cards perfectly) */}
+          
           <div
             className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] py-8"
             onMouseEnter={handleMouseEnter}
@@ -145,7 +145,7 @@ export default function Blogs() {
 
                       <div className="mt-6 pt-2 pb-1">
                         <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
-                          <ArrowUpRight size={22} strokeWidth={2.5} className="text-white" />
+                          <ArrowRight size={18} strokeWidth={2.5} />
                         </div>
                       </div>
                     </div>

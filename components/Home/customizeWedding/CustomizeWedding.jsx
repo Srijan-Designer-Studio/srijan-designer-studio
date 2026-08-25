@@ -91,7 +91,7 @@ export default function CustomizeWedding() {
           <h3 className="wed-text text-2xl sm:text-4xl lg:text-[42px] font-bold text-[#111] leading-[1.3] mb-6">
             One Day. One Dress. Made Only for You
           </h3>
-          <p className="wed-text text-[#444] text-base sm:text-[19px] leading-[1.6] mb-8 max-w-[750px] mx-auto">
+          <p className="wed-text text-[#444] text-lg sm:text-[19px] leading-[1.6] mb-8 max-w-[750px] mx-auto">
             Your wedding look shouldn't come off a rack. Get a custom outfit built around
             your story, your fit and every little detail you've been dreaming about.
           </p>

@@ -98,7 +98,7 @@ export default function WeddingFAQ() {
                     openIndex === index ? "rounded-t-[24px]" : "rounded-[24px]"
                   }`}
                 >
-                  <span className="text-[14px] font-medium text-gray-800 pr-4">{faq.q}</span>
+                  <span className="text-[14px] font-medium font-semibold text-gray-800 pr-4">{faq.q}</span>
                   <ChevronDown
                     size={20}
                     strokeWidth={2.5}

@@ -80,7 +80,6 @@ export default function AdminDashboardClient({ initialStats }) {
                   <img
                     src={product.image || '/images/placeholder.jpg'}
                     alt={product.title || 'Product image'}
-
                     className="object-cover opacity-80"
                     sizes="40px"
                   />
@@ -127,34 +126,47 @@ export default function AdminDashboardClient({ initialStats }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-900 mb-6">Search Keywords (GA4 / Search Console)</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-sm font-bold text-gray-900">Top On-Site Search Keywords</h2>
+            <Link href="/admin/keywords" className="text-xs text-gray-500 hover:text-black">
+              Manage Keywords
+            </Link>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="text-gray-500 border-b border-gray-100">
                 <tr>
                   <th className="pb-3 font-medium">Keyword</th>
-                  <th className="pb-3 font-medium">Clicks</th>
-                  <th className="pb-3 font-medium">Impressions</th>
-                  <th className="pb-3 font-medium">CTR</th>
-                  <th className="pb-3 font-medium">Avg. Position</th>
+                  <th className="pb-3 font-medium">Total Searches</th>
+                  <th className="pb-3 font-medium">Conversion Rate</th>
+                  <th className="pb-3 font-medium">Status</th>
                   <th className="pb-3 font-medium text-right">Trend</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {stats.keywords.map((kw, idx) => (
+                {stats.keywords && stats.keywords.length > 0 ? stats.keywords.slice(0, 5).map((kw, idx) => (
                   <tr key={idx}>
-                    <td className="py-3 font-semibold text-gray-900">{kw.word}</td>
-                    <td className="py-3 text-gray-600">{kw.clicks}</td>
-                    <td className="py-3 text-gray-600">{kw.impressions}</td>
-                    <td className="py-3 text-gray-600">{kw.ctr}</td>
-                    <td className="py-3 text-gray-600">{kw.position}</td>
+                    <td className="py-3 font-semibold text-gray-900">{kw.keyword || kw.word}</td>
+                    <td className="py-3 text-gray-600">{kw.searches || 0}</td>
+                    <td className="py-3 text-green-600 font-medium">{kw.conversion_rate || 0}%</td>
+                    <td className="py-3 text-gray-600">
+                      <span className={`px-2 py-1 rounded-full text-[10px] ${kw.is_active !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {kw.is_active !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                     <td className="py-3 text-right">
                       <svg width="40" height="15" viewBox="0 0 40 15" fill="none" className="inline-block">
                         <path d="M0 10 Q 10 15, 20 5 T 40 2" stroke="#3b82f6" strokeWidth="1.5" fill="none" />
                       </svg>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-gray-400 text-sm">
+                      No search data available yet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

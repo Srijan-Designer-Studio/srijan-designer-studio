@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
@@ -65,12 +65,29 @@ const faqs = [
 ];
 
 export default function KidsWearClient() {
-  const [activeFAQ, setActiveFAQ] = useState(null);
+  const [openId, setOpenId] = useState(null);
   const [isPending, startTransition] = useTransition();
   const [formStatus, setFormStatus] = useState(null);
   const containerRef = useRef(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [timeError, setTimeError] = useState("");
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+
+    resizeObserver.observe(document.body);
+
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1000);
+
+    return () => {
+      resizeObserver.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
 
   useGSAP(() => {
     gsap.utils.toArray('.reveal-up').forEach(elem => {
@@ -78,6 +95,19 @@ export default function KidsWearClient() {
         { y: 50, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } }
       );
+    });
+
+    gsap.to(".faq-animate", {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".faq-section-trigger",
+        start: "top 85%",
+        once: true,
+      }
     });
   }, { scope: containerRef });
 
@@ -112,6 +142,13 @@ export default function KidsWearClient() {
     setTimeError("");
   };
 
+  const toggleFAQ = (index) => {
+    setOpenId((prevId) => (prevId === index ? null : index));
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 350);
+  };
+
   return (
     <div ref={containerRef} className="font-sans w-full text-black overflow-hidden">
 
@@ -123,10 +160,10 @@ export default function KidsWearClient() {
 
       <section className="relative w-full h-screen md:h-screen bg-[#a8a196] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img src="/Custom Kids Wear/Custom Kids Wear HERO Section.webp" alt="Customize Kids Wear" className="w-full h-full object-cover object-right md:object-center opacity-80" />
+          <Image fill src="/Custom Kids Wear/HERO Section 3.webp" alt="Customize Kids Wear" priority className="object-cover object-center" />
         </div>
         <div className="relative z-10 max-w-[1320px] mx-auto px-6 w-full">
-          <div className="max-w-xl ml-auto text-white">
+          <div className="max-w-xl mr-auto text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-md">Customize Kids Wear</h1>
             <p className="text-lg md:text-xl font-medium drop-shadow-md">Capture every little moment,<br /> dressed just right.</p>
           </div>
@@ -161,7 +198,7 @@ export default function KidsWearClient() {
           <div className="text-center reveal-up">
             <button
               onClick={() => setIsPopupOpen(true)}
-              className="px-8 py-3 bg-[#00c3ff] text-white rounded-full font-bold shadow-md hover:bg-[#00a0d6] transition-colors"
+              className="px-8 py-3 bg-[#00c3ff] text-white rounded-full font-bold shadow-md hover:bg-[#00a0d6] transition-colors cursor-pointer"
             >
               Choose Your Look
             </button>
@@ -239,40 +276,17 @@ export default function KidsWearClient() {
           </h2>
 
           <div className="reveal-up grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-            {/* Image 1: Mobile Row 1 Col 1 | Desktop Default */}
             <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="order-1 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 2 (Large): Mobile Row 2 & 3 | Desktop Center Left */}
             <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="order-5 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            
-            {/* Image 3 (Large): Mobile Row 4 & 5 | Desktop Center Right */}
             <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="order-7 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            
-            {/* Image 4: Mobile Row 1 Col 2 */}
             <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="order-2 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 5: Mobile Row 1 Col 3 */}
             <img src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" className="order-3 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 6: Mobile Row 2 Col 1 */}
             <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="order-4 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 7: Mobile Row 3 Col 1 */}
             <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="order-6 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 8: Mobile Row 4 Col 3 */}
             <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="order-8 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 9: Mobile Row 5 Col 3 */}
             <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="order-9 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 10: Mobile Row 6 Col 1 */}
             <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="order-10 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 11: Mobile Row 6 Col 2 */}
             <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="order-11 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            
-            {/* Image 12: Mobile Row 6 Col 3 */}
             <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="order-12 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
           </div>
         </div>
@@ -348,10 +362,10 @@ export default function KidsWearClient() {
                 <textarea name="message" className="w-full p-4 h-[80px] border border-gray-400 rounded-lg focus:border-black focus:outline-none resize-none transition-colors"></textarea>
               </div>
               
-              <button type="submit" disabled={isPending} className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full">
+              <button type="submit" disabled={isPending} className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full cursor-pointer">
                 {isPending ? 'SUBMITTING...' : 'SUBMIT NOW'}
               </button>
-              <p className="text-[19px] text-center text-gray-500 mt-1">
+              <p className="text-[10px] text-center text-gray-500 mt-1">
                 Your profile name will be shared. Never submit passwords.
               </p>
             </form>
@@ -359,23 +373,60 @@ export default function KidsWearClient() {
         </div>
       </section>
 
-      <section className="py-20 max-w-[1000px] mx-auto px-6">
-        <h2 className="reveal-up text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-        <div className="reveal-up grid md:grid-cols-2 gap-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg bg-blue-50/30 overflow-hidden h-fit">
-              <button
-                onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
-                className="w-full flex items-center justify-between p-4 text-left focus:outline-none cursor-pointer hover:bg-blue-50/50 transition-colors"
-              >
-                <span className="font-semibold text-sm md:text-[15px] text-gray-800 pr-4">{faq.q}</span>
-                <ChevronDown size={20} className={`text-gray-500 transition-transform duration-300 flex-shrink-0 ${activeFAQ === index ? 'rotate-180' : ''}`} />
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ${activeFAQ === index ? 'max-h-40 border-t border-gray-200' : 'max-h-0'}`}>
-                <p className="p-4 text-sm text-gray-600">{faq.a}</p>
-              </div>
-            </div>
-          ))}
+      <section className="py-20 bg-white faq-section-trigger">
+        <div className="max-w-[1350px] mx-auto px-6">
+          
+          <div className="faq-animate opacity-0 translate-y-8 text-center mb-12">
+            <h2 className="text-[#ff3838] font-bold uppercase tracking-wider text-sm sm:text-base mb-3 block">
+              FAQS
+            </h2>
+            <h3 className="text-2xl sm:text-4xl lg:text-[42px] font-bold font-serif text-[#111] leading-tight">
+              Frequently Asked Questions
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 lg:gap-y-6">
+            {faqs.map((faq, index) => {
+              const isOpen = openId === index;
+
+              return (
+                <div
+                  key={index}
+                  className="faq-animate opacity-0 translate-y-8 bg-[#eaf4fc] rounded-xl overflow-hidden h-fit transition-colors duration-300"
+                >
+                  <button
+                    onClick={() => toggleFAQ(index)}
+                    className="w-full flex justify-between items-center text-left p-6 focus:outline-none cursor-pointer"
+                  >
+                    <span className="text-[15px] lg:text-[17px] text-gray-800 font-semibold pr-4">
+                      {faq.q}
+                    </span>
+                    
+                    <ChevronDown
+                      size={20}
+                      strokeWidth={2.5}
+                      className={`text-black flex-shrink-0 transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : "rotate-0"
+                      }`}
+                    />
+                  </button>
+
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-6 pb-6 text-sm lg:text-[16px] text-gray-600 leading-relaxed">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </div>
+                  
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 

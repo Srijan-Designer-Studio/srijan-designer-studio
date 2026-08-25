@@ -2,15 +2,19 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollToTop from "@/components/providers/ScrollToTop";
+import { useCart } from "@/context/CartContext";
+import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function NewArrivalsGrid({ products }) {
   const containerRef = useRef(null);
+  const { wishlistItems, toggleWishlist } = useCart();
 
   useGSAP(() => {
     gsap.from(".title-anim", {
@@ -34,26 +38,54 @@ export default function NewArrivalsGrid({ products }) {
     });
   }, { scope: containerRef });
 
+  const handleWishlistToggle = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleWishlist(product);
+    try {
+      await toggleWishlistServer(product.id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="max-w-[1320px] mx-auto px-6" ref={containerRef}>
       <ScrollToTop />
 
       <h1 className="title-anim text-3xl md:text-4xl font-bold text-center mb-12 uppercase text-black tracking-wide">
-        New Arrivals
+        Shop New Arrivals
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
         {products.length > 0 ? (
           products.map((product) => {
             const imageUrl = product.product_images?.[0]?.image_url;
+            const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
             return (
               <Link
                 href={`/product/${product.slug || product.id}`}
                 key={product.id}
-                className="product-card-anim group flex flex-col items-center cursor-pointer"
+                className="product-card-anim group flex flex-col items-center cursor-pointer relative"
               >
                 <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-300 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
+                  
+                  <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-[10px] py-[5px] rounded-xl z-10 tracking-wider shadow-sm">
+                    NEW
+                  </div>
+
+                  <button
+                    onClick={(e) => handleWishlistToggle(e, product)}
+                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                  >
+                    <Heart 
+                      size={18} 
+                      className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                    />
+                  </button>
+
                   {imageUrl ? (
                     <img
                       src={imageUrl}

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { Suspense } from 'react';
-import { getAdminProducts, getCategories } from '@/app/actions/admin';
+import { getAdminProducts } from '@/app/actions/admin';
 import ProductsClientWrapper from './ProductsClientWrapper';
 
 export const metadata = {
@@ -9,19 +9,11 @@ export const metadata = {
 };
 
 export default async function AdminProductsPage() {
-  const [productsData, categoriesData] = await Promise.all([
-    getAdminProducts(),
-    getCategories()
-  ]);
+  const productsData = await getAdminProducts();
 
   return (
-
     <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading products...</div>}>
-      <ProductsClientWrapper 
-      
-        initialProducts={productsData || []} 
-        categories={categoriesData || []} 
-      />
+      <ProductsClientWrapper initialProducts={productsData || []} />
     </Suspense>
   );
 }

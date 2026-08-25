@@ -29,13 +29,24 @@ export default function AddBlog() {
   
   const [form, setForm] = useState({
     title: "", content: "", metaTitle: "", metaDescription: "", keywords: "", permalink: "", category: "",
-    author: "Admin", published_at: "", 
+    author: "Admin", published_at: "", cover_img_alt: "", canonical_tag: "", schema_markup: ""
   });
 
   const [image, setImage] = useState(null);
 
   useEffect(() => { import("@ckeditor/ckeditor5-build-classic").then((mod) => setClassicEditor(() => mod.default)); }, []);
   useEffect(() => { getBlogCategories().then(cats => setCategories(cats || [])); }, []);
+
+  const handleSchemaFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setForm({ ...form, schema_markup: event.target.result });
+    };
+    reader.readAsText(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,17 +57,16 @@ export default function AddBlog() {
     
     Object.keys(form).forEach((key) => {
       if (key === "published_at" && form[key]) {
-        // 🔥 Local time format to ISO converter
         formData.append(key, new Date(form[key]).toISOString());
-      } else if (form[key]) {
-        formData.append(key, form[key]);
+      } else {
+        formData.append(key, form[key] || "");
       }
     });
 
     try {
       const res = await createBlog(formData);
       if (res.success) {
-        window.location.href = "/admin/blogs"; // 🔥 Forces browser hard reload to break cache
+        window.location.href = "/admin/blogs"; 
       }
     } catch (err) {
       alert(err.message || "Failed to create blog");
@@ -86,18 +96,50 @@ export default function AddBlog() {
             <option value="">Select Category (optional)</option>
             {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
-          <input type="file" accept="image/*" className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50 w-full" onChange={(e) => setImage(e.target.files[0])} />
+          
+          <div className="space-y-4 border border-gray-200 rounded-xl p-5 bg-gray-50/50">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Cover Image</label>
+              <input type="file" accept="image/*" className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white w-full" onChange={(e) => setImage(e.target.files[0])} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Cover Image Alt Text</label>
+              <input type="text" placeholder="Describe the image for SEO..." className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onChange={(e) => setForm({ ...form, cover_img_alt: e.target.value })} />
+            </div>
+          </div>
+
           <div className="border border-gray-300 rounded-lg overflow-hidden text-black">
             {ClassicEditor ? (
               <CKEditor editor={ClassicEditor} data={form.content} config={{ extraPlugins: [CustomUploadAdapterPlugin], heading: { options: [ { model: "paragraph", title: "Paragraph", class: "ck-heading_paragraph" }, { model: "heading1", view: "h1", title: "Heading 1", class: "ck-heading_heading1" }, { model: "heading2", view: "h2", title: "Heading 2", class: "ck-heading_heading2" }, { model: "heading3", view: "h3", title: "Heading 3", class: "ck-heading_heading3" } ] } }} onChange={(event, editor) => setForm({ ...form, content: editor.getData() })} />
             ) : <p className="p-4 text-gray-500">Loading Editor...</p>}
           </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <input placeholder="Meta Title" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" onChange={(e) => setForm({ ...form, metaTitle: e.target.value })} />
-            <input placeholder="Keywords (comma separated)" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" onChange={(e) => setForm({ ...form, keywords: e.target.value })} />
+
+          <div className="space-y-4 border border-gray-200 rounded-xl p-5 bg-gray-50/50">
+            <h3 className="text-sm font-bold text-gray-800 border-b pb-2 mb-4">SEO Settings</h3>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+              <input placeholder="Meta Title" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onChange={(e) => setForm({ ...form, metaTitle: e.target.value })} />
+              <input placeholder="Keywords (comma separated)" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onChange={(e) => setForm({ ...form, keywords: e.target.value })} />
+              <input placeholder="Canonical URL" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onChange={(e) => setForm({ ...form, canonical_tag: e.target.value })} />
+            </div>
+
+            <textarea placeholder="Meta Description" rows="3" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onChange={(e) => setForm({ ...form, metaDescription: e.target.value })} />
+            
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-gray-700">Schema Markup (JSON-LD)</label>
+                <label className="text-xs font-semibold bg-white hover:bg-gray-100 text-indigo-600 px-3 py-1.5 rounded-md cursor-pointer transition-colors border border-gray-200 shadow-sm flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                  Upload .json file
+                  <input type="file" accept=".json,.txt" className="hidden" onChange={handleSchemaFileUpload} />
+                </label>
+              </div>
+              <textarea placeholder="Paste your schema script here or upload a file..." rows="5" value={form.schema_markup} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 text-green-400 font-mono text-sm" onChange={(e) => setForm({ ...form, schema_markup: e.target.value })} />
+            </div>
           </div>
-          <textarea placeholder="Meta Description" rows="3" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" onChange={(e) => setForm({ ...form, metaDescription: e.target.value })} />
+
           <input required placeholder="Permalink / Slug (e.g., my-first-blog)" className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" onChange={(e) => setForm({ ...form, permalink: e.target.value })} />
+          
           <button type="submit" disabled={loading} className={`w-full text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center cursor-pointer ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}>
             {loading ? "Publishing..." : "Publish Blog"}
           </button>

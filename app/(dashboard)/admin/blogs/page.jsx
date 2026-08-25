@@ -143,6 +143,7 @@ export default function ShowBlogs() {
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden md:table-cell">Excerpt</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Slug</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">Published & Author</th>
+                  <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs hidden lg:table-cell">SEO Data</th>
                   <th className="px-5 py-3.5 font-semibold text-gray-500 uppercase tracking-wide text-xs text-right">Actions</th>
                 </tr>
               </thead>
@@ -153,7 +154,7 @@ export default function ShowBlogs() {
                     <td className="px-5 py-4">
                       {blog.image_url ? (
                         <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                          <img src={blog.image_url} alt={blog.title} className="object-cover" />
+                          <img src={blog.image_url} alt={blog.cover_img_alt || blog.title} className="object-cover" />
                         </div>
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -191,6 +192,12 @@ export default function ShowBlogs() {
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                         By {blog.author || "Admin"}
                       </span>
+                    </td>
+                    <td className="px-5 py-4 hidden lg:table-cell text-gray-600 text-xs">
+                      <div className="flex flex-col gap-1">
+                        {blog.canonical_tag ? <span className="text-green-600 font-medium">✓ Canonical</span> : <span className="text-red-400">✗ Canonical</span>}
+                        {blog.schema_markup ? <span className="text-green-600 font-medium">✓ Schema</span> : <span className="text-red-400">✗ Schema</span>}
+                      </div>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

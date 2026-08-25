@@ -28,10 +28,18 @@ export async function createBlog(formData) {
   const metaDescription = formData.get("metaDescription");
   const keywords = formData.get("keywords");
   const permalink = formData.get("permalink");
-  const category_id = formData.get("category");
   const image = formData.get("image");
   const author = formData.get("author") || "Admin";
   
+  const cover_img_alt = formData.get("cover_img_alt") || null;
+  const canonical_tag = formData.get("canonical_tag") || null;
+  const schema_markup = formData.get("schema_markup") || null;
+
+  let cat_id = formData.get("category");
+  if (!cat_id || cat_id === "null" || cat_id === "undefined" || cat_id === "") {
+    cat_id = null;
+  }
+
   let published_at = formData.get("published_at");
   published_at = published_at ? new Date(published_at).toISOString() : new Date().toISOString();
 
@@ -47,7 +55,8 @@ export async function createBlog(formData) {
 
   const { error } = await supabase.from('blogs').insert({
     title, content, slug: permalink, meta_title: metaTitle, meta_description: metaDescription,
-    keywords, category_id: category_id || null, image_url, author, published_at 
+    keywords, category_id: cat_id, image_url, author, published_at,
+    cover_img_alt, canonical_tag, schema_markup
   });
 
   if (error) throw new Error(error.message);
@@ -82,46 +91,61 @@ export async function getBlogById(id) {
 }
 
 export async function updateBlog(id, formData) {
-  const supabase = createAdminClient()
-  const title = formData.get("title");
-  const content = formData.get("content");
-  const metaTitle = formData.get("metaTitle");
-  const metaDescription = formData.get("metaDescription");
-  const keywords = formData.get("keywords");
-  const permalink = formData.get("permalink");
-  const category_id = formData.get("category");
-  const image = formData.get("image");
-  const existing_image = formData.get("existing_image");
-  const author = formData.get("author") || "Admin";
+  try {
+    const supabase = createAdminClient();
+    
+    const targetId = id || formData.get("blog_id");
+    if (!targetId) throw new Error("Blog ID is missing!");
 
-  const updateData = {
-    title, content, slug: permalink, meta_title: metaTitle,
-    meta_description: metaDescription, keywords, category_id: category_id || null, author 
-  };
+    const updateData = {
+      title: formData.get("title") || "",
+      content: formData.get("content") || "",
+      slug: formData.get("permalink") || "",
+      meta_title: formData.get("metaTitle") || "",
+      meta_description: formData.get("metaDescription") || "",
+      keywords: formData.get("keywords") || "",
+      author: formData.get("author") || "Admin",
+      cover_img_alt: formData.get("cover_img_alt") || null,
+      canonical_tag: formData.get("canonical_tag") || null,
+      schema_markup: formData.get("schema_markup") || null
+    };
 
-  let published_at = formData.get("published_at");
-  if (published_at) {
-    updateData.published_at = new Date(published_at).toISOString();
+    const cat_id = formData.get("category");
+    updateData.category_id = (cat_id && cat_id !== "null" && cat_id !== "") ? cat_id : null;
+
+    const published_at = formData.get("published_at");
+    if (published_at && published_at !== "null" && published_at !== "") {
+      updateData.published_at = new Date(published_at).toISOString();
+    }
+
+    const image = formData.get("image");
+    if (image && image.size > 0) {
+      const fileExt = image.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, image);
+      if (uploadError) throw new Error("Image upload failed");
+      const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
+      updateData.image_url = publicUrlData.publicUrl;
+    } else {
+      const existing_image = formData.get("existing_image");
+      if (existing_image && existing_image !== "null") {
+        updateData.image_url = existing_image;
+      }
+    }
+
+    const { data, error } = await supabase.from('blogs').update(updateData).eq('id', targetId).select();
+    
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) throw new Error("Could not find the blog in the database.");
+
+    revalidatePath('/admin/blogs')
+    revalidatePath('/blogs')
+    revalidatePath(`/blog/${updateData.slug}`)
+    
+    return { success: true };
+  } catch (error) {
+    return { error: error.message }; 
   }
-
-  let image_url = existing_image;
-  if (image && image.size > 0) {
-    const fileExt = image.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, image);
-    if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
-    const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
-    image_url = publicUrlData.publicUrl;
-    updateData.image_url = image_url;
-  }
-
-  const { error } = await supabase.from('blogs').update(updateData).eq('id', id);
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/admin/blogs')
-  revalidatePath('/blogs')
-  revalidatePath(`/blog/${permalink}`)
-  return { success: true };
 }
 
 export async function uploadImageForEditor(formData) {

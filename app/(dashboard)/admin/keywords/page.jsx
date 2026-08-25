@@ -6,7 +6,6 @@ export const metadata = {
 };
 
 export default async function KeywordsPage() {
-  // সার্ভার সাইড থেকে কিওয়ার্ডগুলো ফেচ করা হচ্ছে
   const initialKeywords = await getKeywords();
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2 } from "lucide-react";
+import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import { deleteProduct, getAdminProducts } from '@/app/actions/admin';
 import { useRouter } from 'next/navigation';
 
@@ -11,30 +11,45 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   const [products, setProducts] = useState(initialProducts);
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [copiedId, setCopiedId] = useState(null);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     router.refresh();
     setProducts(initialProducts);
+    setCurrentPage(1);
   }, [initialProducts, router]);
 
-  const handleDeleteProduct = (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      setDeletingId(productId);
-      startTransition(async () => {
-        const res = await deleteProduct(productId);
+  const confirmDelete = (productId) => {
+    setConfirmDeleteId(productId);
+  };
 
-        if (res?.error) {
-          alert("Failed to delete product: " + res.error);
-          setDeletingId(null);
-          return;
-        }
-
-        const updatedData = await getAdminProducts();
-        setProducts(updatedData || []);
+  const executeDelete = () => {
+    if (!confirmDeleteId) return;
+    setDeletingId(confirmDeleteId);
+    
+    startTransition(async () => {
+      const res = await deleteProduct(confirmDeleteId);
+      if (res?.error) {
+        alert("Failed to delete product: " + res.error);
         setDeletingId(null);
-        router.refresh(); 
-      });
-    }
+        setConfirmDeleteId(null);
+        return;
+      }
+      const updatedData = await getAdminProducts();
+      setProducts(updatedData || []);
+      setDeletingId(null);
+      setConfirmDeleteId(null);
+      router.refresh(); 
+    });
+  };
+
+  const handleCopy = (id) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const formattedProducts = products?.map(product => {
@@ -54,6 +69,11 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       status: !product.is_active ? 'Draft' : 'Published'
     };
   }) || [];
+
+  const totalItems = formattedProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = formattedProducts.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10 text-black">
@@ -90,7 +110,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {formattedProducts.length > 0 ? formattedProducts.map((product, idx) => (
+              {currentProducts.length > 0 ? currentProducts.map((product, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
@@ -103,6 +123,16 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       <div>
                         <p className="font-bold text-[13px] text-gray-900 mb-0.5">{product.name}</p>
                         <p className="text-[11px] text-gray-500">SKU: {product.sku}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <p className="text-[10px] text-gray-400 font-mono">ID: {product.id}</p>
+                          <button
+                            onClick={() => handleCopy(product.id)}
+                            className="text-gray-400 hover:text-[#5a4bda] transition-colors cursor-pointer"
+                            title="Copy UUID"
+                          >
+                            {copiedId === product.id ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -130,7 +160,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       </Link>
                       <button
                         disabled={deletingId === product.id}
-                        onClick={() => handleDeleteProduct(product.id)}
+                        onClick={() => confirmDelete(product.id)}
                         className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer disabled:opacity-50"
                         title="Delete Product"
                       >
@@ -149,7 +179,81 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
             </tbody>
           </table>
         </div>
+
+        {totalPages > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-white border-t border-gray-100">
+            <p className="text-sm text-gray-500 font-medium mb-4 sm:mb-0">
+              Showing {totalItems === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems} entries
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex -space-x-px rounded-md shadow-sm">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
+                      currentPage === page
+                        ? 'bg-[#5a4bda] text-white border-[#5a4bda] z-10 relative shadow-sm'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={28} />
+              </div>
+              <h3 className="text-[19px] font-bold text-gray-900 mb-2">Delete Product</h3>
+              <p className="text-[13px] text-gray-500 mb-6 px-2">
+                Are you sure you want to delete this product? This action cannot be undone and will permanently remove it from your store.
+              </p>
+              <div className="flex w-full gap-3">
+                <button
+                  disabled={isPending && deletingId === confirmDeleteId}
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[13px] font-bold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={isPending && deletingId === confirmDeleteId}
+                  onClick={executeDelete}
+                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[13px] font-bold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {isPending && deletingId === confirmDeleteId ? <Loader2 size={16} className="animate-spin" /> : null}
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

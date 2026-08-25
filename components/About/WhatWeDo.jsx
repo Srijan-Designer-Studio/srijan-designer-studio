@@ -59,7 +59,7 @@ export default function WhatWeDo() {
 
 
           <div className="w-full flex justify-center lg:justify-start pt-10 pb-8 lg:pt-16 lg:pb-12 order-2 lg:order-1">
-            <div className="wwd-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[4/5] mx-auto lg:mx-0">
+            <div className="wwd-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[9/16] mx-auto lg:mx-0">
               {imageSrc ? (
                 <div className="absolute inset-x-0 bottom-0 h-[115%] lg:h-[120%] z-10 pointer-events-none">
                   <Image

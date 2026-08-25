@@ -29,7 +29,6 @@ export default function Header({ initialUser = null }) {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const scrollTimeout = useRef(null);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -58,20 +57,11 @@ export default function Header({ initialUser = null }) {
       }
 
       lastScrollY.current = currentScroll;
-
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      scrollTimeout.current = setTimeout(() => {
-        setIsVisible(true);
-      }, 400);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     };
   }, []);
 
@@ -165,19 +155,19 @@ export default function Header({ initialUser = null }) {
         <div className="max-w-[1320px] h-[80px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
           
           <Link 
-  href="/" 
-  className="z-50 relative h-[45px] w-[130px] lg:h-[60px] lg:w-[180px] shrink-0 flex items-center" 
-  onClick={closeAllMenus}
->
-  <Image
-    src="/images/logo5.webp"
-    alt="Logo"
-    fill
-    sizes="(max-width: 1024px) 130px, 180px"
-    priority
-    className="object-contain object-left"
-  />
-</Link>
+            href="/" 
+            className="z-50 relative h-[45px] w-[130px] lg:h-[60px] lg:w-[180px] shrink-0 flex items-center" 
+            onClick={closeAllMenus}
+          >
+            <Image
+              src="/images/logo5.webp"
+              alt="Logo"
+              fill
+              sizes="(max-width: 1024px) 130px, 180px"
+              priority
+              className="object-contain object-left"
+            />
+          </Link>
 
           <nav className="hidden lg:flex bg-[#9696a6]/60 backdrop-blur-md border border-white/20 px-8 rounded-full shadow-lg h-[50px] items-center">
             <ul className="flex items-center gap-6 lg:gap-8 text-[15px] font-bold text-white tracking-wide h-full">

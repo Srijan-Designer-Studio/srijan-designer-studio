@@ -63,7 +63,7 @@ export default function CustomizeWear() {
               Got a Design in Your <br className="hidden lg:block" />
               Head? Let's Make It Real
             </h3>
-            <p className="cw-text text-gray-600 text-base sm:text-[17px] leading-[1.7] mb-10">
+            <p className="cw-text text-gray-600 text-lg sm:text-[19px] leading-[1.7] mb-10">
               Sketch it. Screenshot it. Describe it in
               three words. However your idea shows
               up, <strong className="text-black font-bold">SRIJAN Fashion</strong> turn it into a custom

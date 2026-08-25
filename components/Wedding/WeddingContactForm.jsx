@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function WeddingContactForm() {
   const containerRef = useRef(null);
   const formRef = useRef(null);
-  const bgImageSrc = "/Custom Wedding Wear/Wedding Wear.webp";
+  const bgImageSrc = "/Custom Wedding Wear/Wedding Wear 1.webp";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
@@ -73,11 +73,11 @@ export default function WeddingContactForm() {
                 className="object-cover opacity-80"
               />
             )}
-            <div className="absolute top-10 left-8 pr-8 z-10">
+            <div className="absolute top-4 lg:top-14 left-8 pr-8 z-10">
               <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight font-serif">
                 Let's create some special <br /> moment
               </h3>
-              <p className="text-white text-[15px] sm:text-[17px] max-w-[300px]">
+              <p className="text-white text-[15px] sm:text-[17px] max-w-[250px] sm:max-w-[310px] md:max-w-[340px] ">
                 Official camera roll of our prettiest brides & handsome grooms
               </p>
             </div>

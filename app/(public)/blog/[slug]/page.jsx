@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
     description: blog.meta_description || "Read this amazing blog post on Srijan Fashion.",
     keywords: blog.keywords || "srijan fashion, fashion blog, trending clothes",
     alternates: {
-      canonical: currentUrl,
+      canonical: blog.canonical_tag || currentUrl,
     },
     openGraph: {
       title: blog.meta_title || blog.title,
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }) {
           url: blog.image_url || '/images/logo3.jpg',
           width: 1200,
           height: 630,
-          alt: blog.title,
+          alt: blog.cover_img_alt || blog.title,
         }
       ],
       locale: 'en_IN',
@@ -77,35 +77,42 @@ export default async function BlogDetails({ params }) {
           })
         }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": currentUrl
-            },
-            "headline": blog.title,
-            "description": blog.meta_description || "",
-            "image": blog.image_url || "https://srijandesignerstudio.com/images/logo3.jpg",  
-            "author": {
-              "@type": "Person",
-              "name": blog.author || "Admin"
-            },  
-            "publisher": {
-              "@type": "Organization",
-              "name": "Srijan Fashion",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://srijandesignerstudio.com/images/logo5.webp"
-              }
-            },
-            "datePublished": blog.published_at || blog.created_at || new Date().toISOString()
-          })
-        }}
-      />
+      {blog.schema_markup ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: blog.schema_markup }}
+        />
+      ) : (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": currentUrl
+              },
+              "headline": blog.title,
+              "description": blog.meta_description || "",
+              "image": blog.image_url || "https://srijandesignerstudio.com/images/logo3.jpg",  
+              "author": {
+                "@type": "Person",
+                "name": blog.author || "Admin"
+              },  
+              "publisher": {
+                "@type": "Organization",
+                "name": "Srijan Fashion",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://srijandesignerstudio.com/images/logo5.webp"
+                }
+              },
+              "datePublished": blog.published_at || blog.created_at || new Date().toISOString()
+            })
+          }}
+        />
+      )}
       
       <BlogClient blog={blog} />
     </>

@@ -19,9 +19,9 @@ export default function Collection() {
   const newArrivalCover = "/Home_img/6.webp";
 
   const collections = [
-    { id: 1, buttonText: "Shop Ethnic Wear", placeholderBg: "bg-[#2dd4bf]", imageSrc: ethnicCover, link: "/ethnic-wear" },
-    { id: 2, buttonText: "Shop Western Wear", placeholderBg: "bg-[#38bdf8]", imageSrc: westernCover, link: "/western-wear" },
-    { id: 3, buttonText: "Shop New Arrival", placeholderBg: "bg-[#fb7185]", imageSrc: newArrivalCover, link: "/new-arrivals" },
+    { id: 1, buttonText: "Shop Ethnic Wear", placeholderBg: "bg-[#2dd4bf]", imageSrc: ethnicCover, link: "/shop-ethnic-wear" },
+    { id: 2, buttonText: "Shop Western Wear", placeholderBg: "bg-[#38bdf8]", imageSrc: westernCover, link: "/shop-western-wear" },
+    { id: 3, buttonText: "Shop New Arrival", placeholderBg: "bg-[#fb7185]", imageSrc: newArrivalCover, link: "/shop-new-arrival" },
   ];
 
   useGSAP(() => {

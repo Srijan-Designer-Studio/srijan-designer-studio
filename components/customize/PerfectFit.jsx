@@ -124,18 +124,23 @@ export default function PerfectFit() {
 
       <section className="pf-bottom-sec flex flex-col lg:flex-row min-h-[600px] bg-[#f8f9fa]">
         <div className="relative w-full lg:w-1/2 flex items-center p-8 lg:p-20 overflow-hidden">
-         
-  <Image 
-    src="/Create Custom-img/Untitled design (4).webp" 
-    alt="Tailoring" 
-    fill 
-    className="object-cover absolute inset-0 z-0" 
-  />
+
+          <Image
+            src="/Create Custom-img/Untitled design (4).webp"
+            alt="Tailoring"
+            fill
+            className="object-cover absolute inset-0 z-0"
+          />
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <div className="relative z-20 text-white max-w-lg">
             <h2 className="pf-banner-text text-4xl md:text-5xl font-bold mb-6 leading-tight">Perfect Fit<br />Guaranteed</h2>
             <p className="pf-banner-text text-base md:text-lg leading-relaxed">
-              No two people are the same and your dress shouldn't be either. We tailor every design to your exact measurements, so it fits comfortably and flatters your shape. From the first stitch to the final finish, your designer dress is made just for you.
+              No two people are the same. So why
+              should your dress be? We tailor every
+              piece to your exact measurements, so
+              it fits right and flatters your shape.
+              First stitch to final finish, it's made for
+              you and only you.
             </p>
           </div>
         </div>

@@ -13,8 +13,6 @@ const slides = [
   {
     id: 1,
     video: "/videos/HomePage HERO SectionVideo.mp4",
-    title: "Discover Fashion  Styles That's Truly Yours",
-    description: "Enjoy online shopping for outfits that match your style. Explore the latest fashion styles or create a custom dress made just for you.",
     buttonText: "Shop Now",
     href: "/shop-style",
   }
@@ -28,23 +26,23 @@ export default function Hero() {
     gsap.fromTo(
       ".swiper-slide-active .hero-anim",
       { y: 60, opacity: 0 },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 1.2, 
-        stagger: 0.15, 
-        ease: "power4.out", 
-        delay: 0.3 
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: "power4.out",
+        delay: 0.3
       }
     );
 
     gsap.fromTo(
       ".swiper-slide-active .hero-img",
       { scale: 1.1 },
-      { 
-        scale: 1, 
-        duration: 5, 
-        ease: "power2.out" 
+      {
+        scale: 1,
+        duration: 5,
+        ease: "power2.out"
       }
     );
   }, { dependencies: [slideChangeTracker], scope: containerRef });
@@ -77,15 +75,17 @@ export default function Hero() {
 
               <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
                 <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">
-                  
+
                   {
                     <h1 className="hero-anim text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
-                      {slide.title}
+                      Discover Fashion  Styles That's Truly Yours
                     </h1>
                   }
 
                   <p className="hero-anim text-base sm:text-lg md:text-xl lg:text-[22px] font-medium leading-relaxed mb-6 md:mb-10 drop-shadow-sm">
-                    {slide.description}
+                    Shop the latest fashion styles
+                    online or design a custom
+                    outfit that's 100% you
                   </p>
 
                   <div className="hero-anim inline-block">

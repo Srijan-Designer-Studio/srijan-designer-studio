@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import ProductDetails from "@/components/product/ProductDetails";
 import CustomerReviews from "@/components/product/CustomerReviews";
 import SimilarProducts from "@/components/product/SimilarProducts";
@@ -15,27 +16,33 @@ export async function generateMetadata({ params }) {
   if (!product) return { title: 'Product Not Found | SRIJAN Fashion' };
 
   const imageUrl = product.product_images?.[0]?.image_url || '/images/logo1.png';
-  const description = product.description?.substring(0, 160) || `Buy ${product.title} online at best prices on SRIJAN Fashion.`;
-  const productUrl = `https://www.srijandesignerstudio.com/product/${resolvedParams.id}`;
+  const defaultDescription = product.short_description || product.description?.substring(0, 160) || `Buy ${product.title} online at best prices on SRIJAN Fashion.`;
+  const defaultUrl = `https://www.srijandesignerstudio.com/product/${resolvedParams.id}`;
+
+  const seoTitle = product.seo_title || `${product.title} | SRIJAN Fashion`;
+  const seoDesc = product.meta_desc || defaultDescription;
+  const canonical = product.canonical_url || defaultUrl;
+  const keywords = product.seo_keywords || product.focus_keyword || "";
 
   return {
-    title: `${product.title} | SRIJAN Fashion`,
-    description: description,
+    title: seoTitle,
+    description: seoDesc,
+    keywords: keywords,
     alternates: {
-      canonical: productUrl,
+      canonical: canonical,
     },
     openGraph: {
-      title: product.title,
-      description: description,
-      url: productUrl,
+      title: seoTitle,
+      description: seoDesc,
+      url: canonical,
       siteName: 'Srijan Fashion',
       images: [{ url: imageUrl, width: 1200, height: 630 }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: product.title,
-      description: description,
+      title: seoTitle,
+      description: seoDesc,
       images: [imageUrl],
     }
   };
@@ -45,7 +52,6 @@ export default async function SingleProductPage({ params }) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
   
- 
   const product = await getProductBySlug(id);
 
   if (!product) {
@@ -60,12 +66,12 @@ export default async function SingleProductPage({ params }) {
   const imageUrl = product.product_images?.[0]?.image_url || 'https://www.srijandesignerstudio.com/images/logo3.jpg';
   const productUrl = `https://www.srijandesignerstudio.com/product/${id}`;
 
-  const productSchema = {
+  const defaultSchema = {
     "@context": "https://schema.org/",
     "@type": "Product",
-    "name": product.title,
+    "name": product.seo_title || product.title,
     "image": [imageUrl],
-    "description": product.description || `Buy ${product.title} online at best prices on SRIJAN Fashion.`,
+    "description": product.meta_desc || product.short_description || `Buy ${product.title} online at best prices on SRIJAN Fashion.`,
     "sku": product.id,
     "brand": {
       "@type": "Brand",
@@ -73,7 +79,7 @@ export default async function SingleProductPage({ params }) {
     },
     "offers": {
       "@type": "Offer",
-      "url": productUrl,
+      "url": product.canonical_url || productUrl,
       "priceCurrency": "INR",
       "price": product.base_price || 0,
       "itemCondition": "https://schema.org/NewCondition",
@@ -81,24 +87,30 @@ export default async function SingleProductPage({ params }) {
     }
   };
 
+  let cleanSchemaMarkup = JSON.stringify(defaultSchema);
+  
+  if (product.schema_markup) {
+    cleanSchemaMarkup = product.schema_markup
+      .replace(/<script[^>]*>/gi, '')
+      .replace(/<\/script>/gi, '')
+      .trim();
+  }
+
   return (
     <main>
-      <script
+      <Script
+        id={`product-schema-${product.id}`}
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        dangerouslySetInnerHTML={{ __html: cleanSchemaMarkup }}
       />
       <ScrollToTop />
       
-     
       <ProductDetails product={product} />
       
-    
       <CustomerReviews productId={product.id} />
-      
       
       <SimilarProducts similarProducts={similarProducts} />
 
-  
       <div className="max-w-[1320px] mx-auto px-6">
         <ProductFAQ faqs={product.faqs} />
       </div>

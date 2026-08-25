@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function BaseStyles() {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const containerRef = useRef(null);
   const marqueeRef = useRef(null);
   const tweenRef = useRef(null);
@@ -19,10 +21,10 @@ export default function BaseStyles() {
     { id: 2, title: "Gown & Evening Styles", image: "/Create Custom-img/Card 2.webp" },
     { id: 3, title: "Plus Size Styles", image: "/Create Custom-img/Card 3.webp" },
     { id: 4, title: "Petite Styles", image: "/Create Custom-img/Card 4.webp" },
-    { id: 5, title: "Kids Wear", image: "/Create Custom-img/Card 5.webp" },
-    { id: 6, title: "Wedding Styles", image: "/Create Custom-img/Card 6.webp" },
-    { id: 7, title: "Indian Wear", image: "/Create Custom-img/Card 7.webp" },
-    { id: 8, title: "Men's Wear", image: "/Create Custom-img/Card 8.webp" }
+    { id: 5, title: "Sheath Styles", image: "/Create Custom-img/Card 5.webp" },
+    { id: 6, title: "A-Line Styles", image: "/Create Custom-img/Card 6.webp" },
+    { id: 7, title: "Wrap Styles", image: "/Create Custom-img/Card 7.webp" },
+    { id: 8, title: "Long Sleeves Styles", image: "/Create Custom-img/Card 8.webp" }
   ];
 
   useGSAP(() => {
@@ -71,6 +73,11 @@ export default function BaseStyles() {
 
   return (
     <section className="py-16 bg-white overflow-hidden" ref={containerRef}>
+      <CustomStylesPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        category="Customize"
+      />
 
       <div className="max-w-[1320px] mx-auto text-center px-6">
         <h2 className="base-title text-3xl font-bold text-black mb-10">Start With a Base Style</h2>
@@ -134,11 +141,12 @@ export default function BaseStyles() {
 
       <div className="max-w-[1320px] mx-auto text-center px-6">
         <div className="base-btn">
-          <Link href="/shop-style">
-            <button className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-1 transition-transform">
-              Choose Your Style
-            </button>
-          </Link>
+          <button
+            onClick={() => setIsPopupOpen(true)}
+            className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:-translate-y-1 transition-transform cursor-pointer"
+          >
+            Choose Your Style
+          </button>
         </div>
       </div>
       

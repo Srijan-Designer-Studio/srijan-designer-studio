@@ -49,7 +49,7 @@ export default function OurPromise() {
   }, { scope: containerRef });
 
   return (
-    <section className="py-16 lg:py-32 bg-white border-b-[12px] border-[#1a1b41]" ref={containerRef}>
+    <section className="py-16 lg:py-32 bg-white" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
@@ -81,7 +81,7 @@ export default function OurPromise() {
           </div>
 
           <div className="flex justify-center lg:justify-end w-full order-2 mt-6 lg:mt-0">
-            <div className="promise-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[4/5] mx-auto lg:mx-0">
+            <div className="promise-img relative w-full max-w-[320px] sm:max-w-[380px] aspect-[9/16] mx-auto lg:mx-0">
               {imageSrc ? (
                 <div className="absolute inset-x-0 bottom-0 h-[115%] lg:h-[120%] z-10 pointer-events-none">
                   <Image

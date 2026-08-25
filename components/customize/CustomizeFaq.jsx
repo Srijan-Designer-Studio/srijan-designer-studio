@@ -86,7 +86,7 @@ export default function CustomizeFaq() {
             <div key={idx} className="faq-item-anim bg-[#e6f4fc] rounded-xl overflow-hidden transition-shadow hover:shadow-md">
               <button
                 onClick={() => setOpen(open === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-5 text-left text-black font-medium text-[15px]"
+                className="w-full flex items-center justify-between p-5 text-left text-black font-medium leading-relaxed font-semibold text-[15px]"
               >
                 {faq.q}
                 {open === idx ? <ChevronUp size={20} className="text-[#00c3ff]" /> : <ChevronDown size={20} className="text-gray-500" />}

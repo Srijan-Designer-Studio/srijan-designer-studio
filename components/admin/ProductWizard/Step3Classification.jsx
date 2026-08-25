@@ -4,9 +4,7 @@ import { useState } from "react";
 import { useWizard } from "./WizardContext";
 import { X, Plus } from "lucide-react";
 
-const AVAILABLE_CATEGORIES = ["Women", "Men", "Kids", "Sarees", "Lehengas", "Kurtis", "Ethnic Wear", "Wedding Wear", "Western Wear"];
-const AVAILABLE_COLLECTIONS = ["New Arrivals", "Bridal Edit", "Festive Collection", "Summer Collection", "Winter Wear"];
-const AVAILABLE_OCCASIONS = ["Wedding", "Reception", "Festive", "Party", "Casual", "Office Wear"];
+const AVAILABLE_COLLECTIONS = ["New Arrivals", "Western Wear", "Ethnic Wear", "Wedding Wear"];
 
 export default function Step3Classification() {
   const { formData, updateFormData } = useWizard();
@@ -21,21 +19,21 @@ export default function Step3Classification() {
     }
   };
 
-  const handleAddTag = (e) => {
+  const handleAddCustomCollection = (e) => {
     if (e.key === 'Enter' || e.type === 'click') {
       e.preventDefault();
-      const newTag = tagInput.trim();
-      const currentTags = formData.tags || [];
-      if (newTag && !currentTags.includes(newTag)) {
-        updateFormData({ tags: [...currentTags, newTag] });
+      const newCollection = tagInput.trim();
+      const currentCollections = formData.collections || [];
+      if (newCollection && !currentCollections.includes(newCollection)) {
+        updateFormData({ collections: [...currentCollections, newCollection] });
       }
       setTagInput("");
     }
   };
 
-  const removeTag = (tagToRemove) => {
-    const currentTags = formData.tags || [];
-    updateFormData({ tags: currentTags.filter(tag => tag !== tagToRemove) });
+  const removeCustomCollection = (collectionToRemove) => {
+    const currentCollections = formData.collections || [];
+    updateFormData({ collections: currentCollections.filter(col => col !== collectionToRemove) });
   };
 
   return (
@@ -67,22 +65,6 @@ export default function Step3Classification() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-            <label className="block text-[13px] font-bold text-gray-800 mb-3">Categories</label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => toggleArrayItem('categories', cat)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.categories?.includes(cat) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
             <label className="block text-[13px] font-bold text-gray-800 mb-3">Collections</label>
             <div className="flex flex-wrap gap-2">
               {AVAILABLE_COLLECTIONS.map(col => (
@@ -99,53 +81,37 @@ export default function Step3Classification() {
           </div>
 
           <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-            <label className="block text-[13px] font-bold text-gray-800 mb-3">Occasions</label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_OCCASIONS.map(occ => (
-                <button
-                  key={occ}
-                  type="button"
-                  onClick={() => toggleArrayItem('occasions', occ)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.occasions?.includes(occ) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
-                >
-                  {occ}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-            <label className="block text-[13px] font-bold text-gray-800 mb-3">Tags (Custom)</label>
+            <label className="block text-[13px] font-bold text-gray-800 mb-3">Custom Collections</label>
             <div className="flex gap-2 mb-3">
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleAddTag}
-                placeholder="Type tag and press enter..."
+                onKeyDown={handleAddCustomCollection}
+                placeholder="Type collection and press enter..."
                 className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
               <button
                 type="button"
-                onClick={handleAddTag}
+                onClick={handleAddCustomCollection}
                 className="px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors"
               >
                 <Plus size={18} />
               </button>
             </div>
-            {formData.tags?.length > 0 ? (
+            {formData.collections?.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {formData.tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium bg-gray-200 text-gray-800 border border-gray-300">
-                    {tag}
-                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 focus:outline-none">
+                {formData.collections.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).map(col => (
+                  <span key={col} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium bg-gray-200 text-gray-800 border border-gray-300">
+                    {col}
+                    <button type="button" onClick={() => removeCustomCollection(col)} className="hover:text-red-500 focus:outline-none">
                       <X size={14} />
                     </button>
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-[12px] text-gray-400 italic">No tags added yet.</p>
+              <p className="text-[12px] text-gray-400 italic">No custom collections added yet.</p>
             )}
           </div>
         </div>

@@ -1,19 +1,22 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Plus, TrendingUp, BarChart3, Search as SearchIcon, Loader2 } from 'lucide-react';
+import { Plus, TrendingUp, BarChart3, Search as SearchIcon, Loader2, Edit2, Trash2 } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import Modal from '@/components/dashboard/shared/Modal';
-import { addKeyword, getKeywords } from '@/app/actions/keywords';
+import { addKeyword, getKeywords, updateKeyword, deleteKeyword } from '@/app/actions/keywords';
 
 export default function KeywordsClientWrapper({ initialKeywords }) {
   const [keywords, setKeywords] = useState(initialKeywords || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({ keyword: '', searches: 0, conversion: 0, status: 'Active' });
   const [isPending, startTransition] = useTransition();
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
-  // Dynamic calculations based on DB data
   const totalSearches = keywords.reduce((sum, k) => sum + (k.searches || 0), 0);
   const activeKeywords = keywords.filter(k => k.is_active).length;
 
@@ -21,25 +24,62 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
     ? (keywords.reduce((sum, k) => sum + Number(k.conversion_rate || 0), 0) / keywords.length).toFixed(2)
     : '0.00';
 
-  const handleAddKeyword = (e) => {
+  const openAddModal = () => {
+    setEditingId(null);
+    setFormData({ keyword: '', searches: 0, conversion: 0, status: 'Active' });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (k) => {
+    setEditingId(k.id);
+    setFormData({
+      keyword: k.keyword,
+      searches: k.searches,
+      conversion: k.conversion_rate,
+      status: k.is_active ? 'Active' : 'Inactive'
+    });
+    setIsModalOpen(true);
+  };
+
+  const executeDelete = (id) => {
+    setDeletingId(id);
+    startTransition(async () => {
+      try {
+        await deleteKeyword(id);
+        const updatedData = await getKeywords();
+        setKeywords(updatedData);
+      } catch (error) {
+        alert("Failed to delete keyword.");
+      } finally {
+        setDeletingId(null);
+        setConfirmDelete(null);
+      }
+    });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const submitData = new FormData(e.target);
 
     startTransition(async () => {
       try {
-        await addKeyword(formData);
+        if (editingId) {
+          await updateKeyword(editingId, submitData);
+        } else {
+          await addKeyword(submitData);
+        }
         const updatedData = await getKeywords();
         setKeywords(updatedData);
         setIsModalOpen(false);
       } catch (error) {
-        console.error(error);
-        alert("Failed to add keyword.");
+        alert("Failed to save keyword.");
       }
     });
   };
 
   const formattedKeywords = keywords.map(k => ({
     id: k.id,
+    raw: k,
     keyword: k.keyword,
     searches: k.searches,
     conversion: `${k.conversion_rate}%`,
@@ -54,7 +94,16 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
     {
       header: 'Actions',
       accessor: 'actions',
-      render: () => <button className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors">Edit</button>
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <button onClick={() => openEditModal(row.raw)} className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer" title="Edit">
+            <Edit2 size={16} />
+          </button>
+          <button onClick={() => setConfirmDelete(row.raw)} className="text-red-500 hover:text-red-700 transition-colors cursor-pointer" title="Remove">
+            <Trash2 size={16} />
+          </button>
+        </div>
+      )
     },
   ];
 
@@ -66,8 +115,8 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
           <p className="text-[19px] text-gray-500 mt-1">Manage site search performance and monitor top keywords.</p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-800 transition-colors shadow-sm"
+          onClick={openAddModal}
+          className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-800 transition-colors shadow-sm cursor-pointer"
         >
           <Plus size={16} /> Add Keyword
         </button>
@@ -108,15 +157,17 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add SEO Keyword"
+        title={editingId ? "Edit SEO Keyword" : "Add SEO Keyword"}
       >
-        <form onSubmit={handleAddKeyword} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Keyword</label>
             <input
               name="keyword"
               required
               type="text"
+              value={formData.keyword}
+              onChange={(e) => setFormData({ ...formData, keyword: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black/5 outline-none"
               placeholder="e.g. Silk Saree"
             />
@@ -128,7 +179,8 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
                 name="searches"
                 required
                 type="number"
-                defaultValue="0"
+                value={formData.searches}
+                onChange={(e) => setFormData({ ...formData, searches: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black/5 outline-none"
               />
             </div>
@@ -139,26 +191,64 @@ export default function KeywordsClientWrapper({ initialKeywords }) {
                 required
                 type="number"
                 step="0.1"
-                defaultValue="0.0"
+                value={formData.conversion}
+                onChange={(e) => setFormData({ ...formData, conversion: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black/5 outline-none"
               />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select name="status" className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-black/5 outline-none">
+            <select 
+              name="status" 
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-black/5 outline-none"
+            >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
-            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">Cancel</button>
-            <button disabled={isPending} type="submit" className="px-6 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-lg disabled:opacity-70 flex items-center gap-2">
-              {isPending && <Loader2 size={16} className="animate-spin" />} Save Keyword
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer">Cancel</button>
+            <button disabled={isPending} type="submit" className="px-6 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-lg disabled:opacity-70 flex items-center gap-2 cursor-pointer">
+              {isPending && <Loader2 size={16} className="animate-spin" />} {editingId ? "Update" : "Save"}
             </button>
           </div>
         </form>
       </Modal>
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div className="flex items-center justify-center w-12 h-12 bg-red-50 rounded-full mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.34 16.5C2.57 18.333 3.532 20 5.072 20z" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold text-gray-900 text-center mb-1">Delete Keyword?</h2>
+            <p className="text-[19px] text-gray-500 text-center mb-6 leading-relaxed">
+              <span className="font-medium text-gray-700">"{confirmDelete.keyword}"</span> will be permanently deleted.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                disabled={!!deletingId}
+                className="flex-1 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => executeDelete(confirmDelete.id)}
+                disabled={deletingId === confirmDelete.id}
+                className="flex-1 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {deletingId === confirmDelete.id ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

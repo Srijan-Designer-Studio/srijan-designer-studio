@@ -93,17 +93,7 @@ export default function ContactDetails() {
                     </div>
 
                     <div className="contact-anim relative w-full aspect-[4/3] rounded-[20px] overflow-hidden border-[8px] border-[#00c3ff] shadow-lg">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0820464871465!2d88.3976!3d22.4831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDI4JzU5LjIiTiA4OMKwMjMnNTEuNCJF!5e0!3m2!1sen!2sin!4v1698765432100!5m2!1sen!2sin"
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            allowFullScreen=""
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title="Srijan Fashion Location"
-                        >
-                        </iframe>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.933147316061!2d88.4024644!3d22.4691464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0273d54c6ea3a7%3A0x8a5bebfa270fffe9!2sSRIJAN%20Fashion!5e0!3m2!1sen!2sin!4v1787655000856!5m2!1sen!2sin" width="600" height="450" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin"></iframe>
                     </div>
                 </div>
 
@@ -139,7 +129,7 @@ export default function ContactDetails() {
                                 <label className="block text-[14px] text-gray-700 mb-1.5">Your Message*</label>
                                 <textarea name="message" required rows="4" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
                             </div>
-                            
+
                             {status.type === 'error' && <p className="text-red-500 text-sm">{status.message}</p>}
 
                             <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-medium text-[17px] py-3 rounded-full transition-colors mt-6 shadow-md shadow-[#00c3ff]/30 disabled:opacity-70">

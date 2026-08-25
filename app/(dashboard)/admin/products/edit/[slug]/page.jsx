@@ -33,10 +33,7 @@ export default async function EditProductPage({ params }) {
     department: product.gender || "Women",
     basePrice: product.base_price || "",
     salePrice: product.sale_price || "",
-    categories: product.categories || [],
     collections: product.collections || [],
-    occasions: product.occasions || [],
-    tags: product.tags || [],
     images: product.product_images?.map((img, idx) => ({
       id: img.id || Date.now() + idx,
       file: null,
@@ -54,8 +51,6 @@ export default async function EditProductPage({ params }) {
       barcode: v.barcode || ""
     })) : [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
     purchaseType: product.purchase_type || "Single Product",
-    
-    // CRITICAL FIX: Properly map the Addon / Component Data for the Admin Edit form
     components: product.product_components?.map(c => ({
       id: c.id,
       name: c.name || "",
@@ -65,7 +60,6 @@ export default async function EditProductPage({ params }) {
       preview: c.image_url || null,
       file: null
     })) || [],
-
     weight: product.weight || "",
     length: product.length || "",
     width: product.width || "",
@@ -85,7 +79,8 @@ export default async function EditProductPage({ params }) {
     seoKeywords: product.seo_keywords || "",
     ogTitle: product.og_title || "",
     ogDesc: product.og_description || "",
-    canonicalUrl: product.canonical_url || ""
+    canonicalUrl: product.canonical_url || "",
+    schemaMarkup: product.schema_markup || ""
   };
 
   return <ProductWizard initialData={initialData} />;
