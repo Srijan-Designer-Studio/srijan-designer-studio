@@ -242,7 +242,6 @@ export async function updateOrderUserAction(orderId, actionType) {
     const supabase = await createClient();
     const adminDb = createAdminClient();
 
-   
     const { data: { session } } = await supabase.auth.getSession();
     let user = session?.user;
     if (!user) {
@@ -251,7 +250,6 @@ export async function updateOrderUserAction(orderId, actionType) {
     }
     if (!user) throw new Error('Unauthorized');
 
-    
     const { data: order, error: fetchError } = await adminDb
       .from('orders')
       .select('id, status')
@@ -263,16 +261,14 @@ export async function updateOrderUserAction(orderId, actionType) {
 
     let newStatus = '';
     
-    
-    if (actionType === 'cancel' && ['pending', 'processing'].includes(order.status.toLowerCase())) {
+    if (actionType === 'cancelled' && ['pending', 'processing'].includes(order.status.toLowerCase())) {
        newStatus = 'cancelled';
-    } else if (actionType === 'return' && order.status.toLowerCase() === 'delivered') {
-       newStatus = 'returned';
+    } else if (actionType === 'return_requested' && order.status.toLowerCase() === 'delivered') {
+       newStatus = 'return_requested';
     } else {
-       throw new Error(`Cannot ${actionType} this order in its current status.`);
+       throw new Error(`Cannot perform this action in current status.`);
     }
 
-   
     const { error: updateError } = await adminDb
       .from('orders')
       .update({ status: newStatus })
@@ -281,7 +277,7 @@ export async function updateOrderUserAction(orderId, actionType) {
     if (updateError) throw updateError;
 
     revalidatePath('/account/orders'); 
-    return { success: true, message: `Order has been ${newStatus} successfully.` };
+    return { success: true, message: `Request submitted successfully.` };
   } catch (error) {
     return { success: false, message: error.message };
   }

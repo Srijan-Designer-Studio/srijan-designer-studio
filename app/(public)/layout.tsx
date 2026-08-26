@@ -12,14 +12,12 @@ export default async function PublicLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <SmoothScroll>
       <CartProvider>
         <div className="flex flex-col min-h-screen bg-white">
-
           <Header initialUser={user as any} />
           <main className="flex-grow w-full">
             {children}

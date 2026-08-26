@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,9 +12,11 @@ import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function NewArrivalsGrid({ products }) {
+export default function NewArrivalsGrid({ products = [] }) {
   const containerRef = useRef(null);
   const { wishlistItems, toggleWishlist } = useCart();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   useGSAP(() => {
     gsap.from(".title-anim", {
@@ -50,6 +52,16 @@ export default function NewArrivalsGrid({ products }) {
     }
   };
 
+  const totalItems = products.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="max-w-[1320px] mx-auto px-6" ref={containerRef}>
       <ScrollToTop />
@@ -59,8 +71,8 @@ export default function NewArrivalsGrid({ products }) {
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-        {products.length > 0 ? (
-          products.map((product) => {
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => {
             const imageUrl = product.product_images?.[0]?.image_url;
             const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
@@ -114,6 +126,40 @@ export default function NewArrivalsGrid({ products }) {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-16">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg text-[14px] font-bold transition-all cursor-pointer ${
+                currentPage === page
+                  ? 'bg-[#00c3ff] text-white shadow-md shadow-[#00c3ff]/20'
+                  : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

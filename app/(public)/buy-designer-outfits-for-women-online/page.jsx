@@ -26,17 +26,23 @@ export const metadata = {
 export default async function WomenPage() {
   const allProducts = await getProducts() || [];
 
-  const womenEthnicProducts = allProducts.filter((product) => 
-    (product.gender === 'Women' || product.gender === 'Unisex') &&
-    Array.isArray(product.categories) && 
-    product.categories.includes('Ethnic Wear')
-  );
+  const womenEthnicProducts = allProducts.filter((product) => {
+    const gender = String(product.gender || "").toLowerCase();
+    const dbCategories = JSON.stringify(product.categories || []).toLowerCase();
+    const dbCollections = JSON.stringify(product.collections || []).toLowerCase();
+    
+    return (gender === 'women' || gender === 'unisex') && 
+           (dbCategories.includes('ethnic wear') || dbCollections.includes('ethnic wear'));
+  });
 
-  const womenWesternProducts = allProducts.filter((product) => 
-    (product.gender === 'Women' || product.gender === 'Unisex') &&
-    Array.isArray(product.categories) && 
-    product.categories.includes('Western Wear')
-  );
+  const womenWesternProducts = allProducts.filter((product) => {
+    const gender = String(product.gender || "").toLowerCase();
+    const dbCategories = JSON.stringify(product.categories || []).toLowerCase();
+    const dbCollections = JSON.stringify(product.collections || []).toLowerCase();
+    
+    return (gender === 'women' || gender === 'unisex') && 
+           (dbCategories.includes('western wear') || dbCollections.includes('western wear'));
+  });
 
   return (
     <main>

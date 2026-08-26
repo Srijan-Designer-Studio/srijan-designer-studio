@@ -110,7 +110,7 @@ export default function AdminOrdersPage() {
         date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at)),
         items: order.order_items ? order.order_items.length : 0,
         amount: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-        status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
+        status: order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
     }));
 
     const orderColumns = [
@@ -147,9 +147,15 @@ export default function AdminOrdersPage() {
         { label: 'All Statuses', value: 'All Statuses' },
         { label: 'Pending', value: 'pending' },
         { label: 'Processing', value: 'processing' },
+        { label: 'Packed', value: 'packed' },
         { label: 'Shipped', value: 'shipped' },
+        { label: 'Out for Delivery', value: 'out_for_delivery' },
         { label: 'Delivered', value: 'delivered' },
         { label: 'Cancelled', value: 'cancelled' },
+        { label: 'Return Requested', value: 'return_requested' },
+        { label: 'Return Approved', value: 'return_approved' },
+        { label: 'Return Rejected', value: 'return_rejected' },
+        { label: 'Refund Initiated', value: 'refund_initiated' },
         { label: 'Returned', value: 'returned' },
     ];
 
@@ -355,15 +361,21 @@ export default function AdminOrdersPage() {
                                     >
                                         <option value="pending">Pending</option>
                                         <option value="processing">Processing</option>
+                                        <option value="packed">Packed</option>
                                         <option value="shipped">Shipped</option>
+                                        <option value="out_for_delivery">Out for Delivery</option>
                                         <option value="delivered">Delivered</option>
                                         <option value="cancelled">Cancelled</option>
+                                        <option value="return_requested">Return Requested</option>
+                                        <option value="return_approved">Return Approved</option>
+                                        <option value="return_rejected">Return Rejected</option>
+                                        <option value="refund_initiated">Refund Initiated</option>
                                         <option value="returned">Returned</option>
                                     </select>
                                 </div>
                                 <div className="flex flex-col items-start sm:items-end justify-center">
                                     <span className="text-xs font-medium text-gray-500 mb-1">Current Status</span>
-                                    <StatusBadge status={selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)} />
+                                    <StatusBadge status={selectedOrder.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} />
                                 </div>
                             </div>
 

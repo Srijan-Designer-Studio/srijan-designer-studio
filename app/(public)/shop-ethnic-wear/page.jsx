@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createAdminClient } from '@/lib/supabase/admin';
 import ScrollToTop from "@/components/providers/ScrollToTop";
 
@@ -43,6 +43,8 @@ export async function generateMetadata({ searchParams }) {
 export default async function EthnicWearPage({ searchParams }) {
   const params = await searchParams;
   const genderQuery = params?.gender?.toLowerCase();
+  const currentPage = Math.max(1, parseInt(params?.page || '1', 10));
+  const itemsPerPage = 12;
   const supabase = createAdminClient();
 
   const { data: allProducts } = await supabase
@@ -72,7 +74,7 @@ export default async function EthnicWearPage({ searchParams }) {
   } else if (genderQuery === 'women') {
     breadcrumbList = [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.srijandesignerstudio.com/" },
-      { "@type": "ListItem", "position": 2, "name": "For Women", "item": "https://srijandesignerstudio.com/buy-designer-outfits-for-women-online" },
+      { "@type": "ListItem", "position": 2, "name": "For Women", "item": "https://www.srijandesignerstudio.com/buy-designer-outfits-for-women-online" },
       { "@type": "ListItem", "position": 3, "name": "Shop Ethnic Wear for Women", "item": "https://srijandesignerstudio.com/shop-ethnic-wear-for-women" }
     ];
     products = products.filter(product => {
@@ -91,8 +93,20 @@ export default async function EthnicWearPage({ searchParams }) {
                   : genderQuery === 'women' ? "Shop Ethnic Wear for Women" 
                   : "Shop Ethnic Wear";
 
+  const totalItems = products.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = products.slice(startIndex, startIndex + itemsPerPage);
+
+  const buildPageUrl = (page) => {
+    const query = new URLSearchParams();
+    if (genderQuery) query.set('gender', genderQuery);
+    query.set('page', page.toString());
+    return `/shop-ethnic-wear?${query.toString()}`;
+  };
+
   return (
-    <main className="py-20 bg-white min-h-screen">
+    <main className="py-20 bg-white min-h-screen pt-[100px] lg:pt-[120px]">
       <Script
         id="ethnic-breadcrumb"
         type="application/ld+json"
@@ -110,8 +124,8 @@ export default async function EthnicWearPage({ searchParams }) {
           {pageTitle}
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-          {products.length > 0 ? (
-            products.map((product) => {
+          {paginatedProducts.length > 0 ? (
+            paginatedProducts.map((product) => {
               const imageUrl = product.product_images?.[0]?.image_url;
               return (
                 <Link href={`/product/${product.slug || product.id}`} key={product.id} className="group flex flex-col items-center cursor-pointer">
@@ -133,6 +147,50 @@ export default async function EthnicWearPage({ searchParams }) {
             <div className="col-span-full text-center text-gray-500 py-10">No {genderQuery ? genderQuery : 'ethnic wear'} products found.</div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-16">
+            {currentPage > 1 ? (
+              <Link
+                href={buildPageUrl(currentPage - 1)}
+                className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <ChevronLeft size={18} />
+              </Link>
+            ) : (
+              <span className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                <ChevronLeft size={18} />
+              </span>
+            )}
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Link
+                key={page}
+                href={buildPageUrl(page)}
+                className={`flex items-center justify-center w-10 h-10 rounded-lg text-[14px] font-bold transition-all ${
+                  currentPage === page
+                    ? 'bg-[#00c3ff] text-white shadow-md shadow-[#00c3ff]/20'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {page}
+              </Link>
+            ))}
+
+            {currentPage < totalPages ? (
+              <Link
+                href={buildPageUrl(currentPage + 1)}
+                className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <ChevronRight size={18} />
+              </Link>
+            ) : (
+              <span className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                <ChevronRight size={18} />
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

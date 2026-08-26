@@ -45,6 +45,37 @@ export async function getCart() {
   }
 }
 
+export async function getWishlist() {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) return null
+
+    const adminDb = createAdminClient()
+    const { data, error } = await adminDb
+      .from('wishlist')
+      .select(`
+        id,
+        product_id,
+        products (
+          id,
+          title,
+          slug,
+          base_price,
+          is_active,
+          product_images (image_url)
+        )
+      `)
+      .eq('user_id', user.id)
+
+    if (error) return null
+    return data
+  } catch (error) {
+    return null
+  }
+}
+
 export async function addToCart(variantId, quantity) {
   try {
     const supabase = await createClient()

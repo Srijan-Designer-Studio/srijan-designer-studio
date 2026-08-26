@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { getCart, addToCart as addToCartDB, removeFromCartDB, updateCartQuantityDB } from "@/app/actions/shopping";
+import { getCart, getWishlist, addToCart as addToCartDB, removeFromCartDB, updateCartQuantityDB } from "@/app/actions/shopping";
 import { createBrowserClient } from '@supabase/ssr'
 
 const CartContext = createContext();
@@ -35,8 +35,25 @@ export function CartProvider({ children }) {
             }));
             setCartItems(mappedCart);
           }
+
+          const dbWishlist = await getWishlist();
+          if (dbWishlist && dbWishlist.length > 0) {
+            const mappedWishlist = dbWishlist.map(item => ({
+              id: item.products?.id,
+              title: item.products?.title || 'Unknown Product',
+              price: item.products?.base_price || 0,
+              base_price: item.products?.base_price || 0,
+              image: item.products?.product_images?.[0]?.image_url,
+              slug: item.products?.slug,
+              is_active: item.products?.is_active
+            }));
+            setWishlistItems(mappedWishlist);
+          }
         } catch (error) {
-          console.error("Failed to sync DB cart, falling back to local storage.", error);
+          const savedCart = localStorage.getItem("srijan_cart");
+          const savedWishlist = localStorage.getItem("srijan_wishlist");
+          if (savedCart) setCartItems(JSON.parse(savedCart));
+          if (savedWishlist) setWishlistItems(JSON.parse(savedWishlist));
         }
       } else {
         const savedCart = localStorage.getItem("srijan_cart");

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -14,12 +15,32 @@ import {
 export default function Sidebar() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    if (isAdmin) {
+      const fetchOrderCount = async () => {
+        try {
+          const supabase = createClient();
+          const { count, error } = await supabase
+            .from('orders')
+            .select('*', { count: 'exact', head: true });
+          
+          if (!error && count !== null) {
+            setOrderCount(count);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      fetchOrderCount();
+    }
+  }, [isAdmin]);
 
   const customerLinks = [
     { name: 'Dashboard', href: '/account', icon: LayoutDashboard },
     { name: 'Profile', href: '/account/profile', icon: User },
     { name: 'Orders', href: '/account/orders', icon: ShoppingBag },
-    { name: 'Track Order', href: '/account/track', icon: MapPin },
     { name: 'Wishlist', href: '/account/wishlist', icon: Heart },
     { name: 'Reviews', href: '/account/reviews', icon: Star },
     { name: 'Addresses', href: '/account/addresses', icon: MapPin },
@@ -29,7 +50,7 @@ export default function Sidebar() {
   const adminLinks = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
-    { name: 'Orders', href: '/admin/orders', icon: ShoppingBag, badge: '15' },
+    { name: 'Orders', href: '/admin/orders', icon: ShoppingBag, badge: orderCount.toString() },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Categories', href: '/admin/categories', icon: Tag },
@@ -47,7 +68,7 @@ export default function Sidebar() {
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch (error) {
-      console.error("Logout Error:", error);
+      console.error(error);
     } finally {
       signOut({ callbackUrl: '/login' });
     }
@@ -98,7 +119,7 @@ export default function Sidebar() {
                     <link.icon size={18} className={isActive && isAdmin ? 'text-[#cfa874]' : ''} />
                     {link.name}
                   </div>
-                  {link.badge && (
+                  {link.badge && link.badge !== '0' && (
                     <span className="bg-[#2a2a2a] text-white text-[10px] px-2 py-0.5 rounded-full">
                       {link.badge}
                     </span>

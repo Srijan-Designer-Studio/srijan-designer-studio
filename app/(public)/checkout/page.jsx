@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck, Truck, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/app/actions/orders";
+import { getUserAddresses } from "@/app/actions/addresses";
 import { initiatePaytmTransaction } from "@/app/actions/paytm";
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
@@ -22,6 +23,8 @@ export default function CheckoutPage() {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false); 
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState("new");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -32,6 +35,12 @@ export default function CheckoutPage() {
         router.push("/login");
       } else {
         setUserProfile(user);
+        const userAddrs = await getUserAddresses();
+        setAddresses(userAddrs || []);
+        if (userAddrs && userAddrs.length > 0) {
+          const defaultAddr = userAddrs.find(a => a.is_default) || userAddrs[0];
+          setSelectedAddressId(defaultAddr.id);
+        }
         setIsAuthChecking(false);
       }
     };
@@ -76,18 +85,29 @@ export default function CheckoutPage() {
 
     startTransition(async () => {
       try {
+        const selectedAddr = addresses.find(a => a.id === selectedAddressId);
+        
+        const finalAddress = selectedAddr ? {
+          phone: formData.get('phone'),
+          addressLine1: selectedAddr.address_line_1,
+          addressLine2: selectedAddr.address_line_2 || '',
+          city: selectedAddr.city,
+          state: selectedAddr.state,
+          zip: selectedAddr.postal_code,
+        } : {
+          phone: formData.get('phone'),
+          addressLine1: formData.get('address1'),
+          addressLine2: formData.get('address2') || '',
+          city: formData.get('city'),
+          state: formData.get('state'),
+          zip: formData.get('zip'),
+        };
+
         const orderPayload = {
           totalAmount: frontendTotal,
           paymentMethod: "cod",
           customer_phone: formData.get('phone'),
-          address: {
-            phone: formData.get('phone'),
-            addressLine1: formData.get('address1'),
-            addressLine2: formData.get('address2'),
-            city: formData.get('city'),
-            state: formData.get('state'),
-            zip: formData.get('zip'),
-          },
+          address: finalAddress,
           items: cartItems.map(item => ({
             variantId: item.variantId || item.id,
             quantity: item.quantity,
@@ -151,33 +171,67 @@ export default function CheckoutPage() {
             <div className="lg:col-span-7 xl:col-span-8 space-y-8">
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
-                    <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
-                    <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
-                    <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
-                    <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
-                    <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                  </div>
+                
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                  <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                 </div>
+
+                {addresses.length > 0 && (
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Select Delivery Address</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {addresses.map(addr => (
+                        <div 
+                          key={addr.id} 
+                          onClick={() => setSelectedAddressId(addr.id)} 
+                          className={`cursor-pointer border-2 rounded-xl p-4 transition-all ${selectedAddressId === addr.id ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-bold text-gray-900 capitalize">{addr.title}</span>
+                            {addr.is_default && <span className="bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full">Default</span>}
+                          </div>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {addr.address_line_1}<br/>
+                            {addr.address_line_2 && <>{addr.address_line_2}<br/></>}
+                            {addr.city}, {addr.state} {addr.postal_code}
+                          </p>
+                        </div>
+                      ))}
+                      <div 
+                        onClick={() => setSelectedAddressId("new")} 
+                        className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center transition-all min-h-[120px] ${selectedAddressId === "new" ? 'border-[#00c3ff] bg-[#00c3ff]/5 text-[#00c3ff]' : 'border-gray-300 hover:border-gray-400 text-gray-500'}`}
+                      >
+                        <span className="text-2xl mb-1">+</span>
+                        <span className="font-medium text-sm">Add New Address</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedAddressId === "new" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
+                      <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
+                      <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
+                      <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
+                      <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -244,7 +298,7 @@ export default function CheckoutPage() {
 
                 {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
-                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
+                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00C3FF] hover:bg-[#00baef] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
                   {(isPending || isSuccess) ? "Processing..." : "Place Order (COD)"}
                 </button>

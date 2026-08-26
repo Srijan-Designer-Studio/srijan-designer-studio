@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
-import { deleteProduct, getAdminProducts } from '@/app/actions/admin';
+import { deleteProduct } from '@/app/actions/admin';
 import { useRouter } from 'next/navigation';
 
 export default function ProductsClientWrapper({ initialProducts, categories }) {
   const router = useRouter();
-  const [products, setProducts] = useState(initialProducts);
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -16,11 +15,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   const [copiedId, setCopiedId] = useState(null);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    router.refresh();
-    setProducts(initialProducts);
-    setCurrentPage(1);
-  }, [initialProducts, router]);
+  const products = initialProducts || [];
 
   const confirmDelete = (productId) => {
     setConfirmDeleteId(productId);
@@ -38,8 +33,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
         setConfirmDeleteId(null);
         return;
       }
-      const updatedData = await getAdminProducts();
-      setProducts(updatedData || []);
       setDeletingId(null);
       setConfirmDeleteId(null);
       router.refresh(); 
@@ -52,7 +45,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const formattedProducts = products?.map(product => {
+  const formattedProducts = products.map(product => {
     const mainVariant = product.product_variants?.[0];
     const totalStock = product.product_variants?.reduce((sum, v) => sum + (v.inventory_count || 0), 0) || 0;
     const basePrice = product.base_price || 0;
@@ -68,12 +61,18 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       stockStatus: totalStock > 20 ? 'In Stock' : totalStock > 0 ? `Low Stock (${totalStock})` : 'Out of Stock',
       status: !product.is_active ? 'Draft' : 'Published'
     };
-  }) || [];
+  });
 
   const totalItems = formattedProducts.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages === 0 ? 1 : totalPages));
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
   const currentProducts = formattedProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10 text-black">
@@ -116,7 +115,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-14 bg-gray-100 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
                         {product.rawProduct.product_images?.[0]?.image_url ?
-                          <img src={product.rawProduct.product_images[0].image_url} alt="" className="w-full h-full object-cover" /> :
+                          <img src={product.rawProduct.product_images[0].image_url} alt="" className="w-full h-full object-cover object-top" /> :
                           <div className="w-full h-full flex items-center justify-center text-gray-300"><ImgIcon size={20} /></div>
                         }
                       </div>
@@ -188,8 +187,8 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
             <div className="flex items-center gap-2">
               <div className="inline-flex -space-x-px rounded-md shadow-sm">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(Math.max(1, safeCurrentPage - 1))}
+                  disabled={safeCurrentPage === 1}
                   className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
                 >
                   <ChevronLeft size={18} />
@@ -198,9 +197,9 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
-                      currentPage === page
+                      safeCurrentPage === page
                         ? 'bg-[#5a4bda] text-white border-[#5a4bda] z-10 relative shadow-sm'
                         : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                     }`}
@@ -210,8 +209,8 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                 ))}
                 
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(Math.min(totalPages, safeCurrentPage + 1))}
+                  disabled={safeCurrentPage === totalPages || totalPages === 0}
                   className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
                 >
                   <ChevronRight size={18} />

@@ -19,44 +19,40 @@ export default function OrdersClientWrapper({ initialOrders }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
- 
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: '', orderId: null, title: '', message: '' });
   const [feedbackDialog, setFeedbackDialog] = useState({ isOpen: false, type: 'success', message: '' });
 
-  
   const handleCancelOrder = (orderId) => {
     setConfirmDialog({
       isOpen: true,
-      type: 'cancel',
+      type: 'cancelled',
       orderId: orderId,
       title: 'Cancel Order',
       message: 'Are you sure you want to cancel this order? This action cannot be undone.'
     });
   };
 
-
   const handleReturnOrder = (orderId) => {
     setConfirmDialog({
       isOpen: true,
-      type: 'return',
+      type: 'return_requested',
       orderId: orderId,
-      title: 'Return Order',
-      message: 'Are you sure you want to return this order? Our team will review your request.'
+      title: 'Request Return',
+      message: 'Are you sure you want to request a return for this order? Our team will review your request.'
     });
   };
 
- 
   const handleConfirmAction = async () => {
     setIsUpdating(true);
     const res = await updateOrderUserAction(confirmDialog.orderId, confirmDialog.type);
 
     setConfirmDialog({ isOpen: false, type: '', orderId: null, title: '', message: '' });
 
-    if (res.success) {
+    if (res?.success) {
       setFeedbackDialog({ isOpen: true, type: 'success', message: res.message || 'Action completed successfully!' });
       setIsModalOpen(false); 
     } else {
-      setFeedbackDialog({ isOpen: true, type: 'error', message: res.message || 'Failed to complete action.' });
+      setFeedbackDialog({ isOpen: true, type: 'error', message: res?.message || 'Failed to complete action.' });
     }
     
     setIsUpdating(false);
@@ -78,7 +74,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-      status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+      status: order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
       image: imageUrl
     };
   }) || [];
@@ -179,7 +175,6 @@ export default function OrdersClientWrapper({ initialOrders }) {
         <Pagination />
       </Card>
 
-      {/* Main Order Details Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -259,7 +254,6 @@ export default function OrdersClientWrapper({ initialOrders }) {
         )}
       </Modal>
 
-      {/* Custom Confirmation Popup */}
       {confirmDialog.isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -278,17 +272,16 @@ export default function OrdersClientWrapper({ initialOrders }) {
               <button
                 onClick={handleConfirmAction}
                 disabled={isUpdating}
-                className={`px-4 py-2 text-sm font-bold text-white rounded-lg flex items-center gap-2 cursor-pointer disabled:opacity-50 ${confirmDialog.type === 'cancel' ? 'bg-red-500 hover:bg-red-600' : 'bg-orange-500 hover:bg-orange-600'}`}
+                className={`px-4 py-2 text-sm font-bold text-white rounded-lg flex items-center gap-2 cursor-pointer disabled:opacity-50 ${confirmDialog.type === 'cancelled' ? 'bg-red-500 hover:bg-red-600' : 'bg-orange-500 hover:bg-orange-600'}`}
               >
                 {isUpdating && <Loader2 size={14} className="animate-spin" />}
-                Yes, {confirmDialog.type === 'cancel' ? 'Cancel' : 'Return'}
+                Yes, {confirmDialog.type === 'cancelled' ? 'Cancel' : 'Submit Request'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Custom Success/Error Feedback Popup */}
       {feedbackDialog.isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200 p-6 text-center">
