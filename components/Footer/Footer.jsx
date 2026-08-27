@@ -210,6 +210,10 @@ export default function Footer() {
                   <Phone size={20} strokeWidth={2} />
                   <span className="text-[15px] font-medium">+ 91 6290686399</span>
                 </a>
+                <a href="tel:+918967154283" className="flex items-center gap-3 text-white hover:text-[#00c3ff] transition-colors">
+                  <Phone size={20} strokeWidth={2} />
+                  <span className="text-[15px] font-medium">+ 91 8967154283</span>
+                </a>
 
                 <a href="mailto:contact@srijandesignerstudio.com" className="flex items-center gap-3 text-white hover:text-[#00c3ff] transition-colors">
                   <Mail size={20} strokeWidth={2} />
@@ -271,7 +275,7 @@ export default function Footer() {
 
         <div className="footer-copyright mt-6 lg:mb-10 lg:-mt-4">
           <p className="text-white/80 text-sm sm:text-[15px] font-medium">
-            © Copyright 2026 By SRIJAN Fashion. All right reserved.
+            © Copyright 2026 By SRIJAN Fashion. All right reserved. Powered by <Link href="https://cyberspaceworks.com/" target="_blank" rel="noopener noreferrer" className="text-[#00D3F3] hover:text-[#00c3ff] transition-colors">Cyberspace Works.</Link>
           </p>
         </div>
 
