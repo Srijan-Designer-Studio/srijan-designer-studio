@@ -14,7 +14,7 @@ export default function ReturnPolicy() {
       
       <div className="space-y-6 text-gray-700 leading-relaxed">
         <p>
-          We offer refund / exchange within first <strong>5 days</strong> from the date of your product received. If <strong>5 days</strong> have passed since your product received, you will not be offered a return, exchange or refund of any kind. 
+          We offer refund / exchange within first <strong>3 days</strong> from the date of your product received. If <strong>3 days</strong> have passed since your product received, you will not be offered a return, exchange or refund of any kind. 
         </p>
         
         <p>In order to become eligible for a return or an exchange:</p>
@@ -22,8 +22,8 @@ export default function ReturnPolicy() {
         <ol className="list-decimal pl-5 space-y-2">
           <li>The purchased item should be unused and in the same condition as you received it</li>
           <li>The item must have original packaging</li>
-          <li>The orginal product tag must be intact with it</li>
-          <li>If the item that you purchased on a sale, then the item may not be eligible for a return / exchange.</li>
+          <li>The original product tag must be intact with it</li>
+          <li>If the item that you purchased on a sale or made on special order, then the item is not eligible for a return / exchange.</li>
         </ol>
 
         <p className="pt-4">

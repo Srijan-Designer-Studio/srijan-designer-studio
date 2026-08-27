@@ -171,7 +171,7 @@ export default function Testimonials() {
                       <h4 className="text-[16px] font-bold text-black leading-tight">
                         {item.name}
                       </h4>
-                      <p className="text-[19px] text-gray-500 mt-0.5">{item.role}</p>
+                     
                     </div>
                   </div>
 

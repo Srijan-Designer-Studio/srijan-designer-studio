@@ -19,7 +19,7 @@ export default function RefundCancellationPolicy() {
 
         <ol className="list-decimal pl-5 space-y-4">
           <li>
-            Cancellations will only be considered if the request is made <strong>5 days</strong> of placing the order. However, cancellation requests may not be entertained if the orders have been communicated to such sellers / merchant(s) listed on the Platform and they have initiated the process of shipping them, or the product is out for delivery. In such an event, you may choose to reject the product at the doorstep.
+            Cancellations will only be considered if the request is made <strong>4 days</strong> of placing the order. However, cancellation requests may not be entertained if the orders have been communicated to such sellers / merchant(s) listed on the Platform and they have initiated the process of shipping them, or the product is out for delivery. In such an event, you may choose to reject the product at the doorstep.
           </li>
           
           <li>
@@ -27,7 +27,7 @@ export default function RefundCancellationPolicy() {
           </li>
           
           <li>
-            In case of receipt of damaged or defective items, please report to our customer service team. The request would be entertained once the seller/ merchant listed on the Platform, has checked and determined the same at its own end. This should be reported within <strong>5 days</strong> of receipt of products. In case you feel that the product received is not as shown on the site or as per your expectations, you must bring it to the notice of our customer service within <strong>5 days</strong> of receiving the product. The customer service team after looking into your complaint will take an appropriate decision.
+            In case of receipt of damaged or defective items, please report to our customer service team. The request would be entertained once the seller/ merchant listed on the Platform, has checked and determined the same at its own end. This should be reported within <strong>3 days</strong> of receipt of products. In case you feel that the product received is not as shown on the site or as per your expectations, you must bring it to the notice of our customer service within <strong>3 days</strong> of receiving the product. The customer service team after looking into your complaint will take an appropriate decision.
           </li>
           
           <li>
@@ -35,7 +35,7 @@ export default function RefundCancellationPolicy() {
           </li>
           
           <li>
-            In case of any refunds approved by <strong>SRIJAN</strong>, it will take <strong>3 days</strong> for the refund to be processed to you.
+            In case of any refunds approved by <strong>SRIJAN</strong>, it will take <strong>4-5 days</strong> for the refund to be processed to you.
           </li>
         </ol>
       </div>

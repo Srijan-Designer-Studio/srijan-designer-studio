@@ -165,7 +165,7 @@ export default function KidsWearClient() {
         <div className="relative z-10 max-w-[1320px] mx-auto px-6 w-full">
           <div className="max-w-xl mr-auto text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-md">Customize Kids Wear</h1>
-            <p className="text-lg md:text-xl font-medium drop-shadow-md">Capture every little moment,<br /> dressed just right.</p>
+            <p className="text-[19px] md:text-xl font-medium drop-shadow-md">Capture every little moment,<br /> dressed just right.</p>
           </div>
         </div>
       </section>
@@ -175,7 +175,7 @@ export default function KidsWearClient() {
           <img src="/Custom Kids Wear/Untitled design (4).webp" alt="Camera Graphic" className="w-full h-auto drop-shadow-2xl" />
         </div>
         <div className="reveal-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">Click Small Sizes, Big Memories</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">Click Small Sizes, Save Big Memories</h2>
           <p className="text-gray-600 leading-relaxed text-lg">
             Birthdays, festivals, family days or photoshoots, we design custom kids wear that fits perfectly and photographs even better. Because every giggle and twirl deserves to be remembered just right click.
           </p>
@@ -276,18 +276,18 @@ export default function KidsWearClient() {
           </h2>
 
           <div className="reveal-up grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-            <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="order-1 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="order-5 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="order-7 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
-            <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="order-2 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="order-1 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="order-5 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+            <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="order-7 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square col-span-2 row-span-2" />
+            <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="order-2 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
             <img src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" className="order-3 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" className="order-4 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" className="order-6 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="order-8 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" className="order-9 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" className="order-10 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="order-11 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
-            <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="order-12 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" className="order-4 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" className="order-6 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" className="order-8 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" className="order-9 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" className="order-10 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" className="order-11 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
+            <img src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" className="order-12 md:order-none w-full h-full object-cover object-center rounded-2xl md:rounded-[24px] aspect-square" />
           </div>
         </div>
       </section>

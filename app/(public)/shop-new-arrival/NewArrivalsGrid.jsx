@@ -70,21 +70,24 @@ export default function NewArrivalsGrid({ products = [] }) {
         Shop New Arrivals
       </h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 relative z-10">
         {currentProducts.length > 0 ? (
           currentProducts.map((product) => {
-            const imageUrl = product.product_images?.[0]?.image_url;
+            const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+            const basePrice = Number(product.base_price) || 0;
+            const salePrice = Number(product.sale_price) || 0;
+            const hasDiscount = salePrice > 0 && salePrice < basePrice;
+            const displayPrice = hasDiscount ? salePrice : basePrice;
             const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
             return (
               <Link
                 href={`/product/${product.slug || product.id}`}
                 key={product.id}
-                className="product-card-anim group flex flex-col items-center cursor-pointer relative"
+                className="product-card-anim group flex flex-col items-center text-center cursor-pointer relative"
               >
-                <div className="relative w-full aspect-[3/4] rounded-[16px] border border-gray-300 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
-                  
-                  <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-[10px] py-[5px] rounded-xl z-10 tracking-wider shadow-sm">
+                <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
+                  <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
                     NEW
                   </div>
 
@@ -93,30 +96,32 @@ export default function NewArrivalsGrid({ products = [] }) {
                     className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
                   >
                     <Heart 
-                      size={18} 
+                      size={30} 
                       className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
                     />
                   </button>
 
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={product.title}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">NO IMAGE</div>
-                  )}
+                  <img
+                    src={imageUrl}
+                    alt={product.title}
+                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
 
-                <h3 className="text-[15px] font-semibold text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2 transition-colors group-hover:text-[#00c3ff]">
+                <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
                   {product.title}
                 </h3>
 
-                <p className="text-[19px] font-bold text-black text-center">
-                  ₹{product.base_price?.toLocaleString('en-IN')}
-                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-[18px] font-extrabold text-red-600">
+                    ₹{displayPrice.toLocaleString('en-IN')}
+                  </p>
+                  {hasDiscount && (
+                    <p className="text-[14px] font-medium text-black line-through">
+                      ₹{basePrice.toLocaleString('en-IN')}
+                    </p>
+                  )}
+                </div>
               </Link>
             );
           })
@@ -128,33 +133,33 @@ export default function NewArrivalsGrid({ products = [] }) {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-16">
+        <div className="flex justify-center items-center gap-3 mt-16 relative z-10">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:bg-[#00c3ff] hover:text-white hover:border-[#00c3ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             <ChevronLeft size={18} />
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          {Array.from({ length: totalPages }).map((_, idx) => (
             <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`flex items-center justify-center w-10 h-10 rounded-lg text-[14px] font-bold transition-all cursor-pointer ${
-                currentPage === page
-                  ? 'bg-[#00c3ff] text-white shadow-md shadow-[#00c3ff]/20'
-                  : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+              key={idx}
+              onClick={() => handlePageChange(idx + 1)}
+              className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${
+                currentPage === idx + 1
+                  ? 'bg-[#00c3ff] text-white shadow-md'
+                  : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-[#00c3ff]/10 hover:text-[#00c3ff] hover:border-[#00c3ff]/30'
               }`}
             >
-              {page}
+              {idx + 1}
             </button>
           ))}
 
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:bg-[#00c3ff] hover:text-white hover:border-[#00c3ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             <ChevronRight size={18} />
           </button>

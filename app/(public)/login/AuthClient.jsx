@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
 

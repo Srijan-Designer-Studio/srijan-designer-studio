@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Heart } from 'lucide-react';
+import { Search, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductsHero from "@/components/product/ProductsHero";
 import { getProducts } from "@/app/actions/products";
 import { searchProducts } from "@/app/actions/search";
@@ -95,17 +95,14 @@ export default function ShopStyleClient() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
-  // --- SMART HYBRID SEARCH LOGIC ---
   let displayedProducts = allProducts;
   const query = searchQuery.trim().toLowerCase();
 
   if (query.length > 0) {
-    // ১. প্রথমে লোকাল স্টেট থেকে খুঁজবে (যাতে সাথে সাথে রেজাল্ট দেখায়)
     const localResults = allProducts.filter(p =>
       p.title?.toLowerCase().includes(query)
     );
 
-    // ২. এরপর ব্যাকএন্ডের রেজাল্ট এবং লোকাল রেজাল্ট একসাথে করবে (যাতে কোনোটা বাদ না যায়)
     const combinedMap = new Map();
 
     localResults.forEach(p => combinedMap.set(p.id, p));
@@ -252,17 +249,36 @@ export default function ShopStyleClient() {
             </div>
 
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-16 relative z-10">
+              <div className="flex justify-center items-center gap-3 mt-16 relative z-10">
+                <button
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:bg-[#00c3ff] hover:text-white hover:border-[#00c3ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
                 {Array.from({ length: totalPages }).map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => handlePageChange(idx + 1)}
-                    className={`h-1.5 rounded-full transition-all cursor-pointer ${currentPage === idx + 1
-                      ? 'w-8 bg-[#00c3ff]'
-                      : 'w-8 bg-[#00c3ff] opacity-30 hover:opacity-60'
-                      }`}
-                  />
+                    className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${
+                      currentPage === idx + 1
+                        ? 'bg-[#00c3ff] text-white shadow-md'
+                        : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-[#00c3ff]/10 hover:text-[#00c3ff] hover:border-[#00c3ff]/30'
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
                 ))}
+
+                <button
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:bg-[#00c3ff] hover:text-white hover:border-[#00c3ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  <ChevronRight size={18} />
+                </button>
               </div>
             )}
           </>

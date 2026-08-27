@@ -14,32 +14,32 @@ export default function CustomizationPolicy() {
       
       <div className="space-y-12">
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 uppercase">Customization Policy</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customization Policy</h2>
           <div className="space-y-4 text-gray-700 leading-relaxed">
             <p>
               At SRIJAN, every customized outfit is thoughtfully crafted to match individual preferences and measurements. To maintain transparency and ensure a smooth experience, the following customization policies apply:
             </p>
             <ul className="list-disc pl-5 space-y-3">
               <li>A 40% advance payment is mandatory before placing any customization order.</li>
-              <li>Once an order is placed, cancellation is allowed only within 5 days. After this period, no cancellation or refund will be accepted.</li>
+              <li>Once an order is placed, cancellation is allowed only within <strong>5 days</strong>. After this period, no cancellation or refund will be accepted.</li>
               <li>No refunds will be processed under any circumstances once customization work has begun.</li>
               <li>Color changes will be done strictly as per customer demand.</li>
               <li>Prints or designs may be substituted if the selected option is unavailable.</li>
               <li>Any change in fabric or material requested by the customer will result in a revision of garment pricing.</li>
               <li>After the product is delivered, no return or exchange will be accepted for customized outfits.</li>
-              <li>The standard manufacturing timeline is 15–20 days from the date of order confirmation.</li>
+              <li>The standard manufacturing timeline is <strong>15–20 days</strong> from the date of order confirmation.</li>
               <li>For Kolkata-based customers, SRIJAN offers home measurement services for added convenience.</li>
             </ul>
           </div>
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 uppercase">Ready-To-Wear Policy</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Ready-To-Wear Policy</h2>
           <div className="space-y-4 text-gray-700 leading-relaxed">
             <p>For ready-to-wear collections, the following policies apply:</p>
             <ul className="list-disc pl-5 space-y-3">
-              <li>Orders will be delivered within 10 – 14 days from order confirmation.</li>
-              <li>A 5-day return window is available from the date of delivery.</li>
+              <li>Orders will be delivered within <strong>10-14 days</strong> from order confirmation.</li>
+              <li>A <strong>3 day</strong> return window is available from the date of delivery.</li>
               <li>Returned items must be unused, unworn, unwashed, and in original condition with tags intact.</li>
             </ul>
           </div>

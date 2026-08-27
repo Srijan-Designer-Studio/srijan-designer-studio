@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { signOut } from "next-auth/react";
 import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, User, ShoppingBag, MapPin,
@@ -70,7 +69,7 @@ export default function Sidebar() {
     } catch (error) {
       console.error(error);
     } finally {
-      signOut({ callbackUrl: '/login' });
+      window.location.href = '/login';
     }
   };
 

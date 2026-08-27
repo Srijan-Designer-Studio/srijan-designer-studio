@@ -5,14 +5,17 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Heart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ShopEssentials = ({ products = [] }) => {
   const [activeTab, setActiveTab] = useState("WOMEN");
   const containerRef = useRef(null);
+  const { wishlistItems, toggleWishlist } = useCart();
 
-  
   const sortedProducts = [...products].sort((a, b) => {
     if (a.created_at && b.created_at) {
       return new Date(b.created_at) - new Date(a.created_at);
@@ -20,17 +23,21 @@ const ShopEssentials = ({ products = [] }) => {
     return 0; 
   });
 
+  const getCategoryString = (product) => {
+    return `${Array.isArray(product.categories) ? product.categories.join(' ') : product.categories?.name || product.categories || ''} ${product.gender || ''} ${product.department || ''}`.toLowerCase();
+  };
+
   const womenProducts = sortedProducts
     .filter((product) => {
-      const cat = product.categories?.name?.toLowerCase() || '';
-      return cat.includes("women") || cat.includes("sarees") || cat.includes("lehengas") || cat.includes("bridal");
+      const cat = getCategoryString(product);
+      return cat.includes("women") || cat.includes("saree") || cat.includes("lehenga") || cat.includes("bridal");
     })
     .slice(0, 4);
 
   const menProducts = sortedProducts
     .filter((product) => {
-      const cat = product.categories?.name?.toLowerCase() || '';
-      return (cat.includes("men") && !cat.includes("women")) || cat.includes("kurtas") || cat.includes("suits");
+      const cat = getCategoryString(product);
+      return (cat.includes("men") && !cat.includes("women")) || cat.includes("kurta") || cat.includes("suit") || cat.includes("blazer");
     })
     .slice(0, 4);
 
@@ -79,14 +86,23 @@ const ShopEssentials = ({ products = [] }) => {
     return () => clearTimeout(timer);
   }, [activeTab, products]);
 
+  const handleWishlistToggle = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleWishlist(product);
+    try {
+      await toggleWishlistServer(product.id);
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+    }
+  };
+
   return (
     <section className="py-24 bg-[#fafafa]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-
-        {/* Header Section */}
         <div className="text-center mb-14">
           <div className="overflow-hidden mb-2">
-           
             <h2 className="essentials-title text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tight">
              SHOP ESSENTIALS
             </h2>
@@ -118,7 +134,6 @@ const ShopEssentials = ({ products = [] }) => {
           </div>
         </div>
 
-        {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {currentProducts.length === 0 ? (
             <p className="col-span-full text-center text-gray-500 py-12 font-medium">
@@ -126,58 +141,72 @@ const ShopEssentials = ({ products = [] }) => {
             </p>
           ) : (
             currentProducts.map((product) => {
-              const mainImage = product.product_images?.[0]?.image_url;
-              const categoryName = product.categories?.name || "Exclusive";
+              let mainImage = "";
+              if (Array.isArray(product.product_images) && product.product_images.length > 0) {
+                mainImage = typeof product.product_images[0] === 'string' 
+                  ? product.product_images[0] 
+                  : product.product_images[0]?.image_url;
+              }
+
+              const categoryName = Array.isArray(product.categories) && product.categories.length > 0 
+                ? product.categories[0] 
+                : (product.categories?.name || product.gender || "Exclusive");
+
+              const basePrice = Number(product.base_price) || 0;
+              const salePrice = Number(product.sale_price) || 0;
+              const hasDiscount = salePrice > 0 && salePrice < basePrice;
+              const displayPrice = hasDiscount ? salePrice : basePrice;
+              
+              const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
               return (
-                <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col cursor-pointer">
-
-                  {/* Image Container */}
-                  <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden mb-5 bg-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl">
-                    
-                    {/* NEW Badge */}
-                    <div className="absolute top-4 left-4 z-10 bg-black/90 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
+                <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer relative">
+                  <div className="relative w-full aspect-[2/3] rounded-2xl border border-gray-200 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
+                    <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
                       NEW
                     </div>
+
+                    <button
+                      onClick={(e) => handleWishlistToggle(e, product)}
+                      className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                    >
+                      <Heart 
+                        size={20} 
+                        className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                      />
+                    </button>
 
                     {mainImage ? (
                       <img
                         src={mainImage}
                         alt={product.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                         onLoad={() => ScrollTrigger.refresh()}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs font-bold tracking-widest">
-                        NO IMAGE
-                      </div>
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">NO IMAGE</div>
                     )}
-
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
 
-                  {/* Product Details */}
-                  <div className="flex flex-col text-left px-1">
-                    <span className="text-[11px] font-extrabold text-gray-400 tracking-widest uppercase mb-1.5">
-                      {categoryName}
-                    </span>
-                    <h3 className="text-[16px] font-bold leading-snug text-gray-900 transition-colors group-hover:text-[#00c3ff] line-clamp-1 mb-2">
-                      {product.title}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[17px] font-black text-black">
-                        ₹{product.base_price?.toLocaleString('en-IN')}
+                  <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
+                    {product.title}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center gap-2">
+                    <p className="text-[18px] font-extrabold text-red-600">
+                      ₹{displayPrice.toLocaleString('en-IN')}
+                    </p>
+                    {hasDiscount && (
+                      <p className="text-[14px] font-medium text-black line-through">
+                        ₹{basePrice.toLocaleString('en-IN')}
                       </p>
-                    </div>
+                    )}
                   </div>
-
                 </Link>
               )
             })
           )}
         </div>
-        
       </div>
     </section>
   );

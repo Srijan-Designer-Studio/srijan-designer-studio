@@ -27,7 +27,7 @@ export default async function NewArrivalsPage() {
 
   const { data: allProducts } = await supabase
     .from('products')
-    .select(`id, slug, title, base_price, collections, product_images(image_url)`)
+    .select(`id, slug, title, base_price, sale_price, collections, product_images(image_url)`)
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 

@@ -1,10 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import AuthProvider from "@/components/AuthProvider";
 // import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import ScrollToTop from "@/components/providers/ScrollToTop";
-import { CartProvider } from "@/context/CartContext"; 
+import { CartProvider } from "@/context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +27,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`} 
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
         <Script
@@ -47,7 +46,7 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-       
+        
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-P7TLP4ZD"
@@ -58,11 +57,9 @@ export default function RootLayout({ children }) {
         </noscript>
 
         <ScrollToTop />
-        <AuthProvider>
-          <CartProvider> 
-            {children}
-          </CartProvider>
-        </AuthProvider>
+        <CartProvider> 
+          {children}
+        </CartProvider>
         
       </body>
     </html>

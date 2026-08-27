@@ -23,7 +23,6 @@
     "lenis": "^1.3.25",
     "lucide-react": "^1.24.0",
     "next": "^16.2.10",
-    "next-auth": "^4.24.14",
     "nodemailer": "^7.0.13",
     "paytmchecksum": "^1.5.1",
     "razorpay": "^2.9.8",
