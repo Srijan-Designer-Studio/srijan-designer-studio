@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Wallet, Truck, CheckCircle2 } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder, deleteFailedOrder } from "@/app/actions/orders";
 import { getUserAddresses } from "@/app/actions/addresses";
@@ -17,7 +17,6 @@ import PaymentNotification from "@/components/ui/PaymentNotification";
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("online");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -25,6 +24,26 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false); 
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState("new");
+
+  const [mode, setMode] = useState(null);
+  const [buyNowItem, setBuyNowItem] = useState(null);
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentMode = searchParams.get('mode');
+    setMode(currentMode);
+
+    if (currentMode === 'buynow') {
+      const itemStr = sessionStorage.getItem('buyNowItem');
+      if (itemStr) {
+        setBuyNowItem(JSON.parse(itemStr));
+      } else {
+        router.push('/cart');
+      }
+    }
+    setIsPageInitialized(true);
+  }, [router]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -49,10 +68,14 @@ export default function CheckoutPage() {
   }, [router]);
 
   useEffect(() => {
+    if (mode === 'buynow') return; 
     if (isLoaded && cartItems.length === 0 && !isAuthChecking && !isSuccess) {
       router.push("/cart");
     }
-  }, [isLoaded, cartItems, router, isAuthChecking, isSuccess]);
+  }, [isLoaded, cartItems, router, isAuthChecking, isSuccess, mode]);
+
+  const activeItems = mode === 'buynow' && buyNowItem ? [buyNowItem] : cartItems;
+  const activeSubtotal = mode === 'buynow' && buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : subtotal;
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -64,7 +87,19 @@ export default function CheckoutPage() {
     });
   };
 
-  if (isAuthChecking || !isLoaded || (cartItems.length === 0 && !isSuccess)) {
+  const clearBackendCart = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('cart_items').delete().eq('user_id', user.id);
+      }
+      clearCart();
+    } catch (err) {
+    }
+  };
+
+  if (!isPageInitialized || isAuthChecking || !isLoaded || (mode !== 'buynow' && cartItems.length === 0 && !isSuccess)) {
     return (
       <div className="min-h-screen bg-[#f4f5f7] flex items-center justify-center">
         <Loader2 size={36} className="animate-spin text-[#00c3ff]" />
@@ -72,8 +107,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = subtotal > 0 ? 150 : 0;
-  const frontendTotal = subtotal + shipping;
+  const frontendTotal = activeSubtotal;
 
   const handleCheckout = (e) => {
     e.preventDefault();
@@ -93,6 +127,7 @@ export default function CheckoutPage() {
           city: selectedAddr.city,
           state: selectedAddr.state,
           zip: selectedAddr.postal_code,
+          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
         } : {
           phone: formData.get('phone'),
           addressLine1: formData.get('address1'),
@@ -100,14 +135,15 @@ export default function CheckoutPage() {
           city: formData.get('city'),
           state: formData.get('state'),
           zip: formData.get('zip'),
+          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
         };
 
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: paymentMethod,
+          paymentMethod: "online",
           customer_phone: formData.get('phone'),
           address: finalAddress,
-          items: cartItems.map(item => ({
+          items: activeItems.map(item => ({
             variantId: item.variantId || item.id,
             quantity: item.quantity,
             unitPrice: item.price
@@ -126,76 +162,72 @@ export default function CheckoutPage() {
 
         createdOrderId = dbResult.orderId || dbResult.id || dbResult.order?.id;
 
-        if (paymentMethod === 'cod') {
-          clearCart();
-          setIsSuccess(true); 
-          setTimeout(() => {
-            router.push("/success");
-          }, 2500);
-        } else if (paymentMethod === 'online') {
-          const res = await loadRazorpayScript();
-          if (!res) {
-            throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
-          }
-
-          const rzpOrder = await createRazorpayOrder(frontendTotal, createdOrderId);
-          
-          if (!rzpOrder.success) {
-            throw new Error(rzpOrder.error);
-          }
-
-          await new Promise((resolve, reject) => {
-            const options = {
-              key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-              amount: rzpOrder.order.amount,
-              currency: rzpOrder.order.currency,
-              name: "SRIJAN Fashion",
-              image: `${window.location.origin}/email-img/logo.webp`,
-              description: "Order Payment",
-              order_id: rzpOrder.order.id,
-              prefill: {
-                contact: formData.get('phone'),
-                email: userProfile?.email || "",
-              },
-              theme: {
-                color: "#00c3ff",
-              },
-              handler: async function (response) {
-                const verifyResult = await verifyRazorpayPayment(
-                  response.razorpay_payment_id,
-                  response.razorpay_order_id,
-                  response.razorpay_signature,
-                  createdOrderId
-                );
-                
-                if (verifyResult.success) {
-                  clearCart();
-                  setIsSuccess(true); 
-                  setTimeout(() => {
-                    router.push("/success");
-                  }, 2500);
-                  resolve();
-                } else {
-                  reject(new Error(verifyResult.error || "Payment verification failed"));
-                }
-              },
-              modal: {
-                ondismiss: function () {
-                  reject(new Error("Payment window was closed by user. Order has been cancelled."));
-                }
-              }
-            };
-
-            const paymentObject = new window.Razorpay(options);
-            paymentObject.on('payment.failed', function (response) {
-              reject(new Error(response.error.description || "Payment failed"));
-            });
-            paymentObject.open();
-          });
+        const res = await loadRazorpayScript();
+        if (!res) {
+          throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
         }
 
+        const rzpOrder = await createRazorpayOrder(frontendTotal, createdOrderId);
+        
+        if (!rzpOrder.success) {
+          throw new Error(rzpOrder.error);
+        }
+
+        await new Promise((resolve, reject) => {
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: rzpOrder.order.amount,
+            currency: rzpOrder.order.currency,
+            name: "SRIJAN Fashion",
+            image: `${window.location.origin}/email-img/logo.webp`,
+            description: "Order Payment",
+            order_id: rzpOrder.order.id,
+            prefill: {
+              contact: formData.get('phone'),
+              email: userProfile?.email || "",
+            },
+            theme: {
+              color: "#00c3ff",
+            },
+            handler: async function (response) {
+              const verifyResult = await verifyRazorpayPayment(
+                response.razorpay_payment_id,
+                response.razorpay_order_id,
+                response.razorpay_signature,
+                createdOrderId
+              );
+              
+              if (verifyResult.success) {
+                if (mode === 'buynow') {
+                  sessionStorage.removeItem('buyNowItem');
+                } else {
+                  await clearBackendCart();
+                }
+                setIsSuccess(true); 
+                setTimeout(() => {
+                  router.push("/success");
+                }, 2500);
+                resolve();
+              } else {
+                reject(new Error(verifyResult.error || "Payment verification failed"));
+              }
+            },
+            modal: {
+              ondismiss: function () {
+                reject(new Error("Payment window was closed by user. Order has been cancelled."));
+              }
+            }
+          };
+
+          const paymentObject = new window.Razorpay(options);
+          paymentObject.on('payment.failed', function (response) {
+            reject(new Error(response.error.description || "Payment failed"));
+          });
+          paymentObject.open();
+        });
+
       } catch (error) {
-        if (createdOrderId && paymentMethod === 'online') {
+        if (createdOrderId) {
           await deleteFailedOrder(createdOrderId);
         }
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -306,25 +338,14 @@ export default function CheckoutPage() {
                 </h2>
 
                 <div className="space-y-4">
-                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-[#00c3ff] bg-[#00c3ff]/5">
                     <div className="flex items-center mb-2">
-                      <input type="radio" name="payment" value="online" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                      <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
                       <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
                       <span className="font-bold text-gray-900 text-lg">Online Payment</span>
                     </div>
                     <p className="ml-11 text-sm text-gray-600 font-medium">
                       Pay securely via UPI, Credit/Debit Card, Netbanking, etc.
-                    </p>
-                  </label>
-
-                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <div className="flex items-center mb-2">
-                      <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
-                      <Wallet className="ml-4 mr-3 text-green-600" size={24} />
-                      <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
-                    </div>
-                    <p className="ml-11 text-sm text-gray-600 font-medium">
-                      Pay via cash or UPI when the product arrives at your doorstep.
                     </p>
                   </label>
                 </div>
@@ -336,7 +357,7 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
 
                 <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {cartItems.map((item, idx) => (
+                  {activeItems.map((item, idx) => (
                     <div key={idx} className="flex gap-4">
                       <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                         <img
@@ -357,11 +378,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-5 mb-5">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span className="font-medium text-gray-900">₹{subtotal.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span className="font-medium text-gray-900">₹{shipping.toLocaleString('en-IN')}</span>
+                    <span className="font-medium text-gray-900">₹{activeSubtotal.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
@@ -374,9 +391,9 @@ export default function CheckoutPage() {
 
                 {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
-                <button disabled={isPending || isSuccess} type="submit" className={`w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg uppercase tracking-wide disabled:opacity-70 cursor-pointer ${paymentMethod === 'online' ? 'bg-[#00c3ff] hover:bg-[#00baef] shadow-[#00c3ff]/30' : 'bg-green-500 hover:bg-green-600 shadow-green-500/30'}`}>
+                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer bg-[#00c3ff] hover:bg-[#00baef]">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {(isPending || isSuccess) ? "Processing..." : paymentMethod === 'online' ? "Pay Now" : "Place Order (COD)"}
+                  {(isPending || isSuccess) ? "Processing..." : "Pay Now"}
                 </button>
               </div>
             </div>

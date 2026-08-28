@@ -8,13 +8,19 @@ import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, User, ShoppingBag, MapPin,
   Heart, Star, Lock, LogOut, Package, Users,
-  BarChart, Tag, Search, Home, FileText, TrendingUp
+  BarChart, Tag, Search, Home, FileText, TrendingUp,
+  Menu, X
 } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
   const [orderCount, setOrderCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -29,7 +35,6 @@ export default function Sidebar() {
             setOrderCount(count);
           }
         } catch (error) {
-          console.error(error);
         }
       };
       fetchOrderCount();
@@ -67,80 +72,97 @@ export default function Sidebar() {
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch (error) {
-      console.error(error);
     } finally {
       window.location.href = '/login';
     }
   };
 
   return (
-    <aside 
-      className={`w-64 flex flex-col hidden md:flex transition-colors duration-300 ${
-        isAdmin 
-          ? 'bg-[#fff] text-gray-700' 
-          : 'bg-white text-gray-600 border-r border-gray-200'
-      }`}
-    >
-      <div className={`h-24 flex items-center justify-center px-6 shrink-0 ${
-        isAdmin ? 'border-b border-white/5' : 'border-b border-gray-100'
-      }`}>
-        <Link href="/">
-          <Image
-            src="/images/logo3.png"
-            alt="SRIJAN Logo"
-            width={180}
-            height={90}
-            className="object-contain"
-            priority
-          />
-        </Link>
-      </div>
+    <>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-6 right-6 z-50 p-3.5 bg-white text-[#2a2a2a] rounded-full shadow-2xl transition-transform active:scale-95"
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
 
-      <nav className="flex-1 overflow-y-auto py-6 px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <ul className="space-y-1.5">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <li key={link.name}>
-                <Link
-                  href={link.href}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? isAdmin
-                        ? 'bg-black text-[#cfa874] shadow-md'
-                        : 'bg-black text-white shadow-md'
-                      : isAdmin
-                        ? 'hover:text-[#cfa874] hover:bg-white/5'
-                        : 'hover:text-black hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <link.icon size={18} className={isActive && isAdmin ? 'text-[#cfa874]' : ''} />
-                    {link.name}
-                  </div>
-                  {link.badge && link.badge !== '0' && (
-                    <span className="bg-[#2a2a2a] text-white text-[10px] px-2 py-0.5 rounded-full">
-                      {link.badge}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      <div className="p-4 mb-4 shrink-0">
-        <button
-          onClick={handleLogout}
-          className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
-            isAdmin ? 'hover:bg-white/5 text-gray-400' : 'hover:bg-gray-50 text-gray-600'
-          }`}
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
-      </div>
-    </aside>
+      <aside 
+        className={`w-64 h-[100dvh] flex flex-col fixed md:sticky top-0 left-0 z-40 transition-all duration-300 ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        } ${
+          isAdmin 
+            ? 'bg-[#fff] text-gray-700' 
+            : 'bg-white text-gray-600 border-r border-gray-200'
+        }`}
+      >
+        <div className={`h-24 flex items-center justify-center px-6 shrink-0 ${
+          isAdmin ? 'border-b border-white/5' : 'border-b border-gray-100'
+        }`}>
+          <Link href="/">
+            <Image
+              src="/images/logo3.png"
+              alt="SRIJAN Logo"
+              width={180}
+              height={90}
+              className="object-contain"
+              priority
+            />
+          </Link>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-6 px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="space-y-1.5">
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? isAdmin
+                          ? 'bg-black text-[#cfa874] shadow-md'
+                          : 'bg-black text-white shadow-md'
+                        : isAdmin
+                          ? 'hover:text-[#cfa874] hover:bg-white/5'
+                          : 'hover:text-black hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <link.icon size={18} className={isActive && isAdmin ? 'text-[#cfa874]' : ''} />
+                      {link.name}
+                    </div>
+                    {link.badge && link.badge !== '0' && (
+                      <span className="bg-[#2a2a2a] text-white text-[10px] px-2 py-0.5 rounded-full">
+                        {link.badge}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="p-4 mb-4 shrink-0">
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
+              isAdmin ? 'hover:bg-white/5 text-gray-400' : 'hover:bg-gray-50 text-gray-600'
+            }`}
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

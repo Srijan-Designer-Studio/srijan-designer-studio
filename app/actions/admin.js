@@ -242,7 +242,7 @@ export async function getAllOrders() {
 }
 
 export async function updateOrderStatus(orderId, newStatus) {
-  const supabase = createAdminClient()
+  const supabase = createAdminClient();
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.srijandesignerstudio.com';
 
@@ -250,9 +250,9 @@ export async function updateOrderStatus(orderId, newStatus) {
     const { error: updateError } = await supabase
       .from('orders')
       .update({ status: newStatus })
-      .eq('id', orderId)
+      .eq('id', orderId);
 
-    if (updateError) throw updateError
+    if (updateError) throw updateError;
 
     const { data: orderData, error: fetchError } = await supabase
       .from('orders')
@@ -262,7 +262,13 @@ export async function updateOrderStatus(orderId, newStatus) {
         total_amount,
         user_id,
         created_at,
-        shipping_address
+        shipping_address,
+        payment_status,
+        order_items (
+          quantity,
+          price,
+          variant_id
+        )
       `)
       .eq('id', orderId)
       .single();
@@ -291,7 +297,51 @@ export async function updateOrderStatus(orderId, newStatus) {
       let addressHtml = '';
       if (orderData.shipping_address) {
         const addr = typeof orderData.shipping_address === 'string' ? JSON.parse(orderData.shipping_address) : orderData.shipping_address;
-        addressHtml = `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.postalCode || ''}`;
+        const line1 = addr.addressLine1 || '';
+        const line2 = addr.addressLine2 ? `${addr.addressLine2}, ` : '';
+        const city = addr.city || '';
+        const state = addr.state || '';
+        const zip = addr.zip || addr.postalCode || '';
+        addressHtml = `${line1}, ${line2}${city}, ${state} - ${zip}`;
+      }
+
+      let itemsHtml = '';
+      let totalItemsCount = 0;
+      
+      if (orderData.order_items && orderData.order_items.length > 0) {
+        const variantIds = orderData.order_items.map(i => i.variant_id).filter(Boolean);
+        let variants = [];
+        
+        if (variantIds.length > 0) {
+          const { data: vData } = await supabase
+            .from('product_variants')
+            .select('id, products(title)')
+            .in('id', variantIds);
+          variants = vData || [];
+        }
+
+        orderData.order_items.forEach(item => {
+          const variant = variants.find(v => v.id === item.variant_id);
+          const title = variant?.products?.title || 'SRIJAN Fashion Product';
+          totalItemsCount += item.quantity;
+          
+          itemsHtml += `
+            <tr>
+              <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; color: #374151; border-right: 1px solid #e5e7eb; font-size: 13px;">${title}</td>
+              <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: center; color: #374151; border-right: 1px solid #e5e7eb; font-size: 13px;">${item.quantity}</td>
+              <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: right; color: #374151; font-size: 13px;">₹ ${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+            </tr>
+          `;
+        });
+      } else {
+        totalItemsCount = 1;
+        itemsHtml = `
+          <tr>
+            <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; color: #374151; border-right: 1px solid #e5e7eb; font-size: 13px;">SRIJAN Fashion Product</td>
+            <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: center; color: #374151; border-right: 1px solid #e5e7eb; font-size: 13px;">1</td>
+            <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: right; color: #374151; font-size: 13px;">₹ ${totalAmount}</td>
+          </tr>
+        `;
       }
 
       const transporter = nodemailer.createTransport({
@@ -313,31 +363,54 @@ export async function updateOrderStatus(orderId, newStatus) {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
         topIcon = `${BASE_URL}/email-img/1.webp`; 
         headerText = 'Thank You For Your Order!';
+        
+        const paymentStatusText = orderData.payment_status ? orderData.payment_status.toUpperCase() : 'PAID';
+
         messageHtml = `
-          <p style="margin-bottom: 15px;">We're happy to confirm that we've received your order successfully. Our team will now begin processing your order.</p>
-          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color: #111;">Order Details</h3>
-          <p style="margin: 0 0 5px; color: #4b5563;">Order ID: <strong>#${displayOrderId}</strong></p>
-          <p style="margin: 0 0 5px; color: #4b5563;">Order Date: <strong>${orderDate}</strong></p>
-          <p style="margin: 0 0 15px; color: #4b5563;">Order Total: <strong>₹${totalAmount}</strong></p>
-          <table width="100%" cellpadding="12" cellspacing="0" style="border-collapse: collapse; margin-top: 15px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">We're happy to confirm that we've received your order successfully. Our team will now begin processing your order.</p>
+          
+          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 15px; color: #111;">Order Details</h3>
+          <p style="margin: 0 0 4px; color: #374151; font-size: 13px;">Order ID: ${displayOrderId}</p>
+          <p style="margin: 0 0 4px; color: #374151; font-size: 13px;">Order Date: ${orderDate}</p>
+          <p style="margin: 0 0 4px; color: #374151; font-size: 13px;">Payment Status: ${paymentStatusText}</p>
+          <p style="margin: 0 0 15px; color: #374151; font-size: 13px;">Order Total: ₹${totalAmount}</p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-top: 15px; border: 1px solid #e5e7eb; font-size: 13px;">
             <thead>
-              <tr style="background-color: #38bdf8; color: #fff; text-align: left; font-size: 14px;">
-                <th style="border-bottom: 1px solid #e5e7eb;">DESCRIPTION</th>
-                <th style="border-bottom: 1px solid #e5e7eb; text-align: right;">TOTAL</th>
+              <tr>
+                <th colspan="3" style="background-color: #38bdf8; color: #111; padding: 10px; text-align: center; font-size: 15px; border-bottom: 1px solid #e5e7eb;">Order Details</th>
+              </tr>
+              <tr style="background-color: #f9fafb;">
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-style: italic; font-weight: bold; color: #111;">ITEMS</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-weight: bold; color: #111;">QTY</th>
+                <th style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #111;">PRICE</th>
               </tr>
             </thead>
             <tbody>
+              ${itemsHtml}
               <tr>
-                <td style="border-bottom: 1px solid #e5e7eb; color: #374151;">Order Total (including taxes & shipping)</td>
-                <td style="border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151;">₹${totalAmount}</td>
+                <td colspan="2" style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; color: #374151; font-size: 13px;">Subtotal (${totalItemsCount} items):</td>
+                <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 13px;">₹ ${totalAmount}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; color: #374151; font-size: 13px;">Shipping Rate:</td>
+                <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 13px;">Free</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold; color: #111; border-right: 1px solid #e5e7eb; font-size: 13px;">Order Total:</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #111; font-size: 13px;">₹ ${totalAmount}</td>
               </tr>
             </tbody>
           </table>
+
           ${addressHtml ? `
-          <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 14px; color: #111;">Delivery Address</h3>
-          <p style="margin: 0; color: #4b5563; line-height: 1.5;">${addressHtml}</p>
+          <h3 style="margin-top: 25px; margin-bottom: 5px; font-size: 14px; color: #111;">Delivery Address</h3>
+          <p style="margin: 0; color: #374151; font-size: 13px; line-height: 1.5;">${addressHtml}</p>
           ` : ''}
-          <p style="margin-top: 25px; color: #4b5563;">We'll keep you updated as your order moves through each stage of the process.</p>
+
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">We'll keep you updated as your order moves through each stage of the process.</p>
+          <p style="margin-top: 15px; color: #374151; font-size: 13px;">If you have any questions regarding your order, please contact our support team.</p>
+          <p style="margin-top: 20px; color: #111; font-size: 13px; font-style: italic;">Thank you for choosing <strong>SRIJAN Fashion</strong>.</p>
         `;
       } 
       else if (newStatus === 'packed') {
@@ -473,7 +546,7 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       if (subject !== '') {
         const htmlTemplate = `
-          <div style="background-color: #f9fafb; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #374151;">
+          <div style="background-color: #ffffff; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #374151;">
             <div style="text-align: center; margin-bottom: 20px;">
               <img src="${topIcon}" alt="Status Icon" style="width: 70px; background-color: white; height: auto; object-fit: contain;">
               <h1 style="color: #1f2937; font-size: 24px; font-weight: normal; margin-top: 15px;">${headerText}</h1>

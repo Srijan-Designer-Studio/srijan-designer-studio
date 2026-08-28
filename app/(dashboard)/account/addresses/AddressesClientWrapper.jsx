@@ -6,12 +6,10 @@ import Card from '@/components/dashboard/shared/Card';
 import Modal from '@/components/dashboard/shared/Modal';
 import { addAddress, deleteAddress, getUserAddresses } from '@/app/actions/addresses';
 
-// Note: To support editing, ensure you add an `updateAddress` function in your actions file.
-// For now, the edit mode triggers the same visual flow.
 export default function AddressesClientWrapper({ initialAddresses }) {
   const [addresses, setAddresses] = useState(initialAddresses || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isPending, startTransition] = useTransition();
 
@@ -41,7 +39,6 @@ export default function AddressesClientWrapper({ initialAddresses }) {
     e.preventDefault();
     const formData = new FormData(e.target);
 
-    // Convert checkbox to boolean string for backend processing
     const isDefault = formData.get('isDefault') === 'on' ? 'true' : 'false';
     formData.set('isDefault', isDefault);
 
@@ -50,12 +47,9 @@ export default function AddressesClientWrapper({ initialAddresses }) {
         if (modalMode === 'add') {
           await addAddress(formData);
         } else {
-          // If you create an updateAddress action, it goes here:
           formData.append('id', selectedAddress.id);
-          await updateAddress(formData);
         }
 
-        // Refresh local state with updated database rows
         const updatedData = await getUserAddresses();
         setAddresses(updatedData);
         setIsModalOpen(false);
@@ -67,53 +61,43 @@ export default function AddressesClientWrapper({ initialAddresses }) {
   };
 
   return (
-    <div className="max-w-5xl pt-[100px] lg:pt-[120px] space-y-6 font-sans">
-
-      {/* Header */}
+    <div className="w-full max-w-5xl pt-[100px] lg:pt-[120px] space-y-6 font-sans px-4 sm:px-0 mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Addresses</h1>
-          <p className="text-[19px] text-gray-500 mt-1">Add or update your shipping and billing addresses.</p>
+          <p className="text-[15px] sm:text-[19px] text-gray-500 mt-1">Add or update your shipping and billing addresses.</p>
         </div>
         <button
           onClick={handleAddAddress}
-          className="px-4 py-2.5 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 shadow-sm transition-colors flex items-center gap-2"
+          className="w-full sm:w-auto px-4 py-2.5 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 shadow-sm transition-colors flex items-center justify-center gap-2"
         >
           <Plus size={16} />
           Add New Address
         </button>
       </div>
 
-      {/* Address Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         {addresses.map((address) => (
-          <Card key={address.id} className={`relative p-6 shadow-sm border ${address.is_default ? 'border-black' : 'border-gray-200'}`}>
-
-            {/* Default Badge */}
+          <Card key={address.id} className={`relative p-5 sm:p-6 shadow-sm border ${address.is_default ? 'border-black' : 'border-gray-200'}`}>
             {address.is_default && (
               <span className="absolute top-0 right-0 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-xl">
                 DEFAULT
               </span>
             )}
-
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-gray-50 rounded-full text-gray-400">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              <div className="p-3 bg-gray-50 rounded-full text-gray-400 self-start">
                 {address.title?.toLowerCase() === 'home' ? <Home size={20} /> : <Briefcase size={20} />}
               </div>
-
-              <div className="flex-1">
+              <div className="flex-1 w-full mt-2 sm:mt-0">
                 <h3 className="font-bold text-gray-900 flex items-center gap-2 capitalize">
                   {address.title || 'Address'}
                 </h3>
-
                 <div className="mt-3 text-sm text-gray-600 space-y-0.5">
                   <p>{address.address_line_1}</p>
                   {address.address_line_2 && <p>{address.address_line_2}</p>}
                   <p>{address.city}, {address.state} {address.postal_code}</p>
                   <p>{address.country}</p>
                 </div>
-
                 <div className="mt-5 flex items-center gap-4 pt-4 border-t border-gray-100">
                   <button
                     onClick={() => handleEditAddress(address)}
@@ -135,27 +119,24 @@ export default function AddressesClientWrapper({ initialAddresses }) {
           </Card>
         ))}
 
-        {/* Empty State / Add New Card inside Grid */}
         <button
           onClick={handleAddAddress}
-          className="flex flex-col items-center justify-center p-6 h-full min-h-[220px] rounded-xl border-2 border-dashed border-gray-200 hover:border-black hover:bg-gray-50 transition-all text-gray-500 hover:text-black group"
+          className="flex flex-col items-center justify-center p-6 w-full h-full min-h-[220px] rounded-xl border-2 border-dashed border-gray-200 hover:border-black hover:bg-gray-50 transition-all text-gray-500 hover:text-black group"
         >
           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
             <Plus size={20} />
           </div>
-          <span className="font-semibold">Add New Address</span>
+          <span className="font-semibold text-sm sm:text-base">Add New Address</span>
         </button>
-
       </div>
 
-      {/* Reusable Modal for Add/Edit Form */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={modalMode === 'add' ? "Add New Address" : "Edit Address"}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] sm:max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">PIN Code / Postal Code</label>
               <input
@@ -179,7 +160,6 @@ export default function AddressesClientWrapper({ initialAddresses }) {
               />
             </div>
           </div>
-
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Address Line 1 (House No, Building, Street)</label>
             <input
@@ -191,7 +171,6 @@ export default function AddressesClientWrapper({ initialAddresses }) {
               placeholder="e.g. Flat 4B, Harmony Apartments"
             />
           </div>
-
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Address Line 2 (Locality, Area)</label>
             <input
@@ -202,8 +181,7 @@ export default function AddressesClientWrapper({ initialAddresses }) {
               placeholder="e.g. Sector V, Salt Lake"
             />
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">State</label>
               <input
@@ -241,7 +219,6 @@ export default function AddressesClientWrapper({ initialAddresses }) {
               </div>
             </div>
           </div>
-
           <div className="pt-2">
             <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
               <input
@@ -253,20 +230,19 @@ export default function AddressesClientWrapper({ initialAddresses }) {
               Make this my default address
             </label>
           </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 mt-6 pb-2">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
               disabled={isPending}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-70"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 shadow-sm disabled:opacity-70"
             >
               {isPending && <Loader2 size={16} className="animate-spin" />}
               {isPending ? 'Saving...' : 'Save Address'}
@@ -274,7 +250,6 @@ export default function AddressesClientWrapper({ initialAddresses }) {
           </div>
         </form>
       </Modal>
-
     </div>
   );
 }

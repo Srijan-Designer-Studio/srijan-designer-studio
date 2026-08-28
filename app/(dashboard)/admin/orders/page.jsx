@@ -27,7 +27,6 @@ export default function AdminOrdersPage() {
                 const data = await getAllOrders();
                 setOrders(data);
             } catch (error) {
-                console.error(error);
             } finally {
                 setIsLoading(false);
             }
@@ -206,9 +205,9 @@ export default function AdminOrdersPage() {
                         </select>
                     </div>
                 </div>
-                
+
                 <div className="overflow-x-auto min-w-[800px]">
-                   <Table columns={orderColumns} data={currentOrders} />
+                    <Table columns={orderColumns} data={currentOrders} />
                 </div>
 
                 {totalPages > 0 && (
@@ -221,21 +220,20 @@ export default function AdminOrdersPage() {
                             >
                                 <ChevronLeft size={18} />
                             </button>
-                            
+
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                 <button
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
-                                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
-                                        currentPage === page
+                                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${currentPage === page
                                             ? 'bg-blue-600 text-white border-blue-600 z-10 relative shadow-sm'
                                             : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                    }`}
+                                        }`}
                                 >
                                     {page}
                                 </button>
                             ))}
-                            
+
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
@@ -280,7 +278,7 @@ export default function AdminOrdersPage() {
                                     <p className="text-gray-800 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-gray-200/60 shadow-sm">
                                         {formatAddress(selectedOrder)}
                                     </p>
-                                    
+
                                     <div className="flex flex-col gap-2 mt-3 bg-white p-3 rounded-lg border border-gray-200/60 shadow-sm">
                                         <div className="flex items-center justify-between">
                                             <span className="text-gray-500">Method:</span>
@@ -319,6 +317,18 @@ export default function AdminOrdersPage() {
                                         imageUrl = typeof images[0] === 'string' ? images[0] : (images[0]?.image_url || "");
                                     }
 
+                                    let metaSize = null;
+                                    try {
+                                        const addrData = typeof selectedOrder.shipping_address === 'string' ? JSON.parse(selectedOrder.shipping_address) : (selectedOrder.shipping_address || selectedOrder.address);
+                                        if (addrData && addrData.cart_meta) {
+                                            const metaObj = addrData.cart_meta.find(m => m.id === item.variant_id);
+                                            if (metaObj) metaSize = metaObj.size;
+                                        }
+                                    } catch (err) { }
+
+                                    const displaySize = metaSize || item.product_variants?.size || "-";
+                                    const displayColor = item.product_variants?.color || "-";
+
                                     return (
                                         <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg border border-gray-200">
 
@@ -343,7 +353,7 @@ export default function AdminOrdersPage() {
                                                 <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.product_variants?.products?.title || "Unknown Product"}</h4>
                                                 <p className="text-[13px] text-gray-500 mt-1">SKU: {item.product_variants?.sku || "N/A"}</p>
                                                 <p className="text-[13px] font-semibold text-gray-700 mt-1">
-                                                    Size/Color: <span className="uppercase">{item.product_variants?.size || "-"} | {item.product_variants?.color || "-"}</span>
+                                                    Size/Color: <span className="uppercase">{displaySize} | {displayColor}</span>
                                                 </p>
                                             </div>
                                             <div className="text-left sm:text-right shrink-0">
@@ -375,7 +385,7 @@ export default function AdminOrdersPage() {
                                         defaultValue={selectedOrder.status.toLowerCase()}
                                     >
                                         <option value="pending">Pending</option>
-                                        <option value="processing">Processing</option>
+                                        <option value="processing">Order Confirmed</option>
                                         <option value="packed">Packed</option>
                                         <option value="shipped">Shipped</option>
                                         <option value="out_for_delivery">Out for Delivery</option>

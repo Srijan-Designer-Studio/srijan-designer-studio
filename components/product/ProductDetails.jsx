@@ -93,22 +93,19 @@ export default function ProductDetails({ product }) {
   };
 
   const handleBuyNow = () => {
-    startTransition(async () => {
-      addToCart({
+    startTransition(() => {
+      const buyNowItem = {
         id: product.id,
         variantId,
         title: product.title,
         price: displayPrice,
         image: images[mainImageIndex],
         size,
-      }, quantity);
-
-      try {
-        await addToCartServer(variantId, quantity);
-        router.push('/checkout');
-      } catch (error) {
-        router.push('/checkout');
-      }
+        quantity
+      };
+      
+      sessionStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+      router.push('/checkout?mode=buynow');
     });
   };
 
@@ -238,7 +235,6 @@ export default function ProductDetails({ product }) {
               </button>
             </div>
 
-            {/* --- Complete The Look Section (Moved inside the right column) --- */}
             <div className="prod-info mt-2">
               <CompleteTheLook 
                 addons={components} 
