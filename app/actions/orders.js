@@ -10,15 +10,9 @@ export async function createOrder(orderPayload) {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { session } } = await supabase.auth.getSession()
-    let user = session?.user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data?.user
-    }
-
-    if (!user) throw new Error("Unauthorized")
+    if (authError || !user) throw new Error("Unauthorized")
 
     const itemIds = orderPayload.items.map(item => item.variantId)
 
@@ -116,7 +110,7 @@ export async function createOrder(orderPayload) {
 
     revalidatePath('/account/orders')
 
-    return { success: true, data: order }
+    return { success: true, data: order, orderId: order.id, id: order.id }
 
   } catch (error) {
     return { success: false, error: error.message }
@@ -128,15 +122,9 @@ export async function getUserOrders() {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { session } } = await supabase.auth.getSession()
-    let user = session?.user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data?.user
-    }
-
-    if (!user) return []
+    if (authError || !user) return []
 
     const { data: orders, error } = await adminDb
       .from('orders')
@@ -202,15 +190,9 @@ export async function trackOrder(orderId) {
     const supabase = await createClient()
     const adminDb = createAdminClient()
 
-    const { data: { session } } = await supabase.auth.getSession()
-    let user = session?.user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data?.user
-    }
-
-    if (!user) throw new Error('Authentication required')
+    if (authError || !user) throw new Error('Authentication required')
 
     const cleanOrderId = orderId.replace(/^#/, '').trim()
 
@@ -242,13 +224,8 @@ export async function updateOrderUserAction(orderId, actionType) {
     const supabase = await createClient();
     const adminDb = createAdminClient();
 
-    const { data: { session } } = await supabase.auth.getSession();
-    let user = session?.user;
-    if (!user) {
-      const { data } = await supabase.auth.getUser();
-      user = data?.user;
-    }
-    if (!user) throw new Error('Unauthorized');
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error('Unauthorized');
 
     const { data: order, error: fetchError } = await adminDb
       .from('orders')
@@ -280,5 +257,72 @@ export async function updateOrderUserAction(orderId, actionType) {
     return { success: true, message: `Request submitted successfully.` };
   } catch (error) {
     return { success: false, message: error.message };
+  }
+}
+
+export async function deleteFailedOrder(orderId) {
+  try {
+    const adminDb = createAdminClient()
+
+    const { data: orderItems } = await adminDb
+      .from('order_items')
+      .select('variant_id, quantity')
+      .eq('order_id', orderId)
+
+    if (orderItems && orderItems.length > 0) {
+      for (const item of orderItems) {
+        const { data: variant } = await adminDb
+          .from('product_variants')
+          .select('product_id, inventory_count')
+          .eq('id', item.variant_id)
+          .single()
+
+        if (variant) {
+          await adminDb
+            .from('product_variants')
+            .update({ inventory_count: (variant.inventory_count || 0) + item.quantity })
+            .eq('id', item.variant_id)
+
+          const { data: product } = await adminDb
+            .from('products')
+            .select('stock_quantity, purchase_count')
+            .eq('id', variant.product_id)
+            .single()
+
+          if (product) {
+            await adminDb
+              .from('products')
+              .update({
+                stock_quantity: (product.stock_quantity || 0) + item.quantity,
+                purchase_count: Math.max(0, (product.purchase_count || 0) - item.quantity)
+              })
+              .eq('id', variant.product_id)
+          }
+        } else {
+          const { data: product } = await adminDb
+            .from('products')
+            .select('stock_quantity, purchase_count')
+            .eq('id', item.variant_id)
+            .single()
+
+          if (product) {
+            await adminDb
+              .from('products')
+              .update({
+                stock_quantity: (product.stock_quantity || 0) + item.quantity,
+                purchase_count: Math.max(0, (product.purchase_count || 0) - item.quantity)
+              })
+              .eq('id', item.variant_id)
+          }
+        }
+      }
+    }
+
+    await adminDb.from('order_items').delete().eq('order_id', orderId)
+    await adminDb.from('orders').delete().eq('id', orderId)
+    
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
   }
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Eye, XCircle, Star, RotateCcw, Loader2, CheckCircle } from 'lucide-react';
+import { Package, Eye, XCircle, Star, RotateCcw, Loader2, CheckCircle, CreditCard } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -187,16 +187,30 @@ export default function OrdersClientWrapper({ initialOrders }) {
       >
         {selectedOrder && (
           <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[14px] text-gray-500">Order Placed</p>
-                <p className="font-bold text-gray-900">
+                <p className="text-[13px] text-gray-500 uppercase tracking-wide">Order Placed</p>
+                <p className="font-bold text-gray-900 mt-0.5">
                   {new Intl.DateTimeFormat('en-IN').format(new Date(selectedOrder.created_at))}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[14px] text-gray-500">Total Amount</p>
-                <p className="font-bold text-[#cfa874] text-lg">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
+                <p className="text-[13px] text-gray-500 uppercase tracking-wide">Total Amount</p>
+                <p className="font-bold text-[#cfa874] text-lg mt-0.5">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</p>
+              </div>
+              <div className="col-span-2 pt-3 mt-1 border-t border-gray-200/60 flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-gray-500 uppercase tracking-wide">Payment:</span>
+                    <span className={`font-bold px-2 py-0.5 rounded text-[11px] uppercase flex items-center gap-1 ${selectedOrder.payment_method === 'cod' ? 'text-orange-700 bg-orange-100' : 'text-green-700 bg-green-100'}`}>
+                        <CreditCard size={12} /> {selectedOrder.payment_method === 'cod' ? 'COD' : 'ONLINE'}
+                    </span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-gray-500 uppercase tracking-wide">Status:</span>
+                    <span className={`font-bold px-2 py-0.5 rounded text-[11px] uppercase ${selectedOrder.payment_status === 'Paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                        {selectedOrder.payment_status || 'Pending'}
+                    </span>
+                 </div>
               </div>
             </div>
 

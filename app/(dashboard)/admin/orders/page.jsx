@@ -274,18 +274,33 @@ export default function AdminOrdersPage() {
 
                             <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                                 <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <MapPin size={14} /> Shipping Info
+                                    <MapPin size={14} /> Shipping & Payment
                                 </h3>
                                 <div className="space-y-3 text-sm">
                                     <p className="text-gray-800 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-gray-200/60 shadow-sm">
                                         {formatAddress(selectedOrder)}
                                     </p>
-                                    <p className="flex items-center gap-2 mt-2">
-                                        <span className="text-gray-500">Payment:</span>
-                                        <span className="font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs uppercase flex items-center gap-1">
-                                            <CreditCard size={12} /> {selectedOrder.payment_method === 'cod' ? 'COD' : 'ONLINE'}
-                                        </span>
-                                    </p>
+                                    
+                                    <div className="flex flex-col gap-2 mt-3 bg-white p-3 rounded-lg border border-gray-200/60 shadow-sm">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Method:</span>
+                                            <span className={`font-bold px-2 py-0.5 rounded text-xs uppercase flex items-center gap-1 ${selectedOrder.payment_method === 'cod' ? 'text-orange-700 bg-orange-100' : 'text-green-700 bg-green-100'}`}>
+                                                <CreditCard size={12} /> {selectedOrder.payment_method === 'cod' ? 'COD' : 'ONLINE'}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Status:</span>
+                                            <span className={`font-bold px-2 py-0.5 rounded text-[11px] uppercase ${selectedOrder.payment_status === 'Paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                                                {selectedOrder.payment_status || 'Pending'}
+                                            </span>
+                                        </div>
+                                        {selectedOrder.payment_method === 'online' && selectedOrder.razorpay_payment_id && (
+                                            <div className="pt-2 mt-1 border-t border-gray-100 space-y-1.5">
+                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Pay ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_payment_id}</span></p>
+                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Order ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_order_id}</span></p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

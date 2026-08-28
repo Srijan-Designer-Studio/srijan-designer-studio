@@ -5,11 +5,11 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Smartphone, Wallet, Building2, Ban, ShieldCheck, Truck, CheckCircle2 } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Wallet, Truck, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { createOrder } from "@/app/actions/orders";
+import { createOrder, deleteFailedOrder } from "@/app/actions/orders";
 import { getUserAddresses } from "@/app/actions/addresses";
-import { initiatePaytmTransaction } from "@/app/actions/paytm";
+import { createRazorpayOrder, verifyRazorpayPayment } from "@/app/actions/razorpay";
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
 import PaymentNotification from "@/components/ui/PaymentNotification";
@@ -17,7 +17,7 @@ import PaymentNotification from "@/components/ui/PaymentNotification";
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("online");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -54,13 +54,10 @@ export default function CheckoutPage() {
     }
   }, [isLoaded, cartItems, router, isAuthChecking, isSuccess]);
 
-  const loadPaytmScript = (mid) => {
+  const loadRazorpayScript = () => {
     return new Promise((resolve) => {
-      const isProduction = process.env.NODE_ENV === 'production';
-      const hostname = isProduction ? 'securegw.paytm.in' : 'securegw-stage.paytm.in';
-      const script = document.createElement('script');
-      script.src = `https://${hostname}/merchantpgpui/checkoutjs/merchants/${mid}.js`;
-      script.crossOrigin = 'anonymous';
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
@@ -84,6 +81,8 @@ export default function CheckoutPage() {
     setErrorMsg("");
 
     startTransition(async () => {
+      let createdOrderId = null; 
+
       try {
         const selectedAddr = addresses.find(a => a.id === selectedAddressId);
         
@@ -105,7 +104,7 @@ export default function CheckoutPage() {
 
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: "cod",
+          paymentMethod: paymentMethod,
           customer_phone: formData.get('phone'),
           address: finalAddress,
           items: cartItems.map(item => ({
@@ -125,14 +124,80 @@ export default function CheckoutPage() {
           throw new Error(dbResult.error || "Failed to create order");
         }
 
-        clearCart();
-        setIsSuccess(true); 
+        createdOrderId = dbResult.orderId || dbResult.id || dbResult.order?.id;
 
-        setTimeout(() => {
-          router.push("/success");
-        }, 2500);
+        if (paymentMethod === 'cod') {
+          clearCart();
+          setIsSuccess(true); 
+          setTimeout(() => {
+            router.push("/success");
+          }, 2500);
+        } else if (paymentMethod === 'online') {
+          const res = await loadRazorpayScript();
+          if (!res) {
+            throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
+          }
+
+          const rzpOrder = await createRazorpayOrder(frontendTotal, createdOrderId);
+          
+          if (!rzpOrder.success) {
+            throw new Error(rzpOrder.error);
+          }
+
+          await new Promise((resolve, reject) => {
+            const options = {
+              key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+              amount: rzpOrder.order.amount,
+              currency: rzpOrder.order.currency,
+              name: "SRIJAN Fashion",
+              image: `${window.location.origin}/email-img/logo.webp`,
+              description: "Order Payment",
+              order_id: rzpOrder.order.id,
+              prefill: {
+                contact: formData.get('phone'),
+                email: userProfile?.email || "",
+              },
+              theme: {
+                color: "#00c3ff",
+              },
+              handler: async function (response) {
+                const verifyResult = await verifyRazorpayPayment(
+                  response.razorpay_payment_id,
+                  response.razorpay_order_id,
+                  response.razorpay_signature,
+                  createdOrderId
+                );
+                
+                if (verifyResult.success) {
+                  clearCart();
+                  setIsSuccess(true); 
+                  setTimeout(() => {
+                    router.push("/success");
+                  }, 2500);
+                  resolve();
+                } else {
+                  reject(new Error(verifyResult.error || "Payment verification failed"));
+                }
+              },
+              modal: {
+                ondismiss: function () {
+                  reject(new Error("Payment window was closed by user. Order has been cancelled."));
+                }
+              }
+            };
+
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.on('payment.failed', function (response) {
+              reject(new Error(response.error.description || "Payment failed"));
+            });
+            paymentObject.open();
+          });
+        }
 
       } catch (error) {
+        if (createdOrderId && paymentMethod === 'online') {
+          await deleteFailedOrder(createdOrderId);
+        }
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
       }
     });
@@ -241,9 +306,20 @@ export default function CheckoutPage() {
                 </h2>
 
                 <div className="space-y-4">
-                  <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-green-500 bg-green-50">
+                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
                     <div className="flex items-center mb-2">
-                      <input type="radio" name="payment" value="cod" checked readOnly className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
+                      <input type="radio" name="payment" value="online" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                      <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
+                      <span className="font-bold text-gray-900 text-lg">Online Payment</span>
+                    </div>
+                    <p className="ml-11 text-sm text-gray-600 font-medium">
+                      Pay securely via UPI, Credit/Debit Card, Netbanking, etc.
+                    </p>
+                  </label>
+
+                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <div className="flex items-center mb-2">
+                      <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="w-4 h-4 text-green-600 focus:ring-green-600 border-gray-300" />
                       <Wallet className="ml-4 mr-3 text-green-600" size={24} />
                       <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
                     </div>
@@ -298,9 +374,9 @@ export default function CheckoutPage() {
 
                 {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
-                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 bg-[#00C3FF] hover:bg-[#00baef] text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-green-500/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer">
+                <button disabled={isPending || isSuccess} type="submit" className={`w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg uppercase tracking-wide disabled:opacity-70 cursor-pointer ${paymentMethod === 'online' ? 'bg-[#00c3ff] hover:bg-[#00baef] shadow-[#00c3ff]/30' : 'bg-green-500 hover:bg-green-600 shadow-green-500/30'}`}>
                   {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {(isPending || isSuccess) ? "Processing..." : "Place Order (COD)"}
+                  {(isPending || isSuccess) ? "Processing..." : paymentMethod === 'online' ? "Pay Now" : "Place Order (COD)"}
                 </button>
               </div>
             </div>
