@@ -1,15 +1,15 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { Eye, ShoppingCart, Heart, ShoppingBag, TrendingUp, IndianRupee, TrendingDown } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-export const revalidate = 0;
 
 export default async function ProductAnalytics() {
   const supabase = createAdminClient();
 
   const { data: products } = await supabase
     .from('products')
-    .select('id, title, base_price, view_count, cart_count, wishlist_count, purchase_count, stock_quantity')
-    .eq('is_active', true);
+    .select('id, title, base_price, sale_price, view_count, cart_count, wishlist_count, purchase_count, stock_quantity');
 
   const productList = products || [];
 
@@ -26,7 +26,9 @@ export default async function ProductAnalytics() {
     
     const purchases = (p.purchase_count || 0);
     totalPurchases += purchases;
-    totalRevenue += purchases * (p.base_price || 0);
+    
+    const price = p.sale_price > 0 ? p.sale_price : (p.base_price || 0);
+    totalRevenue += purchases * price;
   });
 
   const conversionRate = totalViews > 0 ? ((totalPurchases / totalViews) * 100).toFixed(2) : "0.00";
@@ -43,16 +45,18 @@ export default async function ProductAnalytics() {
   const bestSelling = [...productList]
     .sort((a, b) => (b.purchase_count || 0) - (a.purchase_count || 0))
     .slice(0, 5)
-    .map(p => ({
-      id: p.id,
-      name: p.title,
-      sales: p.purchase_count || 0,
-      revenue: (p.purchase_count || 0) * (p.base_price || 0),
-      stock: p.stock_quantity || 0
-    }));
+    .map(p => {
+      const price = p.sale_price > 0 ? p.sale_price : (p.base_price || 0);
+      return {
+        id: p.id,
+        name: p.title,
+        sales: p.purchase_count || 0,
+        revenue: (p.purchase_count || 0) * price,
+        stock: p.stock_quantity || 0
+      };
+    });
 
   const lowPerforming = [...productList]
-    .filter(p => (p.view_count || 0) > 0)
     .sort((a, b) => {
       const convA = (a.purchase_count || 0) / (a.view_count || 1);
       const convB = (b.purchase_count || 0) / (b.view_count || 1);

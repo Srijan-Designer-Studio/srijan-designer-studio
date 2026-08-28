@@ -69,14 +69,23 @@ export default function OrdersClientWrapper({ initialOrders }) {
     const firstItem = order.order_items?.[0];
     const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
 
+    let isReturnable = false;
+    if (order.order_items && order.order_items.length > 0) {
+      isReturnable = order.order_items.some(item => {
+        const prod = item.product_variants?.products || item.products;
+        return prod?.is_return_eligible === true || prod?.is_return_eligible === 1 || prod?.is_return_eligible === 'true';
+      });
+    }
+
     return {
-      rawOrder: order,
+      rawOrder: { ...order, is_return_eligible: isReturnable },
       id: order.id.split('-')[0].toUpperCase(),
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
       status: order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-      image: imageUrl
+      image: imageUrl,
+      isReturnable
     };
   }) || [];
 
@@ -136,13 +145,15 @@ export default function OrdersClientWrapper({ initialOrders }) {
                 >
                   <Star size={16} className="fill-yellow-600" /> Review
                 </button>
-                <button
-                  onClick={() => handleReturnOrder(row.rawOrder.id)}
-                  disabled={isUpdating}
-                  className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
-                >
-                  <RotateCcw size={16} /> Return
-                </button>
+                {row.isReturnable && (
+                  <button
+                    onClick={() => handleReturnOrder(row.rawOrder.id)}
+                    disabled={isUpdating}
+                    className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
+                  >
+                    <RotateCcw size={16} /> Return
+                  </button>
+                )}
               </>
             )}
             {(row.status === 'Pending' || row.status === 'Order Confirmed') && (
@@ -303,14 +314,15 @@ export default function OrdersClientWrapper({ initialOrders }) {
               </div>
             </div>
 
-            {/* Mobile Actions in Modal */}
             <div className="lg:hidden flex flex-col gap-2 mt-4 pb-4 border-b border-gray-100">
               {selectedOrder.status.toLowerCase() === 'delivered' && (
                 <>
                   <DownloadInvoice order={selectedOrder} />
-                  <button onClick={() => handleReturnOrder(selectedOrder.id)} disabled={isUpdating} className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-orange-600 bg-orange-50 border border-orange-100 rounded-lg">
-                    <RotateCcw size={16} /> Return Item
-                  </button>
+                  {selectedOrder.is_return_eligible && (
+                    <button onClick={() => handleReturnOrder(selectedOrder.id)} disabled={isUpdating} className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-orange-600 bg-orange-50 border border-orange-100 rounded-lg">
+                      <RotateCcw size={16} /> Return Item
+                    </button>
+                  )}
                 </>
               )}
               {['pending', 'processing'].includes(selectedOrder.status.toLowerCase()) && (
@@ -356,7 +368,6 @@ export default function OrdersClientWrapper({ initialOrders }) {
         )}
       </Modal>
 
-      {/* Dialogs */}
       {confirmDialog.isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">

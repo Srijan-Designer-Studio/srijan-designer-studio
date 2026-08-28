@@ -91,19 +91,6 @@ export default function Step7Shipping() {
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
-              checked={formData.isCodAvailable}
-              onChange={(e) => updateFormData({ isCodAvailable: e.target.checked })}
-              className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-            />
-            <div>
-              <p className="text-[19px] font-bold text-gray-800">Cash on Delivery (COD)</p>
-              <p className="text-[11px] text-gray-500">Allow customers to pay upon delivery.</p>
-            </div>
-          </label>
-
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
               checked={formData.isFreeShipping}
               onChange={(e) => updateFormData({ isFreeShipping: e.target.checked })}
               className="w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -123,7 +110,7 @@ export default function Step7Shipping() {
             />
             <div>
               <p className="text-[19px] font-bold text-gray-800">Return Eligible</p>
-              <p className="text-[11px] text-gray-500">Allow customers to return this product.</p>
+              <p className="text-[11px] text-gray-500">Allow customers to return or exchange this product.</p>
             </div>
           </label>
         </div>

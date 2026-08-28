@@ -35,8 +35,11 @@ export default function ProductDetails({ product }) {
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [size, setSize] = useState(availableSizes[0] || "S");
   const [quantity, setQuantity] = useState(1);
-  const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState("description");
+
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -74,6 +77,7 @@ export default function ProductDetails({ product }) {
   const crossedOutPrice = hasDiscount ? basePrice : null;
 
   const handleAddToCart = () => {
+    setIsAddingToCart(true);
     startTransition(async () => {
       addToCart({
         id: product.id,
@@ -88,11 +92,14 @@ export default function ProductDetails({ product }) {
         await addToCartServer(variantId, quantity);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsAddingToCart(false);
       }
     });
   };
 
   const handleBuyNow = () => {
+    setIsBuyingNow(true);
     startTransition(() => {
       const buyNowItem = {
         id: product.id,
@@ -106,6 +113,7 @@ export default function ProductDetails({ product }) {
       
       sessionStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
       router.push('/checkout?mode=buynow');
+      setIsBuyingNow(false);
     });
   };
 
@@ -216,10 +224,10 @@ export default function ProductDetails({ product }) {
 
               <button
                 onClick={handleAddToCart}
-                disabled={isPending}
+                disabled={isAddingToCart || isBuyingNow}
                 className="flex-1 h-[56px] rounded-full flex items-center justify-center gap-1.5 sm:gap-2 font-bold text-[13px] sm:text-[14px] uppercase tracking-wider transition-colors border-[2px] border-[#00c3ff] text-[#00c3ff] hover:bg-[#00c3ff] hover:text-white bg-white cursor-pointer disabled:opacity-70 px-2"
               >
-                {isPending ? <Loader2 className="animate-spin" size={18} /> : <ShoppingBag size={18} strokeWidth={2.5} />}
+                {isAddingToCart ? <Loader2 className="animate-spin" size={18} /> : <ShoppingBag size={18} strokeWidth={2.5} />}
                 <span className="whitespace-nowrap">Add to Cart</span>
               </button>
             </div>
@@ -227,10 +235,10 @@ export default function ProductDetails({ product }) {
             <div className="prod-info mb-2">
               <button
                 onClick={handleBuyNow}
-                disabled={isPending}
+                disabled={isAddingToCart || isBuyingNow}
                 className="w-full h-[56px] bg-[#00c3ff] text-white rounded-full flex items-center justify-center gap-2 font-bold text-[14px] uppercase tracking-wider transition-colors hover:bg-[#00abe0] shadow-md shadow-[#00c3ff]/20 cursor-pointer disabled:opacity-70"
               >
-                {isPending ? <Loader2 className="animate-spin" size={18} /> : null}
+                {isBuyingNow ? <Loader2 className="animate-spin" size={18} /> : null}
                 BUY NOW
               </button>
             </div>

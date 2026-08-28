@@ -6,6 +6,7 @@ import SimilarProducts from "@/components/product/SimilarProducts";
 import ProductFAQ from "@/components/product/ProductFAQ";
 import { getProductBySlug, getProducts } from "@/app/actions/products"; 
 import ScrollToTop from "@/components/providers/ScrollToTop";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,12 @@ export default async function SingleProductPage({ params }) {
   if (!product) {
     return notFound();
   }
+
+  const supabase = createAdminClient();
+  await supabase
+    .from('products')
+    .update({ view_count: (product.view_count || 0) + 1 })
+    .eq('id', product.id);
 
   const allProducts = await getProducts() || [];
   const similarProducts = allProducts
