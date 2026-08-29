@@ -165,7 +165,7 @@ export default function KidsWearClient() {
         <div className="relative z-10 max-w-[1320px] mx-auto px-6 w-full">
           <div className="max-w-xl mr-auto text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-md">Customize Kids Wear</h1>
-            <p className="text-[19px] md:text-xl font-medium drop-shadow-md">Capture every little moment,<br /> dressed just right.</p>
+            <p className="text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px]">Capture every little moment, dressed just right.</p>
           </div>
         </div>
       </section>

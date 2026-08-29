@@ -137,7 +137,7 @@ export default function CustomizeKidsWear() {
                     src={card.img}
                     alt={card.title}
                     fill
-                    className="object-cover object-center"
+                    className="object-cover object-center "
                     onLoad={() => ScrollTrigger.refresh()}
                   />
                 </div>

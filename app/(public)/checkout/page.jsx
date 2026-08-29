@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2 } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2, XCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder, deleteFailedOrder } from "@/app/actions/orders";
 import { getUserAddresses } from "@/app/actions/addresses";
@@ -19,6 +19,7 @@ export default function CheckoutPage() {
   const { cartItems, subtotal, isLoaded, clearCart } = useCart();
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false); 
@@ -113,6 +114,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     setErrorMsg("");
+    setShowErrorPopup(false);
 
     startTransition(async () => {
       let createdOrderId = null; 
@@ -214,14 +216,14 @@ export default function CheckoutPage() {
             },
             modal: {
               ondismiss: function () {
-                reject(new Error("Payment window was closed by user. Order has been cancelled."));
+                reject(new Error("Your payment didn't go through as it was declined or cancelled. Try another payment method or contact your bank."));
               }
             }
           };
 
           const paymentObject = new window.Razorpay(options);
           paymentObject.on('payment.failed', function (response) {
-            reject(new Error(response.error.description || "Payment failed"));
+            reject(new Error("Your payment didn't go through as it was declined by the bank. Try another payment method or contact your bank."));
           });
           paymentObject.open();
         });
@@ -231,6 +233,7 @@ export default function CheckoutPage() {
           await deleteFailedOrder(createdOrderId);
         }
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
+        setShowErrorPopup(true);
       }
     });
   };
@@ -249,6 +252,24 @@ export default function CheckoutPage() {
               <Loader2 size={18} className="animate-spin" />
               <span>Redirecting...</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showErrorPopup && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-sm w-full animate-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5">
+              <XCircle size={40} className="text-red-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
+            <p className="text-gray-600 mb-8 text-[15px] leading-relaxed">{errorMsg}</p>
+            <button 
+              onClick={() => setShowErrorPopup(false)}
+              className="w-full bg-black text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors shadow-sm"
+            >
+              Try Again
+            </button>
           </div>
         </div>
       )}
@@ -313,7 +334,8 @@ export default function CheckoutPage() {
                       <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                     </div>
                     <div className="md:col-span-2">
-                      <input name="address2" type="text" placeholder="Apartment, suite, unit, etc. (optional)" className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Apartment, suite, unit, etc. *</label>
+                      <input name="address2" type="text" required placeholder="Apartment, suite, unit, etc." className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
@@ -357,22 +379,35 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
 
                 <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {activeItems.map((item, idx) => (
-                    <div key={idx} className="flex gap-4">
-                      <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                        <img
-                          src={item.image || "/images/placeholder.jpg"}
-                          alt={item.title}
-                          className="w-full h-full object-cover object-top"
-                        />
+                  {activeItems.map((item, idx) => {
+                    const itemPrice = Number(item.price || 0);
+                    const itemBasePrice = Number(item.basePrice || item.originalPrice || item.base_price || 0);
+                    const qty = Number(item.quantity || 1);
+
+                    return (
+                      <div key={idx} className="flex gap-4">
+                        <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                          <img
+                            src={item.image || "/images/placeholder.jpg"}
+                            alt={item.title}
+                            className="w-full h-full object-cover object-top"
+                          />
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center">
+                          <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
+                          <p className="text-[13px] text-gray-500 mb-1">Qty: {qty} | Size: {item.size}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[15px] font-extrabold text-black">₹{(itemPrice * qty).toLocaleString('en-IN')}</p>
+                            {itemBasePrice > itemPrice && (
+                              <p className="text-[13px] font-medium text-gray-400 line-through">
+                                ₹{(itemBasePrice * qty).toLocaleString('en-IN')}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 flex flex-col justify-center">
-                        <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
-                        <p className="text-[13px] text-gray-500 mb-1">Qty: {item.quantity} | Size: {item.size}</p>
-                        <p className="text-[15px] font-extrabold text-black">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-5 mb-5">
@@ -388,8 +423,6 @@ export default function CheckoutPage() {
                     ₹{frontendTotal.toLocaleString('en-IN')}
                   </span>
                 </div>
-
-                {errorMsg && <p className="text-red-500 text-sm mb-4 font-medium">{errorMsg}</p>}
 
                 <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer bg-[#00c3ff] hover:bg-[#00baef]">
                   {isPending && <Loader2 size={18} className="animate-spin" />}

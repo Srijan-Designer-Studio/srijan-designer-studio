@@ -45,7 +45,7 @@ export default function WomenHero() {
             for Women
           </h1>
 
-          <p className="women-hero-text text-lg sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[550px]">
+          <p className="women-hero-text text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px]">
             Discover elegant designer outfits
             and trendy women wear crafted
             to match your style, comfort and

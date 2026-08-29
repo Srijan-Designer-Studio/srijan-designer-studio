@@ -41,7 +41,7 @@ export default function WeddingHero() {
           <h1 className="wed-hero-text text-5xl sm:text-6xl md:text-[72px] font-bold text-white mb-6 drop-shadow-lg leading-[1.1]">
             The Wedding<br />Wear Edit
           </h1>
-          <p className="wed-hero-text text-xl sm:text-2xl text-white font-bold leading-snug drop-shadow-md max-w-[480px]">
+          <p className="wed-hero-text text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px]">
             Shop wedding dresses that feels like you or design one from scratch. It's your day, so it's your call
           </p>
         </div>

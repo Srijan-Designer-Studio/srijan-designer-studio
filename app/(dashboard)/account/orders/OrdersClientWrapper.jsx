@@ -68,6 +68,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
     const itemCount = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
     const firstItem = order.order_items?.[0];
     const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
+    const singleProductSlug = order.order_items?.length === 1 ? (firstItem?.product_variants?.products?.slug || firstItem?.products?.slug || null) : null;
 
     let isReturnable = false;
     if (order.order_items && order.order_items.length > 0) {
@@ -77,14 +78,20 @@ export default function OrdersClientWrapper({ initialOrders }) {
       });
     }
 
+    let displayStatus = (order.status || '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    if ((order.status || '').toLowerCase() === 'processing') {
+      displayStatus = 'Order Confirmed';
+    }
+
     return {
       rawOrder: { ...order, is_return_eligible: isReturnable },
       id: order.id.split('-')[0].toUpperCase(),
       date: formattedDate,
       items: `${itemCount} Item${itemCount !== 1 ? 's' : ''}`,
       total: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-      status: order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+      status: displayStatus,
       image: imageUrl,
+      singleProductSlug,
       isReturnable
     };
   }) || [];
@@ -127,47 +134,62 @@ export default function OrdersClientWrapper({ initialOrders }) {
     {
       header: 'Actions',
       accessor: 'action',
-      render: (row) => (
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
-            className="flex items-center gap-1 text-[13px] sm:text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
-          >
-            <Eye size={16} className="hidden sm:block" /> View
-          </button>
-          <div className="hidden lg:flex items-center gap-3">
-            {row.status === 'Delivered' && (
-              <>
-                <DownloadInvoice order={row.rawOrder} />
+      render: (row) => {
+        const rawStatus = (row.rawOrder.status || '').toLowerCase();
+        
+        return (
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
+              className="flex items-center gap-1 text-[13px] sm:text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+            >
+              <Eye size={16} className="hidden sm:block" /> View
+            </button>
+            <div className="hidden lg:flex items-center gap-3">
+              {rawStatus === 'delivered' && (
+                <>
+                  <DownloadInvoice order={row.rawOrder} />
+                  
+                  {row.singleProductSlug ? (
+                    <Link
+                      href={`/product/${row.singleProductSlug}`}
+                      className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      <Star size={16} className="fill-yellow-600" /> Review
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
+                      className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      <Star size={16} className="fill-yellow-600" /> Review
+                    </button>
+                  )}
+
+                  {row.isReturnable && (
+                    <button
+                      onClick={() => handleReturnOrder(row.rawOrder.id)}
+                      disabled={isUpdating}
+                      className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
+                    >
+                      <RotateCcw size={16} /> Return
+                    </button>
+                  )}
+                </>
+              )}
+              {['pending', 'processing'].includes(rawStatus) && (
                 <button
-                  onClick={() => { setSelectedOrder(row.rawOrder); setIsModalOpen(true); }}
-                  className="flex items-center gap-1 text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors cursor-pointer whitespace-nowrap"
+                  onClick={() => handleCancelOrder(row.rawOrder.id)}
+                  disabled={isUpdating}
+                  className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  <Star size={16} className="fill-yellow-600" /> Review
+                  <XCircle size={16} /> Cancel
                 </button>
-                {row.isReturnable && (
-                  <button
-                    onClick={() => handleReturnOrder(row.rawOrder.id)}
-                    disabled={isUpdating}
-                    className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
-                  >
-                    <RotateCcw size={16} /> Return
-                  </button>
-                )}
-              </>
-            )}
-            {(row.status === 'Pending' || row.status === 'Order Confirmed') && (
-              <button
-                onClick={() => handleCancelOrder(row.rawOrder.id)}
-                disabled={isUpdating}
-                className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                <XCircle size={16} /> Cancel
-              </button>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
   ];
 
@@ -358,7 +380,13 @@ export default function OrdersClientWrapper({ initialOrders }) {
                         <p className="text-[13px] sm:text-[15px] font-bold text-gray-900 leading-tight pr-2 line-clamp-2">{product?.title || item.title || 'Unknown Product'}</p>
                         <p className="text-[14px] sm:text-[16px] font-bold text-[#cfa874] whitespace-nowrap mt-1 sm:mt-0">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                       </div>
-                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-1">Qty: {item.quantity} | Size: {finalSize}</p>
+                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-1 mb-1">Qty: {item.quantity} | Size: {finalSize}</p>
+                      
+                      {selectedOrder.status.toLowerCase() === 'delivered' && productSlug && (
+                        <Link href={`/product/${productSlug}`} className="inline-flex items-center gap-1 mt-1 text-[12px] sm:text-[13px] font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
+                          <Star size={13} className="fill-yellow-600" /> Write a Review
+                        </Link>
+                      )}
                     </div>
                   </div>
                 );

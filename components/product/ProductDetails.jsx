@@ -84,6 +84,7 @@ export default function ProductDetails({ product }) {
         variantId,
         title: product.title,
         price: displayPrice,
+        basePrice: basePrice,
         image: images[mainImageIndex],
         size,
       }, quantity);
@@ -106,6 +107,7 @@ export default function ProductDetails({ product }) {
         variantId,
         title: product.title,
         price: displayPrice,
+        basePrice: basePrice,
         image: images[mainImageIndex],
         size,
         quantity

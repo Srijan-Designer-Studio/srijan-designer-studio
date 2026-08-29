@@ -18,42 +18,78 @@ export default function DownloadInvoice({ order }) {
       const displayOrderId = order.id.split('-')[0].toUpperCase();
       const totalAmount = Number(order.total_amount).toLocaleString('en-IN');
       
-      // Address parsing
-      let addressHtml = order.shipping_address || 'Address not provided';
-      if (typeof order.shipping_address === 'string' && order.shipping_address.startsWith('{')) {
+      let addressHtml = 'Address not provided';
+      if (order.shipping_address) {
         try {
-          const addr = JSON.parse(order.shipping_address);
-          addressHtml = `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.postalCode || ''}`;
-        } catch (e) {}
+          const addr = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+          const line1 = addr.addressLine1 || '';
+          const line2 = addr.addressLine2 ? `${addr.addressLine2}, ` : '';
+          const city = addr.city || '';
+          const state = addr.state || '';
+          const zip = addr.zip || addr.postalCode || '';
+          addressHtml = `${line1}, ${line2}${city}, ${state} - ${zip}`;
+        } catch (e) {
+          addressHtml = String(order.shipping_address);
+        }
       }
 
-      // Calculate totals
-      const subtotal = order.order_items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || order.total_amount;
-      const totalItems = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+      const subtotal = order.order_items?.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0) || Number(order.total_amount);
+      const totalItems = order.order_items?.reduce((sum, item) => sum + Number(item.quantity), 0) || 0;
       const discount = subtotal > order.total_amount ? (subtotal - order.total_amount) : 0;
 
-      // Generate Items Rows
-      const itemsHtml = order.order_items?.map(item => `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">
-            ${item.product_variants?.products?.title || 'Premium Product'} 
-            <br/><span style="font-size: 12px; color: #6b7280;">Size: ${item.product_variants?.size || 'Standard'}</span>
-          </td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; font-size: 14px; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">${item.quantity}</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; font-size: 14px;">₹ ${Number(item.price * item.quantity).toLocaleString('en-IN')}</td>
-        </tr>
-      `).join('') || '';
+      let itemsHtml = '';
+      if (order.order_items && order.order_items.length > 0) {
+        itemsHtml = order.order_items.map(item => {
+          const sellPrice = Number(item.price || 0);
+          const basePrice = Number(item.product_variants?.products?.base_price || item.base_price || 0);
+          const qty = Number(item.quantity || 1);
+          const title = item.product_variants?.products?.title || item.products?.title || 'SRIJAN Fashion Product';
+          const size = item.product_variants?.size || item.size || 'Standard';
+
+          let priceDisplay = `<span style="font-weight: bold; color: #111;">₹ ${(sellPrice * qty).toLocaleString('en-IN')}</span>`;
+          
+          if (basePrice > sellPrice) {
+            priceDisplay = `
+              <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
+                <span style="font-weight: bold; color: #111;">₹ ${(sellPrice * qty).toLocaleString('en-IN')}</span>
+                <span style="text-decoration: line-through; color: #9ca3af; font-size: 11px;">₹ ${(basePrice * qty).toLocaleString('en-IN')}</span>
+              </div>
+            `;
+          }
+
+          return `
+            <tr>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">
+                ${title} 
+                <br/><span style="font-size: 12px; color: #6b7280;">Size: ${size}</span>
+              </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; font-size: 14px; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">${qty}</td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151; font-size: 14px;">
+                ${priceDisplay}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        itemsHtml = `
+          <tr>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">SRIJAN Fashion Product</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; font-size: 14px; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">1</td>
+            <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151; font-size: 14px;">
+              <span style="font-weight: bold; color: #111;">₹ ${totalAmount}</span>
+            </td>
+          </tr>
+        `;
+      }
 
       invoiceDiv.innerHTML = `
         <div style="width: 800px; padding: 40px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb;">
           
-          <!-- Top Header -->
           <div style="text-align: center; margin-bottom: 25px;">
             <img src="https://www.srijandesignerstudio.com/email-img/logo.webp" alt="SRIJAN Fashion" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <h1 style="color: #1f2937; font-size: 24px; font-weight: normal; margin: 0;">Order Invoice</h1>
           </div>
 
-          <!-- Main Card -->
           <div style="background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);">
             
             <p style="font-weight: bold; font-size: 16px; margin-top: 0; margin-bottom: 20px; color: #111;">Hi, ${customerName},</p>
@@ -65,7 +101,6 @@ export default function DownloadInvoice({ order }) {
             <p style="margin: 0 0 5px; color: #4b5563; font-size: 14px;">Payment Status: <strong>${order.payment_status || 'Paid'}</strong></p>
             <p style="margin: 0 0 25px; color: #4b5563; font-size: 14px;">Order Total: <strong>₹${totalAmount}</strong></p>
 
-            <!-- Table (Exact match to the image) -->
             <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 25px; border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden;">
               <thead>
                 <tr style="background-color: #38bdf8; color: #ffffff;">
@@ -74,35 +109,33 @@ export default function DownloadInvoice({ order }) {
                 <tr style="background-color: #ffffff; color: #111;">
                   <th style="padding: 10px 15px; text-align: left; font-size: 13px; font-style: italic; border-bottom: 1px solid #e5e7eb;">ITEMS</th>
                   <th style="padding: 10px 15px; text-align: center; font-size: 13px; border-bottom: 1px solid #e5e7eb; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; width: 100px;">QTY</th>
-                  <th style="padding: 10px 15px; text-align: center; font-size: 13px; border-bottom: 1px solid #e5e7eb; width: 150px;">PRICE</th>
+                  <th style="padding: 10px 15px; text-align: right; font-size: 13px; border-bottom: 1px solid #e5e7eb; width: 150px;">PRICE</th>
                 </tr>
               </thead>
               <tbody>
                 ${itemsHtml}
                 
-                <!-- Summary Rows -->
                 <tr>
                   <td colspan="2" style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; border-right: 1px solid #e5e7eb;">Subtotal (${totalItems} items):</td>
-                  <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">₹ ${subtotal.toLocaleString('en-IN')}</td>
+                  <td style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-weight: bold;">₹ ${subtotal.toLocaleString('en-IN')}</td>
                 </tr>
                 ${discount > 0 ? `
                 <tr>
                   <td colspan="2" style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; border-right: 1px solid #e5e7eb;">Discount:</td>
-                  <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">- ₹ ${discount.toLocaleString('en-IN')}</td>
+                  <td style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #ef4444; font-size: 14px;">- ₹ ${discount.toLocaleString('en-IN')}</td>
                 </tr>
                 ` : ''}
                 <tr>
                   <td colspan="2" style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; border-right: 1px solid #e5e7eb;">Shipping Rate:</td>
-                  <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">Free</td>
+                  <td style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">Free</td>
                 </tr>
                 <tr>
-                  <td colspan="2" style="padding: 12px 15px; text-align: right; color: #111; font-size: 14px; border-right: 1px solid #e5e7eb;">Order Total:</td>
-                  <td style="padding: 12px 15px; text-align: center; color: #111; font-size: 14px;">₹ ${totalAmount}</td>
+                  <td colspan="2" style="padding: 12px 15px; text-align: right; color: #111; font-size: 14px; border-right: 1px solid #e5e7eb; font-weight: bold;">Order Total:</td>
+                  <td style="padding: 12px 15px; text-align: right; color: #111; font-size: 15px; font-weight: bold;">₹ ${totalAmount}</td>
                 </tr>
               </tbody>
             </table>
 
-            <!-- Delivery Address -->
             <h3 style="font-size: 14px; color: #111; margin-bottom: 5px;">Delivery Address</h3>
             <p style="margin: 0 0 25px; color: #4b5563; font-size: 14px; line-height: 1.5;">${addressHtml}</p>
 
@@ -111,7 +144,6 @@ export default function DownloadInvoice({ order }) {
             <p style="color: #4b5563; font-size: 14px; font-style: italic; margin: 0;">Thank you for choosing <strong>SRIJAN Fashion</strong>.</p>
           </div>
 
-          <!-- Bottom Footer -->
           <div style="text-align: center; margin-top: 25px;">
             <p style="font-weight: bold; margin: 0 0 5px; color: #111; font-size: 16px;">SRIJAN Fashion | Designer Boutique | Custom Fashion</p>
             <p style="color: #6b7280; font-size: 12px; margin: 0;">This is an automated generated email, please do not reply. For support visit our website.</p>
@@ -124,7 +156,6 @@ export default function DownloadInvoice({ order }) {
       invoiceDiv.style.top = '0';
       document.body.appendChild(invoiceDiv);
 
-      // Add a small delay to ensure images load properly before generating PDF
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(invoiceDiv, { scale: 2, useCORS: true });

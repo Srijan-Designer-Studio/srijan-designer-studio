@@ -82,7 +82,7 @@ export default function Hero() {
                     </h1>
                   }
 
-                  <p className="hero-anim text-base sm:text-lg md:text-xl lg:text-[22px] font-medium leading-relaxed mb-6 md:mb-10 drop-shadow-sm">
+                  <p className="hero-anim text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px] mb-6 md:mb-10 drop-shadow-sm">
                     Shop the latest fashion styles
                     online or design a custom
                     outfit that's 100% you

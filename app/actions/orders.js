@@ -16,6 +16,7 @@ export async function createOrder(orderPayload) {
 
     const itemIds = orderPayload.items.map(item => item.variantId)
 
+    // Reverted to select only existing columns to prevent schema errors
     const { data: variants } = await adminDb
       .from('product_variants')
       .select('id, product_id, inventory_count, products(base_price)')
@@ -37,14 +38,12 @@ export async function createOrder(orderPayload) {
         throw new Error(`Invalid item: ${item.variantId}`)
       }
 
-      let realPrice = 0
-
       if (dbVariant) {
         if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock")
-        realPrice = dbVariant.products?.base_price || 0
-      } else if (dbBaseProduct) {
-        realPrice = dbBaseProduct.base_price || 0
       }
+
+      // Use the actual offer price sent from the frontend cart to avoid full base_price bill
+      const realPrice = Number(item.unitPrice) || 0
 
       serverTotalAmount += (realPrice * item.quantity)
 

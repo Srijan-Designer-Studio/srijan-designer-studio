@@ -36,8 +36,8 @@ export default function ContactHero() {
         <div className="max-w-[1320px] w-full mx-auto px-6">
          
           <div className="text-white drop-shadow-md mt-[90px]">
-            <p className="contact-hero-text text-xl md:text-2xl font-bold mb-2">Let's</p>
-            <h1 className="contact-hero-text text-4xl md:text-5xl lg:text-[56px] font-bold leading-tight font-serif">
+            <p className="contact-hero-text text-xl md:text-3xl font-bold mb-2">Let's</p>
+            <h1 className="contact-hero-text text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
               Connect<br />with SRIJAN Fashion
             </h1>
           </div>

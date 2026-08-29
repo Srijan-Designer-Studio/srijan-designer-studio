@@ -101,16 +101,23 @@ export default function AdminOrdersPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentFilteredOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
 
-    const currentOrders = currentFilteredOrders.map(order => ({
-        rawOrder: order,
-        id: order.id.split('-')[0].toUpperCase(),
-        customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`.trim(),
-        email: order.profiles?.email || 'N/A',
-        date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at)),
-        items: order.order_items ? order.order_items.length : 0,
-        amount: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-        status: order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    }));
+    const currentOrders = currentFilteredOrders.map(order => {
+        let displayStatus = order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        if (order.status.toLowerCase() === 'processing') {
+            displayStatus = 'Order Confirmed';
+        }
+
+        return {
+            rawOrder: order,
+            id: order.id.split('-')[0].toUpperCase(),
+            customer: `${order.profiles?.first_name || 'Guest'} ${order.profiles?.last_name || ''}`.trim(),
+            email: order.profiles?.email || 'N/A',
+            date: new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(order.created_at)),
+            items: order.order_items ? order.order_items.length : 0,
+            amount: `₹${Number(order.total_amount).toLocaleString('en-IN')}`,
+            status: displayStatus
+        };
+    });
 
     const orderColumns = [
         { header: 'Order ID', accessor: 'id', render: (row) => <span className="font-medium text-gray-900">#{row.id}</span> },
@@ -145,7 +152,7 @@ export default function AdminOrdersPage() {
     const statusOptions = [
         { label: 'All Statuses', value: 'All Statuses' },
         { label: 'Pending', value: 'pending' },
-        { label: 'Processing', value: 'processing' },
+        { label: 'Order Confirmed', value: 'processing' },
         { label: 'Packed', value: 'packed' },
         { label: 'Shipped', value: 'shipped' },
         { label: 'Out for Delivery', value: 'out_for_delivery' },
@@ -400,7 +407,7 @@ export default function AdminOrdersPage() {
                                 </div>
                                 <div className="flex flex-col items-start sm:items-end justify-center">
                                     <span className="text-xs font-medium text-gray-500 mb-1">Current Status</span>
-                                    <StatusBadge status={selectedOrder.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} />
+                                    <StatusBadge status={selectedOrder.status.toLowerCase() === 'processing' ? 'Order Confirmed' : selectedOrder.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} />
                                 </div>
                             </div>
 

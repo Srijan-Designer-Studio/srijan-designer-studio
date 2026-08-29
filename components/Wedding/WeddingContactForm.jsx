@@ -74,7 +74,7 @@ export default function WeddingContactForm() {
               />
             )}
             <div className="absolute top-4 lg:top-14 left-8 pr-8 z-10">
-              <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight font-serif">
+              <h3 className="text-[23px] md:text-[35px] font-bold text-white mb-2 leading-tight font-serif">
                 Let's create some special <br /> moment
               </h3>
               <p className="text-white text-[15px] sm:text-[17px] max-w-[250px] sm:max-w-[310px] md:max-w-[340px] ">

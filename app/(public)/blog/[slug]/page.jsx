@@ -54,6 +54,7 @@ export default async function BlogDetails({ params }) {
     <>
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org/", 
@@ -80,11 +81,13 @@ export default async function BlogDetails({ params }) {
       {blog.schema_markup ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: blog.schema_markup }}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: blog.schema_markup.replace(/\r\n/g, '\n') }}
         />
       ) : (
         <script
           type="application/ld+json"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",

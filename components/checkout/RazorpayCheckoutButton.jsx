@@ -46,7 +46,7 @@ export default function RazorpayCheckoutButton({ amount, dbOrderId, customerName
         currency: res.order.currency,
         name: "SRIJAN Fashion",
         description: `Order #${dbOrderId}`,
-        image: "/images/logo.png",
+        image: "/email-img/logo.webp",
         order_id: res.order.id,
         handler: function (response) {
           startTransition(async () => {
