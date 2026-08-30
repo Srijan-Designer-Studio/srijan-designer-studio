@@ -42,7 +42,7 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleWishlist(product);
     try {
       await toggleWishlistServer(product.id);
@@ -99,18 +99,18 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                 className="shop-card group flex flex-col items-center cursor-pointer relative"
               >
                 <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
-                  
+
                   <div className="absolute top-3 left-3 bg-[#00c3ff] text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-sm z-10 tracking-wider shadow-sm">
                     NEW
                   </div>
 
                   <button
                     onClick={(e) => handleWishlistToggle(e, product)}
-                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
                   >
-                    <Heart 
-                      size={18} 
-                      className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                    <Heart
+                      className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+                        }`}
                     />
                   </button>
 
@@ -128,7 +128,7 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                 <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
                   {product.title}
                 </h3>
-                
+
                 <div className="flex items-center justify-center gap-2">
                   <p className="text-[14px] sm:text-[15px] font-bold text-red-600 text-center">
                     ₹{displayPrice.toLocaleString('en-IN')}

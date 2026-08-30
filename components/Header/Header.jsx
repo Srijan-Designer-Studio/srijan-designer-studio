@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -23,13 +23,10 @@ export default function Header({ initialUser = null }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
-  const [isVisible, setIsVisible] = useState(true);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -45,25 +42,6 @@ export default function Header({ initialUser = null }) {
     setIsMobileMenuOpen(false);
     setMobileActiveDropdown(null);
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScroll = window.scrollY;
-
-      if (currentScroll > lastScrollY.current && currentScroll > 80) {
-        setIsVisible(false);
-      } else if (currentScroll < lastScrollY.current) {
-        setIsVisible(true);
-      }
-
-      lastScrollY.current = currentScroll;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     if (isMobileMenuOpen || isCartOpen || isWishlistOpen || isSearchOpen) {
@@ -149,9 +127,7 @@ export default function Header({ initialUser = null }) {
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 w-full z-[90] transition-transform duration-500 ease-in-out bg-transparent pointer-events-none ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
-      >
+      <header className="absolute top-0 left-0 w-full z-[90] bg-transparent pointer-events-none">
         <div className="max-w-[1320px] h-[80px] lg:h-[90px] mx-auto px-4 lg:px-6 flex items-center justify-between pointer-events-auto">
           
           <Link 

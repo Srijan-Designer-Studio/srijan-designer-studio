@@ -20,7 +20,7 @@ const ShopEssentials = ({ products = [] }) => {
     if (a.created_at && b.created_at) {
       return new Date(b.created_at) - new Date(a.created_at);
     }
-    return 0; 
+    return 0;
   });
 
   const getCategoryString = (product) => {
@@ -89,7 +89,7 @@ const ShopEssentials = ({ products = [] }) => {
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleWishlist(product);
     try {
       await toggleWishlistServer(product.id);
@@ -104,16 +104,15 @@ const ShopEssentials = ({ products = [] }) => {
         <div className="text-center mb-14">
           <div className="overflow-hidden mb-2">
             <h2 className="essentials-title text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tight">
-             SHOP ESSENTIALS
+              SHOP ESSENTIALS
             </h2>
           </div>
 
           <div className="essentials-tabs flex items-center justify-center gap-8 mt-10">
             <button
               onClick={() => setActiveTab("WOMEN")}
-              className={`relative text-sm md:text-base font-bold tracking-widest uppercase transition-colors duration-300 py-2 ${
-                activeTab === "WOMEN" ? "text-black" : "text-gray-400 hover:text-gray-700"
-              }`}
+              className={`relative text-sm md:text-base font-bold tracking-widest uppercase transition-colors duration-300 py-2 ${activeTab === "WOMEN" ? "text-black" : "text-gray-400 hover:text-gray-700"
+                }`}
             >
               Women
               {activeTab === "WOMEN" && (
@@ -122,9 +121,8 @@ const ShopEssentials = ({ products = [] }) => {
             </button>
             <button
               onClick={() => setActiveTab("MEN")}
-              className={`relative text-sm md:text-base font-bold tracking-widest uppercase transition-colors duration-300 py-2 ${
-                activeTab === "MEN" ? "text-black" : "text-gray-400 hover:text-gray-700"
-              }`}
+              className={`relative text-sm md:text-base font-bold tracking-widest uppercase transition-colors duration-300 py-2 ${activeTab === "MEN" ? "text-black" : "text-gray-400 hover:text-gray-700"
+                }`}
             >
               Men
               {activeTab === "MEN" && (
@@ -143,20 +141,20 @@ const ShopEssentials = ({ products = [] }) => {
             currentProducts.map((product) => {
               let mainImage = "";
               if (Array.isArray(product.product_images) && product.product_images.length > 0) {
-                mainImage = typeof product.product_images[0] === 'string' 
-                  ? product.product_images[0] 
+                mainImage = typeof product.product_images[0] === 'string'
+                  ? product.product_images[0]
                   : product.product_images[0]?.image_url;
               }
 
-              const categoryName = Array.isArray(product.categories) && product.categories.length > 0 
-                ? product.categories[0] 
+              const categoryName = Array.isArray(product.categories) && product.categories.length > 0
+                ? product.categories[0]
                 : (product.categories?.name || product.gender || "Exclusive");
 
               const basePrice = Number(product.base_price) || 0;
               const salePrice = Number(product.sale_price) || 0;
               const hasDiscount = salePrice > 0 && salePrice < basePrice;
               const displayPrice = hasDiscount ? salePrice : basePrice;
-              
+
               const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
               return (
@@ -168,11 +166,11 @@ const ShopEssentials = ({ products = [] }) => {
 
                     <button
                       onClick={(e) => handleWishlistToggle(e, product)}
-                      className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                      className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
                     >
-                      <Heart 
-                        size={20} 
-                        className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                      <Heart
+                        className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+                          }`}
                       />
                     </button>
 
@@ -191,7 +189,7 @@ const ShopEssentials = ({ products = [] }) => {
                   <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
                     {product.title}
                   </h3>
-                  
+
                   <div className="flex items-center justify-center gap-2">
                     <p className="text-[18px] font-extrabold text-red-600">
                       ₹{displayPrice.toLocaleString('en-IN')}

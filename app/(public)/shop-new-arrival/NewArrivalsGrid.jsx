@@ -92,14 +92,15 @@ export default function NewArrivalsGrid({ products = [] }) {
                   </div>
 
                   <button
-                    onClick={(e) => handleWishlistToggle(e, product)}
-                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
-                  >
-                    <Heart 
-                      size={30} 
-                      className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
-                    />
-                  </button>
+  onClick={(e) => handleWishlistToggle(e, product)}
+  className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+>
+  <Heart 
+    className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${
+      isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+    }`} 
+  />
+</button>
 
                   <img
                     src={imageUrl}

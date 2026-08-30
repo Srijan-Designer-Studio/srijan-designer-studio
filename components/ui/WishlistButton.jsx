@@ -11,7 +11,7 @@ export default function WishlistButton({ product }) {
   const handleWishlistToggle = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleWishlist(product);
     try {
       await toggleWishlistServer(product.id);
@@ -22,12 +22,12 @@ export default function WishlistButton({ product }) {
 
   return (
     <button
-      onClick={handleWishlistToggle}
-      className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+      onClick={(e) => handleWishlistToggle(e, product)}
+      className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
     >
-      <Heart 
-        size={20} 
-        className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+      <Heart
+        className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+          }`}
       />
     </button>
   );

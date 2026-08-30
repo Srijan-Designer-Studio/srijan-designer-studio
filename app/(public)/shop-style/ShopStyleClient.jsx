@@ -106,7 +106,7 @@ export default function ShopStyleClient() {
     const combinedMap = new Map();
 
     localResults.forEach(p => combinedMap.set(p.id, p));
-    
+
     if (query.length >= 2) {
       backendSearchResults.forEach(p => combinedMap.set(p.id, p));
     }
@@ -132,7 +132,7 @@ export default function ShopStyleClient() {
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleWishlist(product);
     try {
       await toggleWishlistServer(product.id);
@@ -201,12 +201,12 @@ export default function ShopStyleClient() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 relative z-10">
               {currentProducts.map((product) => {
                 const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
-                
+
                 const basePrice = Number(product.base_price) || 0;
                 const salePrice = Number(product.sale_price) || 0;
                 const hasDiscount = salePrice > 0 && salePrice < basePrice;
                 const displayPrice = hasDiscount ? salePrice : basePrice;
-                
+
                 const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
                 return (
@@ -217,22 +217,22 @@ export default function ShopStyleClient() {
                         alt={product.title}
                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
-                      
+
                       <button
                         onClick={(e) => handleWishlistToggle(e, product)}
-                        className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
                       >
-                        <Heart 
-                          size={30} 
-                          className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                        <Heart
+                          className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+                            }`}
                         />
                       </button>
                     </div>
-                    
+
                     <h3 className="text-[16px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2 px-2 group-hover:text-black">
                       {product.title}
                     </h3>
-                    
+
                     <div className="flex items-center justify-center gap-2">
                       <p className="text-[18px] font-extrabold text-red-600">
                         ₹{displayPrice.toLocaleString('en-IN')}
@@ -257,16 +257,15 @@ export default function ShopStyleClient() {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                
+
                 {Array.from({ length: totalPages }).map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => handlePageChange(idx + 1)}
-                    className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${
-                      currentPage === idx + 1
+                    className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${currentPage === idx + 1
                         ? 'bg-[#00c3ff] text-white shadow-md'
                         : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-[#00c3ff]/10 hover:text-[#00c3ff] hover:border-[#00c3ff]/30'
-                    }`}
+                      }`}
                   >
                     {idx + 1}
                   </button>
