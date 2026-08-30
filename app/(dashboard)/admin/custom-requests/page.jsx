@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 
+// CustomRequestsPage
 export default async function CustomRequestsPage() {
   const supabase = createAdminClient()
 
@@ -114,4 +115,4 @@ export default async function CustomRequestsPage() {
       </div>
     </div>
   )
-}
+}  
