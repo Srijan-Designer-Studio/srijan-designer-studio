@@ -2,16 +2,19 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Heart } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useCart } from "@/context/CartContext";
+import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // CRITICAL FIX: Removed category & type props as the Parent Page will now handle the strict filtering
 export default function ShopSection({ title, viewAllLink, products = [] }) {
   const containerRef = useRef(null);
+  const { wishlistItems, toggleWishlist } = useCart();
 
   // Just take the first 4 products passed perfectly from the parent page
   const productsData = products.slice(0, 4);
@@ -38,6 +41,18 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
       "-=0.3"
     );
   }, { scope: containerRef, dependencies: [productsData] });
+
+  const handleWishlistToggle = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleWishlist(product);
+    try {
+      await toggleWishlistServer(product.id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (productsData.length === 0) {
     return (
@@ -75,12 +90,30 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {productsData.map((product) => {
             const mainImage = product.product_images?.[0]?.image_url;
+            const isWishlisted = wishlistItems?.some(item => item.id === product.id);
+
+            const basePrice = Number(product.base_price) || 0;
+            const salePrice = Number(product.sale_price) || 0;
+            const hasDiscount = salePrice > 0 && salePrice < basePrice;
+            const displayPrice = hasDiscount ? salePrice : basePrice;
 
             return (
               <Link href={`/product/${product.slug}`} key={product.id}
-                className="shop-card group flex flex-col items-center cursor-pointer"
+                className="shop-card group flex flex-col items-center cursor-pointer relative"
               >
-                <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-400 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
+                <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-800 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
+                  
+                  <button
+                    onClick={(e) => handleWishlistToggle(e, product)}
+                    className="absolute top-3 right-3 p-2.5 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-100 transition-all z-10 cursor-pointer hover:scale-105"
+                  >
+                    <Heart 
+                      size={18} 
+                      strokeWidth={2}
+                      className={`transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'}`} 
+                    />
+                  </button>
+
                   {mainImage ? (
                     <img
                       src={mainImage}
@@ -91,12 +124,21 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                     <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>
                   )}
                 </div>
-                <h3 className="text-[14px] sm:text-[16px] text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-3">
+                
+                <h3 className="text-[14px] sm:text-[15px] font-medium text-center text-gray-800 leading-[1.4] mb-1.5 px-2 line-clamp-2 group-hover:text-black">
                   {product.title}
                 </h3>
-                <p className="text-[14px] sm:text-[15px] font-bold text-black text-center">
-                  ₹{product.base_price?.toLocaleString('en-IN')}
-                </p>
+                
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-[16px] sm:text-[18px] font-black text-[#e11d48] text-center">
+                    ₹{displayPrice.toLocaleString('en-IN')}
+                  </p>
+                  {hasDiscount && (
+                    <p className="text-[12px] sm:text-[13px] font-bold text-black line-through text-center">
+                      ₹{basePrice.toLocaleString('en-IN')}
+                    </p>
+                  )}
+                </div>
               </Link>
             )
           })}
