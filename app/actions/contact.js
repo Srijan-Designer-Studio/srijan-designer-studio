@@ -40,14 +40,14 @@ export async function sendWeddingInquiry(formData) {
       port: process.env.SMTP_PORT,
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_INQUIRY_USER, // Updated to Inquiry Email
+        pass: process.env.SMTP_INQUIRY_PASS, // Updated to Inquiry Pass
       },
     })
 
     const mailOptions = {
-      from: `"SRIJAN Fashion" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
+      from: `"SRIJAN Fashion Support" <${process.env.SMTP_INQUIRY_USER}>`,
+      to: process.env.SMTP_INQUIRY_USER,
       replyTo: email,
       subject: `New Inquiry from ${name} (${sourcePage})`,
       html: `

@@ -2,7 +2,6 @@
 
 import nodemailer from 'nodemailer'
 
-
 export async function submitKidsForm(formData) {
   try {
     
@@ -24,14 +23,12 @@ export async function submitKidsForm(formData) {
     // Database
     // ==========================================
     
-    
     await prisma.inquiry.create({
       data: {
         name, email, phone, outfitType, budget, date, time, message, sourcePage, createdAt: new Date()
       }
     });
     
-
     // ==========================================
     //  Nodemailer
     // ==========================================
@@ -40,14 +37,15 @@ export async function submitKidsForm(formData) {
       port: process.env.SMTP_PORT,
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_INQUIRY_USER, // Updated to Inquiry Email
+        pass: process.env.SMTP_INQUIRY_PASS, // Updated to Inquiry Pass
       },
     })
 
     const mailOptions = {
-      from: `"SRIJAN Kids" <${process.env.SMTP_USER}>`,
-      to: 'ripanpramanik01@gmail.com', // আপনার ইমেইল
+      from: `"SRIJAN Kids" <${process.env.SMTP_INQUIRY_USER}>`,
+      to: process.env.SMTP_INQUIRY_USER, 
+      replyTo: email,
       subject: `New Kids Customization Request from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">

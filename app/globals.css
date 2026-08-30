@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Horizontal Overflow Fix */
+/* Horizontal Overflow Fix - Brahmaastra */
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -9,8 +16,6 @@ html {
   --background: #ffffff;
   --foreground: #171717;
 }
-
-
 
 @theme inline {
   --color-background: var(--background);

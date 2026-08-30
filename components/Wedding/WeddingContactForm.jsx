@@ -83,7 +83,7 @@ export default function WeddingContactForm() {
             </div>
           </div>
 
-          <div className="wed-contact-right w-full lg:w-1/2 p-2 flex flex-col justify-center relative bg-white z-10 lg:-ml-[1px]">
+          <div className="wed-contact-right w-full lg:w-1/2 p-2 flex flex-col justify-center relative bg-white text-black z-10 lg:-ml-[1px]">
             <div className=" p-8 rounded-2xl">
               <h3 className="text-2xl font-normal text-black mb-6 text-center">
                 Fill In the Form To Get Started

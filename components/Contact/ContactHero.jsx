@@ -23,7 +23,6 @@ export default function ContactHero() {
   }, { scope: containerRef });
 
   return (
-    
     <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
       <Image
         src="/others-img/Contact Us HERO Section.webp"
@@ -33,11 +32,10 @@ export default function ContactHero() {
       />
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute inset-0 flex items-center">
-        <div className="max-w-[1320px] w-full mx-auto px-6">
-         
+        <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6">
           <div className="text-white drop-shadow-md mt-[90px]">
-            <p className="contact-hero-text text-xl md:text-3xl font-bold mb-2">Let's</p>
-            <h1 className="contact-hero-text text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
+            <p className="contact-hero-text text-lg sm:text-xl md:text-3xl font-bold mb-2">Let's</p>
+            <h1 className="contact-hero-text text-3xl sm:text-4xl md:text-6xl lg:text-[72px] font-bold leading-[1.2] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md break-words">
               Connect<br />with SRIJAN Fashion
             </h1>
           </div>

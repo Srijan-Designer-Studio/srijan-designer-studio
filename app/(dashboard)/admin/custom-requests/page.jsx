@@ -1,10 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Next.js Server Component
 export default async function CustomRequestsPage() {
   const supabase = createAdminClient()
 
- 
   const { data: requests, error } = await supabase
     .from('custom_requests')
     .select('*')
@@ -12,6 +10,34 @@ export default async function CustomRequestsPage() {
 
   if (error) {
     return <div className="p-8 text-red-500 font-bold">Error fetching data: {error.message}</div>
+  }
+
+  const getSourceBadge = (source) => {
+    const raw = (source || '').toLowerCase().trim()
+
+    if (raw.includes('wedding')) {
+      return {
+        label: 'Wedding Wear',
+        className: 'bg-pink-100 text-pink-700'
+      }
+    }
+    if (raw.includes('kid')) {
+      return {
+        label: 'Kids Wear',
+        className: 'bg-blue-100 text-blue-700'
+      }
+    }
+    if (raw.includes('fit') || raw.includes('custom')) {
+      return {
+        label: 'Customize',
+        className: 'bg-amber-100 text-amber-700'
+      }
+    }
+
+    return {
+      label: source || 'Unknown',
+      className: 'bg-gray-100 text-gray-700'
+    }
   }
 
   return (
@@ -36,49 +62,43 @@ export default async function CustomRequestsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
                 {requests && requests.length > 0 ? (
-                  requests.map((req) => (
-                    <tr key={req.id} className="hover:bg-gray-50 transition-colors">
-                      {/* Submission Date */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(req.created_at).toLocaleDateString('en-GB')}
-                      </td>
-                      
-                      {/* Source Page Badge */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          req.source_page === 'Wedding Contact' ? 'bg-pink-100 text-pink-700' :
-                          req.source_page === 'Custom Kids Wear' ? 'bg-blue-100 text-blue-700' :
-                          'bg-amber-100 text-amber-700'
-                        }`}>
-                          {req.source_page || 'Unknown'}
-                        </span>
-                      </td>
+                  requests.map((req) => {
+                    const badge = getSourceBadge(req.source_page)
 
-                      {/* Client Info */}
-                      <td className="px-6 py-4">
-                        <p className="font-bold text-gray-900">{req.name}</p>
-                        <p className="text-gray-500">{req.email}</p>
-                        <p className="text-gray-500">{req.phone}</p>
-                      </td>
+                    return (
+                      <tr key={req.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {new Date(req.created_at).toLocaleDateString('en-GB')}
+                        </td>
+                        
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+                            {badge.label}
+                          </span>
+                        </td>
 
-                      {/* Outfit Info */}
-                      <td className="px-6 py-4">
-                        <p className="font-medium">{req.outfit_type || 'N/A'}</p>
-                        <p className="text-green-600 font-semibold">{req.budget || 'N/A'}</p>
-                      </td>
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-gray-900">{req.name}</p>
+                          <p className="text-gray-500">{req.email}</p>
+                          <p className="text-gray-500">{req.phone}</p>
+                        </td>
 
-                      {/* Callback Schedule */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <p className="font-semibold text-gray-800">{req.callback_date}</p>
-                        <p className="text-blue-500 font-medium">{req.callback_time}</p>
-                      </td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium">{req.outfit_type || 'N/A'}</p>
+                          <p className="text-green-600 font-semibold">{req.budget || 'N/A'}</p>
+                        </td>
 
-                      {/* Message/Details */}
-                      <td className="px-6 py-4 max-w-xs truncate" title={req.details}>
-                        {req.details || <span className="text-gray-400 italic">No message</span>}
-                      </td>
-                    </tr>
-                  ))
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <p className="font-semibold text-gray-800">{req.callback_date}</p>
+                          <p className="text-blue-500 font-medium">{req.callback_time}</p>
+                        </td>
+
+                        <td className="px-6 py-4 max-w-xs truncate" title={req.details}>
+                          {req.details || <span className="text-gray-400 italic">No message</span>}
+                        </td>
+                      </tr>
+                    )
+                  })
                 ) : (
                   <tr>
                     <td colSpan="6" className="px-6 py-12 text-center text-gray-500 font-medium">

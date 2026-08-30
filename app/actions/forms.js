@@ -26,14 +26,14 @@ export async function submitContactMessage(formData) {
       port: process.env.SMTP_PORT,
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_INQUIRY_USER,
+        pass: process.env.SMTP_INQUIRY_PASS,
       },
     })
 
     const mailOptions = {
-      from: `"${name}" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER, 
+      from: `"SRIJAN Fashion Support" <${process.env.SMTP_INQUIRY_USER}>`,
+      to: process.env.SMTP_INQUIRY_USER, 
       replyTo: email,
       subject: `New Contact Form Submission from ${name}`,
       html: `
@@ -150,14 +150,14 @@ async function sendNotificationEmail(data) {
       port: process.env.SMTP_PORT,
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_INQUIRY_USER,
+        pass: process.env.SMTP_INQUIRY_PASS,
       },
     })
 
     const mailOptions = {
-      from: `"${data.name}" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
+      from: `"SRIJAN Fashion Support" <${process.env.SMTP_INQUIRY_USER}>`,
+      to: process.env.SMTP_INQUIRY_USER,
       replyTo: data.email,
       subject: `New Request: ${data.sourcePage} from ${data.name}`,
       html: `

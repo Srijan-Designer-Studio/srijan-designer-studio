@@ -44,7 +44,7 @@ export default function AuthClient() {
         } else if (data?.user) {
           showPopupMessage("Login Successful! Redirecting...", "success");
           const role = data.user.user_metadata?.role;
-          const adminEmail = process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL;
+          const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
           setTimeout(() => {
             if (role === 'admin' || email === adminEmail) {

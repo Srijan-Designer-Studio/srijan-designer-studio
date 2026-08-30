@@ -299,7 +299,7 @@ export default function KidsWearClient() {
             <img src="/Custom Kids Wear/Untitled design (5).webp" alt="Special Moment" className="w-full object-cover" />
           </div>
 
-          <div className="reveal-up bg-white p-4 rounded-2xl shadow-xl">
+          <div className="reveal-up bg-white p-4 text-black rounded-2xl shadow-xl">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
             {formStatus && (
