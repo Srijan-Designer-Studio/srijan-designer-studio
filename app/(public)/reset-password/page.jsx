@@ -9,39 +9,24 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
-  const [isReady, setIsReady] = useState(false);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
- 
+  // URL-এ কোনো Error থাকলে সেটি ধরার জন্য
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) setIsReady(true);
-    };
-    
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || session) {
-        setIsReady(true);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+    if (hash && hash.includes("error_description")) {
+       const errorMsg = decodeURIComponent(hash.split("error_description=")[1].split("&")[0]);
+       setMessage("Link Error: " + errorMsg.replace(/\+/g, ' '));
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
-    
-    if (!isReady) {
-      setMessage("System Error: Session not ready yet. Please click the email link again.");
-      return;
-    }
 
     const formData = new FormData(e.target);
     const password = formData.get('password');
@@ -79,7 +64,7 @@ export default function ResetPasswordPage() {
           Create New Password
         </h1>
         <p className="text-gray-200 text-sm drop-shadow-sm mb-8">
-          {isReady ? "Secure connection established. Enter your new password." : "Verifying secure link, please wait..."}
+          Please enter your new password below.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -93,8 +78,7 @@ export default function ResetPasswordPage() {
                 placeholder="••••••••" 
                 required
                 minLength="6"
-                disabled={!isReady}
-                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40 disabled:opacity-50" 
+                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
               />
             </div>
           </div>
@@ -109,8 +93,7 @@ export default function ResetPasswordPage() {
                 placeholder="••••••••" 
                 required
                 minLength="6"
-                disabled={!isReady}
-                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40 disabled:opacity-50" 
+                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
               />
             </div>
           </div>
@@ -122,12 +105,12 @@ export default function ResetPasswordPage() {
           )}
 
           <button 
-            disabled={isPending || !isReady} 
+            disabled={isPending} 
             type="submit" 
-            className="w-full flex justify-center items-center gap-2 bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] uppercase tracking-wide disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-2 bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] uppercase tracking-wide disabled:opacity-70"
           >
-            {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-            {!isReady ? "Connecting..." : (isPending ? "Updating..." : "Update Password")}
+            {isPending && <Loader2 size={16} className="animate-spin" />}
+            {isPending ? "Updating..." : "Update Password"}
           </button>
         </form>
       </div>
