@@ -1,8 +1,9 @@
 "use client";
 export const dynamic = 'force-dynamic';
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
+
 import { createBrowserClient } from '@supabase/ssr';
 
 export default function ResetPasswordPage() {
@@ -10,11 +11,20 @@ export default function ResetPasswordPage() {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
-  
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
+
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log("Recovery session successfully established!");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,22 +41,22 @@ export default function ResetPasswordPage() {
 
     startTransition(async () => {
       try {
-      ট
         const { error } = await supabase.auth.updateUser({
           password: password
         });
 
-       
+     ে
         if (error) {
-          setMessage(error.message);
+          setMessage("Supabase Error: " + error.message);
           return;
         }
 
-      
         setMessage("Password reset successful! Redirecting...");
         setTimeout(() => router.push('/login'), 2000);
       } catch (error) {
-        setMessage("Failed to reset password. Your link may have expired.");
+        // কোডে বা নেটওয়ার্কে সমস্যা থাকলে এই মেসেজ আসবে
+        console.error("System Catch Error:", error);
+        setMessage("System Error: " + (error?.message || "Unknown error occurred."));
       }
     });
   };
