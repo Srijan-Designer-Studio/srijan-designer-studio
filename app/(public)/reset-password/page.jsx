@@ -3,12 +3,18 @@ export const dynamic = 'force-dynamic';
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
-import { resetPassword } from "@/app/actions/auth";
+import { createBrowserClient } from '@supabase/ssr';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+
+  
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,11 +31,22 @@ export default function ResetPasswordPage() {
 
     startTransition(async () => {
       try {
-        await resetPassword(formData);
+      ট
+        const { error } = await supabase.auth.updateUser({
+          password: password
+        });
+
+       
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+
+      
         setMessage("Password reset successful! Redirecting...");
         setTimeout(() => router.push('/login'), 2000);
       } catch (error) {
-        setMessage(error.message || "Failed to reset password. Your link may have expired.");
+        setMessage("Failed to reset password. Your link may have expired.");
       }
     });
   };
