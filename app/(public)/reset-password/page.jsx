@@ -3,26 +3,34 @@ export const dynamic = 'force-dynamic';
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
-
 import { createBrowserClient } from '@supabase/ssr';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [isReady, setIsReady] = useState(false);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-
+ 
   useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) setIsReady(true);
+    };
+    
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        console.log("Recovery session successfully established!");
+      if (event === 'PASSWORD_RECOVERY' || session) {
+        setIsReady(true);
       }
     });
+
     return () => subscription.unsubscribe();
   }, [supabase]);
 
@@ -30,6 +38,11 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setMessage("");
     
+    if (!isReady) {
+      setMessage("System Error: Session not ready yet. Please click the email link again.");
+      return;
+    }
+
     const formData = new FormData(e.target);
     const password = formData.get('password');
     const confirm = formData.get('confirmPassword');
@@ -45,7 +58,6 @@ export default function ResetPasswordPage() {
           password: password
         });
 
-    
         if (error) {
           setMessage("Supabase Error: " + error.message);
           return;
@@ -54,8 +66,6 @@ export default function ResetPasswordPage() {
         setMessage("Password reset successful! Redirecting...");
         setTimeout(() => router.push('/login'), 2000);
       } catch (error) {
-        // কোডে বা নেটওয়ার্কে সমস্যা থাকলে এই মেসেজ আসবে
-        console.error("System Catch Error:", error);
         setMessage("System Error: " + (error?.message || "Unknown error occurred."));
       }
     });
@@ -69,7 +79,7 @@ export default function ResetPasswordPage() {
           Create New Password
         </h1>
         <p className="text-gray-200 text-sm drop-shadow-sm mb-8">
-          Please enter your new password below.
+          {isReady ? "Secure connection established. Enter your new password." : "Verifying secure link, please wait..."}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -83,7 +93,8 @@ export default function ResetPasswordPage() {
                 placeholder="••••••••" 
                 required
                 minLength="6"
-                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
+                disabled={!isReady}
+                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40 disabled:opacity-50" 
               />
             </div>
           </div>
@@ -98,24 +109,25 @@ export default function ResetPasswordPage() {
                 placeholder="••••••••" 
                 required
                 minLength="6"
-                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40" 
+                disabled={!isReady}
+                className="w-full bg-transparent outline-none text-[14px] text-white font-medium placeholder:text-white/40 disabled:opacity-50" 
               />
             </div>
           </div>
 
           {message && (
-            <p className={`text-sm font-medium ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-sm font-medium ${message.includes('successful') ? 'text-green-400' : (message.includes('System Error') ? 'text-red-400' : 'text-yellow-400')}`}>
               {message}
             </p>
           )}
 
           <button 
-            disabled={isPending} 
+            disabled={isPending || !isReady} 
             type="submit" 
-            className="w-full flex justify-center items-center gap-2 bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] uppercase tracking-wide disabled:opacity-70"
+            className="w-full flex justify-center items-center gap-2 bg-[#0ba6ff] hover:bg-[#0092e6] text-white font-bold text-[13px] py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(11,166,255,0.4)] uppercase tracking-wide disabled:opacity-50"
           >
-            {isPending && <Loader2 size={16} className="animate-spin" />}
-            {isPending ? "Updating..." : "Update Password"}
+            {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
+            {!isReady ? "Connecting..." : (isPending ? "Updating..." : "Update Password")}
           </button>
         </form>
       </div>
