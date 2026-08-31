@@ -94,7 +94,7 @@ export async function requestPasswordReset(formData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://srijan-ecommerce-three.vercel.app'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
   })
 
   if (error) return { error: error.message }
