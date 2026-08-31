@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
           password: password
         });
 
-     ে
+    
         if (error) {
           setMessage("Supabase Error: " + error.message);
           return;
