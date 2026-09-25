@@ -55,7 +55,9 @@ export default function RelatedBlogs({ relatedBlogs = [] }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {relatedBlogs.map((blog) => (
             <div key={blog.id} className="related-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
-              <Link href={`/blog/${blog.slug}`} className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
+              
+              {/* Image Link Removed - PDF Requirement */}
+              <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
                 <Image
                   src={blog.image_url || "/images/placeholder.jpg"}
                   alt={blog.title}
@@ -63,12 +65,15 @@ export default function RelatedBlogs({ relatedBlogs = [] }) {
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-              </Link>
-              <Link href={`/blog/${blog.slug}`}>
-                <h3 className="text-[17px] font-bold text-gray-900 mb-4 leading-snug line-clamp-2 hover:text-[#00c3ff] transition-colors">
+              </div>
+
+              {/* Title Link Removed - PDF Requirement */}
+              <div>
+                <h3 className="text-[17px] font-bold text-gray-900 mb-4 leading-snug line-clamp-2 transition-colors">
                   {blog.title}
                 </h3>
-              </Link>
+              </div>
+
               <div className="flex items-center gap-4 text-[13px] text-gray-500 mb-6 mt-auto">
                 <div className="flex items-center gap-1.5">
                   <User size={14} className="text-[#00c3ff]" />
@@ -79,9 +84,12 @@ export default function RelatedBlogs({ relatedBlogs = [] }) {
                   <span>{formatDate(blog.published_at || blog.created_at)}</span>
                 </div>
               </div>
-              <Link href={`/blog/${blog.slug}`} className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max">
+
+              {/* ONLY Read More Button is active - PDF Requirement */}
+              <Link href={`/blog/${blog.slug}`} className="text-[#00c3ff] font-bold text-[14px] flex items-center gap-1 hover:text-[#00abe0] transition-colors w-max cursor-pointer">
                 Read More <ArrowUpRight size={16} strokeWidth={2.5} />
               </Link>
+
             </div>
           ))}
         </div>

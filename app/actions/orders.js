@@ -16,18 +16,19 @@ export async function createOrder(orderPayload) {
 
     const itemIds = orderPayload.items.map(item => item.variantId)
 
-    // Reverted to select only existing columns to prevent schema errors
+    // PDF Requirement: Fetching online_cash_off securely from the database
     const { data: variants } = await adminDb
       .from('product_variants')
-      .select('id, product_id, inventory_count, products(base_price)')
+      .select('id, product_id, inventory_count, products(base_price, online_cash_off)')
       .in('id', itemIds)
 
     const { data: baseProducts } = await adminDb
       .from('products')
-      .select('id, base_price')
+      .select('id, base_price, online_cash_off')
       .in('id', itemIds)
 
     let serverTotalAmount = 0
+    let totalOnlineCashOff = 0
     const orderItems = []
 
     for (const item of orderPayload.items) {
@@ -42,9 +43,12 @@ export async function createOrder(orderPayload) {
         if (dbVariant.inventory_count < item.quantity) throw new Error("Out of stock")
       }
 
+      // Securely fetch online cash off from the database, NOT from the frontend
+      const dbCashOff = dbVariant?.products?.online_cash_off ?? dbBaseProduct?.online_cash_off ?? 0
+      totalOnlineCashOff += (Number(dbCashOff) * item.quantity)
+
       // Use the actual offer price sent from the frontend cart to avoid full base_price bill
       const realPrice = Number(item.unitPrice) || 0
-
       serverTotalAmount += (realPrice * item.quantity)
 
       orderItems.push({
@@ -54,11 +58,20 @@ export async function createOrder(orderPayload) {
       })
     }
 
+    // ==========================================
+    // Server-Side Pricing & Discount Calculation 
+    // ==========================================
+    if (orderPayload.paymentMethod === 'online') {
+      serverTotalAmount = Math.max(0, serverTotalAmount - totalOnlineCashOff);
+    } else if (orderPayload.paymentMethod === 'cod') {
+      serverTotalAmount += 10; // COD Convenience Charge
+    }
+
     const { data: order, error: orderError } = await adminDb
       .from('orders')
       .insert({
         user_id: user.id,
-        total_amount: serverTotalAmount,
+        total_amount: serverTotalAmount, // Secure total saved to DB
         payment_method: orderPayload.paymentMethod,
         payment_status: orderPayload.paymentStatus || 'Pending',
         status: orderPayload.status || 'pending',
@@ -143,13 +156,11 @@ export async function getUserOrders() {
 
     const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))]
 
-    // এখানেই মূল পরিবর্তন: select() এর ভেতরে is_return_eligible যুক্ত করা হয়েছে
     const { data: products } = await adminDb
       .from('products')
       .select('id, title, slug, is_return_eligible, product_images(image_url)') 
       .in('id', itemIds)
 
-    // এখানেও is_return_eligible যুক্ত করা হয়েছে
     const { data: variants } = await adminDb
       .from('product_variants')
       .select('id, size, products(title, slug, is_return_eligible, product_images(image_url))')
@@ -165,7 +176,6 @@ export async function getUserOrders() {
           productMatch?.product_images?.[0]?.image_url ||
           null
           
-        // প্রোডাক্টের রিটার্ন স্ট্যাটাস চেক করা হচ্ছে
         const isReturnEligible = variantMatch?.products?.is_return_eligible ?? productMatch?.is_return_eligible ?? false
 
         return {
@@ -176,7 +186,7 @@ export async function getUserOrders() {
             products: {
               title: variantMatch?.products?.title || productMatch?.title || 'Premium Product',
               slug: variantMatch?.products?.slug || productMatch?.slug || null,
-              is_return_eligible: isReturnEligible, // ফ্রন্টএন্ডে পাঠানোর জন্য ডাটা যুক্ত করা হলো
+              is_return_eligible: isReturnEligible, 
               product_images: imageUrl ? [{ image_url: imageUrl }] : []
             }
           }
@@ -189,6 +199,7 @@ export async function getUserOrders() {
     return []
   }
 }
+
 export async function trackOrder(orderId) {
   try {
     const supabase = await createClient()

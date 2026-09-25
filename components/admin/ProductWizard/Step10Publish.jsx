@@ -10,8 +10,9 @@ export default function Step10Publish() {
     {
       id: 1,
       title: "Basic Information",
-      isValid: !!formData.title && !!formData.productType && !!formData.shortDesc,
-      errorMsg: "Title, Product Type, and Short Description are required."
+      // Updated: Ensure SKU is filled before publishing
+      isValid: !!formData.title && !!formData.productType && !!formData.shortDesc && !!formData.sku,
+      errorMsg: "Title, Product Type, SKU, and Short Description are required."
     },
     {
       id: 2,

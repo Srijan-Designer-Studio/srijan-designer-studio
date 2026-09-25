@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Heart } from "lucide-react";
+import { Heart, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
@@ -16,6 +16,7 @@ const ShopEssentials = ({ products = [] }) => {
   const containerRef = useRef(null);
   const { wishlistItems, toggleWishlist } = useCart();
 
+  // 1. Sort products by newest first
   const sortedProducts = [...products].sort((a, b) => {
     if (a.created_at && b.created_at) {
       return new Date(b.created_at) - new Date(a.created_at);
@@ -23,21 +24,26 @@ const ShopEssentials = ({ products = [] }) => {
     return 0;
   });
 
+  // 2. Helper to get category string
   const getCategoryString = (product) => {
     return `${Array.isArray(product.categories) ? product.categories.join(' ') : product.categories?.name || product.categories || ''} ${product.gender || ''} ${product.department || ''}`.toLowerCase();
   };
 
+  // 3. Filter for Women AND show_on_homepage === true
   const womenProducts = sortedProducts
     .filter((product) => {
       const cat = getCategoryString(product);
-      return cat.includes("women") || cat.includes("saree") || cat.includes("lehenga") || cat.includes("bridal");
+      const isWomen = cat.includes("women") || cat.includes("saree") || cat.includes("lehenga") || cat.includes("bridal");
+      return isWomen && product.show_on_homepage === true;
     })
     .slice(0, 4);
 
+  // 4. Filter for Men AND show_on_homepage === true
   const menProducts = sortedProducts
     .filter((product) => {
       const cat = getCategoryString(product);
-      return (cat.includes("men") && !cat.includes("women")) || cat.includes("kurta") || cat.includes("suit") || cat.includes("blazer");
+      const isMen = (cat.includes("men") && !cat.includes("women")) || cat.includes("kurta") || cat.includes("suit") || cat.includes("blazer");
+      return isMen && product.show_on_homepage === true;
     })
     .slice(0, 4);
 
@@ -72,12 +78,13 @@ const ShopEssentials = ({ products = [] }) => {
   }, { scope: containerRef });
 
   useGSAP(() => {
+    if (currentProducts.length === 0) return;
     gsap.fromTo(
       ".product-card",
       { y: 50, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" }
     );
-  }, { dependencies: [activeTab], scope: containerRef });
+  }, { dependencies: [activeTab, currentProducts], scope: containerRef });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,12 +108,18 @@ const ShopEssentials = ({ products = [] }) => {
   return (
     <section className="py-24 bg-[#fafafa]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
-        <div className="text-center mb-14">
+        
+        <div className="text-center mb-14 relative">
           <div className="overflow-hidden mb-2">
             <h2 className="essentials-title text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tight">
               SHOP ESSENTIALS
             </h2>
           </div>
+
+          <Link href="/shop-style" className="essentials-title absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 text-[15px] font-bold text-gray-600 hover:text-[#00c3ff] transition-colors uppercase tracking-wider group">
+            View All
+            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+          </Link>
 
           <div className="essentials-tabs flex items-center justify-center gap-8 mt-10">
             <button
@@ -134,9 +147,14 @@ const ShopEssentials = ({ products = [] }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {currentProducts.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500 py-12 font-medium">
-              No new arrivals found in this category yet.
-            </p>
+            <div className="col-span-full flex flex-col items-center justify-center py-16">
+              <p className="text-center text-gray-500 font-medium mb-4 text-lg">
+                No products have been added to the homepage for this category yet.
+              </p>
+              <p className="text-center text-gray-400 text-sm">
+                (Admin can add products to the homepage from the Products Dashboard)
+              </p>
+            </div>
           ) : (
             currentProducts.map((product) => {
               let mainImage = "";
@@ -146,23 +164,33 @@ const ShopEssentials = ({ products = [] }) => {
                   : product.product_images[0]?.image_url;
               }
 
-              const categoryName = Array.isArray(product.categories) && product.categories.length > 0
-                ? product.categories[0]
-                : (product.categories?.name || product.gender || "Exclusive");
-
               const basePrice = Number(product.base_price) || 0;
               const salePrice = Number(product.sale_price) || 0;
               const hasDiscount = salePrice > 0 && salePrice < basePrice;
               const displayPrice = hasDiscount ? salePrice : basePrice;
+
+              // Calculate Discount Percentage
+              let discountPercentage = 0;
+              if (hasDiscount) {
+                discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
+              }
 
               const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
               return (
                 <Link href={`/product/${product.slug}`} key={product.id} className="product-card group flex flex-col items-center text-center cursor-pointer relative">
                   <div className="relative w-full aspect-[2/3] rounded-2xl border border-gray-200 overflow-hidden mb-4 bg-gray-50 transition-shadow duration-300 group-hover:shadow-xl">
-                    <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
-                      NEW
-                    </div>
+                    
+                    {/* Discount or NEW Tag */}
+                    {hasDiscount ? (
+                      <div className="absolute top-4 left-4 z-10 bg-[#121433] text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
+                        {discountPercentage}% OFF
+                      </div>
+                    ) : (
+                      <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
+                        NEW
+                      </div>
+                    )}
 
                     <button
                       onClick={(e) => handleWishlistToggle(e, product)}
@@ -204,6 +232,12 @@ const ShopEssentials = ({ products = [] }) => {
               )
             })
           )}
+        </div>
+        
+        <div className="mt-12 flex justify-center md:hidden">
+          <Link href="/shop-style" className="flex items-center justify-center w-full max-w-[280px] gap-2 text-[14px] font-bold text-white bg-black hover:bg-gray-800 px-6 py-3.5 rounded-full transition-colors uppercase tracking-wider">
+            View All Products
+          </Link>
         </div>
       </div>
     </section>

@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
-// import { signIn } from "next-auth/react";
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
 
@@ -45,9 +44,10 @@ export default function AuthClient() {
           showPopupMessage("Login Successful! Redirecting...", "success");
           const role = data.user.user_metadata?.role;
           const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+          const demoEmail = process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL;
 
           setTimeout(() => {
-            if (role === 'admin' || email === adminEmail) {
+            if (role === 'admin' || email === adminEmail || email === demoEmail) {
               window.location.href = "/admin";
             } else {
               window.location.href = "/";
@@ -56,6 +56,38 @@ export default function AuthClient() {
         }
       } catch (error) {
         showPopupMessage("Something went wrong. Please try again.", "error");
+      }
+    });
+  };
+
+  // Demo Admin Login Handler using .env variables
+  const handleDemoAdminLogin = () => {
+    startTransition(async () => {
+      try {
+        const demoEmail = process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL;
+        const demoPassword = process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD;
+
+        if (!demoEmail || !demoPassword) {
+          showPopupMessage("Demo credentials are not configured in environment variables.", "error");
+          return;
+        }
+
+        const supabase = createClient();
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: demoEmail,
+          password: demoPassword,
+        });
+
+        if (error) {
+          showPopupMessage(`Demo account not found! Please create '${demoEmail}' in Supabase Auth.`, "error");
+        } else if (data?.user) {
+          showPopupMessage("Demo Admin Login Successful!", "success");
+          setTimeout(() => {
+            window.location.href = "/admin";
+          }, 1500);
+        }
+      } catch (error) {
+        showPopupMessage("Something went wrong.", "error");
       }
     });
   };
@@ -120,19 +152,6 @@ export default function AuthClient() {
       }
     });
   };
-
-  const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/" });
-  };
-
-  const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
-      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-    </svg>
-  );
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121433] via-[#3d4563] to-[#8d94a6] p-6 overflow-hidden relative">
@@ -321,6 +340,8 @@ export default function AuthClient() {
                 LOGIN
               </button>
 
+              
+
               <div className="flex items-center my-1">
                 <div className="flex-grow border-t border-white/20"></div>
                 <div className="flex-grow border-t border-white/20"></div>
@@ -347,33 +368,35 @@ export default function AuthClient() {
         <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-50 transition-transform duration-700 ease-in-out ${isLogin ? 'translate-x-[100%]' : 'translate-x-0'
           }`}>
           <div className="relative w-full h-full overflow-hidden shadow-2xl">
-            <Image
-              src="/others-img/Login.webp"
-              alt="Auth Image"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-[#0e163d]/30"></div>
+            <div className="absolute inset-0 z-0">
+               <Image
+                 src="/others-img/Login.webp"
+                 alt="Auth Image"
+                 fill
+                 sizes="(max-width: 768px) 100vw, 50vw"
+                 className="object-cover"
+                 priority
+               />
+               <div className="absolute inset-0 bg-[#0e163d]/30 backdrop-blur-[3px]"></div>
+            </div>
 
-            <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
-              <h2 className="text-4xl font-bold mb-4 drop-shadow-lg text-[#0ba6ff]  font-serif">Hello, Friend!</h2>
-              <p className="text-[18px] text-yellow-400 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
+            <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 z-10 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
+              <h2 className="text-4xl font-bold mb-4 drop-shadow-lg text-[#0ba6ff] font-serif">Hello, Friend!</h2>
+              <p className="text-[18px] text-yellow-300 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
               <button
                 onClick={() => { setIsLogin(false); setIsOtpStep(false); }}
-                className="border-[2.5px] hover:border-white border-[#0ba6ff] rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0ba6ff] hover:text-white transition-all uppercase tracking-wider shadow-lg text-[#0ba6ff] cursor-pointer"
+                className="bg-[#0ba6ff] text-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0092e6] transition-all uppercase tracking-wider shadow-lg cursor-pointer border border-[#0ba6ff]"
               >
                 Sign Up
               </button>
             </div>
 
-            <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 ${!isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
+            <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 z-10 ${!isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl text-[#0ba6ff] font-bold mb-4 drop-shadow-lg font-serif">Welcome Back!</h2>
-              <p className="text-[18px] text-yellow-400 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
+              <p className="text-[18px] text-white/90 mb-10 drop-shadow-md max-w-[280px]">To keep connected with us please login with your personal info.</p>
               <button
                 onClick={() => { setIsLogin(true); setIsOtpStep(false); }}
-                className="border-[2.5px] hover:border-white border-[#0ba6ff] rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0ba6ff] hover:text-white transition-all uppercase tracking-wider shadow-lg text-[#0ba6ff] cursor-pointer"
+                className="bg-[#0ba6ff] text-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0092e6] transition-all uppercase tracking-wider shadow-lg cursor-pointer border border-[#0ba6ff]"
               >
                 Sign In
               </button>

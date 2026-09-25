@@ -2,10 +2,10 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2, XCircle } from "lucide-react";
+import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2, XCircle, Banknote } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder, deleteFailedOrder } from "@/app/actions/orders";
 import { getUserAddresses } from "@/app/actions/addresses";
@@ -29,6 +29,12 @@ export default function CheckoutPage() {
   const [mode, setMode] = useState(null);
   const [buyNowItem, setBuyNowItem] = useState(null);
   const [isPageInitialized, setIsPageInitialized] = useState(false);
+  
+  const [liveDiscounts, setLiveDiscounts] = useState({});
+  
+  // FIXED: No default payment method selected
+  const [paymentMethod, setPaymentMethod] = useState(""); 
+  const gtmTriggered = useRef(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -68,15 +74,60 @@ export default function CheckoutPage() {
     checkAuth();
   }, [router]);
 
+  const activeItems = mode === 'buynow' && buyNowItem ? [buyNowItem] : cartItems;
+  const activeSubtotal = mode === 'buynow' && buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : subtotal;
+
+  useEffect(() => {
+    const fetchLiveDiscounts = async () => {
+      if (!activeItems || activeItems.length === 0) return;
+      try {
+        const productIds = [...new Set(activeItems.map(item => item.id))];
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('products')
+          .select('id, online_cash_off')
+          .in('id', productIds);
+          
+        if (data && !error) {
+          const discountMap = {};
+          data.forEach(p => {
+            discountMap[p.id] = Number(p.online_cash_off || 0);
+          });
+          setLiveDiscounts(discountMap);
+        }
+      } catch (err) {
+        console.error("Failed to fetch discounts", err);
+      }
+    };
+    fetchLiveDiscounts();
+  }, [activeItems]);
+
+  useEffect(() => {
+    if (isPageInitialized && !isAuthChecking && isLoaded && activeItems.length > 0 && !gtmTriggered.current) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "begin_checkout",
+        ecommerce: {
+          currency: "INR",
+          value: activeSubtotal,
+          items: activeItems.map(item => ({
+            item_id: item.variantId || item.id,
+            item_name: item.title,
+            price: item.price,
+            quantity: item.quantity
+          }))
+        }
+      });
+      gtmTriggered.current = true;
+    }
+  }, [isPageInitialized, isAuthChecking, isLoaded, activeItems, activeSubtotal]);
+
   useEffect(() => {
     if (mode === 'buynow') return; 
     if (isLoaded && cartItems.length === 0 && !isAuthChecking && !isSuccess) {
       router.push("/cart");
     }
   }, [isLoaded, cartItems, router, isAuthChecking, isSuccess, mode]);
-
-  const activeItems = mode === 'buynow' && buyNowItem ? [buyNowItem] : cartItems;
-  const activeSubtotal = mode === 'buynow' && buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : subtotal;
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -96,8 +147,43 @@ export default function CheckoutPage() {
         await supabase.from('cart_items').delete().eq('user_id', user.id);
       }
       clearCart();
-    } catch (err) {
-    }
+    } catch (err) {}
+  };
+
+  const totalOnlineCashOff = activeItems.reduce((acc, item) => {
+    const cashOff = liveDiscounts[item.id] !== undefined 
+      ? liveDiscounts[item.id] 
+      : Number(item.online_cash_off || item.onlineCashOff || 0);
+    return acc + (cashOff * Number(item.quantity || 1));
+  }, 0);
+
+  const codCharge = 10;
+  let frontendTotal = activeSubtotal;
+
+  if (paymentMethod === 'online') {
+    frontendTotal = Math.max(0, frontendTotal - totalOnlineCashOff);
+  } else if (paymentMethod === 'cod') {
+    frontendTotal += codCharge;
+  }
+
+  const pushPurchaseEvent = (orderId, finalAmount, method) => {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "purchase",
+      ecommerce: {
+        transaction_id: orderId,
+        currency: "INR",
+        value: finalAmount,
+        tax: 0,
+        shipping: method === 'cod' ? 10 : 0,
+        items: activeItems.map(item => ({
+          item_id: item.variantId || item.id,
+          item_name: item.title,
+          price: item.price,
+          quantity: item.quantity
+        }))
+      }
+    });
   };
 
   if (!isPageInitialized || isAuthChecking || !isLoaded || (mode !== 'buynow' && cartItems.length === 0 && !isSuccess)) {
@@ -108,13 +194,35 @@ export default function CheckoutPage() {
     );
   }
 
-  const frontendTotal = activeSubtotal;
-
   const handleCheckout = (e) => {
     e.preventDefault();
+    
+    // NEW: Validation to ensure payment method is selected
+    if (!paymentMethod) {
+      setErrorMsg("Please select a Payment Method (Online Payment or COD) before placing the order.");
+      setShowErrorPopup(true);
+      return;
+    }
+
     const formData = new FormData(e.target);
     setErrorMsg("");
     setShowErrorPopup(false);
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "add_payment_info",
+      ecommerce: {
+        currency: "INR",
+        value: frontendTotal,
+        payment_type: paymentMethod === 'online' ? "Online Payment" : "COD",
+        items: activeItems.map(item => ({
+          item_id: item.variantId || item.id,
+          item_name: item.title,
+          price: item.price,
+          quantity: item.quantity
+        }))
+      }
+    });
 
     startTransition(async () => {
       let createdOrderId = null; 
@@ -142,7 +250,7 @@ export default function CheckoutPage() {
 
         const orderPayload = {
           totalAmount: frontendTotal,
-          paymentMethod: "online",
+          paymentMethod: paymentMethod, 
           customer_phone: formData.get('phone'),
           address: finalAddress,
           items: activeItems.map(item => ({
@@ -154,7 +262,7 @@ export default function CheckoutPage() {
 
         const dbResult = await createOrder({
           ...orderPayload,
-          paymentStatus: 'Pending',
+          paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Pending',
           status: 'pending'
         });
 
@@ -163,6 +271,20 @@ export default function CheckoutPage() {
         }
 
         createdOrderId = dbResult.orderId || dbResult.id || dbResult.order?.id;
+
+        if (paymentMethod === 'cod') {
+          pushPurchaseEvent(createdOrderId, frontendTotal, paymentMethod);
+          if (mode === 'buynow') {
+            sessionStorage.removeItem('buyNowItem');
+          } else {
+            await clearBackendCart();
+          }
+          setIsSuccess(true);
+          setTimeout(() => {
+            router.push("/success");
+          }, 2500);
+          return;
+        }
 
         const res = await loadRazorpayScript();
         if (!res) {
@@ -200,6 +322,7 @@ export default function CheckoutPage() {
               );
               
               if (verifyResult.success) {
+                pushPurchaseEvent(createdOrderId, frontendTotal, paymentMethod);
                 if (mode === 'buynow') {
                   sessionStorage.removeItem('buyNowItem');
                 } else {
@@ -229,7 +352,7 @@ export default function CheckoutPage() {
         });
 
       } catch (error) {
-        if (createdOrderId) {
+        if (createdOrderId && paymentMethod === 'online') {
           await deleteFailedOrder(createdOrderId);
         }
         setErrorMsg(error.message || "Failed to process checkout. Please try again.");
@@ -262,13 +385,13 @@ export default function CheckoutPage() {
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5">
               <XCircle size={40} className="text-red-500" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Notice</h2>
             <p className="text-gray-600 mb-8 text-[15px] leading-relaxed">{errorMsg}</p>
             <button 
               onClick={() => setShowErrorPopup(false)}
-              className="w-full bg-black text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors shadow-sm"
+              className="w-full bg-[#00c3ff] text-white font-bold py-3 rounded-xl hover:bg-[#00baef] transition-colors shadow-sm"
             >
-              Try Again
+              Okay
             </button>
           </div>
         </div>
@@ -360,14 +483,44 @@ export default function CheckoutPage() {
                 </h2>
 
                 <div className="space-y-4">
-                  <label className="flex flex-col p-5 border rounded-xl cursor-default transition-all border-[#00c3ff] bg-[#00c3ff]/5">
+                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
                     <div className="flex items-center mb-2">
-                      <input type="radio" name="payment" value="online" checked readOnly className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300" />
+                      <input 
+                        type="radio" 
+                        name="payment" 
+                        value="online" 
+                        checked={paymentMethod === 'online'} 
+                        onChange={() => setPaymentMethod('online')} 
+                        className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" 
+                      />
                       <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
                       <span className="font-bold text-gray-900 text-lg">Online Payment</span>
                     </div>
-                    <p className="ml-11 text-sm text-gray-600 font-medium">
+                    <p className="ml-11 text-sm text-gray-600 font-medium mb-1">
                       Pay securely via UPI, Credit/Debit Card, Netbanking, etc.
+                    </p>
+                    {paymentMethod === 'online' && totalOnlineCashOff > 0 && (
+                      <p className="ml-11 text-sm font-bold text-green-600 animate-in fade-in duration-300">
+                        ✨ Extra ₹{totalOnlineCashOff.toLocaleString('en-IN')} OFF applied for Online Payment!
+                      </p>
+                    )}
+                  </label>
+
+                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <div className="flex items-center mb-2">
+                      <input 
+                        type="radio" 
+                        name="payment" 
+                        value="cod" 
+                        checked={paymentMethod === 'cod'} 
+                        onChange={() => setPaymentMethod('cod')} 
+                        className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" 
+                      />
+                      <Banknote className="ml-4 mr-3 text-[#00c3ff]" size={24} />
+                      <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
+                    </div>
+                    <p className="ml-11 text-sm text-gray-600 font-medium">
+                      Pay at your doorstep. <span className="font-bold text-red-500">Includes ₹10 Convenience Charge.</span>
                     </p>
                   </label>
                 </div>
@@ -415,6 +568,19 @@ export default function CheckoutPage() {
                     <span>Subtotal</span>
                     <span className="font-medium text-gray-900">₹{activeSubtotal.toLocaleString('en-IN')}</span>
                   </div>
+                  
+                  {paymentMethod === 'online' && totalOnlineCashOff > 0 && (
+                    <div className="flex justify-between text-green-600 font-medium animate-in fade-in duration-300">
+                      <span>Online Payment Discount</span>
+                      <span>- ₹{totalOnlineCashOff.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  {paymentMethod === 'cod' && (
+                    <div className="flex justify-between text-red-500 font-medium animate-in fade-in duration-300">
+                      <span>COD Convenience Charge</span>
+                      <span>+ ₹{codCharge.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-center border-t border-gray-200 pt-5 mb-8">
@@ -426,7 +592,7 @@ export default function CheckoutPage() {
 
                 <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer bg-[#00c3ff] hover:bg-[#00baef]">
                   {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {(isPending || isSuccess) ? "Processing..." : "Pay Now"}
+                  {(isPending || isSuccess) ? "Processing..." : "Place Order"}
                 </button>
               </div>
             </div>

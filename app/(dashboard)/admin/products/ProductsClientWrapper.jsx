@@ -2,14 +2,15 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
-import { deleteProduct } from '@/app/actions/admin';
+import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check, Star, Home } from "lucide-react";
+import { deleteProduct, toggleProductHomepage } from '@/app/actions/admin';
 import { useRouter } from 'next/navigation';
 
 export default function ProductsClientWrapper({ initialProducts, categories }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedId, setCopiedId] = useState(null);
@@ -39,6 +40,18 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
     });
   };
 
+  // Toggle Homepage Display Handler
+  const handleToggleHomepage = (productId, currentStatus) => {
+    setTogglingId(productId);
+    startTransition(async () => {
+      const res = await toggleProductHomepage(productId, currentStatus);
+      if (res?.error) {
+        alert("Failed to update homepage status: " + res.error);
+      }
+      setTogglingId(null);
+    });
+  };
+
   const handleCopy = (id) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
@@ -46,7 +59,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   };
 
   const formattedProducts = products.map(product => {
-    const mainVariant = product.product_variants?.[0];
     const totalStock = product.product_variants?.reduce((sum, v) => sum + (v.inventory_count || 0), 0) || 0;
     const basePrice = product.base_price || 0;
 
@@ -55,11 +67,12 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       id: product.id,
       slug: product.slug || product.id,
       name: product.title,
-      sku: mainVariant?.sku || 'N/A',
+      sku: product.sku || product.product_variants?.[0]?.sku || 'N/A',
       price: basePrice,
       stock: totalStock,
       stockStatus: totalStock > 20 ? 'In Stock' : totalStock > 0 ? `Low Stock (${totalStock})` : 'Out of Stock',
-      status: !product.is_active ? 'Draft' : 'Published'
+      status: !product.is_active ? 'Draft' : 'Published',
+      showOnHomepage: product.show_on_homepage || false // Fetching homepage status
     };
   });
 
@@ -120,7 +133,12 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                         }
                       </div>
                       <div>
-                        <p className="font-bold text-[13px] text-gray-900 mb-0.5">{product.name}</p>
+                        <p className="font-bold text-[13px] text-gray-900 mb-0.5 flex items-center gap-2">
+                          {product.name}
+                          {product.showOnHomepage && (
+                            <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">On Homepage</span>
+                          )}
+                        </p>
                         <p className="text-[11px] text-gray-500">SKU: {product.sku}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <p className="text-[10px] text-gray-400 font-mono">ID: {product.id}</p>
@@ -150,6 +168,25 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-4">
+                      
+                      {/* Homepage Display Toggle Button */}
+                      <button
+                        onClick={() => handleToggleHomepage(product.id, product.showOnHomepage)}
+                        disabled={togglingId === product.id}
+                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.showOnHomepage ? 'text-blue-600 hover:text-gray-400' : 'text-gray-400 hover:text-blue-600'}`}
+                        title={product.showOnHomepage ? "Remove from Homepage" : "Add to Homepage"}
+                      >
+                        {togglingId === product.id ? <Loader2 size={16} className="animate-spin text-blue-500" /> : <Home size={16} strokeWidth={2.5} />}
+                      </button>
+
+                      <Link
+                        href={`/admin/products/reviews/${product.slug}`}
+                        className="text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer"
+                        title="Manage Fake/Verified Reviews"
+                      >
+                        <Star size={16} strokeWidth={2.5} />
+                      </Link>
+                      
                       <Link
                         href={`/admin/products/edit/${product.slug}`}
                         className="text-gray-400 hover:text-[#5a4bda] transition-colors cursor-pointer"
@@ -157,6 +194,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       >
                         <Edit2 size={16} strokeWidth={2.5} />
                       </Link>
+                      
                       <button
                         disabled={deletingId === product.id}
                         onClick={() => confirmDelete(product.id)}

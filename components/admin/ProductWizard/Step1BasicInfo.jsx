@@ -24,7 +24,8 @@ export default function Step1BasicInfo() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Updated: Changed to 3 columns to include Product Level SKU (PDF Requirement) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-[13px] font-bold text-gray-800 mb-2">Product Type <span className="text-red-500">*</span></label>
             <input
@@ -45,12 +46,22 @@ export default function Step1BasicInfo() {
               className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
             />
           </div>
+          <div>
+            <label className="block text-[13px] font-bold text-gray-800 mb-2">Product SKU <span className="text-red-500">*</span></label>
+            <input
+              type="text"
+              placeholder="e.g. SRJ-0001"
+              value={formData.sku || ""}
+              onChange={e => updateFormData({ sku: e.target.value })}
+              className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-blue-50"
+            />
+          </div>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="block text-[13px] font-bold text-gray-800">Short Description <span className="text-red-500">*</span></label>
-            <span className="text-[11px] font-bold text-gray-400">{formData.shortDesc.length} / 150</span>
+            <span className="text-[11px] font-bold text-gray-400">{formData.shortDesc?.length || 0} / 150</span>
           </div>
           <textarea
             rows="3"

@@ -207,11 +207,25 @@ export default function ShopStyleClient() {
                 const hasDiscount = salePrice > 0 && salePrice < basePrice;
                 const displayPrice = hasDiscount ? salePrice : basePrice;
 
+                // NEW: Calculate Discount Percentage
+                let discountPercentage = 0;
+                if (hasDiscount) {
+                  discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
+                }
+
                 const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
                 return (
                   <Link key={product.id} href={`/product/${product.slug}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer relative">
                     <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
+                      
+                      {/* NEW: Discount Percentage Tag */}
+                      {hasDiscount && (
+                        <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 tracking-wide">
+                          {discountPercentage}% OFF
+                        </div>
+                      )}
+
                       <img
                         src={imageUrl}
                         alt={product.title}
@@ -238,7 +252,7 @@ export default function ShopStyleClient() {
                         ₹{displayPrice.toLocaleString('en-IN')}
                       </p>
                       {hasDiscount && (
-                        <p className="text-[14px] font-medium text-black line-through">
+                        <p className="text-[14px] font-medium text-gray-400 line-through">
                           ₹{basePrice.toLocaleString('en-IN')}
                         </p>
                       )}

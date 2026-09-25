@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -8,17 +8,64 @@ import { useCart } from "@/context/CartContext";
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cartItems, updateQuantity, removeFromCart, subtotal } = useCart();
+  const gtmViewCartTriggered = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      
+      // GTM: view_cart event
+      if (cartItems && cartItems.length > 0 && !gtmViewCartTriggered.current) {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "view_cart",
+          ecommerce: {
+            currency: "INR",
+            value: subtotal,
+            items: cartItems.map(item => ({
+              item_id: item.variantId || item.id,
+              item_name: item.title,
+              price: item.price,
+              quantity: item.quantity
+            }))
+          }
+        });
+        gtmViewCartTriggered.current = true;
+      }
     } else {
       document.body.style.overflow = "auto";
+      gtmViewCartTriggered.current = false; // Reset when drawer closes
     }
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [isOpen]);
+  }, [isOpen, cartItems, subtotal]);
+
+  // Handle Remove from Cart with GTM
+  const handleRemoveItem = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const itemId = item.variantId || item.id;
+    
+    // GTM: remove_from_cart event
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "remove_from_cart",
+      ecommerce: {
+        currency: "INR",
+        value: Number(item.price) * Number(item.quantity),
+        items: [{
+          item_id: itemId,
+          item_name: item.title,
+          price: item.price,
+          quantity: item.quantity
+        }]
+      }
+    });
+
+    removeFromCart(itemId);
+  };
 
   return (
     <>
@@ -61,9 +108,7 @@ export default function CartDrawer({ isOpen, onClose }) {
           ) : (
             <div className="space-y-6">
               {cartItems.map((item) => {
-
                 const itemId = item.variantId || item.id;
-
                 return (
                   <div key={itemId} className="flex gap-4 group">
                     <div className="relative w-[85px] h-[110px] rounded-xl overflow-hidden border border-gray-200 shrink-0 bg-gray-50">
@@ -86,14 +131,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                             </h3>
                           </Link>
 
-
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              removeFromCart(itemId);
-                            }}
+                            onClick={(e) => handleRemoveItem(e, item)}
                             className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
                           >
                             <Trash2 size={18} />
@@ -111,14 +151,13 @@ export default function CartDrawer({ isOpen, onClose }) {
                           ₹{Number(item.price).toLocaleString('en-IN')}
                         </p>
 
-
                         <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 h-[34px]">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              updateQuantity(itemId, item.quantity - 1);
+                              updateQuantity(itemId, Math.max(1, item.quantity - 1));
                             }}
                             className="w-8 h-full flex items-center justify-center text-gray-500 hover:text-black transition-colors cursor-pointer"
                           >

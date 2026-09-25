@@ -3,6 +3,7 @@ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import NavigationLoader from "@/components/ui/NavigationLoader"; 
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
@@ -19,6 +20,9 @@ export default async function PublicLayout({
       <CartProvider>
         <div className="flex flex-col min-h-screen bg-white w-full overflow-x-hidden">
           <Header initialUser={user as any} />
+        
+          <NavigationLoader /> 
+          
           <main className="flex-grow w-full">
             {children}
           </main>

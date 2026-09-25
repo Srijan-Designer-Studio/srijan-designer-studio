@@ -6,7 +6,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 import { submitKidsForm } from "@/app/actions/kids";
 import CustomStylesPopup from "@/components/customPopUp/CustomStylesPopup";
 
@@ -88,6 +88,16 @@ export default function KidsWearClient() {
       clearTimeout(timer);
     };
   }, []);
+
+  // Form Submission Animation Trigger
+  useEffect(() => {
+    if (formStatus) {
+      gsap.fromTo('.form-feedback',
+        { y: -20, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }
+      );
+    }
+  }, [formStatus]);
 
   useGSAP(() => {
     gsap.utils.toArray('.reveal-up').forEach(elem => {
@@ -302,12 +312,6 @@ export default function KidsWearClient() {
           <div className="reveal-up bg-white p-4 text-black rounded-2xl shadow-xl">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
-            {formStatus && (
-              <div className={`p-3 rounded-md mb-4 text-sm font-bold ${formStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {formStatus.message}
-              </div>
-            )}
-
             <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
               <input type="hidden" name="sourcePage" value="Custom Kids Wear" />
 
@@ -362,7 +366,15 @@ export default function KidsWearClient() {
                 <textarea name="message" className="w-full p-4 h-[80px] border border-gray-400 rounded-lg focus:border-black focus:outline-none resize-none transition-colors"></textarea>
               </div>
               
-              <button type="submit" disabled={isPending} className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full cursor-pointer">
+              {/* Message moved here! Just above the submit button */}
+              {formStatus && (
+                <div className={`form-feedback flex items-center gap-3 p-4 mt-2 rounded-xl shadow-sm border ${formStatus.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                  {formStatus.type === 'success' && <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />}
+                  <p className="font-semibold text-[15px]">{formStatus.message}</p>
+                </div>
+              )}
+
+              <button type="submit" disabled={isPending} className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 mt-2 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full cursor-pointer">
                 {isPending ? 'SUBMITTING...' : 'SUBMIT NOW'}
               </button>
               <p className="text-[10px] text-center text-gray-500 mt-1">

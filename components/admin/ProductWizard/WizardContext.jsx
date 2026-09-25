@@ -43,11 +43,12 @@ export function WizardProvider({ children, initialData }) {
   const totalSteps = 10;
 
   const defaultData = {
-    title: "", productType: "Saree", brand: "Srijan Fashion", shortDesc: "",
+    title: "", productType: "Saree", brand: "Srijan Fashion", sku: "", onlineCashOff: "", shortDesc: "", 
     description: "", materialCare: "", highlights: "", additionalInfo: "",
     department: "Women", collections: [],
     images: [],
-    variants: [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
+    sizeChartImage: null, 
+    variants: [{ id: Date.now(), size: "Free Size", color: "", stock: "10", lowStock: "5", barcode: "" }],
     basePrice: "", salePrice: "",
     purchaseType: "Single Product", 
     components: [],
@@ -64,12 +65,14 @@ export function WizardProvider({ children, initialData }) {
       setFormData((prev) => ({
         ...prev,
         ...initialData,
+        onlineCashOff: initialData.online_cash_off || "", // Load existing discount from DB
         collections: parseArrayData(initialData.collections),
         faqs: parseArrayData(initialData.faqs),
         variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
         components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
         productAddons: initialData.productAddons ? (typeof initialData.productAddons === 'string' ? JSON.parse(initialData.productAddons) : initialData.productAddons) : prev.productAddons,
-        images: Array.isArray(initialData.images) ? initialData.images : []
+        images: Array.isArray(initialData.images) ? initialData.images : [],
+        sizeChartImage: initialData.size_chart_image ? { preview: initialData.size_chart_image } : null 
       }));
     }
   }, [initialData]);
@@ -87,8 +90,9 @@ export function WizardProvider({ children, initialData }) {
     try {
       const submitData = new FormData();
 
+      // FIXED: Added "onlineCashOff" to the textFields array here
       const textFields = [
-        "title", "productType", "brand", "shortDesc", "description", "materialCare", 
+        "title", "productType", "brand", "sku", "onlineCashOff", "shortDesc", "description", "materialCare", 
         "highlights", "additionalInfo", "department", "basePrice", "salePrice", "purchaseType", "weight", 
         "length", "width", "height", "shippingClass", "estimatedDelivery", 
         "shippingPolicy", "returnPolicy", "seoTitle", "seoSlug", "metaDesc", 
@@ -123,6 +127,16 @@ export function WizardProvider({ children, initialData }) {
           submitData.append(`existing_image_primary_${idx}`, img.isPrimary);
         }
       });
+
+      if (formData.sizeChartImage) {
+        if (formData.sizeChartImage.file) {
+          submitData.append("size_chart_file", formData.sizeChartImage.file);
+        } else if (formData.sizeChartImage.preview) {
+          submitData.append("existing_size_chart_url", formData.sizeChartImage.preview);
+        }
+      } else {
+        submitData.append("remove_size_chart", "true"); 
+      }
 
       let result;
       if (formData.id) {

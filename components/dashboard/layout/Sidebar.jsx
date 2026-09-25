@@ -9,7 +9,7 @@ import {
   LayoutDashboard, User, ShoppingBag, MapPin,
   Heart, Star, Lock, LogOut, Package, Users,
   BarChart, Tag, Search, Home, FileText, TrendingUp,
-  Menu, X
+  Menu, X, ShieldAlert // Added ShieldAlert for Policies
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -61,6 +61,7 @@ export default function Sidebar() {
     { name: 'Custom Requests', href: '/admin/custom-requests', icon: Star },
     { name: 'Blogs', href: '/admin/blogs', icon: FileText },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
+    { name: 'Policies', href: '/admin/policies', icon: ShieldAlert }, // NEW: Policies Link
     { name: 'Reports', href: '/admin/reports', icon: BarChart },
     { name: 'Search Keywords', href: '/admin/keywords', icon: Search },
   ];

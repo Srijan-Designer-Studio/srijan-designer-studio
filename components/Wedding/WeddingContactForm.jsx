@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -47,15 +48,14 @@ export default function WeddingContactForm() {
     const result = await sendWeddingInquiry(formData);
 
     if (result.success) {
-      setFeedback({ type: 'success', message: result.message });
+      setFeedback({ type: 'success', message: 'Request sent successfully! We will contact you soon.' });
       formRef.current.reset();
     } else {
-      setFeedback({ type: 'error', message: result.error });
+      setFeedback({ type: 'error', message: result.error || 'Failed to send request.' });
     }
     
     setIsSubmitting(false);
-    
-    setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
+    setTimeout(() => setFeedback({ type: '', message: '' }), 5000);
   };
 
   return (
@@ -88,12 +88,6 @@ export default function WeddingContactForm() {
               <h3 className="text-2xl font-normal text-black mb-6 text-center">
                 Fill In the Form To Get Started
               </h3>
-
-              {feedback.message && (
-                <div className={`mb-4 p-3 rounded-md text-sm font-medium ${feedback.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                  {feedback.message}
-                </div>
-              )}
 
               <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input type="hidden" name="sourcePage" value="Wedding Contact" />
@@ -178,11 +172,19 @@ export default function WeddingContactForm() {
                   ></textarea>
                 </div>
 
+                {feedback.type && (
+                  <div className={`flex items-center gap-2 p-3 mt-1 rounded-lg border ${feedback.type === 'success' ? 'bg-[#f0fdf4] border-[#bbf7d0] text-[#166534]' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                    {feedback.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#16a34a] shrink-0" />}
+                    <p className="font-semibold text-[14px]">{feedback.message}</p>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#00c3ff] text-white text-sm sm:text-base font-bold px-8 py-3 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full"
+                  className="bg-[#00c3ff] flex justify-center items-center gap-2 text-white text-sm sm:text-base font-bold px-8 py-3 mt-1 rounded-full transition-all hover:bg-opacity-90 hover:shadow-md w-full disabled:opacity-70"
                 >
+                  {isSubmitting && <Loader2 size={18} className="animate-spin" />}
                   {isSubmitting ? 'SUBMITTING...' : 'SUBMIT NOW'}
                 </button>
 

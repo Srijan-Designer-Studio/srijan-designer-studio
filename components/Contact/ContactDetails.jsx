@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { submitContactMessage } from "@/app/actions/forms";
+import { submitCustomRequest } from "@/app/actions/forms"; // Updated Action
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,13 +38,21 @@ export default function ContactDetails() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setStatus({ type: '', message: '' });
+        
         const formData = new FormData(e.target);
+        formData.append("sourcePage", "Contact Us");
+        formData.append("outfitType", "General Inquiry"); 
+        formData.append("budget", "N/A"); 
+        
+        const msg = formData.get("message");
+        if (msg) formData.append("details", msg);
 
         startTransition(async () => {
             try {
-                await submitContactMessage(formData);
-                setStatus({ type: 'success', message: 'Thank you! Your message has been sent.' });
+                await submitCustomRequest(formData);
+                setStatus({ type: 'success', message: 'Thank you! Your message has been sent successfully.' });
                 e.target.reset();
+                setTimeout(() => setStatus({ type: '', message: '' }), 5000);
             } catch (error) {
                 setStatus({ type: 'error', message: 'Failed to send message. Please try again.' });
             }
@@ -109,43 +117,37 @@ export default function ContactDetails() {
                         Drop Your Message<br />Here
                     </h2>
 
-                    {status.type === 'success' ? (
-                        <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in duration-500">
-                            <CheckCircle2 size={60} className="text-green-500 mb-4" />
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Message Sent!</h3>
-                            <p className="text-gray-600">We'll get back to you as soon as possible.</p>
-                            <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] font-medium hover:underline">
-                                Send another message
-                            </button>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label className="block text-[14px] text-gray-700 mb-1.5">Full Name*</label>
+                            <input name="name" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
                         </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div>
-                                <label className="block text-[14px] text-gray-700 mb-1.5">Full Name*</label>
-                                <input name="name" required type="text" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                            </div>
-                            <div>
-                                <label className="block text-[14px] text-gray-700 mb-1.5">Phone Number*</label>
-                                <input name="phone" required type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                            </div>
-                            <div>
-                                <label className="block text-[14px] text-gray-700 mb-1.5">Email Address*</label>
-                                <input name="email" required type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
-                            </div>
-                            <div>
-                                <label className="block text-[14px] text-gray-700 mb-1.5">Your Message*</label>
-                                <textarea name="message" required rows="4" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
-                            </div>
+                        <div>
+                            <label className="block text-[14px] text-gray-700 mb-1.5">Phone Number*</label>
+                            <input name="phone" required type="tel" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                        </div>
+                        <div>
+                            <label className="block text-[14px] text-gray-700 mb-1.5">Email Address*</label>
+                            <input name="email" required type="email" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors" />
+                        </div>
+                        <div>
+                            <label className="block text-[14px] text-gray-700 mb-1.5">Your Message*</label>
+                            <textarea name="message" required rows="4" className="w-full border border-gray-400 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00c3ff] transition-colors resize-none"></textarea>
+                        </div>
 
-                            {status.type === 'error' && <p className="text-red-500 text-sm">{status.message}</p>}
+                        {status.type && (
+                            <div className={`flex items-center gap-2 p-3 mt-1 rounded-lg border ${status.type === 'success' ? 'bg-[#f0fdf4] border-[#bbf7d0] text-[#166534]' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                                {status.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#16a34a] shrink-0" />}
+                                <p className="font-semibold text-[14px]">{status.message}</p>
+                            </div>
+                        )}
 
-                            <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-medium text-[17px] py-3 rounded-full transition-colors mt-6 shadow-md shadow-[#00c3ff]/30 disabled:opacity-70">
-                                {isPending && <Loader2 size={20} className="animate-spin" />}
-                                {isPending ? "Sending..." : "Submit"}
-                            </button>
-                            <p className="text-[11px] text-center text-gray-400 mt-4">Your profile name will be shared. Never submit passwords.</p>
-                        </form>
-                    )}
+                        <button disabled={isPending} type="submit" className="w-full flex justify-center items-center gap-2 bg-[#00c3ff] hover:bg-[#00abe0] text-white font-medium text-[17px] py-3 rounded-full transition-colors mt-2 shadow-md shadow-[#00c3ff]/30 disabled:opacity-70 cursor-pointer">
+                            {isPending && <Loader2 size={20} className="animate-spin" />}
+                            {isPending ? "Sending..." : "Submit"}
+                        </button>
+                        <p className="text-[11px] text-center text-gray-400 mt-2">Your profile name will be shared. Never submit passwords.</p>
+                    </form>
                 </div>
 
             </div>

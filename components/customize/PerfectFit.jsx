@@ -72,8 +72,9 @@ export default function PerfectFit() {
     startTransition(async () => {
       try {
         await submitCustomRequest(formData);
-        setStatus({ type: 'success', message: 'Request submitted! We will call you at the selected time.' });
+        setStatus({ type: 'success', message: 'Request sent successfully! We will contact you soon.' });
         e.target.reset();
+        setTimeout(() => setStatus({ type: '', message: '' }), 5000);
       } catch (error) {
         setStatus({ type: 'error', message: 'Failed to submit request. Please try again.' });
       }
@@ -149,79 +150,73 @@ export default function PerfectFit() {
           <div className="pf-form-card w-full max-w-lg bg-white rounded-2xl shadow-xl p-8">
             <h3 className="text-2xl font-normal text-black mb-6 text-center">Fill In the Form To Get Started</h3>
 
-            {status.type === 'success' ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500">
-                <CheckCircle2 size={50} className="text-[#00c3ff] mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Request Received!</h3>
-                <p className="text-gray-600 text-sm">{status.message}</p>
-                <button onClick={() => setStatus({ type: '', message: '' })} className="mt-6 text-[#00c3ff] text-sm font-medium hover:underline">
-                  Submit another request
-                </button>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <input type="hidden" name="sourcePage" value="Perfect Fit" />
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Full Name*</label>
+                <input name="name" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <input type="hidden" name="sourcePage" value="Perfect Fit" />
 
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Email Address*</label>
+                <input name="email" required type="email" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Phone Number*</label>
+                <input name="phone" required type="tel" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Full Name*</label>
-                  <input name="name" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                  <label className="text-[14px] text-gray-700">Outfit Type*</label>
+                  <input name="outfitType" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
-
                 <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Email Address*</label>
-                  <input name="email" required type="email" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                  <label className="text-[14px] text-gray-700">Budget Range*</label>
+                  <input name="budget" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Phone Number*</label>
-                  <input name="phone" required type="tel" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
+                  <label className="text-[14px] text-gray-700">Select date for call back*</label>
+                  <input name="callDate" required type="date" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[14px] text-gray-700">Outfit Type*</label>
-                    <input name="outfitType" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[14px] text-gray-700">Budget Range*</label>
-                    <input name="budget" required type="text" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[14px] text-gray-700">Select date for call back*</label>
-                    <input name="callDate" required type="date" className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700" />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[14px] text-gray-700">Select time for call back*</label>
-                    <input
-                      name="callTime"
-                      type="time"
-                      required
-                      min="12:00"
-                      max="21:00"
-                      onChange={handleTimeChange}
-                      className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700"
-                    />
-                    {timeError && <p className="text-red-500 text-xs mt-1">{timeError}</p>}
-                  </div>
-                </div>
-
                 <div className="flex flex-col gap-1">
-                  <label className="text-[14px] text-gray-700">Message</label>
-                  <textarea name="details" className="w-full h-[80px] p-4 border border-gray-400 rounded-lg outline-none focus:border-black transition-colors resize-none"></textarea>
+                  <label className="text-[14px] text-gray-700">Select time for call back*</label>
+                  <input
+                    name="callTime"
+                    type="time"
+                    required
+                    min="12:00"
+                    max="21:00"
+                    onChange={handleTimeChange}
+                    className="w-full h-[45px] border border-gray-400 rounded-lg px-4 outline-none focus:border-black transition-colors text-gray-700"
+                  />
+                  {timeError && <p className="text-red-500 text-xs mt-1">{timeError}</p>}
                 </div>
+              </div>
 
-                {status.type === 'error' && <p className="text-red-500 text-xs">{status.message}</p>}
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] text-gray-700">Message</label>
+                <textarea name="details" className="w-full h-[80px] p-4 border border-gray-400 rounded-lg outline-none focus:border-black transition-colors resize-none"></textarea>
+              </div>
 
-                <button disabled={isPending} type="submit" className="w-full h-[50px] flex justify-center items-center gap-2 bg-[#6C83F6] hover:bg-[#3C83F6] text-white font-medium rounded-full transition-colors mt-2 shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
-                  {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {isPending ? "SUBMITTING..." : "SUBMIT NOW"}
-                </button>
-                <p className="text-[10px] text-center text-gray-500 mt-1">Your profile name will be shared. Never submit passwords.</p>
-              </form>
-            )}
+              {status.type && (
+                <div className={`flex items-center gap-2 p-3 mt-1 rounded-lg border ${status.type === 'success' ? 'bg-[#f0fdf4] border-[#bbf7d0] text-[#166534]' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                  {status.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#16a34a] shrink-0" />}
+                  <p className="font-semibold text-[14px]">{status.message}</p>
+                </div>
+              )}
+
+              <button disabled={isPending} type="submit" className="w-full h-[50px] flex justify-center items-center gap-2 bg-[#6C83F6] hover:bg-[#3C83F6] text-white font-bold rounded-full transition-colors mt-1 shadow-md disabled:opacity-70 disabled:cursor-not-allowed uppercase">
+                {isPending && <Loader2 size={18} className="animate-spin" />}
+                {isPending ? "SUBMITTING..." : "SUBMIT NOW"}
+              </button>
+              <p className="text-[10px] text-center text-gray-500 mt-1">Your profile name will be shared. Never submit passwords.</p>
+            </form>
           </div>
         </div>
       </section>

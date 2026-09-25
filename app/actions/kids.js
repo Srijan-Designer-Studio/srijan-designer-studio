@@ -1,9 +1,11 @@
 'use server'
 
+import { createAdminClient } from '@/lib/supabase/admin'
 import nodemailer from 'nodemailer'
 
 export async function submitKidsForm(formData) {
   try {
+    const supabase = createAdminClient()
     
     const name = formData.get('name');
     const email = formData.get('email');
@@ -20,14 +22,21 @@ export async function submitKidsForm(formData) {
     }
 
     // ==========================================
-    // Database
+    // Database (Fixed: Replaced Prisma with Supabase)
     // ==========================================
-    
-    await prisma.inquiry.create({
-      data: {
-        name, email, phone, outfitType, budget, date, time, message, sourcePage, createdAt: new Date()
-      }
-    });
+    const { error } = await supabase.from('custom_requests').insert({
+      name: name,
+      email: email,
+      phone: phone,
+      outfit_type: outfitType,
+      budget: budget,
+      callback_date: date,
+      callback_time: time,
+      details: message,
+      source_page: sourcePage
+    })
+
+    if (error) throw new Error(error.message)
     
     // ==========================================
     //  Nodemailer

@@ -11,7 +11,6 @@ export default function Step5Variants() {
       id: Date.now() + Math.random(), 
       size: "", 
       color: "", 
-      sku: "", 
       stock: 0, 
       lowStock: 5, 
       barcode: ""
@@ -24,7 +23,6 @@ export default function Step5Variants() {
     const newVariant = {
       ...variant,
       id: Date.now() + Math.random(),
-      sku: variant.sku ? `${variant.sku}-COPY` : ""
     };
     const currentVariants = formData?.variants || [];
     updateFormData({ variants: [...currentVariants, newVariant] });
@@ -63,7 +61,7 @@ export default function Step5Variants() {
         </div>
         <button
           onClick={addVariant}
-          className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors flex items-center gap-2 shrink-0"
+          className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus size={16} /> Add Variant
         </button>
@@ -76,14 +74,14 @@ export default function Step5Variants() {
               <button
                 onClick={() => duplicateVariant(variant)}
                 title="Duplicate Variant"
-                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-blue-600 hover:border-blue-200 transition-colors"
+                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-blue-600 hover:border-blue-200 transition-colors cursor-pointer"
               >
                 <Copy size={14} />
               </button>
               <button
                 onClick={() => removeVariant(variant.id)}
                 title="Delete Variant"
-                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-red-500 hover:border-red-200 transition-colors"
+                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-red-500 hover:border-red-200 transition-colors cursor-pointer"
               >
                 <Trash2 size={14} />
               </button>
@@ -93,12 +91,13 @@ export default function Step5Variants() {
               Variant {index + 1}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* SKU removed from here to follow PDF guidelines */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
               <div>
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Size <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="e.g. Free Size, XL"
+                  placeholder="e.g. S, M, L"
                   value={variant.size || ""}
                   onChange={(e) => updateVariant(variant.id, 'size', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
@@ -117,18 +116,7 @@ export default function Step5Variants() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">SKU</label>
-                <input
-                  type="text"
-                  placeholder="e.g. SRI-CRIM-S"
-                  value={variant.sku || ""}
-                  onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Quantity</label>
+                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Qty</label>
                 <input
                   type="number"
                   placeholder="0"
@@ -150,10 +138,10 @@ export default function Step5Variants() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Barcode (Optional)</label>
+                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Barcode</label>
                 <input
                   type="text"
-                  placeholder="ISBN, UPC, GTIN"
+                  placeholder="ISBN, UPC"
                   value={variant.barcode || ""}
                   onChange={(e) => updateVariant(variant.id, 'barcode', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"

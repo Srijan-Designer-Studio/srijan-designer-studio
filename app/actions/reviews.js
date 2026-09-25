@@ -9,6 +9,10 @@ async function verifyAdmin() {
   return true;
 }
 
+// ==========================================
+// CUSTOMER SIDE REVIEWS LOGIC (EXISTING)
+// ==========================================
+
 export async function addReview(productId, rating, comment) {
   try {
     const supabase = await createClient()
@@ -26,17 +30,14 @@ export async function addReview(productId, rating, comment) {
       return { success: false, message: 'You must be logged in to leave a review.' }
     }
 
-  
     const { data: variants } = await adminDb
       .from('product_variants')
       .select('id')
       .eq('product_id', productId)
 
-   
     const validItemIds = variants?.map(v => v.id) || []
     validItemIds.push(productId)
 
-    
     const { data: userOrders, error: checkError } = await adminDb
       .from('orders')
       .select(`
@@ -51,7 +52,6 @@ export async function addReview(productId, rating, comment) {
       return { success: false, message: 'Failed to verify purchase history.' }
     }
 
-   
     let hasPurchased = false;
     
     if (userOrders && userOrders.length > 0) {
@@ -72,7 +72,6 @@ export async function addReview(productId, rating, comment) {
       return { success: false, message: 'You can only review products after they have been delivered to you.' }
     }
 
-   
     const { error } = await adminDb.from('reviews').insert({
       product_id: productId,
       user_id: user.id,
@@ -98,7 +97,8 @@ export async function getProductReviews(productId) {
   const adminDb = createAdminClient()
   const { data, error } = await adminDb
     .from('reviews')
-    .select('id, rating, comment, created_at, profiles(first_name, last_name)')
+    // Added user_name here so fake reviews also show up on the frontend
+    .select('id, rating, comment, created_at, user_name, profiles(first_name, last_name)')
     .eq('product_id', productId)
     .eq('is_approved', true)
     .order('created_at', { ascending: false })
@@ -110,13 +110,13 @@ export async function getProductReviews(productId) {
 export async function getAllReviews() {
   const adminDb = createAdminClient()
   
-  
   await verifyAdmin()
 
   const { data, error } = await adminDb
     .from('reviews')
+    // Added user_name here so fake reviews show up in admin global review list
     .select(`
-      id, rating, comment, created_at, is_approved,
+      id, rating, comment, created_at, is_approved, user_name,
       profiles(first_name, last_name),
       products(title, product_images(image_url))
     `)
@@ -133,7 +133,6 @@ export async function getAllReviews() {
 export async function updateReviewStatus(reviewId, isApproved) {
   const adminDb = createAdminClient()
 
-  // CRITICAL FIX: Allow status update
   await verifyAdmin()
 
   if (isApproved === 'deleted') {
@@ -146,4 +145,71 @@ export async function updateReviewStatus(reviewId, isApproved) {
 
   revalidatePath('/admin/reviews')
   return { success: true }
+}
+
+// ==========================================
+// ADMIN PRODUCT-SPECIFIC REVIEWS LOGIC (NEW)
+// ==========================================
+
+export async function getProductBySlug(slug) {
+  const adminDb = createAdminClient();
+  const { data, error } = await adminDb
+    .from('products')
+    .select('id, title, slug, product_images(image_url)')
+    .eq('slug', slug)
+    .single();
+    
+  if (error) return null;
+  return data;
+}
+
+export async function getAdminProductReviews(productId) {
+  const adminDb = createAdminClient();
+  const { data, error } = await adminDb
+    .from('reviews')
+    .select('id, rating, comment, created_at, is_approved, user_name, user_id, profiles(first_name, last_name)') 
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false });
+    
+  if (error) return [];
+  return data;
+}
+
+export async function addAdminReview(formData) {
+  const adminDb = createAdminClient();
+  await verifyAdmin();
+  
+  const productId = formData.get('productId');
+  const slug = formData.get('slug');
+  const userName = formData.get('userName');
+  const rating = parseInt(formData.get('rating'));
+  const comment = formData.get('comment');
+  const reviewDate = formData.get('reviewDate') || new Date().toISOString();
+
+  const { error } = await adminDb.from('reviews').insert({
+    product_id: productId,
+    user_name: userName, // Saving fake reviewer name
+    rating: rating,
+    comment: comment,
+    is_approved: true, // Auto-approve admin added reviews
+    created_at: reviewDate
+  });
+
+  if (error) return { success: false, error: error.message };
+  
+  revalidatePath(`/admin/products/reviews/${slug}`);
+  revalidatePath(`/product/${slug}`);
+  return { success: true };
+}
+
+export async function deleteAdminReview(reviewId, slug) {
+  const adminDb = createAdminClient();
+  await verifyAdmin();
+  
+  const { error } = await adminDb.from('reviews').delete().eq('id', reviewId);
+  if (error) return { success: false, error: error.message };
+  
+  revalidatePath(`/admin/products/reviews/${slug}`);
+  revalidatePath(`/product/${slug}`);
+  return { success: true };
 }
