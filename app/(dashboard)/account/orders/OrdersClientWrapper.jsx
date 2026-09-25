@@ -70,6 +70,10 @@ export default function OrdersClientWrapper({ initialOrders }) {
     const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
     const singleProductSlug = order.order_items?.length === 1 ? (firstItem?.product_variants?.products?.slug || firstItem?.products?.slug || null) : null;
 
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 648911177b8504319806393c48eff6d8bb1883d3
     let isReturnable = true; 
 
     let displayStatus = (order.status || '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');

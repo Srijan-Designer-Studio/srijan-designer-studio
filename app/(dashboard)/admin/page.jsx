@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import AdminDashboardClient from "./AdminDashboardClient";
 import { getDashboardStats } from "@/app/actions/admin";
 

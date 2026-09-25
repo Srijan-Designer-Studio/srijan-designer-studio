@@ -1,19 +1,52 @@
 "use client";
 export const dynamic = 'force-dynamic';
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
-import { resetPassword } from "@/app/actions/auth";
+import { createBrowserClient } from '@supabase/ssr';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  // URL থেকে জোর করে টোকেন বের করে সেশন তৈরি করার লজিক
+  useEffect(() => {
+    const hash = window.location.hash;
+    
+    if (hash && hash.includes("access_token")) {
+      // URL-এর হ্যাশ পার্স করা
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const access_token = hashParams.get("access_token");
+      const refresh_token = hashParams.get("refresh_token");
+
+      if (access_token && refresh_token) {
+        // Supabase-কে ম্যানুয়ালি সেশন ধরিয়ে দেওয়া
+        supabase.auth.setSession({
+          access_token,
+          refresh_token
+        }).then(({ error }) => {
+          if (!error) {
+            // সেশন তৈরি হয়ে গেলে সিকিউরিটির জন্য URL থেকে টোকেন মুছে ফেলা
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        });
+      }
+    } else if (hash && hash.includes("error_description")) {
+       const errorMsg = decodeURIComponent(hash.split("error_description=")[1].split("&")[0]);
+       setMessage("Link Error: " + errorMsg.replace(/\+/g, ' '));
+    }
+  }, [supabase]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
-    
+
     const formData = new FormData(e.target);
     const password = formData.get('password');
     const confirm = formData.get('confirmPassword');
@@ -25,11 +58,27 @@ export default function ResetPasswordPage() {
 
     startTransition(async () => {
       try {
-        await resetPassword(formData);
+        // আপডেট করার আগে চেক করে নিচ্ছি সেশন ঠিকমতো তৈরি হলো কি না
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          setMessage("Session Error: Link expired or invalid. Please request a new link.");
+          return;
+        }
+
+        const { error } = await supabase.auth.updateUser({
+          password: password
+        });
+
+        if (error) {
+          setMessage("Supabase Error: " + error.message);
+          return;
+        }
+
         setMessage("Password reset successful! Redirecting...");
         setTimeout(() => router.push('/login'), 2000);
       } catch (error) {
-        setMessage(error.message || "Failed to reset password. Your link may have expired.");
+        setMessage("System Error: " + (error?.message || "Unknown error occurred."));
       }
     });
   };
@@ -77,7 +126,7 @@ export default function ResetPasswordPage() {
           </div>
 
           {message && (
-            <p className={`text-sm font-medium ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-sm font-medium ${message.includes('successful') ? 'text-green-400' : (message.includes('Error') ? 'text-red-400' : 'text-yellow-400')}`}>
               {message}
             </p>
           )}

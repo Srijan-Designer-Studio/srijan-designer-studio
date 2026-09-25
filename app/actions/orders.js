@@ -156,11 +156,13 @@ export async function getUserOrders() {
 
     const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))]
 
+    // এখানেই মূল পরিবর্তন: select() এর ভেতরে is_return_eligible যুক্ত করা হয়েছে
     const { data: products } = await adminDb
       .from('products')
       .select('id, title, slug, is_return_eligible, product_images(image_url)') 
       .in('id', itemIds)
 
+    // এখানেও is_return_eligible যুক্ত করা হয়েছে
     const { data: variants } = await adminDb
       .from('product_variants')
       .select('id, size, products(title, slug, is_return_eligible, product_images(image_url))')
@@ -176,6 +178,10 @@ export async function getUserOrders() {
           productMatch?.product_images?.[0]?.image_url ||
           null
           
+<<<<<<< HEAD
+=======
+        // প্রোডাক্টের রিটার্ন স্ট্যাটাস চেক করা হচ্ছে
+>>>>>>> 648911177b8504319806393c48eff6d8bb1883d3
         const isReturnEligible = variantMatch?.products?.is_return_eligible ?? productMatch?.is_return_eligible ?? false
 
         return {
@@ -186,7 +192,11 @@ export async function getUserOrders() {
             products: {
               title: variantMatch?.products?.title || productMatch?.title || 'Premium Product',
               slug: variantMatch?.products?.slug || productMatch?.slug || null,
+<<<<<<< HEAD
               is_return_eligible: isReturnEligible, 
+=======
+              is_return_eligible: isReturnEligible, // ফ্রন্টএন্ডে পাঠানোর জন্য ডাটা যুক্ত করা হলো
+>>>>>>> 648911177b8504319806393c48eff6d8bb1883d3
               product_images: imageUrl ? [{ image_url: imageUrl }] : []
             }
           }
@@ -199,7 +209,6 @@ export async function getUserOrders() {
     return []
   }
 }
-
 export async function trackOrder(orderId) {
   try {
     const supabase = await createClient()

@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Download, Calendar, TrendingUp, MapPin, DollarSign } from 'lucide-react';
+import { Download, Calendar, TrendingUp, DollarSign } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import Card from '@/components/dashboard/shared/Card';
-import Table from '@/components/dashboard/shared/Table';
 import Filter from '@/components/dashboard/shared/Filter';
 
 export default function ReportsClientWrapper({ initialOrders }) {
@@ -49,37 +48,6 @@ export default function ReportsClientWrapper({ initialOrders }) {
     };
   }, [initialOrders, timeFilter]);
 
-  // Mock regional data (Requires a shipping_state column in your DB to make fully dynamic)
-  const regionalSales = [
-    { id: 1, region: 'Maharashtra', revenue: '₹14,50,000', orders: 450, growth: '+12.5%' },
-    { id: 2, region: 'West Bengal', revenue: `₹${(stats.totalNetRevenue * 0.4).toLocaleString('en-IN')}`, orders: Math.floor(stats.totalOrderCount * 0.4), growth: '+15.4%' },
-    { id: 3, region: 'Delhi NCR', revenue: '₹12,20,000', orders: 380, growth: '+8.2%' },
-  ];
-
-  const regionColumns = [
-    {
-      header: 'Region / State',
-      accessor: 'region',
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <MapPin size={16} className="text-gray-400" />
-          <span className="font-semibold text-gray-900">{row.region}</span>
-        </div>
-      )
-    },
-    { header: 'Total Orders', accessor: 'orders' },
-    { header: 'Revenue Generated', accessor: 'revenue', render: (row) => <span className="font-bold text-gray-900">{row.revenue}</span> },
-    {
-      header: 'Growth (MoM)',
-      accessor: 'growth',
-      render: (row) => (
-        <span className={`font-medium ${row.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-          {row.growth}
-        </span>
-      )
-    },
-  ];
-
   const timeFilters = [
     { label: 'Last 7 Days', value: '7d' },
     { label: 'This Month', value: 'month' },
@@ -93,7 +61,7 @@ export default function ReportsClientWrapper({ initialOrders }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Financial Reports</h1>
-          <p className="text-[19px] text-gray-500 mt-1">Analyze revenue trends, sales performance, and regional data.</p>
+          <p className="text-[19px] text-gray-500 mt-1">Analyze revenue trends and sales performance.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 shadow-sm">
@@ -166,14 +134,6 @@ export default function ReportsClientWrapper({ initialOrders }) {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </Card>
-
-      <Card className="p-0 shadow-sm border-gray-100">
-        <div className="p-6 border-b border-gray-100 bg-white rounded-t-xl">
-          <h2 className="text-base font-bold text-gray-900">Sales by Region</h2>
-          <p className="text-[19px] text-gray-500">Top performing states and territories.</p>
-        </div>
-        <Table columns={regionColumns} data={regionalSales} />
       </Card>
 
     </div>
