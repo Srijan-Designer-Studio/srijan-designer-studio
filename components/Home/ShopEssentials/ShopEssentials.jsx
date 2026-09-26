@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Heart, ArrowRight } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
 
@@ -121,35 +121,26 @@ const ShopEssentials = ({ products = [] }) => {
             </h2>
           </div>
 
-          {/* Tabs & View All Line Perfectly Aligned */}
-          <div className="essentials-tabs flex items-center justify-between w-full relative">
-            <div className="w-28 hidden md:block"></div>
-            
-            <div className="flex items-center gap-8 mx-auto">
-              <button
-                onClick={() => setActiveTab("WOMEN")}
-                className={`relative text-sm md:text-[15px] font-bold tracking-widest uppercase transition-colors duration-300 pb-2 ${activeTab === "WOMEN" ? "text-black" : "text-gray-400 hover:text-gray-700"}`}
-              >
-                Women
-                {activeTab === "WOMEN" && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black rounded-full" />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab("MEN")}
-                className={`relative text-sm md:text-[15px] font-bold tracking-widest uppercase transition-colors duration-300 pb-2 ${activeTab === "MEN" ? "text-black" : "text-gray-400 hover:text-gray-700"}`}
-              >
-                Men
-                {activeTab === "MEN" && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black rounded-full" />
-                )}
-              </button>
-            </div>
-
-            <Link href="/shop-style" className="hidden md:flex items-center gap-1.5 text-[13px] font-bold text-gray-700 hover:text-[#00c3ff] transition-colors uppercase tracking-wider group w-28 justify-end">
-              VIEW ALL
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </Link>
+          {/* Centered Tabs (View All Removed) */}
+          <div className="essentials-tabs flex items-center justify-center gap-8 mt-10">
+            <button
+              onClick={() => setActiveTab("WOMEN")}
+              className={`relative text-sm md:text-[15px] font-bold tracking-widest uppercase transition-colors duration-300 pb-2 ${activeTab === "WOMEN" ? "text-black" : "text-gray-400 hover:text-gray-700"}`}
+            >
+              Women
+              {activeTab === "WOMEN" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black rounded-full" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("MEN")}
+              className={`relative text-sm md:text-[15px] font-bold tracking-widest uppercase transition-colors duration-300 pb-2 ${activeTab === "MEN" ? "text-black" : "text-gray-400 hover:text-gray-700"}`}
+            >
+              Men
+              {activeTab === "MEN" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black rounded-full" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -174,7 +165,7 @@ const ShopEssentials = ({ products = [] }) => {
                 640: { slidesPerView: 2, spaceBetween: 24 },
                 1024: { slidesPerView: 4, spaceBetween: 28 },
               }}
-              className="w-full trending-swiper"
+              className="w-full pb-20 md:pb-24 trending-swiper"
             >
               {currentProducts.map((product) => {
                 let mainImage = "";
@@ -194,7 +185,7 @@ const ShopEssentials = ({ products = [] }) => {
                 return (
                   <SwiperSlide key={product.id}>
                     <div className="product-card-wrap group flex flex-col items-center text-center relative h-full">
-                      {/* Image Container */}
+                     
                       <Link href={`/product/${product.slug}`} className="relative w-full aspect-[2/3] rounded-[1.5rem] border border-gray-400 overflow-hidden mb-5 bg-white transition-all duration-300 group-hover:border-black block cursor-pointer">
                         
                         {/* TRENDING Tag */}
@@ -224,7 +215,7 @@ const ShopEssentials = ({ products = [] }) => {
                         )}
                       </Link>
 
-                      {/* Product Info */}
+                      {/* Product Info Below Image */}
                       <Link href={`/product/${product.slug}`} className="flex flex-col items-center justify-center w-full px-2 cursor-pointer">
                         <h3 className="text-[14px] font-medium text-gray-600 leading-snug mb-2.5 line-clamp-2 hover:text-black transition-colors">
                           {product.title}
@@ -242,12 +233,6 @@ const ShopEssentials = ({ products = [] }) => {
               })}
             </Swiper>
           )}
-        </div>
-        
-        <div className="mt-8 flex justify-center md:hidden">
-          <Link href="/shop-style" className="flex items-center justify-center w-full max-w-[280px] gap-2 text-[14px] font-bold text-white bg-black hover:bg-gray-800 px-6 py-3.5 rounded-full transition-colors uppercase tracking-wider">
-            View All Products
-          </Link>
         </div>
       </div>
 
