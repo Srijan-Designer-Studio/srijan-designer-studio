@@ -18,17 +18,19 @@ export default async function PublicLayout({
   return (
     <SmoothScroll>
       <CartProvider>
-        <div className="flex flex-col min-h-screen bg-white w-full overflow-x-hidden">
-          <Header initialUser={user as any} />
-        
-          <NavigationLoader /> 
+        {/* NavigationLoader er vetor puro structure wrap kora holo */}
+        <NavigationLoader >
+          <div className="flex flex-col min-h-screen bg-white w-full overflow-x-hidden">
+            <Header initialUser={user as any} />
           
-          <main className="flex-grow w-full">
-            {children}
-          </main>
-          <WhatsAppButton />
-          <Footer />
-        </div>
+            <main className="flex-grow w-full">
+              {children}
+            </main>
+            
+            <WhatsAppButton />
+            <Footer />
+          </div>
+        </NavigationLoader>
       </CartProvider>
     </SmoothScroll>
   );

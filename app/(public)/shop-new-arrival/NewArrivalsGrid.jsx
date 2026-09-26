@@ -88,7 +88,7 @@ export default function NewArrivalsGrid({ products = [] }) {
               >
                 <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
                   <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
-                    NEW
+                    TRENDING
                   </div>
 
                   <button

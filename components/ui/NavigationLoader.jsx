@@ -1,27 +1,25 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import SrijanLoader from './SrijanLoader'; 
+import React, { useState, useEffect } from 'react';
+import SrijanLoader from './SrijanLoader';
 
-export default function NavigationLoader() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
+export default function NavigationLoader({ children }) {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-   
-    setIsLoading(true);
-    
-   
+
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); 
+    }, 1500); 
 
     return () => clearTimeout(timer);
-  }, [pathname, searchParams]);
+  }, []);
 
-  if (!isLoading) return null;
+  
+  if (isLoading) {
+    return <SrijanLoader />;
+  }
 
-  return <SrijanLoader />;
+  
+  return <>{children}</>;
 }

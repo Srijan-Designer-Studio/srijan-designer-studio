@@ -8,15 +8,7 @@ import "swiper/css/effect-fade";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
-const slides = [
-  {
-    id: 1,
-    video: "/videos/HomePage HERO SectionVideo.mp4",
-    buttonText: "Shop Now",
-    href: "/shop-style",
-  }
-];
+import Image from "next/image";
 
 export default function Hero() {
   const containerRef = useRef(null);
@@ -59,48 +51,38 @@ export default function Hero() {
         loop
         onSlideChange={() => setSlideChangeTracker((prev) => prev + 1)}
       >
-        {slides.map((slide, index) => (
-          <SwiperSlide key={slide.id}>
-            <div className="relative h-screen min-h-[700px] w-full overflow-hidden">
-              <video
-                src={slide.video}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="hero-img absolute inset-0 w-full h-full object-cover object-center"
-              ></video>
+        <SwiperSlide>
+          <div className="relative h-screen min-h-[700px] w-full overflow-hidden">
+            <Image
+              src="/Home_img/HERO Section.webp"
+              alt="Srijan Hero"
+              fill
+              priority
+              className="hero-img w-full h-full object-cover object-center"
+            />
 
-              {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60 via-black/30"></div> */}
+            <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
+              <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">
+                <h1 className="hero-anim text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
+                  Discover Fashion Styles That's Truly Yours
+                </h1>
 
-              <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
-                <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">
+                <p className="hero-anim text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px] mb-6 md:mb-10">
+                  Shop the latest fashion styles online or design a custom outfit that's 100% you
+                </p>
 
-                  {
-                    <h1 className="hero-anim text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.15] md:leading-[1.1] mb-4 md:mb-6 drop-shadow-md">
-                      Discover Fashion  Styles That's Truly Yours
-                    </h1>
-                  }
-
-                  <p className="hero-anim text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px] mb-6 md:mb-10 drop-shadow-sm">
-                    Shop the latest fashion styles
-                    online or design a custom
-                    outfit that's 100% you
-                  </p>
-
-                  <div className="hero-anim inline-block">
-                    <Link
-                      className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-base md:text-lg px-8 py-3.5 md:px-10 md:py-4 rounded-full transition-colors duration-300 shadow-lg inline-block"
-                      href={slide.href}
-                    >
-                      {slide.buttonText}
-                    </Link>
-                  </div>
+                <div className="hero-anim inline-block">
+                  <Link
+                    className="bg-[#00c3ff] hover:bg-[#00abe0] text-white font-bold text-base md:text-lg px-8 py-3.5 md:px-10 md:py-4 rounded-full transition-colors duration-300 shadow-lg inline-block"
+                    href="/shop-style"
+                  >
+                    Shop Now
+                  </Link>
                 </div>
               </div>
             </div>
-          </SwiperSlide>
-        ))}
+          </div>
+        </SwiperSlide>
       </Swiper>
     </section>
   );

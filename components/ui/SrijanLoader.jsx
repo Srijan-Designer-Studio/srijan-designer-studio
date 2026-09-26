@@ -1,53 +1,39 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 export default function SrijanLoader() {
-  const [mounted, setMounted] = useState(false);
-
- 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
+  const SrijanLogo = "/Loading-Ani/SRIJAN Logo.svg";
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAFAFA] transition-all duration-700">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#0a103c] to-[#7f839d] transition-all duration-700">
       <div className="flex flex-col items-center premium-entrance">
         
-       
-        <div className="relative w-[120px] sm:w-[150px] md:w-[180px] h-auto aspect-[3/1] mb-8">
-          <Image
-            src="/images/logo5.webp" 
-            alt="Srijan Fashion"
-            fill
+        <div className="relative w-[180px] sm:w-[220px] md:w-[260px] h-auto aspect-[16/9] mb-8">
+          <Image 
+            src={SrijanLogo} 
+            alt="Srijan Logo" 
+            fill 
             priority
-            className="object-contain"
-            unoptimized
+            className="w-full h-full object-contain" 
           />
         </div>
 
-        {/* Loading Section */}
+        {/* Animated Glowing Line Section */}
         <div className="flex flex-col items-center gap-4">
-          {/* Ultra Thin Loading Line */}
-          <div className="w-32 sm:w-40 h-[1px] bg-gray-200 overflow-hidden relative rounded-full">
-            <div className="absolute top-0 left-0 h-full w-full bg-black animate-premium-line"></div>
+          <div className="w-32 sm:w-48 h-[2px] bg-white/10 overflow-hidden relative rounded-full">
+            <div className="absolute top-0 left-0 h-full w-[50%] bg-gradient-to-r from-transparent via-white to-transparent sweep-animation shadow-[0_0_12px_rgba(255,255,255,0.9)]"></div>
           </div>
-
-          {/* Minimal Text with wide letter-spacing */}
-          <span className="text-[9px] sm:text-[10px] tracking-[0.35em] text-gray-400 uppercase font-medium animate-pulse-slow">
-            Loading
-          </span>
         </div>
       </div>
 
-      {/* Luxury Custom CSS Animations */}
       <style jsx global>{`
-        /* Logo Entrance Animation */
         .premium-entrance {
           animation: elegantFade 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .sweep-animation {
+          animation: sweepingLine 1.5s infinite ease-in-out;
         }
 
         @keyframes elegantFade {
@@ -61,31 +47,16 @@ export default function SrijanLoader() {
           }
         }
 
-        /* Smooth Sweeping Line Animation */
-        @keyframes premiumLine {
+        @keyframes sweepingLine {
           0% {
             transform: translateX(-100%);
           }
           50% {
-            transform: translateX(0);
-          }
-          100% {
             transform: translateX(100%);
           }
-        }
-
-        .animate-premium-line {
-          animation: premiumLine 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-        }
-
-        /* Very subtle text pulse */
-        .animate-pulse-slow {
-          animation: subtlePulse 2.5s ease-in-out infinite;
-        }
-
-        @keyframes subtlePulse {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.8; }
+          100% {
+            transform: translateX(300%);
+          }
         }
       `}</style>
     </div>
