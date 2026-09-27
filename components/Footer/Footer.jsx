@@ -172,7 +172,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="footer-col mb-[95px] lg:mb-0">
+            <div className="footer-col mb-[95px] lg:mb-10">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>
@@ -222,13 +222,14 @@ export default function Footer() {
 
           </div>
 
+
           <div className="flex items-center justify-center lg:justify-end h-full w-full">
             <div className="footer-map-card w-full max-w-[550px]">
               <div className="bg-[#0a4d9c] rounded-2xl p-6 sm:p-8 shadow-2xl h-full flex flex-col">
                 <h3 className="text-white font-bold text-2xl mb-6">Location</h3>
 
                 <div className="flex items-start gap-3 text-white mb-6">
-                  <MapPin size={24} className="shrink-0 mt-1" aria-hidden="true" />
+                  <MapPin size={24} className="shrink-0 mt-1" />
                   <p className="text-[19px] leading-relaxed">
                     Chhobi Apartment, Sani Mandir, Panchasayar Main Road,
                     Panchasayar, Kolkata-700094, West Bengal
@@ -236,7 +237,7 @@ export default function Footer() {
                 </div>
 
                 <div className="w-full h-[350px] lg:h-[420px] rounded-xl overflow-hidden bg-white shadow-inner relative mt-auto">
-                  <iframe title="Srijan Fashion Location Map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.933147316061!2d88.4024644!3d22.4691464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0273d54c6ea3a7%3A0x8a5bebfa270fffe9!2sSRIJAN%20Fashion!5e0!3m2!1sen!2sin!4v1787655000856!5m2!1sen!2sin" width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin"></iframe>
+                  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.933147316061!2d88.4024644!3d22.4691464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0273d54c6ea3a7%3A0x8a5bebfa270fffe9!2sSRIJAN%20Fashion!5e0!3m2!1sen!2sin!4v1787655000856!5m2!1sen!2sin" width="600" height="450" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin"></iframe>
                 </div>
               </div>
             </div>
