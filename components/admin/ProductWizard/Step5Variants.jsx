@@ -8,11 +8,11 @@ export default function Step5Variants() {
 
   const addVariant = () => {
     const newVariant = {
-      id: Date.now() + Math.random(), 
-      size: "", 
-      color: "", 
-      stock: 0, 
-      lowStock: 5, 
+      id: Date.now() + Math.random(),
+      size: "",
+      color: "",
+      stock: 10,
+      lowStock: 5,
       barcode: ""
     };
     const currentVariants = formData?.variants || [];
@@ -39,14 +39,8 @@ export default function Step5Variants() {
 
   const updateVariant = (id, field, value) => {
     const currentVariants = formData?.variants || [];
-    
-    let finalValue = value;
-    if (field === 'stock' || field === 'lowStock') {
-        finalValue = value === "" ? "" : Number(value);
-    }
-
     updateFormData({
-      variants: currentVariants.map(v => v.id === id ? { ...v, [field]: finalValue } : v)
+      variants: currentVariants.map(v => v.id === id ? { ...v, [field]: value } : v)
     });
   };
 
@@ -56,8 +50,8 @@ export default function Step5Variants() {
     <div className="animate-in fade-in text-black slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-gray-100 pb-5 gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Variants & Inventory</h2>
-          <p className="text-[19px] text-gray-500 mt-1">Manage sizes, colors, and stock for this product.</p>
+          <h2 className="text-xl font-bold text-gray-900">Variants & Classifications</h2>
+          <p className="text-[19px] text-gray-500 mt-1">Manage sizes, colors, and barcodes for this product.</p>
         </div>
         <button
           onClick={addVariant}
@@ -91,13 +85,13 @@ export default function Step5Variants() {
               Variant {index + 1}
             </h3>
 
-            {/* SKU removed from here to follow PDF guidelines */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+            {/* Changed grid layout to 3 columns since stock fields are removed */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div>
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Size <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="e.g. S, M, L"
+                  placeholder="e.g. S, M, L, Free Size"
                   value={variant.size || ""}
                   onChange={(e) => updateVariant(variant.id, 'size', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
@@ -111,28 +105,6 @@ export default function Step5Variants() {
                   placeholder="e.g. Crimson Red"
                   value={variant.color || ""}
                   onChange={(e) => updateVariant(variant.id, 'color', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Qty</label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={variant.stock ?? ""}
-                  onChange={(e) => updateVariant(variant.id, 'stock', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Low Stock Alert</label>
-                <input
-                  type="number"
-                  placeholder="5"
-                  value={variant.lowStock ?? ""}
-                  onChange={(e) => updateVariant(variant.id, 'lowStock', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
                 />
               </div>

@@ -59,8 +59,8 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   };
 
   const formattedProducts = products.map(product => {
-    const totalStock = product.product_variants?.reduce((sum, v) => sum + (v.inventory_count || 0), 0) || 0;
     const basePrice = product.base_price || 0;
+    const salePrice = product.sale_price || null; // Fetching Sale Price
 
     return {
       rawProduct: product,
@@ -69,10 +69,9 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       name: product.title,
       sku: product.sku || product.product_variants?.[0]?.sku || 'N/A',
       price: basePrice,
-      stock: totalStock,
-      stockStatus: totalStock > 20 ? 'In Stock' : totalStock > 0 ? `Low Stock (${totalStock})` : 'Out of Stock',
+      salePrice: salePrice,
       status: !product.is_active ? 'Draft' : 'Published',
-      showOnHomepage: product.show_on_homepage || false // Fetching homepage status
+      showOnHomepage: product.show_on_homepage || false
     };
   });
 
@@ -116,7 +115,8 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
               <tr>
                 <th className="px-4 py-4 flex items-center gap-1 cursor-pointer">PRODUCT</th>
                 <th className="px-4 py-4">PRICE</th>
-                <th className="px-4 py-4">STOCK</th>
+                {/* Changed header to SALE PRICE */}
+                <th className="px-4 py-4">SALE PRICE</th>
                 <th className="px-4 py-4 text-center">STATUS</th>
                 <th className="px-4 py-4 text-center">ACTIONS</th>
               </tr>
@@ -153,14 +153,27 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       </div>
                     </div>
                   </td>
+                  
+                  {/* Base Price */}
                   <td className="px-4 py-4">
-                    <p className="text-[19px] font-bold text-gray-900 mb-0.5">₹{product.price.toLocaleString('en-IN')}</p>
-                  </td>
-                  <td className="px-4 py-4">
-                    <p className={`text-[11px] font-bold ${product.stockStatus === 'In Stock' ? 'text-green-600' : 'text-red-500'}`}>
-                      {product.stockStatus}
+                    <p className={`text-[17px] font-bold ${product.salePrice ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                      ₹{product.price.toLocaleString('en-IN')}
                     </p>
                   </td>
+                  
+                  {/* Sale Price Cell */}
+                  <td className="px-4 py-4">
+                    {product.salePrice ? (
+                      <p className="text-[19px] font-bold text-green-600">
+                        ₹{product.salePrice.toLocaleString('en-IN')}
+                      </p>
+                    ) : (
+                      <p className="text-[13px] text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded-md inline-block">
+                        N/A
+                      </p>
+                    )}
+                  </td>
+
                   <td className="px-4 py-4 text-center">
                     <span className={`inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold rounded-full border ${product.status === 'Published' ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
                       {product.status}
@@ -259,6 +272,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
         )}
       </div>
 
+      {/* Delete Confirmation Modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-in zoom-in-95 duration-200">

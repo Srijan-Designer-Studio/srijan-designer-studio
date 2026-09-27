@@ -19,12 +19,12 @@ export const metadata = {
   title: 'SRIJAN Fashion | Fashion Styles for Every Occasion & Look',
   description: ' Explore SRIJAN Fashion for unique fashion styles & online shopping featuring designer, ethnic and custom wear crafted to bring your personal style to life.',
   alternates: {
-    canonical: 'https://srijandesignerstudio.com',
+    canonical: 'https://www.srijandesignerstudio.com',
   },
   openGraph: {
     title: 'Srijan Fashion | Luxury Designer Studio',
     description: 'Explore our exclusive collection of premium sarees, lehengas, kurtas, and custom designer outfits.',
-    url: 'https://srijandesignerstudio.com',
+    url: 'https://www.srijandesignerstudio.com',
     siteName: 'Srijan Fashion',
     images: [
       {

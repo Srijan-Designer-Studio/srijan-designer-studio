@@ -12,27 +12,22 @@ const parseArrayData = (value) => {
 
   if (typeof value === 'string') {
     let str = value.trim();
-    
     while (str.startsWith('"') && str.endsWith('"')) {
       try { str = JSON.parse(str); } catch (e) { break; }
     }
-
     if (str.startsWith('[') && str.endsWith(']')) {
       try {
         const parsed = JSON.parse(str);
         if (Array.isArray(parsed)) return parsed;
       } catch (e) {}
     }
-
     if (str.startsWith('{') && str.endsWith('}')) {
       str = str.slice(1, -1);
     }
-
     return str.split(',')
       .map(s => s.replace(/^[\\"']+|[\\"']+$/g, '').trim())
       .filter(Boolean);
   }
-  
   return [];
 };
 
@@ -65,7 +60,9 @@ export function WizardProvider({ children, initialData }) {
       setFormData((prev) => ({
         ...prev,
         ...initialData,
-        onlineCashOff: initialData.online_cash_off || "", // Load existing discount from DB
+        sku: initialData.sku || initialData.product_sku || "",
+        canonicalUrl: initialData.canonicalUrl || initialData.canonical_url || "",
+        onlineCashOff: initialData.onlineCashOff || initialData.online_cash_off || "",
         collections: parseArrayData(initialData.collections),
         faqs: parseArrayData(initialData.faqs),
         variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
@@ -90,7 +87,6 @@ export function WizardProvider({ children, initialData }) {
     try {
       const submitData = new FormData();
 
-      // FIXED: Added "onlineCashOff" to the textFields array here
       const textFields = [
         "title", "productType", "brand", "sku", "onlineCashOff", "shortDesc", "description", "materialCare", 
         "highlights", "additionalInfo", "department", "basePrice", "salePrice", "purchaseType", "weight", 
@@ -100,6 +96,10 @@ export function WizardProvider({ children, initialData }) {
       ];
       
       textFields.forEach(field => submitData.append(field, formData[field] || ""));
+
+      // Sending fallback variables
+      submitData.append("canonical_url", formData.canonicalUrl || "");
+      submitData.append("product_sku", formData.sku || "");
 
       submitData.append("isCodAvailable", formData.isCodAvailable);
       submitData.append("isFreeShipping", formData.isFreeShipping);
@@ -113,7 +113,6 @@ export function WizardProvider({ children, initialData }) {
         return { id: c.id, name: c.name, type: c.type, required: c.required, price: c.price, preview: c.preview };
       });
       submitData.append("components", JSON.stringify(cleanComponents));
-      
       submitData.append("productAddons", JSON.stringify(formData.productAddons || []));
 
       formData.images.forEach((img, idx) => {

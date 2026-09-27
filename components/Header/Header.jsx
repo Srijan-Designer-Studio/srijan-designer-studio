@@ -12,7 +12,7 @@ import { NAV_DATA, NAV_ICONS } from "@/data/header";
 
 import CartDrawer from "@/components/cart/CartDrawer";
 import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
-import SearchDrawer from "@/components/search/SearchDrawer";
+// import SearchDrawer from "@/components/search/SearchDrawer";
 
 export default function Header({ initialUser = null }) {
   const pathname = usePathname();
@@ -271,7 +271,7 @@ export default function Header({ initialUser = null }) {
         </div>
       </div>
 
-      <SearchDrawer isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      {/* <SearchDrawer isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} /> */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
     </>

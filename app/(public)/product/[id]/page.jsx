@@ -22,7 +22,9 @@ export async function generateMetadata({ params }) {
 
   const seoTitle = product.seo_title || `${product.title} | SRIJAN Fashion`;
   const seoDesc = product.meta_desc || defaultDescription;
-  const canonical = product.canonical_url || defaultUrl;
+  
+  // FIXED: If user provided canonical URL use it, otherwise fallback to default
+  const canonical = product.canonical_url && product.canonical_url.trim() !== "" ? product.canonical_url : defaultUrl;
   const keywords = product.seo_keywords || product.focus_keyword || "";
 
   return {
@@ -72,6 +74,7 @@ export default async function SingleProductPage({ params }) {
 
   const imageUrl = product.product_images?.[0]?.image_url || 'https://www.srijandesignerstudio.com/images/logo3.jpg';
   const productUrl = `https://www.srijandesignerstudio.com/product/${id}`;
+  const canonicalUrl = product.canonical_url && product.canonical_url.trim() !== "" ? product.canonical_url : productUrl;
 
   const defaultSchema = {
     "@context": "https://schema.org/",
@@ -79,16 +82,16 @@ export default async function SingleProductPage({ params }) {
     "name": product.seo_title || product.title,
     "image": [imageUrl],
     "description": product.meta_desc || product.short_description || `Buy ${product.title} online at best prices on SRIJAN Fashion.`,
-    "sku": product.id,
+    "sku": product.sku || product.id, // FIXED: Using correct SKU
     "brand": {
       "@type": "Brand",
       "name": "SRIJAN Fashion"
     },
     "offers": {
       "@type": "Offer",
-      "url": product.canonical_url || productUrl,
+      "url": canonicalUrl,
       "priceCurrency": "INR",
-      "price": product.base_price || 0,
+      "price": product.sale_price || product.base_price || 0, // FIXED: Showing active price
       "itemCondition": "https://schema.org/NewCondition",
       "availability": product.is_active !== false ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
     }

@@ -757,8 +757,8 @@ export async function updatePremiumProduct(formData) {
     const title = formData.get('title') || 'Untitled';
     const productType = formData.get('productType');
     const brand = formData.get('brand');
-    const sku = formData.get('sku') || ''; // PDF Requirement
-    const onlineCashOff = parseFloat(formData.get('onlineCashOff')) || 0; // PDF Requirement
+    const sku = formData.get('sku') || formData.get('product_sku') || ''; 
+    const onlineCashOff = parseFloat(formData.get('onlineCashOff')) || 0; 
     const shortDesc = formData.get('shortDesc');
     const description = formData.get('description');
     const materialCare = formData.get('materialCare');
@@ -777,6 +777,15 @@ export async function updatePremiumProduct(formData) {
     const shippingPolicy = formData.get('shippingPolicy');
     const returnPolicy = formData.get('returnPolicy');
     
+    // NEW SEO Fields added for update
+    const seoTitle = formData.get('seoTitle');
+    const seoSlug = formData.get('seoSlug');
+    const metaDesc = formData.get('metaDesc');
+    const focusKeyword = formData.get('focusKeyword');
+    const seoKeywords = formData.get('seoKeywords');
+    const canonicalUrl = formData.get('canonicalUrl') || formData.get('canonical_url') || '';
+    const schemaMarkup = formData.get('schemaMarkup');
+
     const flattenToStringArray = (arr) => {
       if (!Array.isArray(arr)) return [];
       return arr.map(item => {
@@ -790,6 +799,7 @@ export async function updatePremiumProduct(formData) {
     const categories = flattenToStringArray(JSON.parse(formData.get('categories') || '[]'));
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
+    const faqs = JSON.parse(formData.get('faqs') || '[]'); 
     const purchaseType = formData.get('purchaseType') || 'Single Product';
 
     const basePrice = parseFloat(formData.get('basePrice')) || 0;
@@ -806,7 +816,7 @@ export async function updatePremiumProduct(formData) {
       .from('products')
       .update({
         title,
-        sku: sku,
+        sku: sku, // FIXED
         online_cash_off: onlineCashOff,
         short_description: shortDesc,
         full_description: description,
@@ -830,13 +840,23 @@ export async function updatePremiumProduct(formData) {
         shipping_policy: shippingPolicy,
         return_policy: returnPolicy,
         category_id: category_id,
-        purchase_type: purchaseType
+        purchase_type: purchaseType,
+        
+        // FIXED: ADDING SEO DATA TO UPDATE QUERY
+        seo_title: seoTitle,
+        slug: seoSlug || undefined,
+        meta_desc: metaDesc,
+        focus_keyword: focusKeyword,
+        seo_keywords: seoKeywords,
+        canonical_url: canonicalUrl, 
+        schema_markup: schemaMarkup,
+        faqs: faqs 
       })
       .eq('id', productId);
 
     if (productError) throw productError;
 
-    // Handle Size Chart Update (NEW)
+    // Handle Size Chart Update
     if (formData.has('size_chart_file')) {
       const file = formData.get('size_chart_file');
       const fileExt = file.name.split('.').pop();
@@ -847,7 +867,6 @@ export async function updatePremiumProduct(formData) {
         await supabase.from('products').update({ size_chart_image: publicUrl }).eq('id', productId);
       }
     } else if (formData.has('remove_size_chart') && formData.get('remove_size_chart') === "true") {
-      // If user explicitly removed the size chart, set it to null in DB
       await supabase.from('products').update({ size_chart_image: null }).eq('id', productId);
     }
 
@@ -862,7 +881,7 @@ export async function updatePremiumProduct(formData) {
       inventory_count: parseInt(v.stock) || 0,
       low_stock_threshold: parseInt(v.lowStock) || 5,
       barcode: v.barcode,
-      sort_order: index + 1 // Important for ordering fix
+      sort_order: index + 1 
     }));
     
     if (variantInserts.length > 0) {
