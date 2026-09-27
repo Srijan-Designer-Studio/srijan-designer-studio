@@ -87,7 +87,7 @@ export default function NewArrivalsGrid({ products = [] }) {
                 className="product-card-anim group flex flex-col items-center text-center cursor-pointer relative"
               >
                 <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
-                  <div className="absolute top-4 left-4 z-10 bg-red-600 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
+                  <div className="absolute top-4 left-4 z-10 bg-[#7C4DFF] backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
                     TRENDING
                   </div>
 

@@ -9,7 +9,7 @@ export default function SrijanLoader() {
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#0a103c] to-[#7f839d] transition-all duration-700">
       <div className="flex flex-col items-center premium-entrance">
         
-        <div className="relative w-[180px] sm:w-[220px] md:w-[260px] h-auto aspect-[16/9] mb-8">
+        <div className="relative w-[200px] sm:w-[250px] md:w-[350px] lg:w-[500px] xl:w-[700px] h-auto aspect-[16/9] mb-8">
           <Image 
             src={SrijanLogo} 
             alt="Srijan Logo" 

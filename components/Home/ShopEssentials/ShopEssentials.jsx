@@ -189,7 +189,7 @@ const ShopEssentials = ({ products = [] }) => {
                       <Link href={`/product/${product.slug}`} className="relative w-full aspect-[2/3] rounded-[1.5rem] border border-gray-400 overflow-hidden mb-5 bg-white transition-all duration-300 group-hover:border-black block cursor-pointer">
                         
                         {/* TRENDING Tag */}
-                        <div className="absolute top-4 left-4 z-10 bg-[#e50000] text-white text-[10px] font-black px-3.5 py-1.5 rounded-full tracking-widest uppercase">
+                        <div className="absolute top-4 left-4 z-10 bg-[#7C4DFF] text-white text-[10px] font-black px-3.5 py-1.5 rounded-full tracking-widest uppercase">
                           TRENDING
                         </div>
 
