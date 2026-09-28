@@ -1,3 +1,4 @@
+// page.jsx
 import { getProductBySlug, getAdminProductReviews } from "@/app/actions/reviews";
 import ProductReviewsClient from "./ProductReviewsClient";
 import Link from "next/link";
@@ -8,9 +9,7 @@ export const metadata = {
 };
 
 export default async function ProductReviewsPage({ params }) {
-
   const { slug } = await params;
-  
   const product = await getProductBySlug(slug);
 
   if (!product) {
@@ -24,7 +23,6 @@ export default async function ProductReviewsPage({ params }) {
     );
   }
 
- 
   const reviews = await getAdminProductReviews(product.id);
 
   return (

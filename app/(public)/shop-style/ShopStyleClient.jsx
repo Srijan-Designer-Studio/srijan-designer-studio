@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductsHero from "@/components/product/ProductsHero";
@@ -200,14 +201,20 @@ export default function ShopStyleClient() {
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 relative z-10">
               {currentProducts.map((product) => {
-                const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+                let imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+                
+                // SECURE URL MASKING
+                if (imageUrl?.includes('/public/')) {
+                  imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+                }
+                
+                const imageAlt = product.product_images?.[0]?.alt_text || product.title || "Product";
 
                 const basePrice = Number(product.base_price) || 0;
                 const salePrice = Number(product.sale_price) || 0;
                 const hasDiscount = salePrice > 0 && salePrice < basePrice;
                 const displayPrice = hasDiscount ? salePrice : basePrice;
 
-                // NEW: Calculate Discount Percentage
                 let discountPercentage = 0;
                 if (hasDiscount) {
                   discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
@@ -219,17 +226,19 @@ export default function ShopStyleClient() {
                   <Link key={product.id} href={`/product/${product.slug}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer relative">
                     <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
                       
-                      {/* NEW: Discount Percentage Tag */}
                       {hasDiscount && (
                         <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 tracking-wide">
                           {discountPercentage}% OFF
                         </div>
                       )}
 
-                      <img
+                      <Image
                         src={imageUrl}
-                        alt={product.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                        alt={imageAlt}
+                        
+                        fill
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
 
                       <button

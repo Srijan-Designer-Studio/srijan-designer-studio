@@ -13,6 +13,7 @@ import { createRazorpayOrder, verifyRazorpayPayment } from "@/app/actions/razorp
 import { createClient } from "@/lib/supabase/client";
 import ScrollToTop from "@/components/providers/ScrollToTop";
 import PaymentNotification from "@/components/ui/PaymentNotification";
+import Image from "next/image";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -540,11 +541,15 @@ export default function CheckoutPage() {
                     return (
                       <div key={idx} className="flex gap-4">
                         <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                          <img
-                            src={item.image || "/images/placeholder.jpg"}
-                            alt={item.title}
-                            className="w-full h-full object-cover object-top"
-                          />
+                         <Image
+  src={item.image || "/images/placeholder.jpg"}
+  alt={item.title || "Image"}
+  unoptimized
+  fill
+  priority
+  sizes="(max-width: 1024px) 100vw, 500px"
+  className="object-cover object-top"
+/>
                         </div>
                         <div className="flex-1 flex flex-col justify-center">
                           <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>

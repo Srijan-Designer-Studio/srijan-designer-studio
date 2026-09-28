@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight, Heart } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -86,8 +87,15 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {productsData.map((product) => {
-            const mainImage = product.product_images?.[0]?.image_url;
+            let mainImage = product.product_images?.[0]?.image_url;
+            
+            // SECURE URL MASKING
+            if (mainImage?.includes('/public/')) {
+              mainImage = '/assets/' + mainImage.split('/public/')[1];
+            }
+
             const isWishlisted = wishlistItems?.some(item => item.id === product.id);
+            const imageAlt = product.product_images?.[0]?.alt_text || product.title;
 
             const basePrice = Number(product.base_price) || 0;
             const salePrice = Number(product.sale_price) || 0;
@@ -115,10 +123,13 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                   </button>
 
                   {mainImage ? (
-                    <img
+                    <Image
                       src={mainImage}
-                      alt={product.title}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      alt={imageAlt}
+                      
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">No Image</div>

@@ -3,16 +3,24 @@
 import { useWizard } from "./WizardContext";
 import { Plus, Trash2, Copy } from "lucide-react";
 
+const generateUUID = () => {
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export default function Step5Variants() {
   const { formData, updateFormData } = useWizard();
 
   const addVariant = () => {
     const newVariant = {
-      id: Date.now() + Math.random(),
+      id: generateUUID(),
       size: "",
       color: "",
-      stock: 10,
-      lowStock: 5,
       barcode: ""
     };
     const currentVariants = formData?.variants || [];
@@ -22,7 +30,8 @@ export default function Step5Variants() {
   const duplicateVariant = (variant) => {
     const newVariant = {
       ...variant,
-      id: Date.now() + Math.random(),
+      id: generateUUID(),
+      barcode: "" 
     };
     const currentVariants = formData?.variants || [];
     updateFormData({ variants: [...currentVariants, newVariant] });
@@ -85,13 +94,13 @@ export default function Step5Variants() {
               Variant {index + 1}
             </h3>
 
-            {/* Changed grid layout to 3 columns since stock fields are removed */}
+            {/* 3 Columns Layout (Without Stock & SKU) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div>
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Size <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="e.g. S, M, L, Free Size"
+                  placeholder="e.g. S, M, L"
                   value={variant.size || ""}
                   onChange={(e) => updateVariant(variant.id, 'size', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
@@ -102,7 +111,7 @@ export default function Step5Variants() {
                 <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Color</label>
                 <input
                   type="text"
-                  placeholder="e.g. Crimson Red"
+                  placeholder="e.g. Red, Blue"
                   value={variant.color || ""}
                   onChange={(e) => updateVariant(variant.id, 'color', e.target.value)}
                   className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"

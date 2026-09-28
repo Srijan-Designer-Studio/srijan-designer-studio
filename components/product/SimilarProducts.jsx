@@ -58,8 +58,14 @@ export default function SimilarProducts({ similarProducts = [] }) {
         {hasProducts ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {similarProducts.slice(0, 4).map((product) => {
-              const imageUrl = product.product_images?.[0]?.image_url || null;
+              let imageUrl = product.product_images?.[0]?.image_url || null;
               
+              // SECURE URL MASKING
+              if (imageUrl?.includes('/public/')) {
+                imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+              }
+              
+              const imageAlt = product.product_images?.[0]?.alt_text || product.title || "Product";
               const basePrice = Number(product.base_price) || 0;
               const salePrice = Number(product.sale_price) || 0;
               const hasDiscount = salePrice > 0 && salePrice < basePrice;
@@ -75,9 +81,10 @@ export default function SimilarProducts({ similarProducts = [] }) {
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
-                        alt={product.title || "Product"}
+                        alt={imageAlt}
                         fill
-                        unoptimized
+                     
+                        sizes="(max-width: 768px) 50vw, 25vw"
                         className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

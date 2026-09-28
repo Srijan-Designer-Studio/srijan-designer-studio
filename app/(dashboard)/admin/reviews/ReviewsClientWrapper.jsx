@@ -1,21 +1,29 @@
+// ReviewsClientWrapper.jsx
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
-import { Star, CheckCircle, XCircle, Loader2, Trash2, Eye } from 'lucide-react';
+import { useState, useTransition, useMemo, useEffect } from 'react';
+import { Star, CheckCircle, XCircle, Loader2, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import Filter from '@/components/dashboard/shared/Filter';
-import Pagination from '@/components/dashboard/shared/Pagination';
 import Modal from '@/components/dashboard/shared/Modal';
 import { updateReviewStatus, getAllReviews } from '@/app/actions/reviews';
 
 export default function ReviewsClientWrapper({ initialReviews }) {
   const [reviews, setReviews] = useState(initialReviews || []);
   const [filterStatus, setFilterStatus] = useState('all');
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   const renderStars = (rating) => {
     return (
@@ -50,9 +58,8 @@ export default function ReviewsClientWrapper({ initialReviews }) {
         let newStatus;
         if (action === 'published') newStatus = true;
         if (action === 'rejected') newStatus = false;
-        if (action === 'deleted') newStatus = 'deleted';
 
-        const res = await updateReviewStatus(reviewId, newStatus);
+        const res = await updateReviewStatus(reviewId, newStatus || (action === 'deleted' ? 'deleted' : false));
         if (res?.success) {
           const updated = await getAllReviews();
           setReviews(updated || []);
@@ -78,7 +85,7 @@ export default function ReviewsClientWrapper({ initialReviews }) {
       return {
         raw: r,
         id: r.id,
-        customer: `${r.profiles?.first_name || 'Guest'} ${r.profiles?.last_name || ''}`.trim(),
+        customer: r.user_name || (`${r.profiles?.first_name || 'Guest'} ${r.profiles?.last_name || ''}`).trim() || 'Unknown',
         product: r.products?.title || 'Unknown Product',
         rating: r.rating || 5,
         comment: r.comment || '',
@@ -98,6 +105,12 @@ export default function ReviewsClientWrapper({ initialReviews }) {
     }
     return formattedReviews;
   }, [formattedReviews, filterStatus]);
+
+  const totalItems = filteredReviews.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentReviews = filteredReviews.slice(startIndex, endIndex);
 
   const reviewColumns = [
     {
@@ -123,7 +136,7 @@ export default function ReviewsClientWrapper({ initialReviews }) {
     {
       header: 'Customer',
       accessor: 'customer',
-      render: (row) => <span className="text-xs font-medium text-gray-900">{row.customer}</span>
+      render: (row) => <span className="text-xs font-medium text-gray-900 capitalize">{row.customer}</span>
     },
     {
       header: 'Rating',
@@ -193,8 +206,8 @@ export default function ReviewsClientWrapper({ initialReviews }) {
     <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reviews Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Approve, moderate, and manage customer feedback.</p>
+          <h1 className="text-2xl font-bold text-gray-900">All Reviews</h1>
+          <p className="text-sm text-gray-500 mt-1">Approve, moderate, and manage all customer feedback across products.</p>
         </div>
       </div>
 
@@ -213,8 +226,46 @@ export default function ReviewsClientWrapper({ initialReviews }) {
           </div>
         </div>
 
-        <Table columns={reviewColumns} data={filteredReviews} />
-        <Pagination />
+        <div className="overflow-x-auto min-w-[800px]">
+          <Table columns={reviewColumns} data={currentReviews} />
+        </div>
+
+        {totalItems > 0 && (
+          <div className="flex flex-col sm:flex-row justify-between items-center p-5 border-t border-gray-100 bg-white gap-4">
+            <div className="text-sm text-gray-600 font-medium">
+              Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} results
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(idx + 1)}
+                  className={`w-8 h-8 flex items-center justify-center text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                    currentPage === idx + 1 ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <Modal
@@ -280,7 +331,7 @@ export default function ReviewsClientWrapper({ initialReviews }) {
             <div>
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h4 className="font-bold text-gray-900 text-sm">{selectedReview.customer}</h4>
+                  <h4 className="font-bold text-gray-900 text-sm capitalize">{selectedReview.customer}</h4>
                   <p className="text-xs text-gray-400 mt-0.5">{selectedReview.date}</p>
                 </div>
                 <div className="bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">

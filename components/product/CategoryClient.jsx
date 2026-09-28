@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from "@/context/CartContext";
 import { toggleWishlist as toggleWishlistServer } from "@/app/actions/shopping";
@@ -44,7 +45,14 @@ export default function CategoryClient({ products, pageTitle, emptyMessage }) {
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 relative z-10">
             {currentProducts.map((product) => {
-              const imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+              let imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
+              
+              // SECURE URL MASKING
+              if (imageUrl?.includes('/public/')) {
+                imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+              }
+              
+              const imageAlt = product.product_images?.[0]?.alt_text || product.title;
               const basePrice = Number(product.base_price) || 0;
               const salePrice = Number(product.sale_price) || 0;
               const hasDiscount = salePrice > 0 && salePrice < basePrice;
@@ -54,10 +62,13 @@ export default function CategoryClient({ products, pageTitle, emptyMessage }) {
               return (
                 <Link key={product.id} href={`/product/${product.slug || product.id}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer relative">
                   <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
-                    <img
+                    <Image
                       src={imageUrl}
-                      alt={product.title}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      alt={imageAlt}
+                    
+                      fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
                     <button
                       onClick={(e) => handleWishlistToggle(e, product)}

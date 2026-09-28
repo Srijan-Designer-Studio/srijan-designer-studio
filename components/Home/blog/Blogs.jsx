@@ -34,7 +34,6 @@ export default function Blogs() {
   useGSAP(() => {
     if (blogPosts.length === 0) return;
 
-    // Title Entrance Animation
     gsap.fromTo(
       ".blog-text",
       { y: 40, opacity: 0 },
@@ -47,17 +46,15 @@ export default function Blogs() {
       }
     );
 
-    
     const marqueeTl = gsap.timeline({ repeat: -1 });
     const totalCards = blogPosts.length;
 
-   
     const stepPercentage = 50 / totalCards;
 
     for (let i = 1; i <= totalCards; i++) {
       marqueeTl.to(marqueeRef.current, {
         xPercent: -(stepPercentage * i),
-        duration: 0.8, // Slide speed
+        duration: 0.8, 
         ease: "power2.inOut"
       }, "+=2");
     }
@@ -73,7 +70,6 @@ export default function Blogs() {
     <section className="py-20 bg-gradient-to-br from-[#2b2d56] via-[#484a70] to-[#7a7c99] overflow-hidden" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-
         
           <div className="lg:col-span-4 flex flex-col items-start max-w-[400px] z-10">
             <h2 className="blog-text text-[#ff3838] font-bold uppercase tracking-wider text-xl sm:text-base mb-4 block">
@@ -96,7 +92,6 @@ export default function Blogs() {
               </Link>
             </div>
           </div>
-
           
           <div
             className="lg:col-span-8 overflow-hidden relative cursor-grab active:cursor-grabbing [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] py-8"
@@ -105,100 +100,114 @@ export default function Blogs() {
           >
             <div ref={marqueeRef} className="flex w-max">
 
-              {/* First Set of Cards */}
               <div className="flex gap-6 pr-6">
-                {blogPosts.map((post) => (
-                  <Link
-                    href={`/blog/${post.slug || post.id}`}
-                    key={`first-${post.id}`}
-                    // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
-                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
-                  >
-                    <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
-                      {post.image_url ? (
-                        <Image
-                          src={post.image_url}
-                          alt={post.title}
-                          fill
-                          unoptimized
-                          className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                          <span className="text-white/50 font-bold tracking-widest bg-black/30 px-4 py-2 rounded-lg text-xs uppercase">
-                            BLOG IMAGE
+                {blogPosts.map((post) => {
+                  let imageUrl = post.image_url;
+                  
+                  if (imageUrl?.includes('/public/')) {
+                    imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+                  }
+                  
+                  return (
+                    <Link
+                      href={`/blog/${post.slug || post.id}`}
+                      key={`first-${post.id}`}
+                      className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
+                    >
+                      <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={post.title}
+                            fill
+                           
+                            sizes="(max-width: 768px) 82vw, 400px"
+                            className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                            <span className="text-white/50 font-bold tracking-widest bg-black/30 px-4 py-2 rounded-lg text-xs uppercase">
+                              BLOG IMAGE
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="px-1 pb-1 flex-1 flex flex-col">
+                        {post.categories?.name && (
+                          <span className="text-gray-400 text-[13px] font-semibold mb-2 block uppercase tracking-wider">
+                            {post.categories.name}
                           </span>
-                        </div>
-                      )}
-                    </div>
+                        )}
 
-                    <div className="px-1 pb-1 flex-1 flex flex-col">
-                      {post.categories?.name && (
-                        <span className="text-gray-400 text-[13px] font-semibold mb-2 block uppercase tracking-wider">
-                          {post.categories.name}
-                        </span>
-                      )}
+                        <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
+                          {post.title}
+                        </h3>
 
-                      <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
-                        {post.title}
-                      </h3>
-
-                      <div className="mt-6 pt-2 pb-1">
-                        <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
-                          <ArrowRight size={18} strokeWidth={2.5} />
+                        <div className="mt-6 pt-2 pb-1">
+                          <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
+                            <ArrowRight size={18} strokeWidth={2.5} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
 
-              {/* Second Set of Cards (Duplicate for Seamless Loop) */}
               <div className="flex gap-6 pr-6">
-                {blogPosts.map((post) => (
-                  <Link
-                    href={`/blog/${post.slug || post.id}`}
-                    key={`second-${post.id}`}
-                    // Width updated: w-[82vw] for mobile (1 card), lg:w-[400px] for desktop (Exactly 2 cards)
-                    className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
-                  >
-                    <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
-                      {post.image_url ? (
-                        <Image
-                          src={post.image_url}
-                          alt={post.title}
-                          fill
-                          unoptimized
-                          className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                          <span className="text-white/50 font-bold tracking-widest bg-black/30 px-4 py-2 rounded-lg text-xs uppercase">
-                            BLOG IMAGE
+                {blogPosts.map((post) => {
+                  let imageUrl = post.image_url;
+                  
+                  if (imageUrl?.includes('/public/')) {
+                    imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+                  }
+                  
+                  return (
+                    <Link
+                      href={`/blog/${post.slug || post.id}`}
+                      key={`second-${post.id}`}
+                      className="blog-card bg-[#18263a] rounded-[24px] p-4 shadow-2xl hover:-translate-y-3 transition-all duration-300 flex flex-col w-[82vw] sm:w-[350px] lg:w-[400px] shrink-0 border border-white/5 group"
+                    >
+                      <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden mb-5">
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={post.title}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 82vw, 400px"
+                            className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                            <span className="text-white/50 font-bold tracking-widest bg-black/30 px-4 py-2 rounded-lg text-xs uppercase">
+                              BLOG IMAGE
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="px-1 pb-1 flex-1 flex flex-col">
+                        {post.categories?.name && (
+                          <span className="text-gray-400 text-[13px] font-semibold mb-2 block uppercase tracking-wider">
+                            {post.categories.name}
                           </span>
-                        </div>
-                      )}
-                    </div>
+                        )}
 
-                    <div className="px-1 pb-1 flex-1 flex flex-col">
-                      {post.categories?.name && (
-                        <span className="text-gray-400 text-[13px] font-semibold mb-2 block uppercase tracking-wider">
-                          {post.categories.name}
-                        </span>
-                      )}
+                        <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
+                          {post.title}
+                        </h3>
 
-                      <h3 className="text-white text-base lg:text-[19px] font-bold leading-[1.4] whitespace-normal pr-2">
-                        {post.title}
-                      </h3>
-
-                      <div className="mt-6 pt-2 pb-1">
-                        <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
-                          <ArrowUpRight size={22} strokeWidth={2.5} className="text-white" />
+                        <div className="mt-6 pt-2 pb-1">
+                          <div className="w-[45px] h-[45px] rounded-full bg-[#00c3ff] flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00a8e0] transition-all shadow-lg shadow-[#00c3ff]/20">
+                            <ArrowUpRight size={22} strokeWidth={2.5} className="text-white" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
 
             </div>

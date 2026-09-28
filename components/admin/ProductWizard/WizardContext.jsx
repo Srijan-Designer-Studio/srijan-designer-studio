@@ -43,7 +43,8 @@ export function WizardProvider({ children, initialData }) {
     department: "Women", collections: [],
     images: [],
     sizeChartImage: null, 
-    variants: [{ id: Date.now(), size: "Free Size", color: "", stock: "10", lowStock: "5", barcode: "" }],
+    // REMOVED: stock and sku from default variant
+    variants: [{ id: "var-initial", size: "Free Size", color: "", barcode: "" }],
     basePrice: "", salePrice: "",
     purchaseType: "Single Product", 
     components: [],
@@ -57,6 +58,20 @@ export function WizardProvider({ children, initialData }) {
 
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
+      
+      let parsedVariants = defaultData.variants;
+      if (initialData.variants) {
+        const rawVariants = typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants;
+        // REMOVED: stock and sku mapping
+        parsedVariants = rawVariants.map((v, i) => ({
+          ...v,
+          id: v.id || `var-${i}`,
+          size: v.size || "",
+          color: v.color || "",
+          barcode: v.barcode || ""
+        }));
+      }
+
       setFormData((prev) => ({
         ...prev,
         ...initialData,
@@ -65,7 +80,7 @@ export function WizardProvider({ children, initialData }) {
         onlineCashOff: initialData.onlineCashOff || initialData.online_cash_off || "",
         collections: parseArrayData(initialData.collections),
         faqs: parseArrayData(initialData.faqs),
-        variants: initialData.variants ? (typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants) : prev.variants,
+        variants: parsedVariants,
         components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
         productAddons: initialData.productAddons ? (typeof initialData.productAddons === 'string' ? JSON.parse(initialData.productAddons) : initialData.productAddons) : prev.productAddons,
         images: Array.isArray(initialData.images) ? initialData.images : [],
@@ -97,7 +112,6 @@ export function WizardProvider({ children, initialData }) {
       
       textFields.forEach(field => submitData.append(field, formData[field] || ""));
 
-      // Sending fallback variables
       submitData.append("canonical_url", formData.canonicalUrl || "");
       submitData.append("product_sku", formData.sku || "");
 
@@ -148,10 +162,10 @@ export function WizardProvider({ children, initialData }) {
       if (result?.success) {
         router.push("/admin/products");
       } else {
-        alert(result?.error || "Error publishing product");
+        alert(result?.error || "Error publishing product.");
       }
     } catch (error) {
-      alert("Something went wrong!");
+      alert(`Something went wrong! ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

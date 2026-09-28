@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Minus, Plus, Loader2, ShoppingBag, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -20,8 +21,18 @@ export default function ProductDetails({ product }) {
   const components = product?.components || product?.product_components || []; 
 
   const images = product?.product_images?.length > 0
-    ? product.product_images.map(img => img.image_url)
-    : ["/images/placeholder.jpg"];
+    ? product.product_images.map(img => {
+        let url = img.image_url;
+        // SECURE URL MASKING (No open domain names)
+        if (url?.includes('/public/')) {
+          url = '/assets/' + url.split('/public/')[1];
+        }
+        return {
+          url: url,
+          alt: img.alt_text || product.title 
+        };
+      })
+    : [{ url: "/images/placeholder.jpg", alt: product?.title || "Product Image" }];
 
   const uniqueSizes = [...new Set(
     variants
@@ -51,8 +62,13 @@ export default function ProductDetails({ product }) {
 
   const hasDiscount = salePrice > 0 && salePrice < basePrice;
   const displayPrice = hasDiscount ? salePrice : basePrice;
+  
+  let sizeChartImage = product?.size_chart_image;
+  if (sizeChartImage?.includes('/public/')) {
+    sizeChartImage = '/assets/' + sizeChartImage.split('/public/')[1];
+  }
+
   const crossedOutPrice = hasDiscount ? basePrice : null;
-  const sizeChartImage = product?.size_chart_image;
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -62,7 +78,6 @@ export default function ProductDetails({ product }) {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  // GTM: view_item event
   useEffect(() => {
     if (product && !gtmViewItemTriggered.current) {
       window.dataLayer = window.dataLayer || [];
@@ -114,7 +129,6 @@ export default function ProductDetails({ product }) {
   const handleAddToCart = () => {
     setIsAddingToCart(true);
 
-    // GTM: add_to_cart event
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "add_to_cart",
@@ -137,7 +151,7 @@ export default function ProductDetails({ product }) {
         title: product.title,
         price: displayPrice,
         basePrice: basePrice,
-        image: images[mainImageIndex],
+        image: images[mainImageIndex].url,
         size,
       }, quantity);
 
@@ -154,7 +168,6 @@ export default function ProductDetails({ product }) {
   const handleBuyNow = () => {
     setIsBuyingNow(true);
 
-    // GTM: add_to_cart event (since Buy Now bypasses normal cart flow)
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "add_to_cart",
@@ -177,7 +190,7 @@ export default function ProductDetails({ product }) {
         title: product.title,
         price: displayPrice,
         basePrice: basePrice,
-        image: images[mainImageIndex],
+        image: images[mainImageIndex].url,
         size,
         quantity
       };
@@ -212,10 +225,19 @@ export default function ProductDetails({ product }) {
 
             <div className="prod-img w-full max-w-[500px] mx-auto lg:mx-0 relative">
               <div className="relative w-full aspect-[2/3] rounded-2xl border border-gray-200 overflow-hidden bg-gray-50">
-                <img src={images[mainImageIndex]} alt={product.title} className="w-full h-full object-cover object-top" />
+                
+                <Image 
+                  src={images[mainImageIndex].url} 
+                  alt={images[mainImageIndex].alt}
+                  
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 500px" 
+                  className="object-cover object-top" 
+                />
 
                 {images.length > 1 && (
-                  <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2">
+                  <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10">
                     {images.map((_, idx) => (
                       <button
                         key={idx}
@@ -333,7 +355,7 @@ export default function ProductDetails({ product }) {
                   mainProduct={product} 
                   mainProductVariantId={variantId}
                   mainProductSize={size}
-                  mainImage={images[mainImageIndex]}
+                  mainImage={images[mainImageIndex].url}
                   mainQuantity={quantity}
                 />
               </div>

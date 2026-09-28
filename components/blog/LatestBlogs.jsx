@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { User, Calendar, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import gsap from "gsap";
@@ -79,50 +80,58 @@ export default function LatestBlogs({ blogs = [] }) {
         {currentBlogs.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {currentBlogs.map((blog) => (
-                <div key={blog.id} className="latest-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
-                  {/* Image Link Removed - PDF Requirement */}
-                  <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
-                    <img
-                      src={blog.image_url || "/images/placeholder.jpg"}
-                      alt={blog.title}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-top object-cover group-hover:scale-105 transition-transform duration-500 w-full h-full"
-                    />
-                  </div>
+              {currentBlogs.map((blog) => {
+                let imageUrl = blog.image_url || "/images/placeholder.jpg";
+                
+                // SECURE URL MASKING
+                if (imageUrl?.includes('/public/')) {
+                  imageUrl = '/assets/' + imageUrl.split('/public/')[1];
+                }
 
-                  {/* Title Link Removed - PDF Requirement */}
-                  <div>
-                    <h3 className="text-[17px] font-bold text-gray-900 mb-4 leading-snug line-clamp-2 transition-colors">
-                      {blog.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-[13px] text-gray-500 mb-6 mt-auto">
-                    <div className="flex items-center gap-1.5">
-                      <User size={14} className="text-[#00c3ff]" />
-                      <span>{blog.author || 'Admin'}</span>
+                return (
+                  <div key={blog.id} className="latest-card border border-[#00c3ff]/40 rounded-xl p-4 bg-white hover:shadow-lg transition-all group flex flex-col h-full">
+                    <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden mb-5 bg-gray-100">
+                      <Image
+                        src={imageUrl}
+                        alt={blog.title}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-top object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Calendar size={14} className="text-[#00c3ff]" />
-                      <span>{formatDate(blog.published_at || blog.created_at)}</span>
-                    </div>
-                  </div>
 
-                  {/* ONLY Read More Button is active - PDF Requirement */}
-                  <Link
-                    href={`/blog/${blog.slug}`}
-                    className="group inline-flex items-center justify-center gap-1.5 bg-[#00c3ff] hover:bg-[#00abe0] text-white text-sm md:text-base px-1 py-1 md:px-4 md:py-2 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#00c3ff]/40 hover:-translate-y-1 w-fit cursor-pointer"
-                  >
-                    Read More
-                    <ArrowUpRight
-                      size={20}
-                      strokeWidth={2.5}
-                      className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-                    />
-                  </Link>
-                </div>
-              ))}
+                    <div>
+                      <h3 className="text-[17px] font-bold text-gray-900 mb-4 leading-snug line-clamp-2 transition-colors">
+                        {blog.title}
+                      </h3>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-[13px] text-gray-500 mb-6 mt-auto">
+                      <div className="flex items-center gap-1.5">
+                        <User size={14} className="text-[#00c3ff]" />
+                        <span>{blog.author || 'Admin'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-[#00c3ff]" />
+                        <span>{formatDate(blog.published_at || blog.created_at)}</span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/blog/${blog.slug}`}
+                      className="group inline-flex items-center justify-center gap-1.5 bg-[#00c3ff] hover:bg-[#00abe0] text-white text-sm md:text-base px-1 py-1 md:px-4 md:py-2 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#00c3ff]/40 hover:-translate-y-1 w-fit cursor-pointer"
+                    >
+                      Read More
+                      <ArrowUpRight
+                        size={20}
+                        strokeWidth={2.5}
+                        className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+                      />
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
 
             {totalPages > 1 && (

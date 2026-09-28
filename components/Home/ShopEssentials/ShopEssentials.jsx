@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -21,7 +22,6 @@ const ShopEssentials = ({ products = [] }) => {
   const containerRef = useRef(null);
   const { wishlistItems, toggleWishlist } = useCart();
 
-  // Sort products by newest first
   const sortedProducts = [...products].sort((a, b) => {
     if (a.created_at && b.created_at) {
       return new Date(b.created_at) - new Date(a.created_at);
@@ -33,7 +33,6 @@ const ShopEssentials = ({ products = [] }) => {
     return `${Array.isArray(product.categories) ? product.categories.join(' ') : product.categories?.name || product.categories || ''} ${product.gender || ''} ${product.department || ''}`.toLowerCase();
   };
 
-  // Women Products
   const womenProducts = sortedProducts
     .filter((product) => {
       const cat = getCategoryString(product);
@@ -42,7 +41,6 @@ const ShopEssentials = ({ products = [] }) => {
     })
     .slice(0, 8); 
 
-  // Men Products
   const menProducts = sortedProducts
     .filter((product) => {
       const cat = getCategoryString(product);
@@ -105,7 +103,7 @@ const ShopEssentials = ({ products = [] }) => {
     try {
       await toggleWishlistServer(product.id);
     } catch (error) {
-      console.error("Failed to update wishlist:", error);
+      console.error(error);
     }
   };
 
@@ -113,7 +111,6 @@ const ShopEssentials = ({ products = [] }) => {
     <section className="py-24 bg-[#fafafa]" ref={containerRef}>
       <div className="max-w-[1320px] mx-auto px-6 relative">
         
-        {/* Heading Section */}
         <div className="text-center mb-8">
           <div className="overflow-hidden mb-6">
             <h2 className="essentials-title text-[32px] md:text-[42px] lg:text-[48px] font-black text-[#0d123b] uppercase tracking-tight">
@@ -121,7 +118,6 @@ const ShopEssentials = ({ products = [] }) => {
             </h2>
           </div>
 
-          {/* Centered Tabs (View All Removed) */}
           <div className="essentials-tabs flex items-center justify-center gap-8 mt-10">
             <button
               onClick={() => setActiveTab("WOMEN")}
@@ -144,7 +140,6 @@ const ShopEssentials = ({ products = [] }) => {
           </div>
         </div>
 
-        {/* Slider Section */}
         <div className="w-full relative mt-16 md:mt-24">
           {currentProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
@@ -169,10 +164,18 @@ const ShopEssentials = ({ products = [] }) => {
             >
               {currentProducts.map((product) => {
                 let mainImage = "";
+                let imageAlt = product.title || "Product";
+
                 if (Array.isArray(product.product_images) && product.product_images.length > 0) {
                   mainImage = typeof product.product_images[0] === 'string'
                     ? product.product_images[0]
                     : product.product_images[0]?.image_url;
+                  
+                  imageAlt = product.product_images[0]?.alt_text || product.title;
+                }
+
+                if (mainImage?.includes('/public/')) {
+                  mainImage = '/assets/' + mainImage.split('/public/')[1];
                 }
 
                 const basePrice = Number(product.base_price) || 0;
@@ -188,12 +191,10 @@ const ShopEssentials = ({ products = [] }) => {
                      
                       <Link href={`/product/${product.slug}`} className="relative w-full aspect-[2/3] rounded-[1.5rem] border border-gray-400 overflow-hidden mb-5 bg-white transition-all duration-300 group-hover:border-black block cursor-pointer">
                         
-                        {/* TRENDING Tag */}
                         <div className="absolute top-4 left-4 z-10 bg-[#7C4DFF] text-white text-[10px] font-black px-3.5 py-1.5 rounded-full tracking-widest uppercase">
                           TRENDING
                         </div>
 
-                        {/* Heart Button */}
                         <button
                           onClick={(e) => handleWishlistToggle(e, product)}
                           className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer border border-gray-100"
@@ -204,10 +205,13 @@ const ShopEssentials = ({ products = [] }) => {
                         </button>
 
                         {mainImage ? (
-                          <img
+                          <Image
                             src={mainImage}
-                            alt={product.title}
-                            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                            alt={imageAlt}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                             onLoad={() => ScrollTrigger.refresh()}
                           />
                         ) : (
@@ -215,7 +219,6 @@ const ShopEssentials = ({ products = [] }) => {
                         )}
                       </Link>
 
-                      {/* Product Info Below Image */}
                       <Link href={`/product/${product.slug}`} className="flex flex-col items-center justify-center w-full px-2 cursor-pointer">
                         <h3 className="text-[14px] font-medium text-gray-600 leading-snug mb-2.5 line-clamp-2 hover:text-black transition-colors">
                           {product.title}
@@ -236,9 +239,7 @@ const ShopEssentials = ({ products = [] }) => {
         </div>
       </div>
 
-      {/* FORCEFUL Custom Scrollbar CSS */}
       <style jsx global>{`
-        /* Add explicit padding to the swiper container so there is room for the scrollbar */
         .trending-swiper {
           padding-bottom: 60px !important;
         }
@@ -246,7 +247,6 @@ const ShopEssentials = ({ products = [] }) => {
           background: #e5e7eb; 
           height: 6px;
           border-radius: 10px;
-          /* Position scrollbar explicitly within the padded area */
           bottom: 15px !important; 
           width: 100%;
           left: 0;

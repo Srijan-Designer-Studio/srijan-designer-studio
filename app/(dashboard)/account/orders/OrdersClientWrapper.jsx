@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Eye, XCircle, Star, RotateCcw, Loader2, CheckCircle, CreditCard, ChevronLeft, ChevronRight, Filter as FilterIcon } from 'lucide-react';
+import { Package, Eye, XCircle, Star, RotateCcw, Loader2, CheckCircle, ChevronLeft, ChevronRight, Filter as FilterIcon } from 'lucide-react';
 import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
@@ -53,7 +53,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
     setConfirmDialog({ isOpen: false, type: '', orderId: null, title: '', message: '' });
     if (res?.success) {
       setFeedbackDialog({ isOpen: true, type: 'success', message: res.message || 'Action completed successfully!' });
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
     } else {
       setFeedbackDialog({ isOpen: true, type: 'error', message: res?.message || 'Failed to complete action.' });
     }
@@ -70,7 +70,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
     const imageUrl = firstItem?.product_variants?.products?.product_images?.[0]?.image_url || firstItem?.image_url || firstItem?.image || null;
     const singleProductSlug = order.order_items?.length === 1 ? (firstItem?.product_variants?.products?.slug || firstItem?.products?.slug || null) : null;
 
-    let isReturnable = true; 
+    let isReturnable = true;
 
     let displayStatus = (order.status || '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     if ((order.status || '').toLowerCase() === 'processing') {
@@ -107,9 +107,16 @@ export default function OrdersClientWrapper({ initialOrders }) {
       accessor: 'id',
       render: (row) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden shrink-0 hidden sm:flex">
+          <div className="relative w-10 h-10 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden shrink-0 hidden sm:flex">
             {row.image ? (
-              <img src={row.image} alt="Product" className="w-full h-full object-cover" />
+              <Image
+                src={row.image}
+                alt="Product"
+                unoptimized
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
             ) : (
               <Package size={18} className="text-gray-400" />
             )}
@@ -130,7 +137,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
       accessor: 'action',
       render: (row) => {
         const rawStatus = (row.rawOrder.status || '').toLowerCase();
-        
+
         return (
           <div className="flex items-center gap-2 sm:gap-3">
             <button
@@ -140,10 +147,11 @@ export default function OrdersClientWrapper({ initialOrders }) {
               <Eye size={16} className="hidden sm:block" /> View
             </button>
             <div className="hidden lg:flex items-center gap-3">
+              {/* Only show these if the order is DELIVERED */}
               {rawStatus === 'delivered' && (
                 <>
                   <DownloadInvoice order={row.rawOrder} />
-                  
+
                   {row.singleProductSlug ? (
                     <Link
                       href={`/product/${row.singleProductSlug}`}
@@ -159,19 +167,20 @@ export default function OrdersClientWrapper({ initialOrders }) {
                       <Star size={16} className="fill-yellow-600" /> Review
                     </button>
                   )}
+
+                  {row.isReturnable && (
+                    <button
+                      onClick={() => handleReturnOrder(row.rawOrder.id)}
+                      disabled={isUpdating}
+                      className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
+                    >
+                      <RotateCcw size={16} /> Return
+                    </button>
+                  )}
                 </>
               )}
-              
-              {row.isReturnable && rawStatus !== 'cancelled' && rawStatus !== 'return_requested' && rawStatus !== 'returned' && (
-                <button
-                  onClick={() => handleReturnOrder(row.rawOrder.id)}
-                  disabled={isUpdating}
-                  className="flex items-center gap-1 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors whitespace-nowrap disabled:opacity-50 cursor-pointer"
-                >
-                  <RotateCcw size={16} /> Return
-                </button>
-              )}
 
+              {/* Only show Cancel if the order is PENDING or PROCESSING */}
               {['pending', 'processing'].includes(rawStatus) && (
                 <button
                   onClick={() => handleCancelOrder(row.rawOrder.id)}
@@ -220,7 +229,7 @@ export default function OrdersClientWrapper({ initialOrders }) {
                 className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-[13px] sm:text-sm text-black bg-gray-50 transition-all"
               />
             </div>
-            <button 
+            <button
               onClick={() => setShowFilters(!showFilters)}
               className="sm:hidden px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center"
             >
@@ -260,9 +269,8 @@ export default function OrdersClientWrapper({ initialOrders }) {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-sm font-bold border focus:outline-none transition-colors ${
-                    currentPage === page ? 'bg-black text-white border-black z-10 relative' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-sm font-bold border focus:outline-none transition-colors ${currentPage === page ? 'bg-black text-white border-black z-10 relative' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
                   {page}
                 </button>
@@ -306,13 +314,14 @@ export default function OrdersClientWrapper({ initialOrders }) {
 
             <div className="lg:hidden flex flex-col gap-2 mt-4 pb-4 border-b border-gray-100">
               {selectedOrder.status.toLowerCase() === 'delivered' && (
-                <DownloadInvoice order={selectedOrder} />
-              )}
-              
-              {selectedOrder.is_return_eligible && !['cancelled', 'return_requested', 'returned'].includes(selectedOrder.status.toLowerCase()) && (
-                <button onClick={() => handleReturnOrder(selectedOrder.id)} disabled={isUpdating} className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-orange-600 bg-orange-50 border border-orange-100 rounded-lg">
-                  <RotateCcw size={16} /> Return Item
-                </button>
+                <>
+                  <DownloadInvoice order={selectedOrder} />
+                  {selectedOrder.is_return_eligible && (
+                    <button onClick={() => handleReturnOrder(selectedOrder.id)} disabled={isUpdating} className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-orange-600 bg-orange-50 border border-orange-100 rounded-lg">
+                      <RotateCcw size={16} /> Return Item
+                    </button>
+                  )}
+                </>
               )}
 
               {['pending', 'processing'].includes(selectedOrder.status.toLowerCase()) && (

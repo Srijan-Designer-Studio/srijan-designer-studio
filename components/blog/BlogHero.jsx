@@ -1,54 +1,25 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function BlogHero() {
-  const containerRef = useRef(null);
-
-  useGSAP(() => {
-    
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 500);
-
-    
-    gsap.fromTo(
-      ".hero-img",
-      { scale: 1.15 },
-      { scale: 1, duration: 1.5, ease: "power3.out" }
-    );
-
-    gsap.fromTo(
-      ".hero-text",
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power4.out", delay: 0.3 }
-    );
-  }, { scope: containerRef });
-
   return (
-    <section className="relative overflow-hidden w-full h-screen min-h-[400px]" ref={containerRef}>
+    <section className="relative overflow-hidden w-full h-screen min-h-[400px]">
       <Image
         src="/others-img/Blogs HERO Section.webp"
         alt="Our Blogs"
         fill
         priority
-        className="hero-img object-cover object-top object-center"
-        onLoad={() => ScrollTrigger.refresh()}
+        className="object-cover object-top object-center"
       />
-      {/* <div className="absolute inset-0 bg-black/40"></div> */}
+      
       <div className="absolute inset-0 flex items-center z-10">
         <div className="max-w-[1320px] w-full mx-auto px-6">
           <div className="max-w-xl text-white mt-10">
-            <h1 className="hero-text text-4xl md:text-5xl lg:text-[68px] font-bold mb-4 leading-tight font-serif">
+            <h1 className="text-4xl md:text-5xl lg:text-[68px] font-bold mb-4 leading-tight font-serif">
               Our Blogs
             </h1>
-            <p className="hero-text text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px]">
+            <p className="text-[19px] sm:text-xl lg:text-[22px] text-white font-semibold leading-relaxed drop-shadow-sm max-w-[600px]">
               Stay updated with the latest fashion styles, styling guides and trend insights to help you look your best every day.
             </p>
           </div>
