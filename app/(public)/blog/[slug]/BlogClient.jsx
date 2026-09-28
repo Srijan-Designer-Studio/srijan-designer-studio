@@ -1,161 +1,192 @@
 "use client";
 
-import { useWizard } from "./WizardContext";
-import { Plus, Trash2, Copy } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
-const generateUUID = () => {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
-    return window.crypto.randomUUID();
+const slugify = (text) =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+export default function BlogClient({ blog }) {
+  const [headings, setHeadings] = useState([]);
+  const [activeId, setActiveId] = useState("");
+  const contentRef = useRef(null);
+  const isClickScrolling = useRef(false);
+  const clickScrollTimeout = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
+  useEffect(() => {
+    if (!blog?.content || !contentRef.current) return;
+
+    const elements = Array.from(contentRef.current.querySelectorAll("h2, h3"));
+    const usedIds = new Map();
+
+    const newHeadings = elements.map((el) => {
+      const text = el.textContent.trim();
+      let id = slugify(text) || "section";
+    
+      if (usedIds.has(id)) {
+        const count = usedIds.get(id) + 1;
+        usedIds.set(id, count);
+        id = `${id}-${count}`;
+      } else {
+        usedIds.set(id, 1);
+      }
+
+      el.id = id;
+      el.style.scrollMarginTop = "110px";
+      return { id, text };
+    });
+
+    setHeadings(newHeadings);
+  }, [blog]);
+
+  useEffect(() => {
+    if (headings.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isClickScrolling.current) return;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-120px 0px -60% 0px", threshold: 0 }
+    );
+
+    headings.forEach((heading) => {
+      const el = document.getElementById(heading.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [headings]);
+
+  useEffect(() => {
+    return () => clearTimeout(clickScrollTimeout.current);
+  }, []);
+
+  const handleScroll = (id) => {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    isClickScrolling.current = true;
+    setActiveId(id);
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    clearTimeout(clickScrollTimeout.current);
+    clickScrollTimeout.current = setTimeout(() => {
+      isClickScrolling.current = false;
+    }, 900);
+  };
+
+  const publishDate = new Date(blog.published_at || blog.created_at).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  // কভার ইমেজের URL মাস্কিং
+  let coverImageUrl = blog.image_url;
+  if (coverImageUrl?.includes('/public/')) {
+    coverImageUrl = '/assets/' + coverImageUrl.split('/public/')[1];
   }
 
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
-export default function Step5Variants() {
-  const { formData, updateFormData } = useWizard();
-
-  const addVariant = () => {
-    const newVariant = {
-      id: generateUUID(),
-      size: "",
-      color: "",
-      sku: "",
-      stock: 10,
-      barcode: ""
-    };
-    const currentVariants = formData?.variants || [];
-    updateFormData({ variants: [...currentVariants, newVariant] });
-  };
-
-  const duplicateVariant = (variant) => {
-    const newVariant = {
-      ...variant,
-      id: generateUUID(), 
-    };
-    const currentVariants = formData?.variants || [];
-    updateFormData({ variants: [...currentVariants, newVariant] });
-  };
-
-  const removeVariant = (id) => {
-    const currentVariants = formData?.variants || [];
-    if (currentVariants.length > 1) {
-      updateFormData({ variants: currentVariants.filter(v => v.id !== id) });
-    } else {
-      alert("You must have at least one variant.");
-    }
-  };
-
-  const updateVariant = (id, field, value) => {
-    const currentVariants = formData?.variants || [];
-    updateFormData({
-      variants: currentVariants.map(v => v.id === id ? { ...v, [field]: value } : v)
-    });
-  };
-
-  const variants = formData?.variants || [];
+  // ব্লগের ভেতরের HTML কন্টেন্টের সব ছবির URL মাস্কিং (Global Replace)
+  let processedContent = blog.content || "";
+  if (processedContent.includes('supabase.co')) {
+    processedContent = processedContent.replace(
+      /https:\/\/fzhxybcrddmyklrdjgwz\.supabase\.co\/storage\/v1\/object\/public\//g,
+      '/assets/'
+    );
+  }
 
   return (
-    <div className="animate-in fade-in text-black slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-gray-100 pb-5 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Variants & Classifications</h2>
-          <p className="text-[19px] text-gray-500 mt-1">Manage sizes, colors, stock, and barcodes for this product.</p>
-        </div>
-        <button
-          onClick={addVariant}
-          className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <Plus size={16} /> Add Variant
-        </button>
+    <div className="max-w-6xl mx-auto px-4 py-10 mt-20 text-black">
+      <nav className="flex flex-wrap items-center gap-2 text-[13px] text-gray-500 mb-6 font-medium">
+        <Link href="/" className="hover:text-[#00c3ff] transition-colors shrink-0">Home</Link>
+        <span className="shrink-0">/</span>
+        <Link href="/blog" className="hover:text-[#00c3ff] transition-colors shrink-0">Blog</Link>
+        {blog.categories?.name && (
+          <>
+            <span className="shrink-0">/</span>
+            <span className="text-gray-700 shrink-0">{blog.categories.name}</span>
+          </>
+        )}
+        <span className="shrink-0">/</span>
+        <span className="text-gray-900 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">{blog.title}</span>
+      </nav>
+
+      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold mt-2 mb-5 text-center text-gray-900 leading-tight">
+        {blog.title}
+      </h1>
+
+      <div className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-gray-500 mb-8 sm:mb-10">
+        <span className="font-bold text-gray-800 tracking-wide uppercase text-[11px] sm:text-[12px]">
+          By {blog.author || "Admin"}
+        </span>
+        <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+        <span className="font-medium">{publishDate}</span>
       </div>
 
-      <div className="space-y-6">
-        {variants.map((variant, index) => (
-          <div key={variant.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 relative group transition-all hover:border-blue-300 hover:shadow-sm">
-            <div className="absolute top-4 right-4 flex gap-2">
-              <button
-                onClick={() => duplicateVariant(variant)}
-                title="Duplicate Variant"
-                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-blue-600 hover:border-blue-200 transition-colors cursor-pointer"
-              >
-                <Copy size={14} />
-              </button>
-              <button
-                onClick={() => removeVariant(variant.id)}
-                title="Delete Variant"
-                className="p-1.5 text-gray-400 bg-white border border-gray-200 rounded-md hover:text-red-500 hover:border-red-200 transition-colors cursor-pointer"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
+      {coverImageUrl && (
+        <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] mb-8 sm:mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+          <Image
+            src={coverImageUrl}
+            alt={blog.cover_img_alt || blog.title}
+            fill
+            priority
+            unoptimized
+            sizes="(max-width: 1024px) 100vw, 1200px"
+            className="object-cover"
+          />
+        </div>
+      )}
 
-            <h3 className="text-[12px] font-extrabold text-gray-400 uppercase tracking-wider mb-5">
-              Variant {index + 1}
-            </h3>
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start w-full">
+        {headings.length > 0 && (
+          <aside className="w-full lg:w-64 shrink-0 lg:sticky top-28 self-start bg-[#f9fbfc] p-5 sm:p-6 rounded-2xl border border-blue-50/50 shadow-sm z-10">
+            <p className="text-[12px] sm:text-[13px] font-extrabold uppercase tracking-widest text-black mb-4 sm:mb-5">
+              On this page
+            </p>
+            <nav className="flex flex-col max-h-[250px] lg:max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar gap-2 sm:gap-2.5 pr-2 lg:pr-0">
+              {headings.map((heading) => (
+                <button
+                  key={heading.id}
+                  onClick={() => handleScroll(heading.id)}
+                  className={`
+                    text-left text-[13px] sm:text-[14px] px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl transition-all duration-200
+                    border-l-[3px] cursor-pointer outline-none leading-snug font-medium shrink-0
+                    ${activeId === heading.id
+                      ? "border-[#00c3ff] bg-white text-[#00c3ff] shadow-sm"
+                      : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-white"
+                    }
+                  `}
+                >
+                  {heading.text}
+                </button>
+              ))}
+            </nav>
+          </aside>
+        )}
 
-            {/* Changed to 5 columns to include necessary Stock and SKU fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Size <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  placeholder="e.g. S, M, L"
-                  value={variant.size || ""}
-                  onChange={(e) => updateVariant(variant.id, 'size', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Color</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Red, Blue"
-                  value={variant.color || ""}
-                  onChange={(e) => updateVariant(variant.id, 'color', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Quantity</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 10"
-                  min="0"
-                  value={variant.stock !== undefined ? variant.stock : 10}
-                  onChange={(e) => updateVariant(variant.id, 'stock', parseInt(e.target.value) || 0)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">SKU</label>
-                <input
-                  type="text"
-                  placeholder="e.g. DRESS-RED-S"
-                  value={variant.sku || ""}
-                  onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Barcode</label>
-                <input
-                  type="text"
-                  placeholder="ISBN, UPC"
-                  value={variant.barcode || ""}
-                  onChange={(e) => updateVariant(variant.id, 'barcode', e.target.value)}
-                  className="w-full text-[13px] border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 bg-white"
-                />
-              </div>
-            </div>
-          </div>
-        ))}
+        <div
+          ref={contentRef}
+          className="prose prose-sm sm:prose-base lg:prose-lg max-w-none w-full prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-[#00c3ff] hover:prose-a:text-[#009bcc] prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-md prose-table:border-collapse prose-th:border prose-td:border prose-th:border-gray-200 prose-td:border-gray-200 prose-th:bg-gray-50"
+          dangerouslySetInnerHTML={{ __html: processedContent }}
+        />
       </div>
     </div>
   );
