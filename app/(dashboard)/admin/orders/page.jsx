@@ -5,8 +5,8 @@ import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import Modal from '@/components/dashboard/shared/Modal';
-import { getAllOrders, updateOrderStatus } from '@/app/actions/admin';
-import { MapPin, User, Package, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getAllOrders, updateOrderStatus, deleteOldOrders } from '@/app/actions/admin';
+import { MapPin, User, Package, X, ChevronLeft, ChevronRight, CreditCard, Trash2, Loader2 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -17,6 +17,7 @@ export default function AdminOrdersPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All Statuses");
     const [enlargedImage, setEnlargedImage] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false); // Delete Loading State
     
     // Pagination States
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,10 +37,14 @@ export default function AdminOrdersPage() {
         fetchOrders();
     }, []);
 
-    // ফিল্টার বা সার্চ করলে পেজ ১-এ ফিরে যাবে
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, statusFilter]);
+
+    // Calculate 6-month old orders
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const oldOrdersCount = orders.filter(order => new Date(order.created_at) < sixMonthsAgo).length;
 
     const handleStatusUpdate = (e) => {
         e.preventDefault();
@@ -57,6 +62,29 @@ export default function AdminOrdersPage() {
     const handleViewOrder = (order) => {
         setSelectedOrder(order);
         setIsModalOpen(true);
+    };
+
+    const handleDeleteOld = async () => {
+        if (!window.confirm(`Are you sure you want to delete ${oldOrdersCount} orders older than 6 months? This action cannot be undone.`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        try {
+            const res = await deleteOldOrders();
+            if (res.success) {
+                alert("Old orders deleted successfully.");
+                const updatedData = await getAllOrders();
+                setOrders(updatedData);
+                setCurrentPage(1);
+            } else {
+                alert("Failed to delete data: " + res.error);
+            }
+        } catch (error) {
+            alert("An unexpected error occurred.");
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const formatAddress = (order) => {
@@ -85,7 +113,6 @@ export default function AdminOrdersPage() {
         return matchesSearch && matchesStatus;
     });
 
-    // Pagination Logic
     const totalItems = filteredOrders.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -167,6 +194,22 @@ export default function AdminOrdersPage() {
         );
     }
 
+    let itemSubtotal = 0;
+    let isCOD = false;
+    let codCharge = 0;
+    let shippingFee = 0;
+    let finalTotal = 0;
+    let onlineDiscount = 0;
+
+    if (selectedOrder) {
+        itemSubtotal = selectedOrder.order_items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+        isCOD = selectedOrder.payment_method?.toLowerCase() === 'cod';
+        codCharge = isCOD ? 10 : 0;
+        shippingFee = Number(selectedOrder.shipping_fee || 0);
+        finalTotal = Number(selectedOrder.total_amount);
+        onlineDiscount = Math.max(0, itemSubtotal + codCharge + shippingFee - finalTotal);
+    }
+
     return (
         <div className="space-y-6 relative font-sans">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -174,6 +217,19 @@ export default function AdminOrdersPage() {
                     <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
                     <p className="text-[16px] text-gray-500 mt-1">Track, manage, and fulfill customer orders seamlessly.</p>
                 </div>
+                {/* 6 Months Delete Button */}
+                <button
+                    onClick={handleDeleteOld}
+                    disabled={isDeleting || oldOrdersCount === 0}
+                    className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm shrink-0
+                    ${oldOrdersCount > 0
+                        ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 cursor-pointer'
+                        : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                    }`}
+                >
+                    {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                    {isDeleting ? 'Deleting...' : `Delete 6 Months Old Data (${oldOrdersCount})`}
+                </button>
             </div>
 
             <Card className="p-0 shadow-sm border border-gray-200 overflow-hidden">
@@ -208,7 +264,6 @@ export default function AdminOrdersPage() {
                     <Table columns={orderColumns} data={currentOrders} />
                 </div>
 
-                {/* Custom Pagination UI */}
                 {totalItems > 0 && (
                     <div className="flex flex-col sm:flex-row justify-between items-center p-5 border-t border-gray-100 bg-white gap-4">
                         <div className="text-sm text-gray-600 font-medium">
@@ -236,7 +291,7 @@ export default function AdminOrdersPage() {
                             ))}
 
                             <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                                 className="p-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
                             >
@@ -272,12 +327,33 @@ export default function AdminOrdersPage() {
 
                             <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                                 <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <MapPin size={14} /> Shipping Address
+                                    <MapPin size={14} /> Shipping & Payment
                                 </h3>
                                 <div className="space-y-3 text-sm">
                                     <p className="text-gray-800 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-gray-200/60 shadow-sm">
                                         {formatAddress(selectedOrder)}
                                     </p>
+
+                                    <div className="flex flex-col gap-2 mt-3 bg-white p-3 rounded-lg border border-gray-200/60 shadow-sm">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Method:</span>
+                                            <span className={`font-bold px-2 py-0.5 rounded text-xs uppercase flex items-center gap-1 ${isCOD ? 'text-orange-700 bg-orange-100' : 'text-green-700 bg-green-100'}`}>
+                                                <CreditCard size={12} /> {isCOD ? 'COD' : 'ONLINE'}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Status:</span>
+                                            <span className={`font-bold px-2 py-0.5 rounded text-[11px] uppercase ${selectedOrder.payment_status === 'Paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                                                {selectedOrder.payment_status || 'Pending'}
+                                            </span>
+                                        </div>
+                                        {selectedOrder.payment_method === 'online' && selectedOrder.razorpay_payment_id && (
+                                            <div className="pt-2 mt-1 border-t border-gray-100 space-y-1.5">
+                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Pay ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_payment_id}</span></p>
+                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Order ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_order_id}</span></p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -345,11 +421,33 @@ export default function AdminOrdersPage() {
                             </div>
 
                             <div className="bg-gray-50 p-5 border-t border-gray-200 space-y-2 text-sm">
-                                <div className="flex justify-between"><span className="text-gray-500">Subtotal</span><span className="font-medium text-gray-900">₹{Number(selectedOrder.total_amount).toLocaleString('en-IN')}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">Shipping</span><span className="font-medium text-gray-900">₹{Number(selectedOrder.shipping_fee || 0).toLocaleString('en-IN')}</span></div>
-                                <div className="flex justify-between text-base font-black pt-2 border-t border-gray-200 mt-2">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Subtotal</span>
+                                    <span className="font-medium text-gray-900">₹{itemSubtotal.toLocaleString('en-IN')}</span>
+                                </div>
+                                
+                                {isCOD && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">COD Convenience Charge</span>
+                                        <span className="font-medium text-gray-900">+ ₹{codCharge}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Shipping Rate</span>
+                                    <span className="font-medium text-gray-900">{shippingFee > 0 ? `₹${shippingFee.toLocaleString('en-IN')}` : 'Free'}</span>
+                                </div>
+
+                                {onlineDiscount > 0 && !isCOD && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Online Payment Discount</span>
+                                        <span className="font-medium text-green-600">- ₹{onlineDiscount.toLocaleString('en-IN')}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between text-base font-black pt-3 border-t border-gray-200 mt-3">
                                     <span className="text-gray-900">Total Amount</span>
-                                    <span className="text-[#0ba6ff]">₹{(Number(selectedOrder.total_amount) + Number(selectedOrder.shipping_fee || 0)).toLocaleString('en-IN')}</span>
+                                    <span className="text-[#0ba6ff]">₹{finalTotal.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>

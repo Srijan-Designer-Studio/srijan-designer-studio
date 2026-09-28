@@ -1097,3 +1097,74 @@ export async function toggleProductHomepage(productId, currentStatus) {
   revalidatePath('/'); 
   return { success: true };
 }
+
+export async function deleteOldCustomRequests() {
+  const supabase = createAdminClient();
+  try {
+    await verifyAdmin();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const { error } = await supabase
+      .from('custom_requests')
+      .delete()
+      .lt('created_at', sixMonthsAgo.toISOString());
+
+    if (error) throw error;
+    revalidatePath('/admin/custom-requests'); 
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCustomRequestsByIds(ids) {
+  const supabase = createAdminClient();
+  try {
+    await verifyAdmin();
+    
+    if (!ids || ids.length === 0) {
+      return { success: false, error: "No requests selected" };
+    }
+
+    const { error } = await supabase
+      .from('custom_requests')
+      .delete()
+      .in('id', ids);
+
+    if (error) throw error;
+
+    revalidatePath('/admin/custom-requests'); 
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+
+export async function deleteOldOrders() {
+  const supabase = createAdminClient();
+  try {
+    await verifyAdmin();
+    
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const { data: oldOrders } = await supabase
+      .from('orders')
+      .select('id')
+      .lt('created_at', sixMonthsAgo.toISOString());
+
+    if (oldOrders && oldOrders.length > 0) {
+      const orderIds = oldOrders.map(o => o.id);
+      await supabase.from('order_items').delete().in('order_id', orderIds);
+      const { error } = await supabase.from('orders').delete().in('id', orderIds);
+      if (error) throw error;
+    }
+
+    revalidatePath('/admin/orders'); 
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

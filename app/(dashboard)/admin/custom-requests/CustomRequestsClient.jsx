@@ -1,19 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Eye, X, ChevronLeft, ChevronRight, Trash2, Loader2, CheckSquare } from 'lucide-react';
+import { deleteOldCustomRequests, deleteCustomRequestsByIds } from '@/app/actions/admin'; 
 
 export default function CustomRequestsClient({ requests }) {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]); // Selected items state
 
+  // Pagination Logic
   const itemsPerPage = 10;
   const totalItems = requests.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = requests.slice(startIndex, endIndex);
+
+  // Calculate 6-month old requests
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const oldRequestsCount = requests.filter(req => new Date(req.created_at) < sixMonthsAgo).length;
 
   const getSourceBadge = (source) => {
     const raw = (source || '').toLowerCase().trim();
@@ -33,18 +44,126 @@ export default function CustomRequestsClient({ requests }) {
     setSelectedRequest(null);
   };
 
+  // Checkbox Handlers
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const currentPageIds = currentRequests.map(req => req.id);
+    const allSelected = currentPageIds.every(id => selectedIds.includes(id));
+
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !currentPageIds.includes(id)));
+    } else {
+      const newIds = currentPageIds.filter(id => !selectedIds.includes(id));
+      setSelectedIds(prev => [...prev, ...newIds]);
+    }
+  };
+
+  // Delete Action: 6 Months Old Data
+  const handleDeleteOld = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${oldRequestsCount} requests older than 6 months? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteOldCustomRequests();
+      if (res.success) {
+        alert("Old requests deleted successfully.");
+        setCurrentPage(1);
+        setSelectedIds([]);
+        router.refresh();
+      } else {
+        alert("Failed to delete data: " + res.error);
+      }
+    } catch (error) {
+      alert("An unexpected error occurred.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Delete Action: Selected Data
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} selected request(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteCustomRequestsByIds(selectedIds);
+      if (res.success) {
+        alert("Selected requests deleted successfully.");
+        setSelectedIds([]);
+        router.refresh();
+      } else {
+        alert("Failed to delete data: " + res.error);
+      }
+    } catch (error) {
+      alert("An unexpected error occurred.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
+    <div className="p-6 md:p-10 bg-gray-50 min-h-screen font-sans">
       <div className="max-w-[1400px] mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Custom Wear Requests</h1>
-        <p className="text-gray-500 mb-8">Manage all your custom styling and wedding inquiries here.</p>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Custom Wear Requests</h1>
+            <p className="text-gray-500">Manage all your custom styling and wedding inquiries here.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Delete Selected Button */}
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleDeleteSelected}
+                disabled={isDeleting}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm bg-red-500 text-white hover:bg-red-600 shrink-0 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <CheckSquare size={18} />}
+                Delete Selected ({selectedIds.length})
+              </button>
+            )}
+
+            {/* Delete 6 Months Old Button */}
+            <button
+              onClick={handleDeleteOld}
+              disabled={isDeleting || oldRequestsCount === 0}
+              className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm shrink-0
+                ${oldRequestsCount > 0
+                  ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 cursor-pointer'
+                  : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                }`}
+            >
+              {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+              Old Data ({oldRequestsCount})
+            </button>
+          </div>
+        </div>
 
         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-100 text-gray-700 text-sm uppercase tracking-wide border-b border-gray-200">
-                  <th className="px-6 py-4 font-semibold">Date</th>
+                  <th className="px-6 py-4 w-12">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded border-gray-300 text-[#00c3ff] focus:ring-[#00c3ff] cursor-pointer"
+                      checked={currentRequests.length > 0 && currentRequests.every(req => selectedIds.includes(req.id))}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="px-4 py-4 font-semibold">Date</th>
                   <th className="px-6 py-4 font-semibold">Source</th>
                   <th className="px-6 py-4 font-semibold">Client Details</th>
                   <th className="px-6 py-4 font-semibold">Outfit & Budget</th>
@@ -56,9 +175,19 @@ export default function CustomRequestsClient({ requests }) {
                 {currentRequests.length > 0 ? (
                   currentRequests.map((req) => {
                     const badge = getSourceBadge(req.source_page);
+                    const isSelected = selectedIds.includes(req.id);
+                    
                     return (
-                      <tr key={req.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                      <tr key={req.id} className={`transition-colors ${isSelected ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}>
+                        <td className="px-6 py-4">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-gray-300 text-[#00c3ff] focus:ring-[#00c3ff] cursor-pointer"
+                            checked={isSelected}
+                            onChange={() => toggleSelection(req.id)}
+                          />
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
                           {new Date(req.created_at).toLocaleDateString('en-GB')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -93,7 +222,7 @@ export default function CustomRequestsClient({ requests }) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500 font-medium">
+                    <td colSpan="7" className="px-6 py-12 text-center text-gray-500 font-medium">
                       No requests found yet.
                     </td>
                   </tr>
