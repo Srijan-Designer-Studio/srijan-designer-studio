@@ -1,21 +1,8 @@
-// admin.js
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import nodemailer from 'nodemailer'
-import {
-  scheduleShiprocketPickup,
-  getShiprocketLabel,
-  getShiprocketInvoice,
-  cancelShiprocketOrder,
-  createShiprocketReturn,
-  takeNDRAction,
-  checkServiceability,
-  createShiprocketOrder,
-  generateAWB,
-  trackShiprocketOrder
-} from '@/lib/utils/shiprocket'
 import { unstable_noStore as noStore } from 'next/cache';
 
 async function verifyAdmin() {
@@ -244,7 +231,6 @@ export async function getAllOrders() {
 
 export async function updateOrderStatus(orderId, newStatus) {
   const supabase = createAdminClient();
-
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.srijandesignerstudio.com';
 
   try {
@@ -413,7 +399,85 @@ export async function updateOrderStatus(orderId, newStatus) {
           <p style="margin-top: 15px; color: #374151; font-size: 13px;">If you have any questions regarding your order, please contact our support team.</p>
           <p style="margin-top: 20px; color: #111; font-size: 13px; font-style: italic;">Thank you for choosing <strong>SRIJAN Fashion</strong>.</p>
         `;
-      } 
+      } else if (newStatus === 'packed') {
+        subject = `Order Packed - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/3.webp`;
+        headerText = 'Your Order is Packed!';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">Great news! Your order <strong>#${displayOrderId}</strong> has been carefully packed and is waiting to be handed over to our delivery partner.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">We will notify you again once it is dispatched.</p>
+        `;
+      } else if (newStatus === 'shipped') {
+        subject = `Order Shipped - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/2.webp`;
+        headerText = 'Your Order is on the way!';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">Your order <strong>#${displayOrderId}</strong> has been shipped and is on its way to you.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">You can track your order status from your account dashboard.</p>
+        `;
+      } else if (newStatus === 'out_for_delivery') {
+        subject = `Order Out for Delivery - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/4.webp`;
+        headerText = 'Out For Delivery Today!';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">Your order <strong>#${displayOrderId}</strong> is out for delivery today. Please make sure someone is available to receive the package.</p>
+        `;
+      } else if (newStatus === 'delivered') {
+        subject = `Order Delivered - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/4.webp`;
+        headerText = 'Order Successfully Delivered!';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">We're glad to inform you that your order <strong>#${displayOrderId}</strong> has been successfully delivered.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">We hope you love your purchase! If you have a moment, we would appreciate it if you could leave a review.</p>
+        `;
+      } else if (newStatus === 'cancelled') {
+        subject = `Order Cancelled - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/6.png`;
+        headerText = 'Order Cancellation Notice';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">Your order <strong>#${displayOrderId}</strong> has been cancelled.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">If you already paid for this order, the refund process will be initiated shortly according to our refund policy. If you have any questions, please contact our support team.</p>
+        `;
+      } else if (newStatus === 'return_requested') {
+        subject = `Return Request Received - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/5.png`;
+        headerText = 'Return Request Initiated';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">We have received your return request for order <strong>#${displayOrderId}</strong>.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">Our team is reviewing your request and will update you shortly on the next steps.</p>
+        `;
+      } else if (newStatus === 'return_approved') {
+        subject = `Return Request Approved - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/5.png`;
+        headerText = 'Return Approved';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">Good news! Your return request for order <strong>#${displayOrderId}</strong> has been approved.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">Our delivery partner will contact you soon for the pickup.</p>
+        `;
+      } else if (newStatus === 'return_rejected') {
+        subject = `Return Request Update - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/6.png`;
+        headerText = 'Return Request Update';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">We have reviewed your return request for order <strong>#${displayOrderId}</strong>, but unfortunately, it could not be approved as it does not meet our return policy criteria.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">If you have any questions, please reach out to our customer support.</p>
+        `;
+      } else if (newStatus === 'refund_initiated') {
+        subject = `Refund Initiated - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/5.png`;
+        headerText = 'Refund Process Started';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">We have initiated the refund for your order <strong>#${displayOrderId}</strong>.</p>
+          <p style="margin-top: 25px; color: #374151; font-size: 13px;">The amount will reflect in your original payment method within 5-7 business days.</p>
+        `;
+      } else if (newStatus === 'returned') {
+        subject = `Order Returned Successfully - #${displayOrderId} | SRIJAN Fashion`;
+        topIcon = `${BASE_URL}/email-img/5.png`;
+        headerText = 'Return Completed';
+        messageHtml = `
+          <p style="margin-bottom: 15px; font-size: 14px; color: #374151;">The return process for your order <strong>#${displayOrderId}</strong> has been successfully completed.</p>
+        `;
+      }
 
       if (subject !== '') {
         const htmlTemplate = `
@@ -447,15 +511,6 @@ export async function updateOrderStatus(orderId, newStatus) {
     return { success: false, error: error.message }
   }
 }
-
-export async function pushOrderToShiprocket(orderId) { return {success: true}; }
-export async function getTrackingDetails(awbCode) { return {success: true}; }
-export async function cancelShipment(orderId, awbCode) { return {success: true}; }
-export async function initiateReturn(orderId) { return {success: true}; }
-export async function submitNDRAction(orderId, awb, actionType) { return {success: true}; }
-export async function requestPickup(shipmentId) { return {success: true}; }
-export async function generateLabel(shipmentId) { return {success: true}; }
-export async function generateInvoice(shiprocketOrderId) { return {success: true}; }
 
 export async function getAllCustomers() {
   try {

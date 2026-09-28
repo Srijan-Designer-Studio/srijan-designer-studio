@@ -5,8 +5,8 @@ import Card from '@/components/dashboard/shared/Card';
 import Table from '@/components/dashboard/shared/Table';
 import StatusBadge from '@/components/dashboard/shared/StatusBadge';
 import Modal from '@/components/dashboard/shared/Modal';
-import { getAllOrders, updateOrderStatus, pushOrderToShiprocket, requestPickup, generateLabel, generateInvoice, cancelShipment, initiateReturn } from '@/app/actions/admin';
-import { MapPin, User, Package, Calendar, CreditCard, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getAllOrders, updateOrderStatus } from '@/app/actions/admin';
+import { MapPin, User, Package, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -14,10 +14,11 @@ export default function AdminOrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [isPushing, setIsPushing] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All Statuses");
     const [enlargedImage, setEnlargedImage] = useState(null);
+    
+    // Pagination States
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -27,6 +28,7 @@ export default function AdminOrdersPage() {
                 const data = await getAllOrders();
                 setOrders(data);
             } catch (error) {
+                console.error(error);
             } finally {
                 setIsLoading(false);
             }
@@ -34,6 +36,7 @@ export default function AdminOrdersPage() {
         fetchOrders();
     }, []);
 
+    // ফিল্টার বা সার্চ করলে পেজ ১-এ ফিরে যাবে
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, statusFilter]);
@@ -49,20 +52,6 @@ export default function AdminOrdersPage() {
             setOrders(updatedData);
             setIsModalOpen(false);
         });
-    };
-
-    const handleShiprocketSync = async () => {
-        setIsPushing(true);
-        try {
-            const result = await pushOrderToShiprocket(selectedOrder.id);
-            if (result.success) {
-                const updatedData = await getAllOrders();
-                setOrders(updatedData);
-                setSelectedOrder(updatedData.find(o => o.id === selectedOrder.id) || selectedOrder);
-            }
-        } finally {
-            setIsPushing(false);
-        }
     };
 
     const handleViewOrder = (order) => {
@@ -96,10 +85,12 @@ export default function AdminOrdersPage() {
         return matchesSearch && matchesStatus;
     });
 
+    // Pagination Logic
     const totalItems = filteredOrders.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentFilteredOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+    const endIndex = startIndex + itemsPerPage;
+    const currentFilteredOrders = filteredOrders.slice(startIndex, endIndex);
 
     const currentOrders = currentFilteredOrders.map(order => {
         let displayStatus = order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -127,7 +118,7 @@ export default function AdminOrdersPage() {
             accessor: 'customer',
             render: (row) => (
                 <div>
-                    <p className="font-medium text-gray-900">{row.customer}</p>
+                    <p className="font-medium text-gray-900 capitalize">{row.customer}</p>
                     <p className="text-[13px] text-gray-500">{row.email}</p>
                 </div>
             )
@@ -177,7 +168,7 @@ export default function AdminOrdersPage() {
     }
 
     return (
-        <div className="space-y-6 relative">
+        <div className="space-y-6 relative font-sans">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
@@ -217,36 +208,39 @@ export default function AdminOrdersPage() {
                     <Table columns={orderColumns} data={currentOrders} />
                 </div>
 
-                {totalPages > 0 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-end px-6 py-4 bg-white border-t border-gray-100">
-                        <div className="inline-flex -space-x-px rounded-md shadow-sm">
+                {/* Custom Pagination UI */}
+                {totalItems > 0 && (
+                    <div className="flex flex-col sm:flex-row justify-between items-center p-5 border-t border-gray-100 bg-white gap-4">
+                        <div className="text-sm text-gray-600 font-medium">
+                            Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} results
+                        </div>
+                        <div className="flex items-center gap-1.5">
                             <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                                className="p-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
                             >
-                                <ChevronLeft size={18} />
+                                <ChevronLeft size={16} />
                             </button>
-
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            
+                            {Array.from({ length: totalPages }).map((_, idx) => (
                                 <button
-                                    key={page}
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${currentPage === page
-                                            ? 'bg-blue-600 text-white border-blue-600 z-10 relative shadow-sm'
-                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                        }`}
+                                    key={idx}
+                                    onClick={() => setCurrentPage(idx + 1)}
+                                    className={`w-8 h-8 flex items-center justify-center text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                                        currentPage === idx + 1 ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                    }`}
                                 >
-                                    {page}
+                                    {idx + 1}
                                 </button>
                             ))}
 
                             <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                                className="p-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
                             >
-                                <ChevronRight size={18} />
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     </div>
@@ -267,9 +261,8 @@ export default function AdminOrdersPage() {
                                     <User size={14} /> Customer Details
                                 </h3>
                                 <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span className="text-gray-500">Name:</span> <span className="font-bold text-gray-900">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</span></p>
+                                    <p className="flex justify-between"><span className="text-gray-500">Name:</span> <span className="font-bold text-gray-900 capitalize">{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</span></p>
                                     <p className="flex justify-between"><span className="text-gray-500">Email:</span> <span className="font-medium text-gray-900">{selectedOrder.profiles?.email}</span></p>
-                                    <p className="flex justify-between"><span className="text-gray-500">Customer ID:</span> <span className="font-mono text-xs bg-gray-200 px-2 py-0.5 rounded text-gray-700">{selectedOrder.user_id.split('-')[0]}</span></p>
                                     <p className="flex justify-between"><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-900">{new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(selectedOrder.created_at))}</span></p>
                                     {selectedOrder.customer_phone && (
                                         <p className="flex justify-between"><span className="text-gray-500">Phone:</span> <span className="font-medium text-gray-900">{selectedOrder.customer_phone}</span></p>
@@ -279,33 +272,12 @@ export default function AdminOrdersPage() {
 
                             <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                                 <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <MapPin size={14} /> Shipping & Payment
+                                    <MapPin size={14} /> Shipping Address
                                 </h3>
                                 <div className="space-y-3 text-sm">
                                     <p className="text-gray-800 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-gray-200/60 shadow-sm">
                                         {formatAddress(selectedOrder)}
                                     </p>
-
-                                    <div className="flex flex-col gap-2 mt-3 bg-white p-3 rounded-lg border border-gray-200/60 shadow-sm">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-gray-500">Method:</span>
-                                            <span className={`font-bold px-2 py-0.5 rounded text-xs uppercase flex items-center gap-1 ${selectedOrder.payment_method === 'cod' ? 'text-orange-700 bg-orange-100' : 'text-green-700 bg-green-100'}`}>
-                                                <CreditCard size={12} /> {selectedOrder.payment_method === 'cod' ? 'COD' : 'ONLINE'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-gray-500">Status:</span>
-                                            <span className={`font-bold px-2 py-0.5 rounded text-[11px] uppercase ${selectedOrder.payment_status === 'Paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
-                                                {selectedOrder.payment_status || 'Pending'}
-                                            </span>
-                                        </div>
-                                        {selectedOrder.payment_method === 'online' && selectedOrder.razorpay_payment_id && (
-                                            <div className="pt-2 mt-1 border-t border-gray-100 space-y-1.5">
-                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Pay ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_payment_id}</span></p>
-                                                <p className="flex justify-between items-center"><span className="text-[11px] text-gray-500 uppercase tracking-wider">Order ID:</span> <span className="font-mono text-xs text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">{selectedOrder.razorpay_order_id}</span></p>
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -388,7 +360,7 @@ export default function AdminOrdersPage() {
                                     <label className="block text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-2">Change Order Status</label>
                                     <select
                                         name="status"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black font-semibold text-sm cursor-pointer shadow-sm"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-sm cursor-pointer shadow-sm"
                                         defaultValue={selectedOrder.status.toLowerCase()}
                                     >
                                         <option value="pending">Pending</option>
@@ -409,37 +381,6 @@ export default function AdminOrdersPage() {
                                     <span className="text-xs font-medium text-gray-500 mb-1">Current Status</span>
                                     <StatusBadge status={selectedOrder.status.toLowerCase() === 'processing' ? 'Order Confirmed' : selectedOrder.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} />
                                 </div>
-                            </div>
-
-                            <div className="mt-6 pt-6 border-t border-gray-100">
-                                {selectedOrder.shiprocket_order_id ? (
-                                    <div className="flex flex-wrap gap-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                                        <span className="w-full text-xs font-extrabold text-indigo-800 uppercase tracking-widest mb-2">
-                                            Shiprocket Panel (AWB: {selectedOrder.tracking_number || 'Pending'})
-                                        </span>
-
-                                        {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
-                                            <>
-                                                <button type="button" onClick={async () => { await requestPickup(selectedOrder.shiprocket_shipment_id); }} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer">Schedule Pickup</button>
-                                                <button type="button" onClick={async () => { const res = await generateLabel(selectedOrder.shiprocket_shipment_id); if (res.success && res.data.label_created) window.open(res.data.label_url, '_blank'); }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Label</button>
-                                            </>
-                                        )}
-
-                                        <button type="button" onClick={async () => { const res = await generateInvoice(selectedOrder.shiprocket_order_id); if (res.success && res.data.is_invoice_created) window.open(res.data.invoice_url, '_blank'); }} className="px-4 py-2 text-xs font-bold text-indigo-700 bg-white rounded-lg shadow-sm border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">Download Invoice</button>
-
-                                        {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && selectedOrder.status !== 'returned' && (
-                                            <button type="button" onClick={async () => { await cancelShipment(selectedOrder.id, selectedOrder.tracking_number); }} className="px-4 py-2 text-xs font-bold text-red-700 bg-red-50 rounded-lg shadow-sm border border-red-200 hover:bg-red-100 transition-colors cursor-pointer">Cancel Shipment</button>
-                                        )}
-
-                                        {selectedOrder.status === 'delivered' && (
-                                            <button type="button" onClick={async () => { await initiateReturn(selectedOrder.id); }} className="px-4 py-2 text-xs font-bold text-orange-700 bg-orange-50 rounded-lg shadow-sm border border-orange-200 hover:bg-orange-100 transition-colors cursor-pointer">Initiate Return</button>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <button type="button" onClick={handleShiprocketSync} disabled={isPushing || selectedOrder.status === 'cancelled' || selectedOrder.status === 'returned'} className="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-white bg-[#0ba6ff] rounded-lg shadow-md hover:bg-[#0092e6] transition-colors disabled:opacity-50 cursor-pointer">
-                                        {isPushing ? 'Pushing...' : 'Push Order to Shiprocket'}
-                                    </button>
-                                )}
                             </div>
                         </div>
 

@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
-import { trackShiprocketOrder } from '@/lib/utils/shiprocket'
 
 export async function createOrder(orderPayload) {
   try {
@@ -214,13 +213,8 @@ export async function trackOrder(orderId) {
 
     if (error || !data) throw new Error('Order not found or access denied.')
 
+    
     let liveTracking = null;
-    if (data.tracking_number) {
-       const shiprocketData = await trackShiprocketOrder(data.tracking_number);
-       if(shiprocketData && shiprocketData.tracking_data) {
-           liveTracking = shiprocketData.tracking_data;
-       }
-    }
 
     return { ...data, liveTracking }
   } catch (error) {
