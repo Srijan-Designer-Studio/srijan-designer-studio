@@ -5,7 +5,6 @@ import { EffectFade, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -21,13 +20,14 @@ export default function Hero() {
       >
         <SwiperSlide>
           <div className="relative h-screen min-h-[700px] w-full overflow-hidden">
-            <Image
-              src="/Home_img/HERO Section.webp"
-              alt="Srijan Hero"
-              fill
-              priority
-              className="w-full h-full object-cover object-center"
-            />
+           <video
+                src="/videos/HomePage HERO SectionVideo.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="hero-img absolute inset-0 w-full h-full object-cover object-center"
+              ></video>
 
             <div className="absolute inset-0 flex items-center justify-start max-w-[1320px] mx-auto px-6">
               <div className="text-left text-white max-w-[650px] mt-[60px] md:mt-[90px]">

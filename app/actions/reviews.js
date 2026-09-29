@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-// Admin verification mock (matching your admin.js logic)
 async function verifyAdmin() {
   return true;
 }
@@ -97,7 +96,7 @@ export async function getProductReviews(productId) {
   const adminDb = createAdminClient()
   const { data, error } = await adminDb
     .from('reviews')
-    // Added user_name here so fake reviews also show up on the frontend
+    
     .select('id, rating, comment, created_at, user_name, profiles(first_name, last_name)')
     .eq('product_id', productId)
     .eq('is_approved', true)
@@ -114,7 +113,7 @@ export async function getAllReviews() {
 
   const { data, error } = await adminDb
     .from('reviews')
-    // Added user_name here so fake reviews show up in admin global review list
+   
     .select(`
       id, rating, comment, created_at, is_approved, user_name,
       profiles(first_name, last_name),
@@ -176,30 +175,36 @@ export async function getAdminProductReviews(productId) {
 }
 
 export async function addAdminReview(formData) {
-  const adminDb = createAdminClient();
-  await verifyAdmin();
-  
-  const productId = formData.get('productId');
-  const slug = formData.get('slug');
-  const userName = formData.get('userName');
-  const rating = parseInt(formData.get('rating'));
-  const comment = formData.get('comment');
-  const reviewDate = formData.get('reviewDate') || new Date().toISOString();
+  try {
+    const supabase = createAdminClient();    
+    
+    const productId = formData.get('productId');
+    const userName = formData.get('userName'); 
+    const rating = formData.get('rating');
+    const comment = formData.get('comment');
+    const reviewDate = formData.get('reviewDate');
 
-  const { error } = await adminDb.from('reviews').insert({
-    product_id: productId,
-    user_name: userName, // Saving fake reviewer name
-    rating: rating,
-    comment: comment,
-    is_approved: true, // Auto-approve admin added reviews
-    created_at: reviewDate
-  });
+    if (!productId || productId === 'undefined') {
+       throw new Error("Product ID is required to post a review.");
+    }
 
-  if (error) return { success: false, error: error.message };
-  
-  revalidatePath(`/admin/products/reviews/${slug}`);
-  revalidatePath(`/product/${slug}`);
-  return { success: true };
+    
+    const { error } = await supabase.from('reviews').insert({
+      product_id: productId,
+      user_name: userName, 
+      rating: parseInt(rating),
+      comment: comment,
+      created_at: new Date(reviewDate).toISOString(),
+      is_approved: true 
+    });
+
+    if (error) throw new Error(error.message);
+
+    revalidatePath('/admin/products');
+    return { success: true, message: 'Review published successfully!' };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
 export async function deleteAdminReview(reviewId, slug) {

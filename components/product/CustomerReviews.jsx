@@ -1,13 +1,75 @@
 "use client";
 
 import { useRef, useState, useEffect, useTransition } from "react";
-import { Star, User, Check, Loader2, X } from "lucide-react";
+import { Star, User, Check, Loader2, X, ChevronDown, ChevronUp } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getProductReviews, addReview } from "@/app/actions/reviews";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const ReviewCard = ({ review }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const displayName = review.user_name || `${review.profiles?.first_name || ''} ${review.profiles?.last_name || ''}`.trim() || 'Guest';
+  
+  const isLongText = review.comment?.length > 130;
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+      <div className="flex items-center gap-1 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} size={14} fill={i < review.rating ? "#c04f36" : "none"} color="#c04f36" />
+        ))}
+      </div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative">
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+            <User size={18} />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#c04f36] rounded-full flex items-center justify-center border border-white">
+            <Check size={8} color="white" strokeWidth={4} />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-bold text-black capitalize">{displayName}</span>
+          <span className="text-[9px] text-white bg-[#c04f36] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
+            Verified
+          </span>
+        </div>
+      </div>
+      
+      <div className="flex-grow flex flex-col">
+        <div className="relative">
+          <p className={`text-[16px] sm:text-[18px] text-gray-600 transition-all duration-300 leading-relaxed ${!isExpanded && isLongText ? 'line-clamp-3' : ''}`}>
+            {review.comment}
+          </p>
+          {isLongText && !isExpanded && (
+            <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          )}
+        </div>
+
+        {isLongText && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-1.5 text-[13px] font-bold text-gray-800 hover:text-black mt-2 w-max transition-colors focus:outline-none cursor-pointer"
+          >
+            {isExpanded ? (
+              <>Show less <ChevronUp size={14} strokeWidth={2.5} /></>
+            ) : (
+              <>Read full review <ChevronDown size={14} strokeWidth={2.5} /></>
+            )}
+          </button>
+        )}
+      </div>
+
+      <p className="text-[12px] text-gray-400 mt-5">
+        {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(review.created_at))}
+      </p>
+    </div>
+  );
+};
 
 export default function CustomerReviews({ productId }) {
   const containerRef = useRef(null);
@@ -72,11 +134,9 @@ export default function CustomerReviews({ productId }) {
           setComment("");
           setRating(5);
           
-          // নতুন রিভিউ অ্যাড হওয়ার পর অটোমেটিক লিস্ট আপডেট করার জন্য
           const newData = await getProductReviews(productId);
           setReviews(newData || []);
         } else {
-          // 🔴 এই এলস (else) ব্লকটি মিসিং ছিল, যার কারণে এরর মেসেজ দেখাচ্ছিল না
           setMessage(response?.message || "Failed to submit review.");
         }
       } catch (error) {
@@ -134,7 +194,6 @@ export default function CustomerReviews({ productId }) {
                 Write A Review
               </button>
             )}
-            {/* মেসেজ দেখানোর অংশ */}
             {message && <p className={`text-sm mt-3 font-medium ${message.includes('submitted') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
           </div>
         </div>
@@ -172,7 +231,6 @@ export default function CustomerReviews({ productId }) {
                 Submit Review
               </button>
               
-              {/* ফর্মের ভেতরেও মেসেজটি দেখানোর ব্যবস্থা করা হলো যাতে কাস্টমার সহজে বুঝতে পারে */}
               {message && <p className={`text-sm mt-2 font-medium ${message.includes('submitted') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
             </form>
           </div>
@@ -195,33 +253,7 @@ export default function CustomerReviews({ productId }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} fill={i < review.rating ? "#c04f36" : "none"} color="#c04f36" />
-                  ))}
-                </div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                      <User size={18} />
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#c04f36] rounded-full flex items-center justify-center border border-white">
-                      <Check size={8} color="white" strokeWidth={4} />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-bold text-black">{review.profiles?.first_name} {review.profiles?.last_name}</span>
-                    <span className="text-[9px] text-white bg-[#c04f36] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
-                      Verified
-                    </span>
-                  </div>
-                </div>
-                <p className="text-[19px] text-gray-600 line-clamp-3">{review.comment}</p>
-                <p className="text-[10px] text-gray-400 mt-4">
-                  {new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(review.created_at))}
-                </p>
-              </div>
+              <ReviewCard key={review.id} review={review} />
             ))}
           </div>
         )}
