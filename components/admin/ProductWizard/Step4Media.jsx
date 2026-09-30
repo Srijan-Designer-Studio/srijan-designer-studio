@@ -21,20 +21,25 @@ export default function Step4Media() {
     e.target.value = null;
   };
 
-  // Add Size Chart Upload Handler
+ 
   const handleSizeChartUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const preview = URL.createObjectURL(file);
       updateFormData({ 
-        sizeChartImage: { file, preview } 
+        sizeChartImage: { file, preview },
+        removeSizeChart: false 
       });
     }
     e.target.value = null;
   };
 
+  
   const removeSizeChart = () => {
-    updateFormData({ sizeChartImage: null });
+    updateFormData({ 
+      sizeChartImage: null,
+      removeSizeChart: true,
+    });
   };
 
   const removeImage = (idToRemove) => {
@@ -80,11 +85,11 @@ export default function Step4Media() {
             <input type="file" className="hidden" multiple accept="image/png, image/jpeg, image/webp" onChange={handleImageUpload} />
           </label>
 
-          {formData.images.length > 0 ? (
+          {formData.images && formData.images.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
               {formData.images.map((img) => (
                 <div key={img.id} className={`relative flex flex-col bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${img.isPrimary ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'}`}>
-                  {/* Image Card UI ... (Same as your provided code) */}
+                  
                   <div className="absolute top-2 right-2 flex gap-2 z-10">
                     <button
                       type="button"
@@ -111,14 +116,14 @@ export default function Step4Media() {
                   )}
 
                   <div className="w-full aspect-[4/5] bg-gray-100 relative group">
-                    <img src={img.preview} alt={img.altText || "Product preview"} className="w-full h-full object-cover object-top" />
+                    <img src={img.preview || img.image_url} alt={img.altText || "Product preview"} className="w-full h-full object-cover object-top" />
                   </div>
 
                   <div className="p-3 bg-gray-50 border-t border-gray-100">
                     <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Alt Text (SEO)</label>
                     <input
                       type="text"
-                      value={img.altText}
+                      value={img.altText || ""}
                       onChange={(e) => updateAltText(img.id, e.target.value)}
                       placeholder="Describe this image"
                       className="w-full text-[13px] border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-blue-500"
@@ -135,7 +140,7 @@ export default function Step4Media() {
           )}
         </div>
 
-        {/* Size Chart Image Section */}
+       
         <div className="pt-6 border-t border-gray-100">
           <h3 className="text-[13px] font-bold text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
             <Ruler size={16} className="text-blue-500" /> Size Chart Image
@@ -159,7 +164,13 @@ export default function Step4Media() {
               >
                 <X size={16} />
               </button>
-              <img src={formData.sizeChartImage.preview} alt="Size Chart" className="w-full h-full object-contain bg-gray-50" />
+              
+             
+              <img 
+                src={typeof formData.sizeChartImage === 'string' ? formData.sizeChartImage : formData.sizeChartImage.preview} 
+                alt="Size Chart" 
+                className="w-full h-full object-contain bg-gray-50" 
+              />
             </div>
           )}
         </div>

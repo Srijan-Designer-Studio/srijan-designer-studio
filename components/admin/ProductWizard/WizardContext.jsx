@@ -43,7 +43,7 @@ export function WizardProvider({ children, initialData }) {
     department: "Women", collections: [],
     images: [],
     sizeChartImage: null, 
-    // REMOVED: stock and sku from default variant
+    removeSizeChart: false,
     variants: [{ id: "var-initial", size: "Free Size", color: "", barcode: "" }],
     basePrice: "", salePrice: "",
     purchaseType: "Single Product", 
@@ -62,7 +62,6 @@ export function WizardProvider({ children, initialData }) {
       let parsedVariants = defaultData.variants;
       if (initialData.variants) {
         const rawVariants = typeof initialData.variants === 'string' ? JSON.parse(initialData.variants) : initialData.variants;
-        // REMOVED: stock and sku mapping
         parsedVariants = rawVariants.map((v, i) => ({
           ...v,
           id: v.id || `var-${i}`,
@@ -84,7 +83,10 @@ export function WizardProvider({ children, initialData }) {
         components: initialData.components ? (typeof initialData.components === 'string' ? JSON.parse(initialData.components) : initialData.components) : prev.components,
         productAddons: initialData.productAddons ? (typeof initialData.productAddons === 'string' ? JSON.parse(initialData.productAddons) : initialData.productAddons) : prev.productAddons,
         images: Array.isArray(initialData.images) ? initialData.images : [],
-        sizeChartImage: initialData.size_chart_image ? { preview: initialData.size_chart_image } : null 
+        sizeChartImage: initialData.sizeChartImage 
+          ? (typeof initialData.sizeChartImage === 'string' ? { preview: initialData.sizeChartImage } : initialData.sizeChartImage) 
+          : (initialData.size_chart_image ? { preview: initialData.size_chart_image } : null),
+        removeSizeChart: false
       }));
     }
   }, [initialData]);
@@ -141,13 +143,11 @@ export function WizardProvider({ children, initialData }) {
         }
       });
 
-      if (formData.sizeChartImage) {
-        if (formData.sizeChartImage.file) {
-          submitData.append("size_chart_file", formData.sizeChartImage.file);
-        } else if (formData.sizeChartImage.preview) {
-          submitData.append("existing_size_chart_url", formData.sizeChartImage.preview);
-        }
-      } else {
+      if (formData.sizeChartImage && formData.sizeChartImage.file) {
+        submitData.append("size_chart_file", formData.sizeChartImage.file);
+      }
+      
+      if (formData.removeSizeChart) {
         submitData.append("remove_size_chart", "true"); 
       }
 

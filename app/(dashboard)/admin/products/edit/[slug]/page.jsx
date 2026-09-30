@@ -25,7 +25,7 @@ export default async function EditProductPage({ params }) {
     title: product.title || "",
     productType: product.product_type || "Saree",
     brand: product.brand || "Srijan Fashion",
-    sku: product.sku || "", // FIXED: Load SKU
+    sku: product.sku || "", 
     onlineCashOff: product.online_cash_off || "",
     shortDesc: product.short_description || "",
     description: product.full_description || "",
@@ -43,6 +43,10 @@ export default async function EditProductPage({ params }) {
       altText: img.alt_text || "",
       isPrimary: img.is_primary || false
     })) || [],
+    
+    // ✅ FIXED: Load existing Size Chart from database
+    sizeChartImage: product.size_chart_image || null, 
+
     variants: product.product_variants?.length > 0 ? product.product_variants.map(v => ({
       id: v.id,
       size: v.size || "",
