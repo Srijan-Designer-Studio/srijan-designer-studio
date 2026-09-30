@@ -31,7 +31,7 @@ export default function ProductFAQ({ faqs }) {
               onClick={() => toggleFAQ(index)}
               className="w-full flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 text-left focus:outline-none"
             >
-              <span className="text-[16px] sm:text-[17px] font-medium text-gray-900 pr-4">
+              <span className="text-[16px] sm:text-[17px] font-semibold text-gray-900 pr-4">
                 {faq.question}
               </span>
               <ChevronDown
