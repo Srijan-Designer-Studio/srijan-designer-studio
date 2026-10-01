@@ -118,7 +118,7 @@ const ShopEssentials = ({ products = [] }) => {
             </h2>
           </div>
 
-          <div className="essentials-tabs flex items-center justify-center gap-8 mt-10">
+          <div className="essentials-tabs flex items-center justify-center gap-8 mt-12">
             <button
               onClick={() => setActiveTab("WOMEN")}
               className={`relative text-sm md:text-[15px] font-bold tracking-widest uppercase transition-colors duration-300 pb-2 ${activeTab === "WOMEN" ? "text-black" : "text-gray-400 hover:text-gray-700"}`}
@@ -140,7 +140,7 @@ const ShopEssentials = ({ products = [] }) => {
           </div>
         </div>
 
-        <div className="w-full relative mt-16 md:mt-24">
+        <div className="w-full relative mt-12 md:mt-[69px]">
           {currentProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
               <p className="text-center text-gray-500 font-medium mb-4 text-lg">

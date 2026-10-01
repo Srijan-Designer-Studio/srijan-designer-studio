@@ -1168,3 +1168,24 @@ export async function deleteOldOrders() {
     return { success: false, error: error.message };
   }
 }
+
+export async function toggleProductCod(productId, currentCodStatus) {
+  const supabase = createAdminClient();
+  try {
+    await verifyAdmin();
+
+    const newCodStatus = !currentCodStatus;
+
+    const { error } = await supabase
+      .from('products')
+      .update({ is_cod_available: newCodStatus })
+      .eq('id', productId);
+
+    if (error) throw error;
+
+    revalidatePath('/admin/products'); 
+    return { success: true, newStatus: newCodStatus };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

@@ -11,13 +11,14 @@ gsap.registerPlugin(ScrollTrigger);
 const faqData = [
   {
     id: 1,
-    question: "Can I shop online and customize outfits from SRIJAN Fashion?",
+    question: <>Can I shop online and customize outfits from <span className="font-black text-black">SRIJAN Fashion</span>?</>,
     answer: "Yes. You can indulge in online shopping for our readymade collections or simply get in touch with us to design an outfit especially made for you according to your tastes, sizes and occasions.",
   },
   {
     id: 2,
-    question: "What fashion styles are available at Srijan Fashion?",
-    answer: "We have a large collection of various fashion styles that include ethnic wear, Indo-western wear, party wear, casual wear and customized designs for women, men and kids.",
+    // FIXED: Removed quotes to make it a valid JSX element and used Tailwind classes
+    question: <>Is <span className="font-black text-black">SRIJAN Fashion</span> the same as Srijan Style?</>,
+    answer: "No, we're not. We know the names sound alike, but we're a completely separate business with our own team, our own designs, and our own way of doing things. If you're comparing the two, just know you're looking at two different studios entirely.",
   },
   {
     id: 3,

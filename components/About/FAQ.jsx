@@ -16,12 +16,12 @@ const faqData = [
   },
   {
     id: 2,
-    question: "Do you create custom outfits?",
-    answer: "Yes. The customization in our outfit designs is something we pride ourselves on; whether you need an outfit for your wedding day, a party or any festive occasion, we will make your outfit to suit you.",
+    question: <>I've seen <span className="font-black text-black">"Srijan"</span> mentioned somewhere else. Is that you?</>,
+    answer: <>No. "Srijan" is a fairly common name in the fashion and design space, so you may come across other businesses using it too. The simplest way to know it's really us is to check for our full name, <span className="font-black text-black">SRIJAN Fashion</span>, along with our Kolkata address and contact details on <a href="https://www.srijandesignerstudio.com/" className="font-bold text-[#7f83ff] hover:underline transition-all duration-300">www.srijandesignerstudio.com</a> or our official social pages. If those don't match, it isn't us.</>,
   },
   {
     id: 3,
-    question: "What makes SRIJAN Fashion different?",
+    question: <>What makes <span className="font-black text-black">SRIJAN Fashion</span> different?</>,
     answer: "The uniqueness of our outfits is something we consider very important since it makes our designs stand out. In order to achieve uniqueness in our designs, we ensure that our outfits are of high quality and customized to suit the individual.",
   },
   {

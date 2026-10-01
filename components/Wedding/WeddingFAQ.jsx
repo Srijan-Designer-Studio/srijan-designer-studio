@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const faqData = [
   {
-    q: "Can I customize my wedding dress at SRIJAN Fashion?",
+    q: <>Can I customize my wedding dress at <span className="font-black">SRIJAN Fashion</span>?</>,
     a: "Yes, we provide full customization services right from fabrics and colours to embroideries, necklines, sleeves and more. Just give us your ideas and inspirations and we'll design an outfit which suits you the most.",
   },
   {

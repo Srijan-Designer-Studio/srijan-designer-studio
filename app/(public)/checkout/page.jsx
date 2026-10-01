@@ -1,609 +1,330 @@
-"use client";
+'use client';
 
-export const dynamic = 'force-dynamic';
+import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check, Star, Home, Banknote } from "lucide-react";
+import { deleteProduct, toggleProductHomepage, toggleProductCod } from '@/app/actions/admin';
+import { useRouter } from 'next/navigation';
 
-import { useState, useEffect, useTransition, useRef } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { CreditCard, ChevronLeft, Loader2, Truck, CheckCircle2, XCircle, Banknote } from "lucide-react";
-import { useCart } from "@/context/CartContext";
-import { createOrder, deleteFailedOrder } from "@/app/actions/orders";
-import { getUserAddresses } from "@/app/actions/addresses";
-import { createRazorpayOrder, verifyRazorpayPayment } from "@/app/actions/razorpay";
-import { createClient } from "@/lib/supabase/client";
-import ScrollToTop from "@/components/providers/ScrollToTop";
-import PaymentNotification from "@/components/ui/PaymentNotification";
-import Image from "next/image";
-
-export default function CheckoutPage() {
+export default function ProductsClientWrapper({ initialProducts, categories }) {
   const router = useRouter();
-  const { cartItems, subtotal, isLoaded, clearCart } = useCart();
   const [isPending, startTransition] = useTransition();
-  const [errorMsg, setErrorMsg] = useState("");
-  const [showErrorPopup, setShowErrorPopup] = useState(false);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const [userProfile, setUserProfile] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(false); 
-  const [addresses, setAddresses] = useState([]);
-  const [selectedAddressId, setSelectedAddressId] = useState("new");
+  const [deletingId, setDeletingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
+  const [togglingCodId, setTogglingCodId] = useState(null); 
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [copiedId, setCopiedId] = useState(null);
+  const itemsPerPage = 10;
 
-  const [mode, setMode] = useState(null);
-  const [buyNowItem, setBuyNowItem] = useState(null);
-  const [isPageInitialized, setIsPageInitialized] = useState(false);
-  
-  const [liveDiscounts, setLiveDiscounts] = useState({});
-  
-  // FIXED: No default payment method selected
-  const [paymentMethod, setPaymentMethod] = useState(""); 
-  const gtmTriggered = useRef(false);
+  const products = initialProducts || [];
 
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentMode = searchParams.get('mode');
-    setMode(currentMode);
-
-    if (currentMode === 'buynow') {
-      const itemStr = sessionStorage.getItem('buyNowItem');
-      if (itemStr) {
-        setBuyNowItem(JSON.parse(itemStr));
-      } else {
-        router.push('/cart');
-      }
-    }
-    setIsPageInitialized(true);
-  }, [router]);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-      } else {
-        setUserProfile(user);
-        const userAddrs = await getUserAddresses();
-        setAddresses(userAddrs || []);
-        if (userAddrs && userAddrs.length > 0) {
-          const defaultAddr = userAddrs.find(a => a.is_default) || userAddrs[0];
-          setSelectedAddressId(defaultAddr.id);
-        }
-        setIsAuthChecking(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  const activeItems = mode === 'buynow' && buyNowItem ? [buyNowItem] : cartItems;
-  const activeSubtotal = mode === 'buynow' && buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : subtotal;
-
-  useEffect(() => {
-    const fetchLiveDiscounts = async () => {
-      if (!activeItems || activeItems.length === 0) return;
-      try {
-        const productIds = [...new Set(activeItems.map(item => item.id))];
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('products')
-          .select('id, online_cash_off')
-          .in('id', productIds);
-          
-        if (data && !error) {
-          const discountMap = {};
-          data.forEach(p => {
-            discountMap[p.id] = Number(p.online_cash_off || 0);
-          });
-          setLiveDiscounts(discountMap);
-        }
-      } catch (err) {
-        console.error("Failed to fetch discounts", err);
-      }
-    };
-    fetchLiveDiscounts();
-  }, [activeItems]);
-
-  useEffect(() => {
-    if (isPageInitialized && !isAuthChecking && isLoaded && activeItems.length > 0 && !gtmTriggered.current) {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "begin_checkout",
-        ecommerce: {
-          currency: "INR",
-          value: activeSubtotal,
-          items: activeItems.map(item => ({
-            item_id: item.variantId || item.id,
-            item_name: item.title,
-            price: item.price,
-            quantity: item.quantity
-          }))
-        }
-      });
-      gtmTriggered.current = true;
-    }
-  }, [isPageInitialized, isAuthChecking, isLoaded, activeItems, activeSubtotal]);
-
-  useEffect(() => {
-    if (mode === 'buynow') return; 
-    if (isLoaded && cartItems.length === 0 && !isAuthChecking && !isSuccess) {
-      router.push("/cart");
-    }
-  }, [isLoaded, cartItems, router, isAuthChecking, isSuccess, mode]);
-
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
+  const confirmDelete = (productId) => {
+    setConfirmDeleteId(productId);
   };
 
-  const clearBackendCart = async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('cart_items').delete().eq('user_id', user.id);
-      }
-      clearCart();
-    } catch (err) {}
-  };
-
-  const totalOnlineCashOff = activeItems.reduce((acc, item) => {
-    const cashOff = liveDiscounts[item.id] !== undefined 
-      ? liveDiscounts[item.id] 
-      : Number(item.online_cash_off || item.onlineCashOff || 0);
-    return acc + (cashOff * Number(item.quantity || 1));
-  }, 0);
-
-  const codCharge = 10;
-  let frontendTotal = activeSubtotal;
-
-  if (paymentMethod === 'online') {
-    frontendTotal = Math.max(0, frontendTotal - totalOnlineCashOff);
-  } else if (paymentMethod === 'cod') {
-    frontendTotal += codCharge;
-  }
-
-  const pushPurchaseEvent = (orderId, finalAmount, method) => {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "purchase",
-      ecommerce: {
-        transaction_id: orderId,
-        currency: "INR",
-        value: finalAmount,
-        tax: 0,
-        shipping: method === 'cod' ? 10 : 0,
-        items: activeItems.map(item => ({
-          item_id: item.variantId || item.id,
-          item_name: item.title,
-          price: item.price,
-          quantity: item.quantity
-        }))
-      }
-    });
-  };
-
-  if (!isPageInitialized || isAuthChecking || !isLoaded || (mode !== 'buynow' && cartItems.length === 0 && !isSuccess)) {
-    return (
-      <div className="min-h-screen bg-[#f4f5f7] flex items-center justify-center">
-        <Loader2 size={36} className="animate-spin text-[#00c3ff]" />
-      </div>
-    );
-  }
-
-  const handleCheckout = (e) => {
-    e.preventDefault();
+  const executeDelete = () => {
+    if (!confirmDeleteId) return;
+    setDeletingId(confirmDeleteId);
     
-    // NEW: Validation to ensure payment method is selected
-    if (!paymentMethod) {
-      setErrorMsg("Please select a Payment Method (Online Payment or COD) before placing the order.");
-      setShowErrorPopup(true);
-      return;
-    }
-
-    const formData = new FormData(e.target);
-    setErrorMsg("");
-    setShowErrorPopup(false);
-
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "add_payment_info",
-      ecommerce: {
-        currency: "INR",
-        value: frontendTotal,
-        payment_type: paymentMethod === 'online' ? "Online Payment" : "COD",
-        items: activeItems.map(item => ({
-          item_id: item.variantId || item.id,
-          item_name: item.title,
-          price: item.price,
-          quantity: item.quantity
-        }))
-      }
-    });
-
     startTransition(async () => {
-      let createdOrderId = null; 
-
-      try {
-        const selectedAddr = addresses.find(a => a.id === selectedAddressId);
-        
-        const finalAddress = selectedAddr ? {
-          phone: formData.get('phone'),
-          addressLine1: selectedAddr.address_line_1,
-          addressLine2: selectedAddr.address_line_2 || '',
-          city: selectedAddr.city,
-          state: selectedAddr.state,
-          zip: selectedAddr.postal_code,
-          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
-        } : {
-          phone: formData.get('phone'),
-          addressLine1: formData.get('address1'),
-          addressLine2: formData.get('address2') || '',
-          city: formData.get('city'),
-          state: formData.get('state'),
-          zip: formData.get('zip'),
-          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
-        };
-
-        const orderPayload = {
-          totalAmount: frontendTotal,
-          paymentMethod: paymentMethod, 
-          customer_phone: formData.get('phone'),
-          address: finalAddress,
-          items: activeItems.map(item => ({
-            variantId: item.variantId || item.id,
-            quantity: item.quantity,
-            unitPrice: item.price
-          }))
-        };
-
-        const dbResult = await createOrder({
-          ...orderPayload,
-          paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Pending',
-          status: 'pending'
-        });
-
-        if (!dbResult.success) {
-          throw new Error(dbResult.error || "Failed to create order");
-        }
-
-        createdOrderId = dbResult.orderId || dbResult.id || dbResult.order?.id;
-
-        if (paymentMethod === 'cod') {
-          pushPurchaseEvent(createdOrderId, frontendTotal, paymentMethod);
-          if (mode === 'buynow') {
-            sessionStorage.removeItem('buyNowItem');
-          } else {
-            await clearBackendCart();
-          }
-          setIsSuccess(true);
-          setTimeout(() => {
-            router.push("/success");
-          }, 2500);
-          return;
-        }
-
-        const res = await loadRazorpayScript();
-        if (!res) {
-          throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
-        }
-
-        const rzpOrder = await createRazorpayOrder(frontendTotal, createdOrderId);
-        
-        if (!rzpOrder.success) {
-          throw new Error(rzpOrder.error);
-        }
-
-        await new Promise((resolve, reject) => {
-          const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: rzpOrder.order.amount,
-            currency: rzpOrder.order.currency,
-            name: "SRIJAN Fashion",
-            image: `${window.location.origin}/email-img/logo.webp`,
-            description: "Order Payment",
-            order_id: rzpOrder.order.id,
-            prefill: {
-              contact: formData.get('phone'),
-              email: userProfile?.email || "",
-            },
-            theme: {
-              color: "#00c3ff",
-            },
-            handler: async function (response) {
-              const verifyResult = await verifyRazorpayPayment(
-                response.razorpay_payment_id,
-                response.razorpay_order_id,
-                response.razorpay_signature,
-                createdOrderId
-              );
-              
-              if (verifyResult.success) {
-                pushPurchaseEvent(createdOrderId, frontendTotal, paymentMethod);
-                if (mode === 'buynow') {
-                  sessionStorage.removeItem('buyNowItem');
-                } else {
-                  await clearBackendCart();
-                }
-                setIsSuccess(true); 
-                setTimeout(() => {
-                  router.push("/success");
-                }, 2500);
-                resolve();
-              } else {
-                reject(new Error(verifyResult.error || "Payment verification failed"));
-              }
-            },
-            modal: {
-              ondismiss: function () {
-                reject(new Error("Your payment didn't go through as it was declined or cancelled. Try another payment method or contact your bank."));
-              }
-            }
-          };
-
-          const paymentObject = new window.Razorpay(options);
-          paymentObject.on('payment.failed', function (response) {
-            reject(new Error("Your payment didn't go through as it was declined by the bank. Try another payment method or contact your bank."));
-          });
-          paymentObject.open();
-        });
-
-      } catch (error) {
-        if (createdOrderId && paymentMethod === 'online') {
-          await deleteFailedOrder(createdOrderId);
-        }
-        setErrorMsg(error.message || "Failed to process checkout. Please try again.");
-        setShowErrorPopup(true);
+      const res = await deleteProduct(confirmDeleteId);
+      if (res?.error) {
+        alert("Failed to delete product: " + res.error);
+        setDeletingId(null);
+        setConfirmDeleteId(null);
+        return;
       }
+      setDeletingId(null);
+      setConfirmDeleteId(null);
+      router.refresh(); 
     });
+  };
+
+  const handleToggleHomepage = (productId, currentStatus) => {
+    setTogglingId(productId);
+    startTransition(async () => {
+      const res = await toggleProductHomepage(productId, currentStatus);
+      if (res?.error) {
+        alert("Failed to update homepage status: " + res.error);
+      }
+      setTogglingId(null);
+    });
+  };
+
+  const handleToggleCod = (productId, currentCodStatus) => {
+    setTogglingCodId(productId);
+    startTransition(async () => {
+      const res = await toggleProductCod(productId, currentCodStatus);
+      if (res?.error) {
+        alert("Failed to update COD status: " + res.error);
+      }
+      setTogglingCodId(null);
+    });
+  };
+
+  const handleCopy = (id) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const formattedProducts = products.map(product => {
+    const basePrice = product.base_price || 0;
+    const salePrice = product.sale_price || null;
+
+    return {
+      rawProduct: product,
+      id: product.id,
+      slug: product.slug || product.id,
+      name: product.title,
+      sku: product.sku || product.product_variants?.[0]?.sku || 'N/A',
+      price: basePrice,
+      salePrice: salePrice,
+      status: !product.is_active ? 'Draft' : 'Published',
+      showOnHomepage: product.show_on_homepage || false,
+      isCodAvailable: product.is_cod_available ?? true
+    };
+  });
+
+  const totalItems = formattedProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages === 0 ? 1 : totalPages));
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+  const currentProducts = formattedProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <>
-      {isSuccess && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-md w-full animate-in zoom-in-95 duration-300">
-            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle2 size={50} className="text-green-500" />
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Order Successful!</h2>
-            <p className="text-gray-600 mb-8 font-medium">Thank you for shopping with us. Your order has been placed successfully.</p>
-            <div className="flex items-center gap-2 text-[#00c3ff] font-bold">
-              <Loader2 size={18} className="animate-spin" />
-              <span>Redirecting...</span>
-            </div>
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-10 text-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-[#5a4bda]">
+            <ShoppingBag size={20} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Products</h1>
+            <p className="text-[19px] text-gray-500 mt-0.5">Manage your store's inventory and product catalog</p>
           </div>
         </div>
-      )}
-
-      {showErrorPopup && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-sm w-full animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5">
-              <XCircle size={40} className="text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Notice</h2>
-            <p className="text-gray-600 mb-8 text-[15px] leading-relaxed">{errorMsg}</p>
-            <button 
-              onClick={() => setShowErrorPopup(false)}
-              className="w-full bg-[#00c3ff] text-white font-bold py-3 rounded-xl hover:bg-[#00baef] transition-colors shadow-sm"
-            >
-              Okay
-            </button>
-          </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/products/add"
+            className="px-4 py-2 bg-[#5a4bda] text-white rounded-lg text-[13px] font-bold hover:bg-[#4b3ec2] shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            <Plus size={16} /> Add New Product
+          </Link>
         </div>
-      )}
+      </div>
 
-      <main className="min-h-screen bg-[#f4f5f7] py-12 md:py-20 font-sans pt-[100px] lg:pt-[120px]">
-        <ScrollToTop />
-        <PaymentNotification />
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="mb-8">
-            <Link href="/cart" className="inline-flex items-center text-gray-500 hover:text-black transition-colors font-medium text-sm">
-              <ChevronLeft size={18} className="mr-1" /> Back to Cart
-            </Link>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 tracking-tight">Checkout</h1>
-          </div>
-
-          <form onSubmit={handleCheckout} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
-                
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
-                  <input required name="phone" type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="e.g. 9876543210" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                </div>
-
-                {addresses.length > 0 && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Select Delivery Address</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {addresses.map(addr => (
-                        <div 
-                          key={addr.id} 
-                          onClick={() => setSelectedAddressId(addr.id)} 
-                          className={`cursor-pointer border-2 rounded-xl p-4 transition-all ${selectedAddressId === addr.id ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="font-bold text-gray-900 capitalize">{addr.title}</span>
-                            {addr.is_default && <span className="bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full">Default</span>}
-                          </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {addr.address_line_1}<br/>
-                            {addr.address_line_2 && <>{addr.address_line_2}<br/></>}
-                            {addr.city}, {addr.state} {addr.postal_code}
-                          </p>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead className="bg-gray-50/50 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-4 flex items-center gap-1 cursor-pointer">PRODUCT</th>
+                <th className="px-4 py-4">PRICE</th>
+                <th className="px-4 py-4">SALE PRICE</th>
+                <th className="px-4 py-4 text-center">STATUS</th>
+                <th className="px-4 py-4 text-center">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {currentProducts.length > 0 ? currentProducts.map((product, idx) => (
+                <tr key={idx} className="hover:bg-gray-50 transition-colors group">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-14 bg-gray-100 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
+                        {product.rawProduct.product_images?.[0]?.image_url ?
+                          <img src={product.rawProduct.product_images[0].image_url} alt="" className="w-full h-full object-cover object-top" /> :
+                          <div className="w-full h-full flex items-center justify-center text-gray-300"><ImgIcon size={20} /></div>
+                        }
+                      </div>
+                      <div>
+                        <p className="font-bold text-[13px] text-gray-900 mb-0.5 flex items-center gap-2">
+                          {product.name}
+                          {product.showOnHomepage && (
+                            <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">On Homepage</span>
+                          )}
+                          {!product.isCodAvailable && (
+                            <span className="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">COD Disabled</span>
+                          )}
+                        </p>
+                        <p className="text-[11px] text-gray-500">SKU: {product.sku}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <p className="text-[10px] text-gray-400 font-mono">ID: {product.id}</p>
+                          <button
+                            onClick={() => handleCopy(product.id)}
+                            className="text-gray-400 hover:text-[#5a4bda] transition-colors cursor-pointer"
+                            title="Copy UUID"
+                          >
+                            {copiedId === product.id ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                          </button>
                         </div>
-                      ))}
-                      <div 
-                        onClick={() => setSelectedAddressId("new")} 
-                        className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center transition-all min-h-[120px] ${selectedAddressId === "new" ? 'border-[#00c3ff] bg-[#00c3ff]/5 text-[#00c3ff]' : 'border-gray-300 hover:border-gray-400 text-gray-500'}`}
-                      >
-                        <span className="text-2xl mb-1">+</span>
-                        <span className="font-medium text-sm">Add New Address</span>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {selectedAddressId === "new" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-4 duration-300">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
-                      <input required name="address1" type="text" placeholder="House number and street name" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Apartment, suite, unit, etc. *</label>
-                      <input name="address2" type="text" required placeholder="Apartment, suite, unit, etc." className="w-full text-black border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Town / City *</label>
-                      <input required name="city" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
-                      <input required name="state" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Postcode / ZIP *</label>
-                      <input required name="zip" type="text" className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00c3ff]/50 focus:border-[#00c3ff] transition-all" />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <Truck className="text-green-600" size={24} />
-                  Payment Method
-                </h2>
-
-                <div className="space-y-4">
-                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <div className="flex items-center mb-2">
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        value="online" 
-                        checked={paymentMethod === 'online'} 
-                        onChange={() => setPaymentMethod('online')} 
-                        className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" 
-                      />
-                      <CreditCard className="ml-4 mr-3 text-[#00c3ff]" size={24} />
-                      <span className="font-bold text-gray-900 text-lg">Online Payment</span>
-                    </div>
-                    <p className="ml-11 text-sm text-gray-600 font-medium mb-1">
-                      Pay securely via UPI, Credit/Debit Card, Netbanking, etc.
+                  </td>
+                  
+                  <td className="px-4 py-4">
+                    <p className={`text-[17px] font-bold ${product.salePrice ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                      ₹{product.price.toLocaleString('en-IN')}
                     </p>
-                    {paymentMethod === 'online' && totalOnlineCashOff > 0 && (
-                      <p className="ml-11 text-sm font-bold text-green-600 animate-in fade-in duration-300">
-                        ✨ Extra ₹{totalOnlineCashOff.toLocaleString('en-IN')} OFF applied for Online Payment!
+                  </td>
+                  
+                  <td className="px-4 py-4">
+                    {product.salePrice ? (
+                      <p className="text-[19px] font-bold text-green-600">
+                        ₹{product.salePrice.toLocaleString('en-IN')}
+                      </p>
+                    ) : (
+                      <p className="text-[13px] text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded-md inline-block">
+                        N/A
                       </p>
                     )}
-                  </label>
+                  </td>
 
-                  <label className={`flex flex-col p-5 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#00c3ff] bg-[#00c3ff]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <div className="flex items-center mb-2">
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        value="cod" 
-                        checked={paymentMethod === 'cod'} 
-                        onChange={() => setPaymentMethod('cod')} 
-                        className="w-4 h-4 text-[#00c3ff] focus:ring-[#00c3ff] border-gray-300 cursor-pointer" 
-                      />
-                      <Banknote className="ml-4 mr-3 text-[#00c3ff]" size={24} />
-                      <span className="font-bold text-gray-900 text-lg">Cash on Delivery (COD)</span>
+                  <td className="px-4 py-4 text-center">
+                    <span className={`inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold rounded-full border ${product.status === 'Published' ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+                      {product.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-center gap-4">
+                      
+                      <button
+                        onClick={() => handleToggleHomepage(product.id, product.showOnHomepage)}
+                        disabled={togglingId === product.id}
+                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.showOnHomepage ? 'text-blue-600 hover:text-gray-400' : 'text-gray-400 hover:text-blue-600'}`}
+                        title={product.showOnHomepage ? "Remove from Homepage" : "Add to Homepage"}
+                      >
+                        {togglingId === product.id ? <Loader2 size={16} className="animate-spin text-blue-500" /> : <Home size={16} strokeWidth={2.5} />}
+                      </button>
+
+                      <Link
+                        href={`/admin/products/reviews/${product.slug}`}
+                        className="text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer"
+                        title="Manage Fake/Verified Reviews"
+                      >
+                        <Star size={16} strokeWidth={2.5} />
+                      </Link>
+                      
+                      <Link
+                        href={`/admin/products/edit/${product.slug}`}
+                        className="text-gray-400 hover:text-[#5a4bda] transition-colors cursor-pointer"
+                        title="Edit Product"
+                      >
+                        <Edit2 size={16} strokeWidth={2.5} />
+                      </Link>
+                      
+                      <button
+                        disabled={deletingId === product.id}
+                        onClick={() => confirmDelete(product.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer disabled:opacity-50"
+                        title="Delete Product"
+                      >
+                        {deletingId === product.id ? <Loader2 size={16} className="animate-spin text-red-500" /> : <Trash2 size={16} strokeWidth={2.5} />}
+                      </button>
+
+                      <button
+                        onClick={() => handleToggleCod(product.id, product.isCodAvailable)}
+                        disabled={togglingCodId === product.id}
+                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.isCodAvailable ? 'text-blue-600 hover:text-red-500' : 'text-red-500 hover:text-blue-600'}`}
+                        title={product.isCodAvailable ? "Disable COD for this product" : "Enable COD for this product"}
+                      >
+                        {togglingCodId === product.id ? <Loader2 size={16} className="animate-spin text-gray-500" /> : <Banknote size={16} strokeWidth={2.5} />}
+                      </button>
+
                     </div>
-                    <p className="ml-11 text-sm text-gray-600 font-medium">
-                      Pay at your doorstep. <span className="font-bold text-red-500">Includes ₹10 Convenience Charge.</span>
-                    </p>
-                  </label>
-                </div>
-              </div>
-            </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="5" className="px-4 py-10 text-center text-gray-500 text-sm">
+                    No products found. Add a new product to get started.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-            <div className="lg:col-span-5 xl:col-span-4">
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">Order Summary</h2>
-
-                <div className="space-y-5 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {activeItems.map((item, idx) => {
-                    const itemPrice = Number(item.price || 0);
-                    const itemBasePrice = Number(item.basePrice || item.originalPrice || item.base_price || 0);
-                    const qty = Number(item.quantity || 1);
-
-                    return (
-                      <div key={idx} className="flex gap-4">
-                        <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                         <Image
-  src={item.image || "/images/placeholder.jpg"}
-  alt={item.title || "Image"}
-  unoptimized
-  fill
-  priority
-  sizes="(max-width: 1024px) 100vw, 500px"
-  className="object-cover object-top"
-/>
-                        </div>
-                        <div className="flex-1 flex flex-col justify-center">
-                          <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">{item.title}</h3>
-                          <p className="text-[13px] text-gray-500 mb-1">Qty: {qty} | Size: {item.size}</p>
-                          <div className="flex items-center gap-2">
-                            <p className="text-[15px] font-extrabold text-black">₹{(itemPrice * qty).toLocaleString('en-IN')}</p>
-                            {itemBasePrice > itemPrice && (
-                              <p className="text-[13px] font-medium text-gray-400 line-through">
-                                ₹{(itemBasePrice * qty).toLocaleString('en-IN')}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-5 mb-5">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-medium text-gray-900">₹{activeSubtotal.toLocaleString('en-IN')}</span>
-                  </div>
-                  
-                  {paymentMethod === 'online' && totalOnlineCashOff > 0 && (
-                    <div className="flex justify-between text-green-600 font-medium animate-in fade-in duration-300">
-                      <span>Online Payment Discount</span>
-                      <span>- ₹{totalOnlineCashOff.toLocaleString('en-IN')}</span>
-                    </div>
-                  )}
-                  {paymentMethod === 'cod' && (
-                    <div className="flex justify-between text-red-500 font-medium animate-in fade-in duration-300">
-                      <span>COD Convenience Charge</span>
-                      <span>+ ₹{codCharge.toLocaleString('en-IN')}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-between items-center border-t border-gray-200 pt-5 mb-8">
-                  <span className="text-base font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-black text-[#0ba6ff]">
-                    ₹{frontendTotal.toLocaleString('en-IN')}
-                  </span>
-                </div>
-
-                <button disabled={isPending || isSuccess} type="submit" className="w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] py-4 rounded-xl transition-all shadow-lg shadow-[#00c3ff]/30 uppercase tracking-wide disabled:opacity-70 cursor-pointer bg-[#00c3ff] hover:bg-[#00baef]">
-                  {isPending && <Loader2 size={18} className="animate-spin" />}
-                  {(isPending || isSuccess) ? "Processing..." : "Place Order"}
+        {totalPages > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-white border-t border-gray-100">
+            <p className="text-sm text-gray-500 font-medium mb-4 sm:mb-0">
+              Showing {totalItems === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems} entries
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex -space-x-px rounded-md shadow-sm">
+                <button
+                  onClick={() => handlePageChange(Math.max(1, safeCurrentPage - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 text-sm font-bold border focus:outline-none transition-colors cursor-pointer ${
+                      safeCurrentPage === page
+                        ? 'bg-[#5a4bda] text-white border-[#5a4bda] z-10 relative shadow-sm'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => handlePageChange(Math.min(totalPages, safeCurrentPage + 1))}
+                  disabled={safeCurrentPage === totalPages || totalPages === 0}
+                  className="flex items-center justify-center px-3 py-2 text-gray-400 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none"
+                >
+                  <ChevronRight size={18} />
                 </button>
               </div>
             </div>
-          </form>
+          </div>
+        )}
+      </div>
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={28} />
+              </div>
+              <h3 className="text-[19px] font-bold text-gray-900 mb-2">Delete Product</h3>
+              <p className="text-[13px] text-gray-500 mb-6 px-2">
+                Are you sure you want to delete this product? This action cannot be undone and will permanently remove it from your store.
+              </p>
+              <div className="flex w-full gap-3">
+                <button
+                  disabled={isPending && deletingId === confirmDeleteId}
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[13px] font-bold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={isPending && deletingId === confirmDeleteId}
+                  onClick={executeDelete}
+                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[13px] font-bold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {isPending && deletingId === confirmDeleteId ? <Loader2 size={16} className="animate-spin" /> : null}
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-    </>
+      )}
+    </div>
   );
 }

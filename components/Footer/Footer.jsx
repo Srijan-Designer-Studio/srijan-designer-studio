@@ -172,7 +172,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="footer-col mb-[95px] lg:mb-10">
+            <div className="footer-col mb-[95px] lg:mb-22">
               <h3 className="text-[#ff3838] font-bold uppercase text-[17px] tracking-wide mb-6">
                 CONNECT WITH US
               </h3>

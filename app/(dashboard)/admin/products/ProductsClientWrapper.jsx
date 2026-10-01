@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check, Star, Home } from "lucide-react";
-import { deleteProduct, toggleProductHomepage } from '@/app/actions/admin';
+import { Plus, Trash2, Image as ImgIcon, Edit2, ShoppingBag, Loader2, ChevronLeft, ChevronRight, Copy, Check, Star, Home, Banknote } from "lucide-react";
+import { deleteProduct, toggleProductHomepage, toggleProductCod } from '@/app/actions/admin';
 import { useRouter } from 'next/navigation';
 
 export default function ProductsClientWrapper({ initialProducts, categories }) {
@@ -11,6 +11,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
+  const [togglingCodId, setTogglingCodId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedId, setCopiedId] = useState(null);
@@ -52,6 +53,18 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
     });
   };
 
+  // Toggle COD Handler
+  const handleToggleCod = (productId, currentCodStatus) => {
+    setTogglingCodId(productId);
+    startTransition(async () => {
+      const res = await toggleProductCod(productId, currentCodStatus);
+      if (res?.error) {
+        alert("Failed to update COD status: " + res.error);
+      }
+      setTogglingCodId(null);
+    });
+  };
+
   const handleCopy = (id) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
@@ -60,7 +73,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
 
   const formattedProducts = products.map(product => {
     const basePrice = product.base_price || 0;
-    const salePrice = product.sale_price || null; // Fetching Sale Price
+    const salePrice = product.sale_price || null;
 
     return {
       rawProduct: product,
@@ -71,7 +84,8 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       price: basePrice,
       salePrice: salePrice,
       status: !product.is_active ? 'Draft' : 'Published',
-      showOnHomepage: product.show_on_homepage || false
+      showOnHomepage: product.show_on_homepage || false,
+      isCodAvailable: product.is_cod_available ?? true // Getting COD Status
     };
   });
 
@@ -115,7 +129,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
               <tr>
                 <th className="px-4 py-4 flex items-center gap-1 cursor-pointer">PRODUCT</th>
                 <th className="px-4 py-4">PRICE</th>
-                {/* Changed header to SALE PRICE */}
                 <th className="px-4 py-4">SALE PRICE</th>
                 <th className="px-4 py-4 text-center">STATUS</th>
                 <th className="px-4 py-4 text-center">ACTIONS</th>
@@ -138,6 +151,9 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                           {product.showOnHomepage && (
                             <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">On Homepage</span>
                           )}
+                          {!product.isCodAvailable && (
+                            <span className="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">COD Disabled</span>
+                          )}
                         </p>
                         <p className="text-[11px] text-gray-500">SKU: {product.sku}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
@@ -154,14 +170,12 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                     </div>
                   </td>
                   
-                  {/* Base Price */}
                   <td className="px-4 py-4">
                     <p className={`text-[17px] font-bold ${product.salePrice ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
                       ₹{product.price.toLocaleString('en-IN')}
                     </p>
                   </td>
                   
-                  {/* Sale Price Cell */}
                   <td className="px-4 py-4">
                     {product.salePrice ? (
                       <p className="text-[19px] font-bold text-green-600">
@@ -182,7 +196,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-4">
                       
-                      {/* Homepage Display Toggle Button */}
                       <button
                         onClick={() => handleToggleHomepage(product.id, product.showOnHomepage)}
                         disabled={togglingId === product.id}
@@ -216,6 +229,16 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       >
                         {deletingId === product.id ? <Loader2 size={16} className="animate-spin text-red-500" /> : <Trash2 size={16} strokeWidth={2.5} />}
                       </button>
+                    
+                      <button
+                        onClick={() => handleToggleCod(product.id, product.isCodAvailable)}
+                        disabled={togglingCodId === product.id}
+                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.isCodAvailable ? 'text-green-600 hover:text-red-500' : 'text-red-500 hover:text-green-600'}`}
+                        title={product.isCodAvailable ? "Disable COD for this product" : "Enable COD for this product"}
+                      >
+                        {togglingCodId === product.id ? <Loader2 size={16} className="animate-spin text-gray-500" /> : <Banknote size={16} strokeWidth={2.5} />}
+                      </button>
+
                     </div>
                   </td>
                 </tr>
@@ -272,7 +295,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-in zoom-in-95 duration-200">

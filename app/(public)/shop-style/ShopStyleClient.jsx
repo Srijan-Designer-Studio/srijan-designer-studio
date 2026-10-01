@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Heart, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import ProductsHero from "@/components/product/ProductsHero";
 import { getProducts } from "@/app/actions/products";
 import { searchProducts } from "@/app/actions/search";
@@ -15,6 +15,7 @@ export default function ShopStyleClient() {
   const [allProducts, setAllProducts] = useState([]);
   const [backendSearchResults, setBackendSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [genderFilter, setGenderFilter] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,7 +41,7 @@ export default function ShopStyleClient() {
         const products = Array.isArray(response) ? response : (response?.data || []);
         setAllProducts(products);
       } catch (error) {
-        console.error("Failed to load products:", error);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -115,6 +116,18 @@ export default function ShopStyleClient() {
     displayedProducts = Array.from(combinedMap.values());
   }
 
+  if (genderFilter !== 'ALL') {
+    displayedProducts = displayedProducts.filter(p => {
+      const catStr = `${Array.isArray(p.categories) ? p.categories.join(' ') : p.categories?.name || p.categories || ''} ${p.gender || ''} ${p.department || ''}`.toLowerCase();
+      if (genderFilter === 'WOMEN') {
+        return catStr.includes('women') || catStr.includes('saree') || catStr.includes('lehenga') || catStr.includes('bridal');
+      } else if (genderFilter === 'MEN') {
+        return (catStr.includes('men') && !catStr.includes('women')) || catStr.includes('kurta') || catStr.includes('suit') || catStr.includes('blazer');
+      }
+      return true;
+    });
+  }
+
   const totalPages = Math.ceil(displayedProducts.length / itemsPerPage);
   const currentProducts = displayedProducts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -123,7 +136,7 @@ export default function ShopStyleClient() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, genderFilter]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -138,7 +151,7 @@ export default function ShopStyleClient() {
     try {
       await toggleWishlistServer(product.id);
     } catch (error) {
-      console.error("Failed to update wishlist:", error);
+      console.error(error);
     }
   };
 
@@ -148,47 +161,62 @@ export default function ShopStyleClient() {
 
       <div className="max-w-[1200px] mx-auto px-6 py-12">
 
-        <div className="flex flex-col items-center justify-center mb-12 space-y-8">
-          <div className="relative w-full max-w-[500px] z-50">
-            <input
-              type="text"
-              placeholder={`Search for ${placeholders[placeholderIndex]}`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-              className="w-full pl-6 pr-12 py-3.5 border-2 border-[#00c3ff] rounded-full outline-none text-sm placeholder:text-[#00c3ff]/60 text-gray-800 font-medium shadow-[0_0_15px_rgba(0,195,255,0.15)] focus:shadow-[0_0_20px_rgba(0,195,255,0.3)] transition-all"
-            />
-            <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-[#00c3ff]" size={20} />
+        <div className="flex flex-col items-center justify-center mb-12 space-y-8 relative w-full">
+          <div className="flex flex-col sm:flex-row w-full gap-4 items-center justify-center z-50 relative">
+            <div className="relative w-full max-w-[500px]">
+              <input
+                type="text"
+                placeholder={`Search for ${placeholders[placeholderIndex]}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                className="w-full pl-6 pr-12 py-3.5 border-2 border-[#00c3ff] rounded-full outline-none text-sm placeholder:text-[#00c3ff]/60 text-gray-800 font-medium shadow-[0_0_15px_rgba(0,195,255,0.15)] focus:shadow-[0_0_20px_rgba(0,195,255,0.3)] transition-all"
+              />
+              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-[#00c3ff]" size={20} />
 
-            {isFocused && searchQuery.trim().length >= 2 && (
-              <div className="absolute top-full left-0 w-full mt-3 bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] overflow-hidden">
-                {isSearching && suggestedWords.length === 0 ? (
-                  <div className="p-4 text-center text-sm font-medium text-gray-500">Searching...</div>
-                ) : suggestedWords.length > 0 ? (
-                  <div className="flex flex-col py-2">
-                    {suggestedWords.map((word, idx) => (
-                      <button
-                        key={idx}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setSearchQuery(word);
-                          setIsFocused(false);
-                        }}
-                        className="flex items-center gap-3 px-5 py-2.5 hover:bg-[#00c3ff]/10 transition-colors text-left cursor-pointer group"
-                      >
-                        <Search size={14} className="text-gray-400 group-hover:text-[#00c3ff] transition-colors" />
-                        <span className="text-[14px] font-semibold text-gray-700 group-hover:text-[#00c3ff]">
-                          {word}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 text-center text-sm font-medium text-gray-500">No suggestions found</div>
-                )}
-              </div>
-            )}
+              {isFocused && searchQuery.trim().length >= 2 && (
+                <div className="absolute top-full left-0 w-full mt-3 bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] overflow-hidden">
+                  {isSearching && suggestedWords.length === 0 ? (
+                    <div className="p-4 text-center text-sm font-medium text-gray-500">Searching...</div>
+                  ) : suggestedWords.length > 0 ? (
+                    <div className="flex flex-col py-2">
+                      {suggestedWords.map((word, idx) => (
+                        <button
+                          key={idx}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setSearchQuery(word);
+                            setIsFocused(false);
+                          }}
+                          className="flex items-center gap-3 px-5 py-2.5 hover:bg-[#00c3ff]/10 transition-colors text-left cursor-pointer group"
+                        >
+                          <Search size={14} className="text-gray-400 group-hover:text-[#00c3ff] transition-colors" />
+                          <span className="text-[14px] font-semibold text-gray-700 group-hover:text-[#00c3ff]">
+                            {word}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm font-medium text-gray-500">No suggestions found</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="relative w-full sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2 sm:w-[160px] shrink-0">
+              <select
+                value={genderFilter}
+                onChange={(e) => setGenderFilter(e.target.value)}
+                className="w-full px-5 py-3.5 border-2 border-[#00c3ff] rounded-full outline-none text-sm text-gray-800 font-bold shadow-[0_0_15px_rgba(0,195,255,0.15)] focus:shadow-[0_0_20px_rgba(0,195,255,0.3)] transition-all bg-white cursor-pointer appearance-none pr-10"
+              >
+                <option value="ALL">All Styles</option>
+                <option value="WOMEN">Women</option>
+                <option value="MEN">Men</option>
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#00c3ff] pointer-events-none" size={18} />
+            </div>
           </div>
           <h2 className="text-[28px] font-bold text-black tracking-wide">Shop Styles</h2>
         </div>
@@ -203,7 +231,6 @@ export default function ShopStyleClient() {
               {currentProducts.map((product) => {
                 let imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
                 
-                // SECURE URL MASKING
                 if (imageUrl?.includes('/public/')) {
                   imageUrl = '/assets/' + imageUrl.split('/public/')[1];
                 }
@@ -304,13 +331,13 @@ export default function ShopStyleClient() {
               </div>
             )}
           </>
-        ) : isSearching ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-10 h-10 border-4 border-gray-200 border-t-[#00c3ff] rounded-full animate-spin"></div>
+        ) : isSearching || genderFilter !== 'ALL' ? (
+          <div className="text-center py-20 text-gray-500 font-medium relative z-10">
+            No products found matching your selection.
           </div>
         ) : (
-          <div className="text-center py-20 text-gray-500 font-medium relative z-10">
-            No products found matching "{searchQuery}".
+          <div className="flex justify-center items-center py-20">
+            <div className="w-10 h-10 border-4 border-gray-200 border-t-[#00c3ff] rounded-full animate-spin"></div>
           </div>
         )}
 
