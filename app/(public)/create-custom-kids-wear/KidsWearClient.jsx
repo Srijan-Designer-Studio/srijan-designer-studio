@@ -197,13 +197,13 @@ export default function KidsWearClient() {
 
       <section className="py-20 max-w-[1320px] mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
         <div className="reveal-up relative w-full aspect-[4/3] md:aspect-square lg:aspect-[4/3]">
-          <Image 
-            src="/Custom Kids Wear/Untitled design (4).webp" 
-            alt="Camera Graphic" 
+          <Image
+            src="/Custom Kids Wear/Untitled design (4).webp"
+            alt="Camera Graphic"
             unoptimized
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-contain drop-shadow-2xl" 
+            className="object-contain drop-shadow-2xl"
           />
         </div>
         <div className="reveal-up">
@@ -221,13 +221,13 @@ export default function KidsWearClient() {
             {looksData.map((look) => (
               <div key={look.id} className="reveal-up group block cursor-pointer">
                 <div className="relative aspect-[4/5] rounded-[20px] overflow-hidden mb-4 shadow-sm group-hover:shadow-xl transition-all">
-                  <Image 
-                    src={look.img} 
-                    alt={look.title} 
+                  <Image
+                    src={look.img}
+                    alt={look.title}
                     unoptimized
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
                 <h3 className="text-center font-bold text-[15px] md:text-[16px] text-gray-900 group-hover:text-[#00c3ff] transition-colors">{look.title}</h3>
@@ -252,11 +252,10 @@ export default function KidsWearClient() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-8 mb-12 lg:mb-16">
+
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <div className="relative w-12 h-12">
-                  <Image src="/Create Custom-img/Icon 1.webp" alt="Pick your fabric" unoptimized fill sizes="48px" className="object-contain" />
-                </div>
+                <img src="/Create Custom-img/Icon 1.webp" alt="Pick your fabric" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Pick your fabric</h3>
               <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -266,9 +265,7 @@ export default function KidsWearClient() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <div className="relative w-12 h-12">
-                  <Image src="/Create Custom-img/Icon 2.webp" alt="Design a dress" unoptimized fill sizes="48px" className="object-contain" />
-                </div>
+                <img src="/Create Custom-img/Icon 2.webp" alt="Design a dress" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Design a dress</h3>
               <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -278,23 +275,21 @@ export default function KidsWearClient() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <div className="relative w-12 h-12">
-                  <Image src="/Create Custom-img/Icon 3.webp" alt="Get measured" unoptimized fill sizes="48px" className="object-contain" />
-                </div>
+                <img src="/Create Custom-img/Icon 3.webp" alt="Get measured" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get measured</h3>
               <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Send your measurements for a perfect fit.
               </p>
             </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-8 max-w-[850px] mx-auto">
+
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <div className="relative w-12 h-12">
-                  <Image src="/Create Custom-img/Icon 4.webp" alt="Consult with designer" unoptimized fill sizes="48px" className="object-contain" />
-                </div>
+                <img src="/Create Custom-img/Icon 4.webp" alt="Consult with designer" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Consult with designer</h3>
               <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
@@ -304,15 +299,14 @@ export default function KidsWearClient() {
 
             <div className="hiw-step flex flex-col items-center">
               <div className="mb-6 flex h-14 items-center justify-center">
-                <div className="relative w-12 h-12">
-                  <Image src="/Create Custom-img/Icon 5.webp" alt="Get delivered" unoptimized fill sizes="48px" className="object-contain" />
-                </div>
+                <img src="/Create Custom-img/Icon 5.webp" alt="Get delivered" className="h-12 w-auto object-contain" />
               </div>
               <h3 className="font-bold text-black text-[19px] mb-2.5">Get delivered</h3>
               <p className="text-[19px] text-gray-600 max-w-[260px] mx-auto leading-relaxed">
                 Receive your custom-made dress at your doorstep.
               </p>
             </div>
+
           </div>
 
         </div>
@@ -328,47 +322,47 @@ export default function KidsWearClient() {
             <div className="relative order-1 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 7.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-5 md:order-none w-full aspect-square col-span-2 row-span-2 rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 10.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 66vw, 33vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-7 md:order-none w-full aspect-square col-span-2 row-span-2 rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 9.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 66vw, 33vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-2 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 6.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-3 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 5.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-4 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 1.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-6 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 3.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-8 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 2.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-9 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 11.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-10 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 12.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-11 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 4.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
-            
+
             <div className="relative order-12 md:order-none w-full aspect-square rounded-2xl md:rounded-[24px] overflow-hidden">
               <Image src="/Custom Kids Wear/Gallery 8.webp" alt="Gallery" unoptimized fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover object-center" />
             </div>
@@ -381,13 +375,13 @@ export default function KidsWearClient() {
           <div className="reveal-up">
             <h2 className="text-4xl font-bold text-black mb-6 leading-tight">Let's click some special moment</h2>
             <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
-              <Image 
-                src="/Custom Kids Wear/Untitled design (5).webp" 
-                alt="Special Moment" 
+              <Image
+                src="/Custom Kids Wear/Untitled design (5).webp"
+                alt="Special Moment"
                 unoptimized
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover" 
+                className="object-cover"
               />
             </div>
           </div>

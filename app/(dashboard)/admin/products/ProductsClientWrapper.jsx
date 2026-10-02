@@ -11,7 +11,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
-  const [togglingCodId, setTogglingCodId] = useState(null);
+  const [togglingCodId, setTogglingCodId] = useState(null); 
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedId, setCopiedId] = useState(null);
@@ -41,7 +41,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
     });
   };
 
-  // Toggle Homepage Display Handler
   const handleToggleHomepage = (productId, currentStatus) => {
     setTogglingId(productId);
     startTransition(async () => {
@@ -53,7 +52,6 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
     });
   };
 
-  // Toggle COD Handler
   const handleToggleCod = (productId, currentCodStatus) => {
     setTogglingCodId(productId);
     startTransition(async () => {
@@ -85,7 +83,7 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
       salePrice: salePrice,
       status: !product.is_active ? 'Draft' : 'Published',
       showOnHomepage: product.show_on_homepage || false,
-      isCodAvailable: product.is_cod_available ?? true // Getting COD Status
+      isCodAvailable: product.is_cod_available ?? true
     };
   });
 
@@ -229,11 +227,11 @@ export default function ProductsClientWrapper({ initialProducts, categories }) {
                       >
                         {deletingId === product.id ? <Loader2 size={16} className="animate-spin text-red-500" /> : <Trash2 size={16} strokeWidth={2.5} />}
                       </button>
-                    
+
                       <button
                         onClick={() => handleToggleCod(product.id, product.isCodAvailable)}
                         disabled={togglingCodId === product.id}
-                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.isCodAvailable ? 'text-green-600 hover:text-red-500' : 'text-red-500 hover:text-green-600'}`}
+                        className={`transition-colors cursor-pointer disabled:opacity-50 ${product.isCodAvailable ? 'text-blue-600 hover:text-red-500' : 'text-red-500 hover:text-blue-600'}`}
                         title={product.isCodAvailable ? "Disable COD for this product" : "Enable COD for this product"}
                       >
                         {togglingCodId === product.id ? <Loader2 size={16} className="animate-spin text-gray-500" /> : <Banknote size={16} strokeWidth={2.5} />}

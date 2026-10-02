@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 const faqData = [
   {
     id: 1,
-    question: "What is SRIJAN Fashion known for?",
+    question: <>What is <span className="font-black text-black">SRIJAN Fashion</span> known for?</>,
     answer: "SRIJAN Fashion is an exclusive boutique that provides designer, ready to wear outfits and customized clothes for women, men and children.",
   },
   {
