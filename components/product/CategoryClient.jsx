@@ -47,7 +47,6 @@ export default function CategoryClient({ products, pageTitle, emptyMessage }) {
             {currentProducts.map((product) => {
               let imageUrl = product.product_images?.[0]?.image_url || "/images/placeholder.jpg";
               
-              // SECURE URL MASKING
               if (imageUrl?.includes('/public/')) {
                 imageUrl = '/assets/' + imageUrl.split('/public/')[1];
               }
@@ -59,13 +58,25 @@ export default function CategoryClient({ products, pageTitle, emptyMessage }) {
               const displayPrice = hasDiscount ? salePrice : basePrice;
               const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
+              let discountPercentage = 0;
+              if (hasDiscount) {
+                discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
+              }
+
               return (
                 <Link key={product.id} href={`/product/${product.slug || product.id}`} prefetch={false} className="group flex flex-col items-center text-center cursor-pointer relative">
                   <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
+                    
+                    {/* Offer Badge Addition */}
+                    {hasDiscount && (
+                      <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 tracking-wide">
+                        {discountPercentage}% OFF
+                      </div>
+                    )}
+
                     <Image
                       src={imageUrl}
                       alt={imageAlt}
-                    
                       fill
                       sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       className="object-cover object-top transition-transform duration-700 group-hover:scale-105"

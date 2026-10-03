@@ -90,7 +90,6 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
           {productsData.map((product) => {
             let mainImage = product.product_images?.[0]?.image_url;
             
-            // SECURE URL MASKING
             if (mainImage?.includes('/public/')) {
               mainImage = '/assets/' + mainImage.split('/public/')[1];
             }
@@ -103,15 +102,27 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
             const hasDiscount = salePrice > 0 && salePrice < basePrice;
             const displayPrice = hasDiscount ? salePrice : basePrice;
 
+            let discountPercentage = 0;
+            if (hasDiscount) {
+              discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
+            }
+
             return (
               <Link href={`/product/${product.slug}`} key={product.id}
                 className="shop-card group flex flex-col items-center cursor-pointer relative"
               >
                 <div className="relative w-full aspect-[2/3] rounded-[16px] border border-gray-800 overflow-hidden mb-4 bg-white transition-shadow duration-300 group-hover:shadow-xl">
                   
+                  {/* Offer Badge Addition */}
+                  {hasDiscount && (
+                    <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 tracking-wide">
+                      {discountPercentage}% OFF
+                    </div>
+                  )}
+
                   <button
                     onClick={(e) => handleWishlistToggle(e, product)}
-                    className="absolute top-3 right-3 p-2.5 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-100 transition-all z-10 cursor-pointer hover:scale-105"
+                    className="absolute top-3 right-3 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm border border-gray-100 transition-all z-10 cursor-pointer hover:scale-105"
                   >
                     <Heart 
                       size={18} 
@@ -124,7 +135,6 @@ export default function ShopSection({ title, viewAllLink, products = [] }) {
                     <Image
                       src={mainImage}
                       alt={imageAlt}
-                      
                       fill
                       sizes="(max-width: 768px) 50vw, 25vw"
                       className="object-cover object-top transition-transform duration-700 group-hover:scale-105"

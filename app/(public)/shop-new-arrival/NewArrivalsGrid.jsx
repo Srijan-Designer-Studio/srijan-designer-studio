@@ -43,7 +43,7 @@ export default function NewArrivalsGrid({ products = [] }) {
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleWishlist(product);
     try {
       await toggleWishlistServer(product.id);
@@ -80,6 +80,11 @@ export default function NewArrivalsGrid({ products = [] }) {
             const displayPrice = hasDiscount ? salePrice : basePrice;
             const isWishlisted = wishlistItems?.some(item => item.id === product.id);
 
+            let discountPercentage = 0;
+            if (hasDiscount) {
+              discountPercentage = Math.round(((basePrice - salePrice) / basePrice) * 100);
+            }
+
             return (
               <Link
                 href={`/product/${product.slug || product.id}`}
@@ -87,20 +92,23 @@ export default function NewArrivalsGrid({ products = [] }) {
                 className="product-card-anim group flex flex-col items-center text-center cursor-pointer relative"
               >
                 <div className="w-full aspect-[2/3] rounded-2xl border border-black overflow-hidden mb-4 relative bg-gray-50">
-                  <div className="absolute top-4 left-4 z-10 bg-[#7C4DFF] backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase shadow-md">
-                    TRENDING
-                  </div>
+                  
+                  {/* Offer Badge Addition */}
+                  {hasDiscount && (
+                    <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 tracking-wide">
+                      {discountPercentage}% OFF
+                    </div>
+                  )}
 
                   <button
-  onClick={(e) => handleWishlistToggle(e, product)}
-  className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
->
-  <Heart 
-    className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${
-      isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
-    }`} 
-  />
-</button>
+                    onClick={(e) => handleWishlistToggle(e, product)}
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all z-10 cursor-pointer"
+                  >
+                    <Heart
+                      className={`w-5 h-5 sm:w-[30px] sm:h-[30px] transition-colors duration-300 ${isWishlisted ? 'fill-[#00c3ff] text-[#00c3ff]' : 'text-gray-400 hover:text-[#00c3ff]'
+                        }`}
+                    />
+                  </button>
 
                   <img
                     src={imageUrl}
@@ -147,11 +155,10 @@ export default function NewArrivalsGrid({ products = [] }) {
             <button
               key={idx}
               onClick={() => handlePageChange(idx + 1)}
-              className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${
-                currentPage === idx + 1
+              className={`w-10 h-10 rounded-full font-bold text-sm transition-colors cursor-pointer ${currentPage === idx + 1
                   ? 'bg-[#00c3ff] text-white shadow-md'
                   : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-[#00c3ff]/10 hover:text-[#00c3ff] hover:border-[#00c3ff]/30'
-              }`}
+                }`}
             >
               {idx + 1}
             </button>

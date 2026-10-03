@@ -131,16 +131,10 @@ export async function getUserOrders() {
     
     if (authError || !user) return []
 
+    // Removed direct join to prevent error
     const { data: orders, error } = await adminDb
       .from('orders')
-      .select(`
-        *,
-        order_items (
-          variant_id,
-          quantity,
-          price
-        )
-      `)
+      .select('*, order_items (variant_id, quantity, price)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
@@ -149,46 +143,64 @@ export async function getUserOrders() {
 
     const itemIds = [...new Set(orders.flatMap(o => o.order_items?.map(i => i.variant_id).filter(Boolean)))]
 
-    const { data: products } = await adminDb
-      .from('products')
-      .select('id, title, slug, is_return_eligible, product_images(image_url)') 
-      .in('id', itemIds)
+    let products = [];
+    let variants = [];
 
-    const { data: variants } = await adminDb
-      .from('product_variants')
-      .select('id, size, products(title, slug, is_return_eligible, product_images(image_url))')
-      .in('id', itemIds)
+    if (itemIds.length > 0) {
+      const { data: pData } = await adminDb
+        .from('products')
+        .select('id, title, slug, is_return_eligible, product_images(image_url)') 
+        .in('id', itemIds)
+      products = pData || [];
 
-    const formattedOrders = orders.map(order => ({
-      ...order,
-      order_items: order.order_items.map(item => {
-        const variantMatch = variants?.find(v => v.id === item.variant_id)
-        const productMatch = products?.find(p => p.id === item.variant_id)
+      const { data: vData } = await adminDb
+        .from('product_variants')
+        .select('id, size, color, products(title, slug, is_return_eligible, product_images(image_url))')
+        .in('id', itemIds)
+      variants = vData || [];
+    }
 
-        const imageUrl = variantMatch?.products?.product_images?.[0]?.image_url ||
-          productMatch?.product_images?.[0]?.image_url ||
-          null
-          
-        const isReturnEligible = variantMatch?.products?.is_return_eligible ?? productMatch?.is_return_eligible ?? false
+    const formattedOrders = orders.map(order => {
+      let cartMeta = [];
+      try {
+        const addr = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+        if (addr?.cart_meta) cartMeta = addr.cart_meta;
+      } catch (e) {}
 
-        return {
-          ...item,
-          image_url: imageUrl,
-          product_variants: {
-            size: variantMatch ? variantMatch.size : 'Standard',
-            products: {
-              title: variantMatch?.products?.title || productMatch?.title || 'Premium Product',
-              slug: variantMatch?.products?.slug || productMatch?.slug || null,
-              is_return_eligible: isReturnEligible,
-              product_images: imageUrl ? [{ image_url: imageUrl }] : []
+      return {
+        ...order,
+        order_items: order.order_items.map(item => {
+          const variantMatch = variants.find(v => v.id === item.variant_id);
+          const productMatch = products.find(p => p.id === item.variant_id);
+          const metaMatch = cartMeta.find(m => m.id === item.variant_id) || {};
+
+          // ✅ Automatically fallback to saved image if variant is deleted
+          const imageUrl = variantMatch?.products?.product_images?.[0]?.image_url ||
+            productMatch?.product_images?.[0]?.image_url || metaMatch.image || null;
+            
+          const isReturnEligible = variantMatch?.products?.is_return_eligible ?? productMatch?.is_return_eligible ?? false;
+
+          return {
+            ...item,
+            image_url: imageUrl,
+            product_variants: {
+              size: variantMatch?.size || metaMatch.size || 'Standard',
+              color: variantMatch?.color || metaMatch.color || '-',
+              products: {
+                title: variantMatch?.products?.title || productMatch?.title || metaMatch.title || 'Archived/Edited Product',
+                slug: variantMatch?.products?.slug || productMatch?.slug || null,
+                is_return_eligible: isReturnEligible,
+                product_images: imageUrl ? [{ image_url: imageUrl }] : []
+              }
             }
           }
-        }
-      })
-    }))
+        })
+      };
+    })
 
-    return formattedOrders
+    return formattedOrders;
   } catch (error) {
+    console.error(error);
     return []
   }
 }

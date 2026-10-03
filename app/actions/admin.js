@@ -161,16 +161,10 @@ export async function getAllOrders() {
   try {
     await verifyAdmin()
 
+    // Without nested joins to prevent Foreign Key relation crash
     const { data: orders, error } = await supabase
       .from('orders')
-      .select(`
-        *,
-        order_items (
-          variant_id,
-          quantity,
-          price
-        )
-      `)
+      .select('*, order_items (variant_id, quantity, price)')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -199,32 +193,45 @@ export async function getAllOrders() {
       const { data: pData } = await supabase.from('products').select('id, title, product_images(image_url)').in('id', itemIds);
       products = pData || [];
 
-      const { data: vData } = await supabase.from('product_variants').select('id, sku, products(title, product_images(image_url))').in('id', itemIds);
+      const { data: vData } = await supabase.from('product_variants').select('id, sku, size, color, products(title, product_images(image_url))').in('id', itemIds);
       variants = vData || [];
     }
 
-    const formattedOrders = orders.map(order => ({
-      ...order,
-      profiles: profilesMap[order.user_id] || { first_name: 'Guest', last_name: 'User', email: 'N/A' },
-      order_items: order.order_items ? order.order_items.map(item => {
-        const variantMatch = variants.find(v => v.id === item.variant_id);
-        const productMatch = products.find(p => p.id === item.variant_id);
+    const formattedOrders = orders.map(order => {
+      let cartMeta = [];
+      try {
+        const addr = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+        if (addr?.cart_meta) cartMeta = addr.cart_meta;
+      } catch (e) {}
 
-        return {
-          ...item,
-          product_variants: {
-            sku: variantMatch?.sku || 'N/A',
-            products: {
-              title: variantMatch?.products?.title || productMatch?.title || 'Unknown Product',
-              product_images: variantMatch?.products?.product_images || productMatch?.product_images || []
+      return {
+        ...order,
+        profiles: profilesMap[order.user_id] || { first_name: 'Guest', last_name: 'User', email: 'N/A' },
+        order_items: order.order_items ? order.order_items.map(item => {
+          const variantMatch = variants.find(v => v.id === item.variant_id);
+          const productMatch = products.find(p => p.id === item.variant_id);
+          const metaMatch = cartMeta.find(m => m.id === item.variant_id) || {};
+
+          return {
+            ...item,
+            product_variants: {
+              sku: variantMatch?.sku || 'N/A',
+              size: variantMatch?.size || metaMatch.size || 'N/A',
+              color: variantMatch?.color || metaMatch.color || '-',
+              products: {
+                // ✅ Now it will never say "Unknown Product" for new orders
+                title: variantMatch?.products?.title || productMatch?.title || metaMatch.title || 'Archived/Edited Product',
+                product_images: variantMatch?.products?.product_images || productMatch?.product_images || (metaMatch.image ? [{image_url: metaMatch.image}] : [])
+              }
             }
-          }
-        };
-      }) : []
-    }));
+          };
+        }) : []
+      };
+    });
 
     return formattedOrders
   } catch (error) {
+    console.error(error);
     return []
   }
 }

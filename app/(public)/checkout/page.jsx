@@ -252,14 +252,21 @@ export default function CheckoutPage() {
       try {
         const selectedAddr = addresses.find(a => a.id === selectedAddressId);
         
-        const finalAddress = selectedAddr ? {
+     const finalAddress = selectedAddr ? {
           phone: formData.get('phone'),
           addressLine1: selectedAddr.address_line_1,
           addressLine2: selectedAddr.address_line_2 || '',
           city: selectedAddr.city,
           state: selectedAddr.state,
           zip: selectedAddr.postal_code,
-          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
+          // ✅ Updated: Saving Name and Image permanently
+          cart_meta: activeItems.map(i => ({ 
+            id: i.variantId || i.id, 
+            size: i.size || 'N/A',
+            color: i.color || '',
+            title: i.title || 'Unknown Product',
+            image: i.image || ''
+          }))
         } : {
           phone: formData.get('phone'),
           addressLine1: formData.get('address1'),
@@ -267,7 +274,14 @@ export default function CheckoutPage() {
           city: formData.get('city'),
           state: formData.get('state'),
           zip: formData.get('zip'),
-          cart_meta: activeItems.map(i => ({ id: i.variantId || i.id, size: i.size || 'N/A' }))
+         
+          cart_meta: activeItems.map(i => ({ 
+            id: i.variantId || i.id, 
+            size: i.size || 'N/A',
+            color: i.color || '',
+            title: i.title || 'Unknown Product',
+            image: i.image || ''
+          }))
         };
 
         const orderPayload = {

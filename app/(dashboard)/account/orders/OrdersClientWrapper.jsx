@@ -334,19 +334,27 @@ export default function OrdersClientWrapper({ initialOrders }) {
             <div className="border border-gray-100 rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4">
               <h4 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-2">Items in this shipment</h4>
               {selectedOrder.order_items?.map((item, index) => {
-                const product = item.product_variants?.products || item.products || item;
-                const imgUrl = product?.product_images?.[0]?.image_url || item.image_url || item.image || null;
+               
+                const productData = item.product_variants?.products || item.products;
+                const imgUrl = productData?.product_images?.[0]?.image_url || item.image_url || null;
+                const title = productData?.title || item.title || 'Unknown Product';
+                const size = item.product_variants?.size || '-';
+                const color = item.product_variants?.color || '-';
+
                 return (
                   <div key={index} className="flex flex-row items-start sm:items-center gap-3 sm:gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
                     <div className="w-16 h-20 sm:w-20 sm:h-24 bg-gray-100 border border-gray-100 rounded-md flex items-center justify-center text-gray-400 overflow-hidden shrink-0 relative">
-                      {imgUrl ? <Image fill unoptimized src={imgUrl} alt="Product" className="object-cover" /> : <Package size={20} />}
+                      {imgUrl ? <Image fill unoptimized src={imgUrl} alt={title} className="object-cover" /> : <Package size={20} />}
                     </div>
                     <div className="flex-1 w-full min-w-0">
                       <div className="flex flex-col sm:flex-row sm:justify-between items-start mb-1 sm:mb-0">
-                        <p className="text-[13px] sm:text-[15px] font-bold text-gray-900 leading-tight pr-2 line-clamp-2">{product?.title || item.title || 'Unknown Product'}</p>
+                        <p className="text-[13px] sm:text-[15px] font-bold text-gray-900 leading-tight pr-2 line-clamp-2">{title}</p>
                         <p className="text-[14px] sm:text-[16px] font-bold text-[#cfa874] whitespace-nowrap mt-1 sm:mt-0">₹{Number(item.price * item.quantity).toLocaleString('en-IN')}</p>
                       </div>
-                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-1 mb-1">Qty: {item.quantity}</p>
+                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-1 mb-1">
+                        Qty: {item.quantity} | Size: <span className="uppercase">{size}</span>
+                        {color && color !== '-' ? ` | Color: ${color}` : ''}
+                      </p>
                     </div>
                   </div>
                 );

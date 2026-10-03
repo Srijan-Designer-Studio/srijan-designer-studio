@@ -354,6 +354,9 @@ export default function AuthClient() {
                 <ArrowLeft size={18} />
                 Back to Home
               </Link>
+
+              <div className="flex justify-center gap-4"><Link href="/terms-and-conditions" className="text-[14px] underline font-medium text-gray-300 hover:text-[#0ba6ff] transition-colors drop-shadow-sm cursor-pointer">Terms & Conditions</Link>
+              <Link href="/privacy-policy" className="text-[14px] underline font-medium text-gray-300 hover:text-[#0ba6ff] transition-colors drop-shadow-sm cursor-pointer">Privacy Policy</Link></div>
             </div>
           </form>
 
@@ -377,12 +380,12 @@ export default function AuthClient() {
                  className="object-cover"
                  priority
                />
-               <div className="absolute inset-0 bg-[#0e163d]/30 backdrop-blur-[3px]"></div>
+               <div className="absolute inset-0 bg-[#0e163d]/60"></div>
             </div>
 
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-10 text-white transition-opacity duration-500 z-10 ${isLogin ? 'opacity-100 delay-300' : 'opacity-0 pointer-events-none'}`}>
               <h2 className="text-4xl font-bold mb-4 drop-shadow-lg text-[#0ba6ff] font-serif">Hello, Friend!</h2>
-              <p className="text-[18px] text-yellow-300 mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
+              <p className="text-[18px] text-white mb-10 drop-shadow-md max-w-[280px]">Enter your personal details and start your fashion journey with us.</p>
               <button
                 onClick={() => { setIsLogin(false); setIsOtpStep(false); }}
                 className="bg-[#0ba6ff] text-white rounded-full px-12 py-3.5 font-bold text-[14px] hover:bg-[#0092e6] transition-all uppercase tracking-wider shadow-lg cursor-pointer border border-[#0ba6ff]"
