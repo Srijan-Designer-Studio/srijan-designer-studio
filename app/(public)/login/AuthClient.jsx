@@ -346,7 +346,6 @@ export default function AuthClient() {
                 <div className="flex-grow border-t border-white/20"></div>
                 <div className="flex-grow border-t border-white/20"></div>
               </div>
-
               <Link
                 href="/"
                 className="w-full cursor-pointer flex items-center justify-center gap-3 bg-white/10 border border-white/30 hover:bg-white hover:text-black text-white font-bold text-[13px] py-3 rounded-xl transition-all uppercase tracking-wide group"
