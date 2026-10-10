@@ -11,7 +11,8 @@ export default function Step3Classification() {
   const [tagInput, setTagInput] = useState("");
 
   const toggleArrayItem = (field, item) => {
-    const currentArray = formData[field] || [];
+    // Ensure currentArray is always an array
+    const currentArray = Array.isArray(formData[field]) ? formData[field] : [];
     if (currentArray.includes(item)) {
       updateFormData({ [field]: currentArray.filter(i => i !== item) });
     } else {
@@ -23,7 +24,8 @@ export default function Step3Classification() {
     if (e.key === 'Enter' || e.type === 'click') {
       e.preventDefault();
       const newCollection = tagInput.trim();
-      const currentCollections = formData.collections || [];
+      // Ensure currentCollections is always an array
+      const currentCollections = Array.isArray(formData.collections) ? formData.collections : [];
       if (newCollection && !currentCollections.includes(newCollection)) {
         updateFormData({ collections: [...currentCollections, newCollection] });
       }
@@ -32,9 +34,11 @@ export default function Step3Classification() {
   };
 
   const removeCustomCollection = (collectionToRemove) => {
-    const currentCollections = formData.collections || [];
+    const currentCollections = Array.isArray(formData.collections) ? formData.collections : [];
     updateFormData({ collections: currentCollections.filter(col => col !== collectionToRemove) });
   };
+
+  const safeCollections = Array.isArray(formData.collections) ? formData.collections : [];
 
   return (
     <div className="animate-in text-black fade-in slide-in-from-bottom-4 duration-500">
@@ -72,7 +76,7 @@ export default function Step3Classification() {
                   key={col}
                   type="button"
                   onClick={() => toggleArrayItem('collections', col)}
-                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${formData.collections?.includes(col) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
+                  className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors border ${safeCollections.includes(col) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
                 >
                   {col}
                 </button>
@@ -89,7 +93,7 @@ export default function Step3Classification() {
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleAddCustomCollection}
                 placeholder="Type collection and press enter..."
-                className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
               />
               <button
                 type="button"
@@ -99,9 +103,9 @@ export default function Step3Classification() {
                 <Plus size={18} />
               </button>
             </div>
-            {formData.collections?.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).length > 0 ? (
+            {safeCollections.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {formData.collections.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).map(col => (
+                {safeCollections.filter(col => !AVAILABLE_COLLECTIONS.includes(col)).map(col => (
                   <span key={col} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium bg-gray-200 text-gray-800 border border-gray-300">
                     {col}
                     <button type="button" onClick={() => removeCustomCollection(col)} className="hover:text-red-500 focus:outline-none">

@@ -26,7 +26,7 @@ export async function getDashboardStats() {
 
     if (orders) {
       totalOrders = orders.length;
-      orders.forEach(o => {        
+      orders.forEach(o => {
         if (o.status === 'delivered') {
           totalRevenue += Number(o.total_amount || 0);
         }
@@ -97,19 +97,19 @@ export async function getDashboardStats() {
 
     const totalCatRev = Object.values(categoryMap).reduce((a, b) => a + b, 0);
     const catColors = ['#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444'];
-    
+
     let categoryData = Object.keys(categoryMap).map((key, index) => ({
       name: key,
       value: totalCatRev > 0 ? Math.round((categoryMap[key] / totalCatRev) * 100) : 0,
       color: catColors[index % catColors.length]
-    })).sort((a, b) => b.value - a.value).slice(0, 4); 
+    })).sort((a, b) => b.value - a.value).slice(0, 4);
 
     if (categoryData.length === 0) {
       categoryData = [{ name: 'No Sales Yet', value: 100, color: '#e5e7eb' }];
     }
 
     const topProducts = [];
- 
+
     const { data: topProductsData } = await supabase
       .from('products')
       .select('id, title, base_price, product_images(image_url)')
@@ -202,7 +202,7 @@ export async function getAllOrders() {
       try {
         const addr = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
         if (addr?.cart_meta) cartMeta = addr.cart_meta;
-      } catch (e) {}
+      } catch (e) { }
 
       return {
         ...order,
@@ -221,7 +221,7 @@ export async function getAllOrders() {
               products: {
                 // ✅ Now it will never say "Unknown Product" for new orders
                 title: variantMatch?.products?.title || productMatch?.title || metaMatch.title || 'Archived/Edited Product',
-                product_images: variantMatch?.products?.product_images || productMatch?.product_images || (metaMatch.image ? [{image_url: metaMatch.image}] : [])
+                product_images: variantMatch?.products?.product_images || productMatch?.product_images || (metaMatch.image ? [{ image_url: metaMatch.image }] : [])
               }
             }
           };
@@ -287,7 +287,7 @@ export async function updateOrderStatus(orderId, newStatus) {
       const displayOrderId = orderData.id.split('-')[0].toUpperCase();
       const orderDate = new Date(orderData.created_at || Date.now()).toLocaleDateString('en-IN');
       const totalAmount = Number(orderData.total_amount).toLocaleString('en-IN');
-      
+
       let addressHtml = '';
       if (orderData.shipping_address) {
         const addr = typeof orderData.shipping_address === 'string' ? JSON.parse(orderData.shipping_address) : orderData.shipping_address;
@@ -301,11 +301,11 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       let itemsHtml = '';
       let totalItemsCount = 0;
-      
+
       if (orderData.order_items && orderData.order_items.length > 0) {
         const variantIds = orderData.order_items.map(i => i.variant_id).filter(Boolean);
         let variants = [];
-        
+
         if (variantIds.length > 0) {
           const { data: vData } = await supabase
             .from('product_variants')
@@ -318,7 +318,7 @@ export async function updateOrderStatus(orderId, newStatus) {
           const variant = variants.find(v => v.id === item.variant_id);
           const title = variant?.products?.title || 'SRIJAN Fashion Product';
           totalItemsCount += item.quantity;
-          
+
           itemsHtml += `
             <tr>
               <td style="border-bottom: 1px solid #e5e7eb; padding: 10px; color: #374151; border-right: 1px solid #e5e7eb; font-size: 13px;">${title}</td>
@@ -355,9 +355,9 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       if (newStatus === 'processing') {
         subject = `Order Accepted - #${displayOrderId} | SRIJAN Fashion`;
-        topIcon = `${BASE_URL}/email-img/1.webp`; 
+        topIcon = `${BASE_URL}/email-img/1.webp`;
         headerText = 'Thank You For Your Order!';
-        
+
         const paymentStatusText = orderData.payment_status ? orderData.payment_status.toUpperCase() : 'PAID';
 
         messageHtml = `
@@ -537,9 +537,9 @@ export async function getAllCustomers() {
 
 export async function getUserOrders() { return []; }
 export async function getCategories() { return []; }
-export async function createCategory(formData) { return {success: true}; }
-export async function updateCategory(categoryId, formData) { return {success: true}; }
-export async function deleteCategory(categoryId) { return {success: true}; }
+export async function createCategory(formData) { return { success: true }; }
+export async function updateCategory(categoryId, formData) { return { success: true }; }
+export async function deleteCategory(categoryId) { return { success: true }; }
 
 async function generateUniqueSlug(supabase, baseSlug, excludeId = null) {
   let slug = baseSlug;
@@ -568,7 +568,7 @@ export async function getAdminProducts() {
       .order('created_at', { ascending: false })
 
     if (error) throw error;
-    
+
     if (data) {
       data.forEach(product => {
         if (product.product_variants) {
@@ -598,13 +598,13 @@ export async function deleteProduct(productId) {
 
 export async function createPremiumProduct(formData) {
   try {
-    const supabase = createAdminClient(); 
+    const supabase = createAdminClient();
 
     const title = formData.get('title') || 'Untitled';
     const productType = formData.get('productType');
     const brand = formData.get('brand');
-    const sku = formData.get('sku') || null; 
-    const onlineCashOff = parseFloat(formData.get('onlineCashOff')) || 0; 
+    const sku = formData.get('sku') || null;
+    const onlineCashOff = parseFloat(formData.get('onlineCashOff')) || 0;
     const shortDesc = formData.get('shortDesc');
     const description = formData.get('description');
     const materialCare = formData.get('materialCare');
@@ -629,8 +629,8 @@ export async function createPremiumProduct(formData) {
     const seoKeywords = formData.get('seoKeywords');
     const canonicalUrl = formData.get('canonicalUrl') || null;
     const schemaMarkup = formData.get('schemaMarkup');
-    
-    const flattenToStringArray = (arr) => {
+
+   const flattenToStringArray = (arr) => {
       if (!Array.isArray(arr)) return [];
       return arr.map(item => {
         if (typeof item === 'object' && item !== null) {
@@ -641,15 +641,20 @@ export async function createPremiumProduct(formData) {
     };
 
     const categories = flattenToStringArray(JSON.parse(formData.get('categories') || '[]'));
-    const collections = flattenToStringArray(JSON.parse(formData.get('collections') || '[]'));
+   
+    let rawCollections = [];
+    try { rawCollections = JSON.parse(formData.get('collections') || '[]'); } catch(e) {}
+    const collections = flattenToStringArray(rawCollections);
+    
     const occasions = flattenToStringArray(JSON.parse(formData.get('occasions') || '[]'));
     const tags = flattenToStringArray(JSON.parse(formData.get('tags') || '[]'));
-    
+
     const variants = JSON.parse(formData.get('variants') || '[]');
+
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]');
-    
-    const productAddons = JSON.parse(formData.get('productAddons') || '[]'); 
+
+    const productAddons = JSON.parse(formData.get('productAddons') || '[]');
     const purchaseType = formData.get('purchaseType') || 'Single Product';
 
     const basePrice = parseFloat(formData.get('basePrice')) || 0;
@@ -660,12 +665,12 @@ export async function createPremiumProduct(formData) {
 
     let category_id = null;
     if (categories.length > 0) {
-        if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(categories[0])) {
-            category_id = categories[0];
-        } else {
-            const { data: catData } = await supabase.from('categories').select('id').ilike('name', categories[0]).maybeSingle();
-            if (catData) category_id = catData.id;
-        }
+      if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(categories[0])) {
+        category_id = categories[0];
+      } else {
+        const { data: catData } = await supabase.from('categories').select('id').ilike('name', categories[0]).maybeSingle();
+        if (catData) category_id = catData.id;
+      }
     }
 
     const { data: productData, error: productError } = await supabase
@@ -673,8 +678,8 @@ export async function createPremiumProduct(formData) {
       .insert([{
         title,
         slug: finalSlug,
-        sku: sku, 
-        online_cash_off: onlineCashOff, 
+        sku: sku,
+        online_cash_off: onlineCashOff,
         short_description: shortDesc,
         full_description: description,
         material_care: materialCare,
@@ -742,8 +747,8 @@ export async function createPremiumProduct(formData) {
         color: v.color || null,
         price: parseFloat(v.price) || 0,
         sale_price: parseFloat(v.sale_price) || null,
-        sku: finalSku, 
-        inventory_count: 10, 
+        sku: finalSku,
+        inventory_count: 10,
         low_stock_threshold: 5,
         barcode: v.barcode || null,
         sort_order: index + 1
@@ -765,7 +770,7 @@ export async function createPremiumProduct(formData) {
           const file = formData.get(`comp_file_${i}`);
           const fileExt = file.name.split('.').pop();
           const fileName = `addons/${productId}-${Date.now()}-${i}.${fileExt}`;
-          
+
           const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
           if (!uploadError) {
             imageUrl = supabase.storage.from('product-images').getPublicUrl(fileName).data.publicUrl;
@@ -791,7 +796,7 @@ export async function createPremiumProduct(formData) {
       const file = formData.get(`image_file_${i}`);
       const altText = formData.get(`image_alt_${i}`);
       const isPrimary = formData.get(`image_primary_${i}`) === 'true';
-      
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}-${Date.now()}-${i}.${fileExt}`;
       const filePath = `products/${fileName}`;
@@ -875,6 +880,15 @@ export async function updatePremiumProduct(formData) {
     };
 
     const categories = flattenToStringArray(JSON.parse(formData.get('categories') || '[]'));
+    
+    // ✅ FIXED: Missing variables properly defined here
+    let rawCollections = [];
+    try { rawCollections = JSON.parse(formData.get('collections') || '[]'); } catch(e) {}
+    const collections = flattenToStringArray(rawCollections);
+    
+    const occasions = flattenToStringArray(JSON.parse(formData.get('occasions') || '[]'));
+    const tags = flattenToStringArray(JSON.parse(formData.get('tags') || '[]'));
+
     const variants = JSON.parse(formData.get('variants') || '[]');
     const components = JSON.parse(formData.get('components') || '[]');
     const faqs = JSON.parse(formData.get('faqs') || '[]'); 
@@ -919,6 +933,13 @@ export async function updatePremiumProduct(formData) {
         return_policy: returnPolicy,
         category_id: category_id,
         purchase_type: purchaseType,
+        
+        // ✅ FIXED: Now included in update and defined above
+        categories: categories,
+        collections: collections,
+        occasions: occasions,
+        tags: tags,
+
         seo_title: seoTitle,
         slug: seoSlug || undefined,
         meta_desc: metaDesc,
@@ -947,18 +968,26 @@ export async function updatePremiumProduct(formData) {
 
     await supabase.from('product_variants').delete().eq('product_id', productId);
     
-    const variantInserts = variants.map((v, index) => ({
-      product_id: productId,
-      size: v.size || "Free Size",
-      color: v.color || null,
-      price: parseFloat(v.price) || 0,
-      sale_price: parseFloat(v.sale_price) || null,
-      sku: v.sku || sku || null,
-      inventory_count: parseInt(v.stock !== undefined ? v.stock : v.inventory_count) || 0,
-      low_stock_threshold: parseInt(v.lowStock !== undefined ? v.lowStock : v.low_stock_threshold) || 5,
-      barcode: v.barcode || null,
-      sort_order: index + 1 
-    }));
+    const usedSkus = new Set();
+    const variantInserts = variants.map((v, index) => {
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const timeFragment = Date.now().toString().slice(-4);
+      const baseSku = sku ? String(sku).replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() : `PRD`;
+      const finalSku = `${baseSku}-V${index + 1}-${randomSuffix}-${timeFragment}`;
+
+      return {
+        product_id: productId,
+        size: v.size || "Free Size",
+        color: v.color || null,
+        price: parseFloat(v.price) || 0,
+        sale_price: parseFloat(v.sale_price) || null,
+        sku: finalSku,
+        inventory_count: 10,
+        low_stock_threshold: 5,
+        barcode: v.barcode || null,
+        sort_order: index + 1 
+      };
+    });
     
     if (variantInserts.length > 0) {
       const { error: variantError } = await supabase.from('product_variants').insert(variantInserts);
@@ -1092,16 +1121,16 @@ export async function searchProducts({
 export async function toggleProductHomepage(productId, currentStatus) {
   const adminDb = createAdminClient();
   await verifyAdmin();
-  
+
   const { error } = await adminDb
     .from('products')
     .update({ show_on_homepage: !currentStatus })
     .eq('id', productId);
-    
+
   if (error) return { success: false, error: error.message };
-  
+
   revalidatePath('/admin/products');
-  revalidatePath('/'); 
+  revalidatePath('/');
   return { success: true };
 }
 
@@ -1118,7 +1147,7 @@ export async function deleteOldCustomRequests() {
       .lt('created_at', sixMonthsAgo.toISOString());
 
     if (error) throw error;
-    revalidatePath('/admin/custom-requests'); 
+    revalidatePath('/admin/custom-requests');
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -1129,7 +1158,7 @@ export async function deleteCustomRequestsByIds(ids) {
   const supabase = createAdminClient();
   try {
     await verifyAdmin();
-    
+
     if (!ids || ids.length === 0) {
       return { success: false, error: "No requests selected" };
     }
@@ -1141,7 +1170,7 @@ export async function deleteCustomRequestsByIds(ids) {
 
     if (error) throw error;
 
-    revalidatePath('/admin/custom-requests'); 
+    revalidatePath('/admin/custom-requests');
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -1153,10 +1182,10 @@ export async function deleteOldOrders() {
   const supabase = createAdminClient();
   try {
     await verifyAdmin();
-    
+
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    
+
     const { data: oldOrders } = await supabase
       .from('orders')
       .select('id')
@@ -1169,7 +1198,7 @@ export async function deleteOldOrders() {
       if (error) throw error;
     }
 
-    revalidatePath('/admin/orders'); 
+    revalidatePath('/admin/orders');
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -1190,7 +1219,7 @@ export async function toggleProductCod(productId, currentCodStatus) {
 
     if (error) throw error;
 
-    revalidatePath('/admin/products'); 
+    revalidatePath('/admin/products');
     return { success: true, newStatus: newCodStatus };
   } catch (error) {
     return { success: false, error: error.message };

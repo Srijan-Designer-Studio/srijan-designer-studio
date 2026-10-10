@@ -8,26 +8,41 @@ const WizardContext = createContext();
 
 const parseArrayData = (value) => {
   if (!value) return [];
-  if (Array.isArray(value)) return value;
+  
+  let rawData = value;
 
-  if (typeof value === 'string') {
-    let str = value.trim();
-    while (str.startsWith('"') && str.endsWith('"')) {
-      try { str = JSON.parse(str); } catch (e) { break; }
+  if (typeof rawData === 'string') {
+    try {
+      rawData = JSON.parse(rawData);
+    } catch (e) {
+      let str = rawData.trim();
+      while (str.startsWith('"') && str.endsWith('"')) {
+        try { str = JSON.parse(str); } catch (e) { break; }
+      }
+      if (str.startsWith('[') && str.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(str);
+          if (Array.isArray(parsed)) rawData = parsed;
+        } catch (e) {}
+      }
+      if (str.startsWith('{') && str.endsWith('}')) {
+        str = str.slice(1, -1);
+      }
+      if (typeof rawData === 'string') {
+        return str.split(',').map(s => s.replace(/^[\\"']+|[\\"']+$/g, '').trim()).filter(Boolean);
+      }
     }
-    if (str.startsWith('[') && str.endsWith(']')) {
-      try {
-        const parsed = JSON.parse(str);
-        if (Array.isArray(parsed)) return parsed;
-      } catch (e) {}
-    }
-    if (str.startsWith('{') && str.endsWith('}')) {
-      str = str.slice(1, -1);
-    }
-    return str.split(',')
-      .map(s => s.replace(/^[\\"']+|[\\"']+$/g, '').trim())
-      .filter(Boolean);
   }
+
+  if (Array.isArray(rawData)) {
+    return rawData.map(item => {
+      if (typeof item === 'object' && item !== null) {
+        return item.name || item.value || Object.values(item)[0] || '';
+      }
+      return String(item).trim();
+    }).filter(Boolean);
+  }
+
   return [];
 };
 

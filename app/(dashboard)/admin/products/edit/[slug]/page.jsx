@@ -6,6 +6,23 @@ export const metadata = {
   title: 'Edit Product | Admin Dashboard',
 };
 
+
+const parseToFlatArray = (data) => {
+  if (!data) return [];
+  if (typeof data === 'string') {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) return parsed.map(item => String(item).trim());
+    } catch(e) {
+      return data.split(',').map(i => i.trim()).filter(Boolean);
+    }
+  }
+  if (Array.isArray(data)) {
+    return data.map(item => String(item).trim());
+  }
+  return [];
+};
+
 export default async function EditProductPage({ params }) {
   const { slug } = await params;
   const supabase = createAdminClient();
@@ -35,7 +52,8 @@ export default async function EditProductPage({ params }) {
     department: product.gender || "Women",
     basePrice: product.base_price || "",
     salePrice: product.sale_price || "",
-    collections: product.collections || [],
+   
+    collections: parseToFlatArray(product.collections),
     images: product.product_images?.map((img, idx) => ({
       id: img.id || Date.now() + idx,
       file: null,
@@ -43,19 +61,13 @@ export default async function EditProductPage({ params }) {
       altText: img.alt_text || "",
       isPrimary: img.is_primary || false
     })) || [],
-    
-    // ✅ FIXED: Load existing Size Chart from database
     sizeChartImage: product.size_chart_image || null, 
-
     variants: product.product_variants?.length > 0 ? product.product_variants.map(v => ({
       id: v.id,
       size: v.size || "",
       color: v.color || "",
-      sku: v.sku || "",
-      stock: v.inventory_count || "0",
-      lowStock: v.low_stock_threshold || "5",
       barcode: v.barcode || ""
-    })) : [{ id: Date.now(), size: "Free Size", color: "", sku: "", stock: "10", lowStock: "5", barcode: "" }],
+    })) : [{ id: "var-initial", size: "Free Size", color: "", barcode: "" }],
     purchaseType: product.purchase_type || "Single Product",
     components: product.product_components?.map(c => ({
       id: c.id,
